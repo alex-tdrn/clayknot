@@ -1,0 +1,21 @@
+{
+	"catch2TestExplorer.executables": [
+		{
+			"name": "${relPath} ${filename}",
+			"pattern": "x64/Release/testing.exe"
+		}
+		// {
+		// 	"name": "${relPath} ${filename}",
+		// 	"pattern": "x64/Debug/testing.exe"
+		// }
+	],
+	"catch2TestExplorer.debugConfigTemplate": {
+		"type": "cppvsdbg",
+		"request": "launch",
+		"program": "${workspaceFolder}/x64/Debug/testing.exe",
+		"stopAtEntry": false,
+		"cwd": "${workspaceFolder}/x64/Debug/",
+		"externalConsole": false,
+		"preLaunchTask": "Build All x64 Debug"
+	}
+}
