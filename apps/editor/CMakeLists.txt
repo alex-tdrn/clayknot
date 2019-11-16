@@ -1,0 +1,52 @@
+add_executable(rendershop-editor
+	"src/FrameControllerPipe.cpp"
+	"src/InputDataPin.cpp"
+	"src/InputEventPin.cpp"
+	"src/InputPin.cpp"
+	"src/main.cpp"
+	"src/Node.cpp"
+	"src/NodeCanvas.cpp"
+	"src/OutputDataPin.cpp"
+	"src/OutputDataPinDelegate.cpp"
+	"src/OutputEventPin.cpp"
+	"src/OutputPin.cpp"
+	"src/RootWindow.cpp"
+	"src/StylesheetWindow.cpp"
+	"src/Window.cpp"
+	"include/AbstractNode.hpp"
+	"include/AbstractPin.hpp"
+	"include/Animation.hpp"
+	"include/FrameControllerPipe.h"
+	"include/ImGuiUtilities.hpp"
+	"include/InputDataPin.h"
+	"include/InputEventPin.h"
+	"include/InputPin.h"
+	"include/Node.h"
+	"include/NodeCanvas.h"
+	"include/OutputDataPin.h"
+	"include/OutputDataPinDelegate.h"
+	"include/OutputEventPin.h"
+	"include/OutputPin.h"
+	"include/RootWindow.h"
+	"include/Stylesheet.hpp"
+	"include/StylesheetWindow.h"
+	"include/UIDebug.hpp"
+	"include/UniqueID.hpp"
+	"include/Window.h"
+)
+
+target_include_directories(rendershop-editor
+	PRIVATE
+	"include"
+	"../../external/glm/include"
+)
+
+target_link_libraries(rendershop-editor
+	PRIVATE
+	rendershop-base
+	rendershop-pipes
+	glad
+	glfw
+	imgui
+	imgui-node-editor
+)
