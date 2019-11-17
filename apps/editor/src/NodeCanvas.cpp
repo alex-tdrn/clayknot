@@ -42,20 +42,34 @@ void NodeCanvas::drawContents()
 		ax::NodeEditor::GetStyle().PinArrowSize = Stylesheet::getCurrentSheet().pinArrowSize;
 		ax::NodeEditor::GetStyle().PinArrowWidth = Stylesheet::getCurrentSheet().pinArrowWidth;
 
-		ax::NodeEditor::GetStyle().Colors[ax::NodeEditor::StyleColor_Bg] = Stylesheet::getCurrentSheet().nodeCanvasBackgroundColor;
-		ax::NodeEditor::GetStyle().Colors[ax::NodeEditor::StyleColor_Grid] = Stylesheet::getCurrentSheet().nodeCanvasGridColor;
-		ax::NodeEditor::GetStyle().Colors[ax::NodeEditor::StyleColor_NodeBg] = Stylesheet::getCurrentSheet().nodeBackgroundColor;
-		ax::NodeEditor::GetStyle().Colors[ax::NodeEditor::StyleColor_NodeBorder] = Stylesheet::getCurrentSheet().nodeBorderColor;
-		ax::NodeEditor::GetStyle().Colors[ax::NodeEditor::StyleColor_HovNodeBorder] = Stylesheet::getCurrentSheet().hoveredNodeBorderColor;
-		ax::NodeEditor::GetStyle().Colors[ax::NodeEditor::StyleColor_SelNodeBorder] = Stylesheet::getCurrentSheet().selectedNodeBorderColor;
-		ax::NodeEditor::GetStyle().Colors[ax::NodeEditor::StyleColor_NodeSelRect] = Stylesheet::getCurrentSheet().nodeSelectionRectColor;
-		ax::NodeEditor::GetStyle().Colors[ax::NodeEditor::StyleColor_NodeSelRectBorder] = Stylesheet::getCurrentSheet().nodeSelectionRectBorderColor;
-		ax::NodeEditor::GetStyle().Colors[ax::NodeEditor::StyleColor_HovLinkBorder] = Stylesheet::getCurrentSheet().hoveredLinkBorderColor;
-		ax::NodeEditor::GetStyle().Colors[ax::NodeEditor::StyleColor_SelLinkBorder] = Stylesheet::getCurrentSheet().selectedLinkBorderColor;
-		ax::NodeEditor::GetStyle().Colors[ax::NodeEditor::StyleColor_LinkSelRect] = Stylesheet::getCurrentSheet().linkSelectionRectColor;
-		ax::NodeEditor::GetStyle().Colors[ax::NodeEditor::StyleColor_LinkSelRectBorder] = Stylesheet::getCurrentSheet().linkSelectionRectBorderColor;
-		ax::NodeEditor::GetStyle().Colors[ax::NodeEditor::StyleColor_PinRect] = Stylesheet::getCurrentSheet().pinRectColor;
-		ax::NodeEditor::GetStyle().Colors[ax::NodeEditor::StyleColor_PinRectBorder] = Stylesheet::getCurrentSheet().pinRectBorderColor;
+		ax::NodeEditor::GetStyle().Colors[ax::NodeEditor::StyleColor_Bg] = 
+			Stylesheet::getCurrentSheet().nodeCanvasBackgroundColor;
+		ax::NodeEditor::GetStyle().Colors[ax::NodeEditor::StyleColor_Grid] = 
+			Stylesheet::getCurrentSheet().nodeCanvasGridColor;
+		ax::NodeEditor::GetStyle().Colors[ax::NodeEditor::StyleColor_NodeBg] = 
+			Stylesheet::getCurrentSheet().nodeBackgroundColor;
+		ax::NodeEditor::GetStyle().Colors[ax::NodeEditor::StyleColor_NodeBorder] = 
+			Stylesheet::getCurrentSheet().nodeBorderColor;
+		ax::NodeEditor::GetStyle().Colors[ax::NodeEditor::StyleColor_HovNodeBorder] = 
+			Stylesheet::getCurrentSheet().hoveredNodeBorderColor;
+		ax::NodeEditor::GetStyle().Colors[ax::NodeEditor::StyleColor_SelNodeBorder] = 
+			Stylesheet::getCurrentSheet().selectedNodeBorderColor;
+		ax::NodeEditor::GetStyle().Colors[ax::NodeEditor::StyleColor_NodeSelRect] = 
+			Stylesheet::getCurrentSheet().nodeSelectionRectColor;
+		ax::NodeEditor::GetStyle().Colors[ax::NodeEditor::StyleColor_NodeSelRectBorder] = 
+			Stylesheet::getCurrentSheet().nodeSelectionRectBorderColor;
+		ax::NodeEditor::GetStyle().Colors[ax::NodeEditor::StyleColor_HovLinkBorder] = 
+			Stylesheet::getCurrentSheet().hoveredLinkBorderColor;
+		ax::NodeEditor::GetStyle().Colors[ax::NodeEditor::StyleColor_SelLinkBorder] = 
+			Stylesheet::getCurrentSheet().selectedLinkBorderColor;
+		ax::NodeEditor::GetStyle().Colors[ax::NodeEditor::StyleColor_LinkSelRect] = 
+			Stylesheet::getCurrentSheet().linkSelectionRectColor;
+		ax::NodeEditor::GetStyle().Colors[ax::NodeEditor::StyleColor_LinkSelRectBorder] = 
+			Stylesheet::getCurrentSheet().linkSelectionRectBorderColor;
+		ax::NodeEditor::GetStyle().Colors[ax::NodeEditor::StyleColor_PinRect] = 
+			Stylesheet::getCurrentSheet().pinRectColor;
+		ax::NodeEditor::GetStyle().Colors[ax::NodeEditor::StyleColor_PinRectBorder] = 
+			Stylesheet::getCurrentSheet().pinRectBorderColor;
 
 		for(auto& node : nodes)
 			node.draw();

@@ -22,7 +22,8 @@
 #include <vector>
 
 
-void APIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam);
+void APIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, 
+	const GLchar* message, const void* userParam);
 void ImGuiCherryStyle();
 
 int main(int argc, char** argv)
@@ -80,13 +81,13 @@ int main(int argc, char** argv)
 	auto tmpFrameController = std::make_unique<FrameControllerPipe>();
 	FrameControllerPipe* frameController = tmpFrameController.get();
 
-	timer->getOutputEventPort(Timer::OutputEvents::Timeout).connect(&sink->getInputEventPort(ClearBackgroundSink::InputEvents::Run));
-	timer->getOutputEventPort(Timer::OutputEvents::Timeout).connect(&source->getInputEventPort(RandomColorSource::InputEvents::QueueUpdate));
-	timer->getInputEventPort(Timer::InputEvents::Poll).connect(&frameController->getOutputEventPort(FrameControllerPipe::OutputEvents::NewFrame));
-	/*dynamic_cast<RandomColorSource*>(source.get())->getOutputDataPort<RandomColorSource::OutputPorts::Color>()
-		.connect(&dynamic_cast<ClearBackgroundSink*>(sink.get())->getInputDataPort<ClearBackgroundSink::InputPorts::Color>());*/
-	
-	//TODO
+	timer->getOutputEventPort(Timer::OutputEvents::Timeout)
+		.connect(&sink->getInputEventPort(ClearBackgroundSink::InputEvents::Run));
+	timer->getOutputEventPort(Timer::OutputEvents::Timeout)
+		.connect(&source->getInputEventPort(RandomColorSource::InputEvents::QueueUpdate));
+	timer->getInputEventPort(Timer::InputEvents::Poll)
+		.connect(&frameController->getOutputEventPort(FrameControllerPipe::OutputEvents::NewFrame));
+
 	pipes.push_back(std::move(source));
 	pipes.push_back(std::move(sink));
 	pipes.push_back(std::move(timer));
@@ -212,7 +213,8 @@ void ImGuiCherryStyle()
 	style.WindowBorderSize = 1.0f;
 }
 
-void glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
+void glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, 
+	const void* userParam)
 {
 	std::cout << "-----------------------------------\n"
 		<< "OpenGL Debug Message (" << id << "): \n" << message << '\n';

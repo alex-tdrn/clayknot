@@ -25,7 +25,8 @@ template<>
 void Delegate<glm::vec3>::draw() const
 {
 	auto output = port->get();
-	ImGui::ColorButton(id.c_str(), {output.r, output.g, output.b, 1}, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoDragDrop, ImVec2(32, 32));
+	ImGui::ColorButton(id.c_str(), {output.r, output.g, output.b, 1}, 
+		ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoDragDrop, ImVec2(32, 32));
 }
 
 template<>
