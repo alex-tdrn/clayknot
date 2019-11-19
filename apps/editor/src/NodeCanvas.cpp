@@ -119,7 +119,7 @@ void NodeCanvas::drawContents()
 
 		if(ImGui::BeginPopup("Create New Node"))
 		{
-			for(auto [name, constructor] : AbstractPipe::getPipeMap())
+			for(auto [name, constructor] : rshp::base::AbstractPipe::getPipeMap())
 			{
 				if(ImGui::MenuItem(name.c_str()))
 				{
@@ -138,7 +138,7 @@ void NodeCanvas::drawContents()
 	ImGui::End();
 }
 
-void NodeCanvas::setStore(std::vector<std::unique_ptr<AbstractPipe>>* store)
+void NodeCanvas::setStore(std::vector<std::unique_ptr<rshp::base::AbstractPipe>>* store)
 {
 	this->store = store;
 	for(auto& pipe : *store)

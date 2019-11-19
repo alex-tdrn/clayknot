@@ -3,7 +3,8 @@
 
 #include <array>
 
-class FrameControllerPipe final : public Pipe<FrameControllerPipe, InputList<>, OutputList<>>
+class FrameControllerPipe final : public rshp::base::Pipe<FrameControllerPipe, 
+	rshp::base::InputList<>, rshp::base::OutputList<>>
 {
 public:
 	struct OutputEvents

@@ -4,25 +4,29 @@
 #include <glm/glm.hpp>
 #include <array>
 
-
-class RandomColorSource : public Source<RandomColorSource, OutputList<glm::vec3>>
+namespace rshp::pipes
 {
-public:
-	struct OutputPorts
+
+	class RandomColorSource : public rshp::base::Source<RandomColorSource, rshp::base::OutputList<glm::vec3>>
 	{
-		static inline std::array names = {
-			"Color"
-		};
-		enum
+	public:
+		struct OutputPorts
 		{
-			Color
+			static inline std::array names = {
+				"Color"
+			};
+			enum
+			{
+				Color
+			};
 		};
+
+	public:
+		static inline std::string const name = registerPipe<RandomColorSource>("Random Color Source");
+
+	protected:
+		void update() override;
+
 	};
 
-public:
-	static inline std::string const name = registerPipe<RandomColorSource>("Random Color Source");
-
-protected:
-	void update() override;
-
-};
+}

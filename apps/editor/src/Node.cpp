@@ -7,14 +7,14 @@
 
 #include <algorithm>
 
-Node::Node(AbstractPipe* pipe)
+Node::Node(rshp::base::AbstractPipe* pipe)
 	: pipe(pipe), id(uniqueID())
 {
-	if(auto sink = dynamic_cast<AbstractSink*>(pipe); sink != nullptr)
+	if(auto sink = dynamic_cast<rshp::base::AbstractSink*>(pipe); sink != nullptr)
 		for(auto inputDataPort : sink->getInputDataPorts())
 			inputDataPins.push_back(std::make_unique<InputDataPin>(inputDataPort));
 	
-	if(auto source = dynamic_cast<AbstractSource*>(pipe); source != nullptr)
+	if(auto source = dynamic_cast<rshp::base::AbstractSource*>(pipe); source != nullptr)
 		for(auto outputPin : source->getOutputDataPorts())
 			outputDataPins.push_back(std::make_unique<OutputDataPin>(outputPin));
 	pipe->registerInputEvents();

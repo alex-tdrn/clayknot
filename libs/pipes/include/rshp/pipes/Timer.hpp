@@ -4,50 +4,55 @@
 #include <chrono>
 #include <array>
 
-using namespace std::chrono_literals;
-
-class Timer : public Sink<Timer, InputList<std::chrono::milliseconds>>
+namespace rshp::pipes
 {
-public:
-	struct InputPorts
+
+	using namespace std::chrono_literals;
+
+	class Timer : public rshp::base::Sink<Timer, rshp::base::InputList<std::chrono::milliseconds>>
 	{
-		static inline std::array names = {
-			"Interval"
-		};
-		enum
+	public:
+		struct InputPorts
 		{
-			Interval
+			static inline std::array names = {
+				"Interval"
+			};
+			enum
+			{
+				Interval
+			};
 		};
+
+		struct InputEvents
+		{
+			enum
+			{
+				Poll = AbstractPipe::InputEvents::UserEvents
+			};
+		};
+
+		struct OutputEvents
+		{
+			enum
+			{
+				Timeout = AbstractPipe::OutputEvents::UserEvents
+			};
+		};
+
+	public:
+		static inline std::string const name = registerPipe<Timer>("Timer");
+
+	private:
+		mutable std::chrono::steady_clock::time_point nextActivationTime = std::chrono::steady_clock::now() + 5'000ms;
+
+	protected:
+		void registerInputEvents() override;
+		void registerOutputEvents() override;
+
+	public:
+		void update() override;
+		void poll();
+
 	};
 
-	struct InputEvents
-	{
-		enum
-		{
-			Poll = AbstractPipe::InputEvents::UserEvents
-		};
-	};
-
-	struct OutputEvents
-	{
-		enum
-		{
-			Timeout = AbstractPipe::OutputEvents::UserEvents
-		};
-	};
-
-public:
-	static inline std::string const name = registerPipe<Timer>("Timer");
-
-private:
-	mutable std::chrono::steady_clock::time_point nextActivationTime = std::chrono::steady_clock::now() + 5'000ms;
-
-protected:
-	void registerInputEvents() override;
-	void registerOutputEvents() override;
-
-public:
-	void update() override;
-	void poll();
-
-};
+}

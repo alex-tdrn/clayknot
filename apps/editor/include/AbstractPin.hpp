@@ -10,16 +10,16 @@ class AbstractPin
 {
 private:
 	static inline std::unordered_map<unsigned long long, AbstractPin*> pinMap;
-	static inline std::unordered_map<AbstractPort const*, ax::NodeEditor::PinId> portMap;
+	static inline std::unordered_map<rshp::base::AbstractPort const*, ax::NodeEditor::PinId> portMap;
 
 protected:
 	ax::NodeEditor::PinId id = -1;
-	AbstractPort* port = nullptr;
+	rshp::base::AbstractPort* port = nullptr;
 	Animation<float> anchorOffset; 
 
 public:
 	AbstractPin() = default;
-	AbstractPin(AbstractPort * port)
+	AbstractPin(rshp::base::AbstractPort * port)
 		: id(uniqueID()), port(port)
 	{
 		pinMap[id.Get()] = this;
@@ -45,13 +45,13 @@ public:
 			return pinMap[id.Get()];
 		return nullptr;
 	}
-	static ax::NodeEditor::PinId getIDForPort(AbstractPort const* port)
+	static ax::NodeEditor::PinId getIDForPort(rshp::base::AbstractPort const* port)
 	{
 		if(portMap.find(port) != portMap.end())
 			return portMap[port];
 		return {};
 	}
-	static AbstractPin* getPinForPort(AbstractPort const* port)
+	static AbstractPin* getPinForPort(rshp::base::AbstractPort const* port)
 	{
 		return getPinForID(getIDForPort(port));
 	}
@@ -61,7 +61,7 @@ public:
 		return id;
 	}
 
-	AbstractPort* getPort() const
+	rshp::base::AbstractPort* getPort() const
 	{
 		return port;
 	}

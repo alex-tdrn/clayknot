@@ -48,8 +48,8 @@ void testConnectionIsInvalid(A& a, B& b)
 TEST_CASE("base::ports::Connections between input and output ports")
 {
 	class TestOutputPort;
-	class TestInputPort : public InputPort<TestOutputPort> {};
-	class TestOutputPort : public OutputPort<TestInputPort> {};
+	class TestInputPort : public rshp::base::InputPort<TestOutputPort> {};
+	class TestOutputPort : public rshp::base::OutputPort<TestInputPort> {};
 
 	GIVEN("A disconnected input port A")
 	{
@@ -143,29 +143,29 @@ TEST_CASE("base::ports::Connections between data ports")
 {
 	GIVEN("A, an input data port holding an int")
 	{
-		InputDataPort<int> A;
+		rshp::base::InputDataPort<int> A;
 		AND_GIVEN("B, an output data port holding an int")
 		{
-			OutputDataPort<int> B;
+			rshp::base::OutputDataPort<int> B;
 			testConnectionIsValid(A, B);
 		}
 		AND_GIVEN("B, an output data port holding a float")
 		{
-			OutputDataPort<float> B;
+			rshp::base::OutputDataPort<float> B;
 			testConnectionIsInvalid(A, B);
 		}
 		AND_GIVEN("B, an input data port holding an int")
 		{
-			InputDataPort<int> B;
+			rshp::base::InputDataPort<int> B;
 			testConnectionIsInvalid(A, B);
 		}
 	}
 	GIVEN("A, an output data port holding an int")
 	{
-		OutputDataPort<int> A;
+		rshp::base::OutputDataPort<int> A;
 		AND_GIVEN("B, an output data port holding an int")
 		{
-			OutputDataPort<float> B;
+			rshp::base::OutputDataPort<float> B;
 			testConnectionIsInvalid(A, B);
 		}
 	}
@@ -175,24 +175,24 @@ TEST_CASE("base::ports::Connections between event ports")
 {
 	GIVEN("A, an input event port referencing an empty lambda")
 	{
-		InputEventPort A{[](){}};
+		rshp::base::InputEventPort A{[](){}};
 		AND_GIVEN("B, an output event port")
 		{
-			OutputEventPort B;
+			rshp::base::OutputEventPort B;
 			testConnectionIsValid(A, B);
 		}
 		AND_GIVEN("B, an input event port referencing an empty lambda")
 		{
-			InputEventPort B{[](){}};
+			rshp::base::InputEventPort B{[](){}};
 			testConnectionIsInvalid(A, B);
 		}
 	}
 	GIVEN("A, an output event port")
 	{
-		OutputEventPort A;
+		rshp::base::OutputEventPort A;
 		AND_GIVEN("B, an output event port")
 		{
-			OutputEventPort B;
+			rshp::base::OutputEventPort B;
 			testConnectionIsInvalid(A, B);
 		}
 	}
@@ -210,7 +210,7 @@ TEST_CASE("base::ports::Event triggering")
 			};
 			AND_GIVEN("A, an input event port referencing L")
 			{
-				InputEventPort A{L};
+				rshp::base::InputEventPort A{L};
 				WHEN("triggering A")
 				{
 					A.trigger();
@@ -225,7 +225,7 @@ TEST_CASE("base::ports::Event triggering")
 				}
 				AND_GIVEN("B, an output event port connected to A")
 				{
-					OutputEventPort B;
+					rshp::base::OutputEventPort B;
 					B.connect(&A);
 					WHEN("triggering B")
 					{
@@ -273,12 +273,12 @@ TEST_CASE("base::ports::Event triggering")
 			};
 			AND_GIVEN("A, B and C input event ports referencing L, M and N respectively")
 			{
-				InputEventPort A{L};
-				InputEventPort B{M};
-				InputEventPort C{N};
+				rshp::base::InputEventPort A{L};
+				rshp::base::InputEventPort B{M};
+				rshp::base::InputEventPort C{N};
 				AND_GIVEN("D, an output event port connected to A, B and C")
 				{
-					OutputEventPort D;
+					rshp::base::OutputEventPort D;
 					D.connect(&A);
 					D.connect(&B);
 					D.connect(&C);

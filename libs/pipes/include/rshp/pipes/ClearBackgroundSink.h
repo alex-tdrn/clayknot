@@ -4,25 +4,29 @@
 #include <glm/glm.hpp>
 #include <array>
 
-class ClearBackgroundSink : public Sink<ClearBackgroundSink, InputList<glm::vec3>>
+namespace rshp::pipes
 {
-public:
-	struct InputPorts
+
+	class ClearBackgroundSink : public rshp::base::Sink<ClearBackgroundSink, rshp::base::InputList<glm::vec3>>
 	{
-		static inline std::array names = {
-			"Color"
-		};
-		enum
+	public:
+		struct InputPorts
 		{
-			Color
+			static inline std::array names = {
+				"Color"
+			};
+			enum
+			{
+				Color
+			};
 		};
+
+	public:
+		static inline std::string const name = registerPipe<ClearBackgroundSink>("Clear Background Sink");
+
+	protected:
+		void update() override;
+
 	};
 
-public:
-	static inline std::string const name = registerPipe<ClearBackgroundSink>("Clear Background Sink");
-
-protected:
-	void update() override;
-
-};
-
+}

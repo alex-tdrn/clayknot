@@ -1,18 +1,21 @@
 #pragma once
 #include "InputPin.h"
 
-class AbstractDataPort;
+namespace rshp::base
+{
+	class AbstractDataPort;
+}
 
 class InputDataPin final : public InputPin
 {
 private:
-	AbstractDataPort* port;
+	rshp::base::AbstractDataPort* port;
 	int dataRequests = 0;
 	bool dataRequested = false;
 
 public:
 	InputDataPin() = default;
-	InputDataPin(AbstractDataPort* port);
+	InputDataPin(rshp::base::AbstractDataPort* port);
 	InputDataPin(InputDataPin&&) = default;
 	InputDataPin(InputDataPin const&) = delete;
 	InputDataPin& operator=(InputDataPin&&) = default;

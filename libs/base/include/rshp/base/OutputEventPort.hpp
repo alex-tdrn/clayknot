@@ -3,36 +3,41 @@
 #include "rshp/base/OutputPort.hpp"
 #include "rshp/base/InputEventPort.hpp"
 
-class InputEventPort;
-
-class OutputEventPort final :  public OutputPort<InputEventPort>
+namespace rshp::base
 {
-private:
-	mutable int timesTriggered = 0;
+	
+	class InputEventPort;
 
-public:
-	OutputEventPort() = default;
-	OutputEventPort(OutputEventPort const&) = delete;
-	OutputEventPort(OutputEventPort&&) = default;
-	OutputEventPort& operator=(OutputEventPort const& that) = delete;
-	OutputEventPort& operator=(OutputEventPort&&) = default;
-	~OutputEventPort() = default;
-
-public:
-	int getTimesTriggered() const
+	class OutputEventPort final :  public OutputPort<InputEventPort>
 	{
-		return timesTriggered;
-	}
+	private:
+		mutable int timesTriggered = 0;
 
-	void trigger() const
-	{
-		for(auto connection : connections)
-			connection->trigger();
-		timesTriggered++;
-	}
-	void operator()() const
-	{
-		trigger();
-	}
+	public:
+		OutputEventPort() = default;
+		OutputEventPort(OutputEventPort const&) = delete;
+		OutputEventPort(OutputEventPort&&) = default;
+		OutputEventPort& operator=(OutputEventPort const& that) = delete;
+		OutputEventPort& operator=(OutputEventPort&&) = default;
+		~OutputEventPort() = default;
 
-};
+	public:
+		int getTimesTriggered() const
+		{
+			return timesTriggered;
+		}
+
+		void trigger() const
+		{
+			for(auto connection : connections)
+				connection->trigger();
+			timesTriggered++;
+		}
+		void operator()() const
+		{
+			trigger();
+		}
+
+	};
+
+}

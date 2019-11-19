@@ -2,7 +2,7 @@
 #include "OutputPin.h"
 #include "Stylesheet.hpp"
 
-InputPin::InputPin(AbstractPort* port)
+InputPin::InputPin(rshp::base::AbstractPort* port)
 	: AbstractPin(port), linkID(uniqueID())
 {
 	auto connections = port->getConnections();

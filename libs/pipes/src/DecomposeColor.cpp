@@ -1,6 +1,6 @@
 #include "rshp/pipes/DecomposeColor.h"
 
-void DecomposeColor::update()
+void rshp::pipes::DecomposeColor::update()
 {
 	auto& color = getInputData<InputPorts::Color>();
 	auto& r = getOutputData<OutputPorts::R>();

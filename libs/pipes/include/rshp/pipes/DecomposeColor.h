@@ -4,39 +4,44 @@
 #include <glm/glm.hpp>
 #include <array>
 
-class DecomposeColor : public Pipe<DecomposeColor, InputList<glm::vec3>, OutputList<float, float, float>>
+namespace rshp::pipes
 {
-public:
-	struct InputPorts
+
+	class DecomposeColor : public rshp::base::Pipe<DecomposeColor, 
+		rshp::base::InputList<glm::vec3>, rshp::base::OutputList<float, float, float>>
 	{
-		static inline std::array names = {
-			"Color"
+	public:
+		struct InputPorts
+		{
+			static inline std::array names = {
+				"Color"
+			};
+			enum {
+				Color
+			};
+
 		};
-		enum {
-			Color
+
+		struct OutputPorts
+		{
+			static inline std::array names = {
+				"R",
+				"G",
+				"B"
+			};
+			enum {
+				R,
+				G,
+				B
+			};
 		};
+
+	public:
+		static inline std::string const name = registerPipe<DecomposeColor>("Decompose Colors");
+
+	public:
+		void update() override;
 
 	};
 
-	struct OutputPorts
-	{
-		static inline std::array names = {
-			"R",
-			"G",
-			"B"
-		};
-		enum {
-			R,
-			G,
-			B
-		};
-	};
-
-public:
-	static inline std::string const name = registerPipe<DecomposeColor>("Decompose Colors");
-
-public:
-	void update() override;
-
-};
-
+}

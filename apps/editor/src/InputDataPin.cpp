@@ -4,7 +4,7 @@
 #include "ImGuiUtilities.hpp"
 #include "Stylesheet.hpp"
 
-InputDataPin::InputDataPin(AbstractDataPort* port)
+InputDataPin::InputDataPin(rshp::base::AbstractDataPort* port)
 	: InputPin(port), port(port)
 {
 }

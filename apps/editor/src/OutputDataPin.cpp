@@ -5,7 +5,7 @@
 
 #include <glm/glm.hpp>
 
-OutputDataPin::OutputDataPin(AbstractDataPort* port)
+OutputDataPin::OutputDataPin(rshp::base::AbstractDataPort* port)
 	: OutputPin(port), port(port)
 {
 	delegate = OutputDataPinDelegate::create(port);

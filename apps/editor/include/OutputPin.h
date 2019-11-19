@@ -6,7 +6,7 @@ class OutputPin : public AbstractPin
 {
 public:
 	OutputPin() = default;
-	OutputPin(AbstractPort* port);
+	OutputPin(rshp::base::AbstractPort* port);
 	OutputPin(OutputPin&&) = default;
 	OutputPin(OutputPin const&) = delete;
 	OutputPin& operator=(OutputPin&&) = default;

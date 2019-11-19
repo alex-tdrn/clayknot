@@ -2,37 +2,41 @@
 
 #include "rshp/base/AbstractPort.hpp"
 
-class Timestamp;
-
-class AbstractDataPort : public virtual AbstractPort
+namespace rshp::base
 {
-protected:
-	std::size_t dataTypeHash;
-	mutable int requestCount = 0;
+	class Timestamp;
 
-public:
-	AbstractDataPort() = default;
-	AbstractDataPort(AbstractDataPort const&) = delete;
-	AbstractDataPort(AbstractDataPort&&) = default;
-	AbstractDataPort& operator=(AbstractDataPort const& that) = delete;
-	AbstractDataPort& operator=(AbstractDataPort&&) = default;
-	virtual ~AbstractDataPort() = default;
-
-public:
-	virtual Timestamp const& getTimestamp() const = 0;
-	virtual void update() const = 0;
-	std::size_t getDataTypeHash() const
+	class AbstractDataPort : public virtual AbstractPort
 	{
-		return dataTypeHash;
-	}
+	protected:
+		std::size_t dataTypeHash;
+		mutable int requestCount = 0;
 
-	void requestFailed() const
-	{
-		requestCount++;
-	}
+	public:
+		AbstractDataPort() = default;
+		AbstractDataPort(AbstractDataPort const&) = delete;
+		AbstractDataPort(AbstractDataPort&&) = default;
+		AbstractDataPort& operator=(AbstractDataPort const& that) = delete;
+		AbstractDataPort& operator=(AbstractDataPort&&) = default;
+		virtual ~AbstractDataPort() = default;
 
-	int getRequestCount() const
-	{
-		return requestCount;
-	}
-};
+	public:
+		virtual Timestamp const& getTimestamp() const = 0;
+		virtual void update() const = 0;
+		std::size_t getDataTypeHash() const
+		{
+			return dataTypeHash;
+		}
+
+		void requestFailed() const
+		{
+			requestCount++;
+		}
+
+		int getRequestCount() const
+		{
+			return requestCount;
+		}
+	};
+
+}

@@ -1,6 +1,6 @@
 #include "rshp/pipes/ValueToColor.h"
 
-void ValueToColor::update()
+void rshp::pipes::ValueToColor::update()
 {
 	auto& value = getInputData<InputPorts::Value>();
 	auto& color = getOutputData<OutputPorts::Color>();

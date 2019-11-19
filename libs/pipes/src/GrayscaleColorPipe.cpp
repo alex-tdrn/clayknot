@@ -1,6 +1,6 @@
 #include "rshp/pipes/GrayscaleColorPipe.h"
 
-void GrayscaleColorPipe::update()
+void rshp::pipes::GrayscaleColorPipe::update()
 {
 	auto const& inputColor = getInputData<InputPorts::Color>();
 	auto& outputColor = getOutputData<OutputPorts::Color>();

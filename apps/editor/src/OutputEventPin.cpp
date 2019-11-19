@@ -5,7 +5,7 @@
 
 #include <glm/glm.hpp>
 
-OutputEventPin::OutputEventPin(OutputEventPort* port)
+OutputEventPin::OutputEventPin(rshp::base::OutputEventPort* port)
 	: OutputPin(port), port(port)
 {
 }

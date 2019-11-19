@@ -1,6 +1,6 @@
 #include "rshp/pipes/MixColors.h"
 
-void MixColors::update()
+void rshp::pipes::MixColors::update()
 {
 	auto& factor = getInputData<InputPorts::Factor>();
 	auto& colorA = getInputData<InputPorts::ColorA>();

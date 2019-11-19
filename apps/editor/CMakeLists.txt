@@ -50,3 +50,5 @@ target_link_libraries(rendershop-editor
 	imgui
 	imgui-node-editor
 )
+
+target_compile_features(rendershop-editor PUBLIC cxx_std_17)

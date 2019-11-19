@@ -7,72 +7,77 @@
 
 #include <vector>
 
-class AbstractDataPort;
-
-class AbstractSource : public virtual AbstractPipe
+namespace rshp::base
 {
-public:
-	struct InputEvents
+		
+	class AbstractDataPort;
+
+	class AbstractSource : public virtual AbstractPipe
 	{
-		enum
+	public:
+		struct InputEvents
 		{
-			QueueUpdate = AbstractPipe::InputEvents::SourceEvents
+			enum
+			{
+				QueueUpdate = AbstractPipe::InputEvents::SourceEvents
+			};
 		};
+
+		struct OutputEvents
+		{
+			enum
+			{
+			};
+		};
+
+	protected:
+		std::vector<AbstractDataPort*> abstractOutputDataPorts;
+		mutable Timestamp timestamp;
+
+	public:
+		AbstractSource() = default;
+		AbstractSource(AbstractSource const&) = delete;
+		AbstractSource(AbstractSource&&) = default;
+		AbstractSource& operator=(AbstractSource const&) = delete;
+		AbstractSource& operator=(AbstractSource&&) = default;
+		virtual ~AbstractSource() = default;
+
+
+	protected:
+		bool isUpdateQueued() const
+		{
+			return timestamp.isReset();
+		}
+
+		void registerInputEvents() override
+		{
+			AbstractPipe::registerInputEvents();
+			registerInputEvent(InputEvents::QueueUpdate, "Queue Update", [this]() {
+				queueUpdate();
+			});
+		}
+
+		void registerOutputEvents() override
+		{
+			AbstractPipe::registerOutputEvents();
+		}
+
+	public:
+		std::vector<AbstractDataPort*> const& getOutputDataPorts() const
+		{
+			return abstractOutputDataPorts;
+		}
+
+		void queueUpdate()
+		{
+			timestamp.reset();
+		}
+
+		Timestamp const& getTimestamp() const
+		{
+			return timestamp;
+		}
+
 	};
 
-	struct OutputEvents
-	{
-		enum
-		{
-		};
-	};
-
-protected:
-	std::vector<AbstractDataPort*> abstractOutputDataPorts;
-	mutable Timestamp timestamp;
-
-public:
-	AbstractSource() = default;
-	AbstractSource(AbstractSource const&) = delete;
-	AbstractSource(AbstractSource&&) = default;
-	AbstractSource& operator=(AbstractSource const&) = delete;
-	AbstractSource& operator=(AbstractSource&&) = default;
-	virtual ~AbstractSource() = default;
-
-
-protected:
-	bool isUpdateQueued() const
-	{
-		return timestamp.isReset();
-	}
-
-	void registerInputEvents() override
-	{
-		AbstractPipe::registerInputEvents();
-		registerInputEvent(InputEvents::QueueUpdate, "Queue Update", [this]() {
-			queueUpdate();
-		});
-	}
-
-	void registerOutputEvents() override
-	{
-		AbstractPipe::registerOutputEvents();
-	}
-
-public:
-	std::vector<AbstractDataPort*> const& getOutputDataPorts() const
-	{
-		return abstractOutputDataPorts;
-	}
-
-	void queueUpdate()
-	{
-		timestamp.reset();
-	}
-
-	Timestamp const& getTimestamp() const
-	{
-		return timestamp;
-	}
-
-};
+}

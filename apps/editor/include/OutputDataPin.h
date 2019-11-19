@@ -4,18 +4,21 @@
 
 #include <memory>
 
-class AbstractDataPort;
+namespace rshp::base
+{
+	class AbstractDataPort;
+}
 class OutputDataPinDelegate;
 
 class OutputDataPin final : public OutputPin
 {
 private:
-	AbstractDataPort* port;
+	rshp::base::AbstractDataPort* port;
 	std::unique_ptr<OutputDataPinDelegate> delegate;
 
 public:
 	OutputDataPin() = default;
-	OutputDataPin(AbstractDataPort* port);
+	OutputDataPin(rshp::base::AbstractDataPort* port);
 	OutputDataPin(OutputDataPin&&) = default;
 	OutputDataPin(OutputDataPin const&) = delete;
 	OutputDataPin& operator=(OutputDataPin&&) = default;

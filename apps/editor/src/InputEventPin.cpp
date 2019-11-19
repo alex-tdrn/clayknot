@@ -6,7 +6,7 @@
 #include "rshp/base/InputEventPort.hpp"
 
 
-InputEventPin::InputEventPin(InputEventPort* port)
+InputEventPin::InputEventPin(rshp::base::InputEventPort* port)
 	: InputPin(port), port(port)
 {
 }

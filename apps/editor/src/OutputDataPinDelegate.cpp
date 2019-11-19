@@ -7,11 +7,11 @@
 template<typename T>
 class Delegate : public OutputDataPinDelegate
 {
-	OutputDataPort<T> const* port;
+	rshp::base::OutputDataPort<T> const* port;
 	std::string id = "##OutputPin";
 
 public:
-	Delegate(OutputDataPort<T> const* port)
+	Delegate(rshp::base::OutputDataPort<T> const* port)
 		: port(port)
 	{
 		id += port->getName();
@@ -36,13 +36,13 @@ void Delegate<float>::draw() const
 	ImGui::Text("%.2f", output);
 }
 
-std::unique_ptr<OutputDataPinDelegate> OutputDataPinDelegate::create(AbstractDataPort* port)
+std::unique_ptr<OutputDataPinDelegate> OutputDataPinDelegate::create(rshp::base::AbstractDataPort* port)
 {
-	auto colorPort = dynamic_cast<OutputDataPort<glm::vec3> const*>(port);
+	auto colorPort = dynamic_cast<rshp::base::OutputDataPort<glm::vec3> const*>(port);
 	if(colorPort)
 		return std::make_unique<Delegate<glm::vec3>>(colorPort);
 
-	auto floatPort = dynamic_cast<OutputDataPort<float> const*>(port);
+	auto floatPort = dynamic_cast<rshp::base::OutputDataPort<float> const*>(port);
 	if(floatPort)
 		return std::make_unique<Delegate<float>>(floatPort);
 

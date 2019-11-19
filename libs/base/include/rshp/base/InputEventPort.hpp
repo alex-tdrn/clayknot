@@ -5,66 +5,69 @@
 
 #include <memory>
 
-namespace detail
+namespace rshp::base
 {
-	class TypeErasedCallable
+		
+	namespace detail
 	{
-	public:
-		virtual void call() const = 0;
+		class TypeErasedCallable
+		{
+		public:
+			virtual void call() const = 0;
 
-	};
+		};
 
-	template <typename F>
-	class Callable final : public TypeErasedCallable
+		template <typename F>
+		class Callable final : public TypeErasedCallable
+		{
+		private:
+			F callable;
+
+		public:
+			Callable(F&& callable) : callable(callable){ }
+			void call() const final override {	callable();	}
+
+		};
+	}
+
+	class OutputEventPort;
+
+	class InputEventPort : public InputPort<OutputEventPort>
 	{
 	private:
-		F callable;
+		std::unique_ptr<detail::TypeErasedCallable> f;
+		mutable int timesTriggered = 0;
 
 	public:
-		Callable(F&& callable) : callable(callable){ }
-		void call() const final override {	callable();	}
+		template<typename F>
+		InputEventPort(F&& callable)
+			: f(std::make_unique<detail::Callable<F>>(std::forward<F>(callable)))
+		{
+
+		}
+		InputEventPort(InputEventPort const&) = delete;
+		InputEventPort(InputEventPort&&) = default;
+		InputEventPort& operator=(InputEventPort const& that) = delete;
+		InputEventPort& operator=(InputEventPort&&) = default;
+		virtual ~InputEventPort() = default;
+
+	public:
+		int getTimesTriggered() const
+		{
+			return timesTriggered;
+		}
+
+		void trigger() const
+		{
+			f->call();
+			timesTriggered++;
+		}
+
+		void operator()() const
+		{
+			trigger();
+		}
 
 	};
+
 }
-
-class OutputEventPort;
-
-class InputEventPort : public InputPort<OutputEventPort>
-{
-private:
-	std::unique_ptr<detail::TypeErasedCallable> f;
-	mutable int timesTriggered = 0;
-
-public:
-	template<typename F>
-	InputEventPort(F&& callable)
-		: f(std::make_unique<detail::Callable<F>>(std::forward<F>(callable)))
-	{
-
-	}
-	InputEventPort(InputEventPort const&) = delete;
-	InputEventPort(InputEventPort&&) = default;
-	InputEventPort& operator=(InputEventPort const& that) = delete;
-	InputEventPort& operator=(InputEventPort&&) = default;
-	virtual ~InputEventPort() = default;
-
-public:
-	int getTimesTriggered() const
-	{
-		return timesTriggered;
-	}
-
-	void trigger() const
-	{
-		f->call();
-		timesTriggered++;
-	}
-
-	void operator()() const
-	{
-		trigger();
-	}
-
-};
-
-

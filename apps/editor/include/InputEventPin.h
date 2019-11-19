@@ -1,18 +1,21 @@
 #pragma once
 #include "InputPin.h"
 
-class InputEventPort;
+namespace rshp::base
+{
+	class InputEventPort;
+}
 
 class InputEventPin final : public InputPin
 {
 private:
-	InputEventPort* port;
+	rshp::base::InputEventPort* port;
 	int triggerCount = 0;
 	bool justTriggered = false;
 
 public:
 	InputEventPin() = default;
-	InputEventPin(InputEventPort* port);
+	InputEventPin(rshp::base::InputEventPort* port);
 	InputEventPin(InputEventPin&&) = default;
 	InputEventPin(InputEventPin const&) = delete;
 	InputEventPin& operator=(InputEventPin&&) = default;

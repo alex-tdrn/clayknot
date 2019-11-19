@@ -8,84 +8,89 @@
 
 #include "rshp/base/EventPipe.hpp"
 
-class AbstractPipe : public virtual EventPipe
+namespace rshp::base
 {
-public:
-	struct InputEvents
-	{
-		enum
-		{
-			SourceEvents = 8,
-			SinkEvents = 16,
-			PipeEvents = 24,
-			UserEvents = 32
-		};
-	};
-
-	struct OutputEvents
-	{
-		enum
-		{
-			Updated,
-			SourceEvents = 8,
-			SinkEvents = 16,
-			PipeEvents = 24,
-			UserEvents = 32
-		};
-	};
-
-public:
-	AbstractPipe() = default;
-	AbstractPipe(AbstractPipe const&) = delete;
-	AbstractPipe(AbstractPipe&&) = default;
-	AbstractPipe& operator=(AbstractPipe const&) = delete;
-	AbstractPipe& operator=(AbstractPipe&&) = default;
-	virtual ~AbstractPipe() = default;
-
-private:
-	static std::unordered_map<std::string, std::unique_ptr<AbstractPipe>(*)()>& pipeMap()
-	{
-		static std::unordered_map<std::string, std::unique_ptr<AbstractPipe>(*)()> allPipes;
-		return allPipes;
-	}
-
-protected:
-	virtual void update() = 0;
 	
-	template <typename ConcretePipe>
-	static std::string registerPipe(std::string name)
+	class AbstractPipe : public virtual EventPipe
 	{
-		pipeMap()[name] = []() {
-			std::unique_ptr<AbstractPipe> ptr = std::make_unique<ConcretePipe>();
-			return ptr;
+	public:
+		struct InputEvents
+		{
+			enum
+			{
+				SourceEvents = 8,
+				SinkEvents = 16,
+				PipeEvents = 24,
+				UserEvents = 32
+			};
 		};
-		return name;
-	}
 
-public:
-	virtual void run() = 0;
+		struct OutputEvents
+		{
+			enum
+			{
+				Updated,
+				SourceEvents = 8,
+				SinkEvents = 16,
+				PipeEvents = 24,
+				UserEvents = 32
+			};
+		};
 
-	void registerInputEvents() override
-	{
-	}
+	public:
+		AbstractPipe() = default;
+		AbstractPipe(AbstractPipe const&) = delete;
+		AbstractPipe(AbstractPipe&&) = default;
+		AbstractPipe& operator=(AbstractPipe const&) = delete;
+		AbstractPipe& operator=(AbstractPipe&&) = default;
+		virtual ~AbstractPipe() = default;
 
-	void registerOutputEvents() override
-	{
-		registerOutputEvent(OutputEvents::Updated, "Updated");
-	}
+	private:
+		static std::unordered_map<std::string, std::unique_ptr<AbstractPipe>(*)()>& pipeMap()
+		{
+			static std::unordered_map<std::string, std::unique_ptr<AbstractPipe>(*)()> allPipes;
+			return allPipes;
+		}
 
-	static std::unordered_map<std::string, std::unique_ptr<AbstractPipe>(*)()> const& getPipeMap()
-	{
-		return pipeMap();
-	}
+	protected:
+		virtual void update() = 0;
+		
+		template <typename ConcretePipe>
+		static std::string registerPipe(std::string name)
+		{
+			pipeMap()[name] = []() {
+				std::unique_ptr<AbstractPipe> ptr = std::make_unique<ConcretePipe>();
+				return ptr;
+			};
+			return name;
+		}
 
-	static std::unique_ptr<AbstractPipe> createPipe(std::string const name)
-	{
-		assert(pipeMap().find(name) != pipeMap().end());
+	public:
+		virtual void run() = 0;
 
-		return pipeMap()[name]();
-	}
+		void registerInputEvents() override
+		{
+		}
 
-	virtual std::string const& getName() const = 0;
+		void registerOutputEvents() override
+		{
+			registerOutputEvent(OutputEvents::Updated, "Updated");
+		}
 
-};
+		static std::unordered_map<std::string, std::unique_ptr<AbstractPipe>(*)()> const& getPipeMap()
+		{
+			return pipeMap();
+		}
+
+		static std::unique_ptr<AbstractPipe> createPipe(std::string const name)
+		{
+			assert(pipeMap().find(name) != pipeMap().end());
+
+			return pipeMap()[name]();
+		}
+
+		virtual std::string const& getName() const = 0;
+
+	};
+
+}

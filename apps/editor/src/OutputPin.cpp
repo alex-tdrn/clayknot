@@ -2,7 +2,7 @@
 #include "InputPin.h"
 #include "Stylesheet.hpp"
 
-OutputPin::OutputPin(AbstractPort* port)
+OutputPin::OutputPin(rshp::base::AbstractPort* port)
 	: AbstractPin(port)
 {
 	for(auto connection : port->getConnections())

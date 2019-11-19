@@ -5,57 +5,62 @@
 #include "rshp/base/Utility.hpp"
 #include "rshp/base/Timestamp.hpp"
 
-template<typename... I>
-struct InputList
+namespace rshp::base
 {
-	std::tuple<InputDataPort<I>...> list;
-};
 
-template<typename ConcreteSink, typename InputList>
-class Sink : public virtual AbstractSink
-{
-protected:
-	mutable InputList inputs;
-
-public:
-	Sink()
+	template<typename... I>
+	struct InputList
 	{
-		static_for_index(inputs.list, [&](auto& inputDataPort, int index) {
-			AbstractSink::abstractInputDataPorts.push_back(&inputDataPort);
-			inputDataPort.setName(ConcreteSink::InputPorts::names[index]);
-		});
-	}
+		std::tuple<InputDataPort<I>...> list;
+	};
 
-	Sink(Sink const&) = delete;
-	Sink(Sink&&) = default;
-	Sink& operator=(Sink const&) = delete;
-	Sink& operator=(Sink&&) = default;
-	virtual ~Sink() = default;
-
-protected:
-	void updateAllInputs() const override final
+	template<typename ConcreteSink, typename InputList>
+	class Sink : public virtual AbstractSink
 	{
-		static_for(inputs.list, [](auto const& input) {
-			input.update();
-		});
-	}
+	protected:
+		mutable InputList inputs;
 
-public:
-	std::string const& getName() const override
-	{
-		return ConcreteSink::name;
-	}
+	public:
+		Sink()
+		{
+			static_for_index(inputs.list, [&](auto& inputDataPort, int index) {
+				AbstractSink::abstractInputDataPorts.push_back(&inputDataPort);
+				inputDataPort.setName(ConcreteSink::InputPorts::names[index]);
+			});
+		}
 
-	template<int inputIndex>
-	auto& getInputDataPort() const
-	{
-		return std::get<inputIndex>(inputs.list);
-	}
+		Sink(Sink const&) = delete;
+		Sink(Sink&&) = default;
+		Sink& operator=(Sink const&) = delete;
+		Sink& operator=(Sink&&) = default;
+		virtual ~Sink() = default;
 
-	template<int inputIndex>
-	auto& getInputData() const
-	{
-		return getInputDataPort<inputIndex>().get();
-	}
+	protected:
+		void updateAllInputs() const override final
+		{
+			static_for(inputs.list, [](auto const& input) {
+				input.update();
+			});
+		}
 
-};
+	public:
+		std::string const& getName() const override
+		{
+			return ConcreteSink::name;
+		}
+
+		template<int inputIndex>
+		auto& getInputDataPort() const
+		{
+			return std::get<inputIndex>(inputs.list);
+		}
+
+		template<int inputIndex>
+		auto& getInputData() const
+		{
+			return getInputDataPort<inputIndex>().get();
+		}
+
+	};
+
+}

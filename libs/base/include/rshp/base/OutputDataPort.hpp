@@ -5,51 +5,56 @@
 #include "rshp/base/InputDataPort.hpp"
 #include "rshp/base/AbstractSource.hpp"
 
-template<typename Data>
-class InputDataPort;
-
-template<typename Data>
-class OutputDataPort final : public AbstractDataPort, public OutputPort<InputDataPort<Data>>
+namespace rshp::base
 {
-private:
-	AbstractSource* parent = nullptr;
-	Data data;
+	
+	template<typename Data>
+	class InputDataPort;
 
-public:
-	OutputDataPort()
+	template<typename Data>
+	class OutputDataPort final : public AbstractDataPort, public OutputPort<InputDataPort<Data>>
 	{
-		dataTypeHash = std::type_index(typeid(Data)).hash_code();
-	}
-	OutputDataPort(OutputDataPort const&) = delete;
-	OutputDataPort(OutputDataPort&&) = default;
-	OutputDataPort& operator=(OutputDataPort const& that) = delete;
-	OutputDataPort& operator=(OutputDataPort&&) = default;
-	~OutputDataPort() = default;
+	private:
+		AbstractSource* parent = nullptr;
+		Data data;
 
-public:
-	Timestamp const& getTimestamp() const final override
-	{
-		return parent->getTimestamp();
-	}
+	public:
+		OutputDataPort()
+		{
+			dataTypeHash = std::type_index(typeid(Data)).hash_code();
+		}
+		OutputDataPort(OutputDataPort const&) = delete;
+		OutputDataPort(OutputDataPort&&) = default;
+		OutputDataPort& operator=(OutputDataPort const& that) = delete;
+		OutputDataPort& operator=(OutputDataPort&&) = default;
+		~OutputDataPort() = default;
 
-	Data& get()
-	{
-		return data;
-	}
+	public:
+		Timestamp const& getTimestamp() const final override
+		{
+			return parent->getTimestamp();
+		}
 
-	Data const& get() const
-	{
-		return data;
-	}
+		Data& get()
+		{
+			return data;
+		}
 
-	void update() const final override
-	{
-		parent->run();
-	}
+		Data const& get() const
+		{
+			return data;
+		}
 
-	void setParent(AbstractSource* parent)
-	{
-		this->parent = parent;
-	}
+		void update() const final override
+		{
+			parent->run();
+		}
 
-};
+		void setParent(AbstractSource* parent)
+		{
+			this->parent = parent;
+		}
+
+	};
+
+}

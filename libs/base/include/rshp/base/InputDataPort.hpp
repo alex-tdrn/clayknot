@@ -6,39 +6,44 @@
 
 #include <typeindex>
 
-template<typename Data>
-class OutputDataPort;
-
-template<typename Data>
-class InputDataPort final : public AbstractDataPort, public InputPort<OutputDataPort<Data>>
+namespace rshp::base
 {
-public:
-	InputDataPort()
-	{
-		dataTypeHash = std::type_index(typeid(Data)).hash_code();
-	}
-	InputDataPort(InputDataPort const&) = delete;
-	InputDataPort(InputDataPort&&) = default;
-	InputDataPort& operator=(InputDataPort const&) = delete;
-	InputDataPort& operator=(InputDataPort&&) = default;
-	~InputDataPort() = default;
+		
+	template<typename Data>
+	class OutputDataPort;
 
-public:
-	Timestamp const& getTimestamp() const final override
+	template<typename Data>
+	class InputDataPort final : public AbstractDataPort, public InputPort<OutputDataPort<Data>>
 	{
-		return this->connection->getTimestamp();
-	}
+	public:
+		InputDataPort()
+		{
+			dataTypeHash = std::type_index(typeid(Data)).hash_code();
+		}
+		InputDataPort(InputDataPort const&) = delete;
+		InputDataPort(InputDataPort&&) = default;
+		InputDataPort& operator=(InputDataPort const&) = delete;
+		InputDataPort& operator=(InputDataPort&&) = default;
+		~InputDataPort() = default;
 
-	void update() const final override
-	{
-		if(this->connection)
-			this->connection->update();
-	}
+	public:
+		Timestamp const& getTimestamp() const final override
+		{
+			return this->connection->getTimestamp();
+		}
 
-	Data const& get() const
-	{
-		requestCount++;
-		return this->connection->get();
-	}
+		void update() const final override
+		{
+			if(this->connection)
+				this->connection->update();
+		}
 
-};
+		Data const& get() const
+		{
+			requestCount++;
+			return this->connection->get();
+		}
+
+	};
+
+}

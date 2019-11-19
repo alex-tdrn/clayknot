@@ -6,13 +6,16 @@
 #include <vector>
 #include <memory>
 
-class AbstractPipe;
+namespace rshp::base
+{
+	class AbstractPipe;
+}
 
 class NodeCanvas final : public Window
 {
 private:
 	ax::NodeEditor::EditorContext* context;
-	std::vector<std::unique_ptr<AbstractPipe>>* store = nullptr;
+	std::vector<std::unique_ptr<rshp::base::AbstractPipe>>* store = nullptr;
 	std::vector<Node> nodes;
 	
 public:
@@ -27,6 +30,6 @@ private:
 	void drawContents() override;
 
 public:
-	void setStore(std::vector<std::unique_ptr<AbstractPipe>>* store);
+	void setStore(std::vector<std::unique_ptr<rshp::base::AbstractPipe>>* store);
 
 };

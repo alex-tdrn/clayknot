@@ -11,7 +11,7 @@ protected:
 
 public:
 	InputPin() = default;
-	InputPin(AbstractPort* port);
+	InputPin(rshp::base::AbstractPort* port);
 	InputPin(InputPin&&) = default;
 	InputPin(InputPin const&) = delete;
 	InputPin& operator=(InputPin&&) = default;

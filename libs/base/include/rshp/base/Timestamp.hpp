@@ -2,45 +2,50 @@
 
 #include <chrono>
 
-class Timestamp final
+namespace rshp::base
 {
-private:
-	using chrono = std::chrono::steady_clock;
-
-private:
-	chrono::time_point timestamp = chrono::time_point::min();
-
-public:
-	Timestamp() = default;
-	Timestamp(Timestamp const&) = default;
-	Timestamp(Timestamp&&) = default;
-	Timestamp& operator=(Timestamp const&) = default;
-	Timestamp& operator=(Timestamp&&) = default;
-	~Timestamp() = default;
-
-public:
-	void update()
+		
+	class Timestamp final
 	{
-		timestamp = chrono::now();
-	}
+	private:
+		using chrono = std::chrono::steady_clock;
 
-	void reset()
-	{
-		timestamp = chrono::time_point::min();
-	}
+	private:
+		chrono::time_point timestamp = chrono::time_point::min();
 
-	bool isReset() const
-	{
-		return timestamp == chrono::time_point::min();
-	}
+	public:
+		Timestamp() = default;
+		Timestamp(Timestamp const&) = default;
+		Timestamp(Timestamp&&) = default;
+		Timestamp& operator=(Timestamp const&) = default;
+		Timestamp& operator=(Timestamp&&) = default;
+		~Timestamp() = default;
 
-	bool isNewerThan(Timestamp const& other) const
-	{
-		return this->timestamp > other.timestamp;
-	}
+	public:
+		void update()
+		{
+			timestamp = chrono::now();
+		}
 
-	bool isOlderThan(Timestamp const& other) const
-	{
-		return this->timestamp < other.timestamp;
-	}
-};
+		void reset()
+		{
+			timestamp = chrono::time_point::min();
+		}
+
+		bool isReset() const
+		{
+			return timestamp == chrono::time_point::min();
+		}
+
+		bool isNewerThan(Timestamp const& other) const
+		{
+			return this->timestamp > other.timestamp;
+		}
+
+		bool isOlderThan(Timestamp const& other) const
+		{
+			return this->timestamp < other.timestamp;
+		}
+	};
+	
+}

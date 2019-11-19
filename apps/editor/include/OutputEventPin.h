@@ -1,17 +1,20 @@
 #pragma once
 #include "OutputPin.h"
 
-class OutputEventPort;
+namespace rshp::base
+{
+	class OutputEventPort;
+}
 
 class OutputEventPin final : public OutputPin
 {
 private:
-	OutputEventPort* port;
+	rshp::base::OutputEventPort* port;
 	int triggerCount = 0;
 
 public:
 	OutputEventPin() = default;
-	OutputEventPin(OutputEventPort* port);
+	OutputEventPin(rshp::base::OutputEventPort* port);
 	OutputEventPin(OutputEventPin&&) = default;
 	OutputEventPin(OutputEventPin const&) = delete;
 	OutputEventPin& operator=(OutputEventPin&&) = default;

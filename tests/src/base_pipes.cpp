@@ -11,7 +11,7 @@
 #include <utility>
 #include <array>
 
-class TestSource : public Source<TestSource, OutputList<std::string>>
+class TestSource : public rshp::base::Source<TestSource, rshp::base::OutputList<std::string>>
 {
 public:
 	struct OutputPorts
@@ -57,7 +57,7 @@ public:
 
 };
 
-class TestSink : public Sink<TestSink, InputList<std::string>>
+class TestSink : public rshp::base::Sink<TestSink, rshp::base::InputList<std::string>>
 {
 public:
 	struct InputPorts
@@ -98,7 +98,8 @@ public:
 	}
 };
 
-class TestPipe : public Pipe<TestPipe, InputList<std::string>, OutputList<std::string, std::string>>
+class TestPipe : public rshp::base::Pipe<TestPipe, 
+	rshp::base::InputList<std::string>, rshp::base::OutputList<std::string, std::string>>
 {
 public:
 	struct InputPorts
@@ -153,27 +154,29 @@ public:
 	}
 };
 
-TEMPLATE_TEST_CASE("base::pipes::Pipe registration", "", TestSource, TestSink, TestPipe, ClearBackgroundSink, DecomposeColor, GrayscaleColorPipe, MixColors, RandomColorSource, Timer, ValueToColor)
+TEMPLATE_TEST_CASE("base::pipes::Pipe registration", "", TestSource, TestSink, TestPipe, 
+	rshp::pipes::ClearBackgroundSink, rshp::pipes::DecomposeColor, rshp::pipes::GrayscaleColorPipe, 
+	rshp::pipes::MixColors, rshp::pipes::RandomColorSource, rshp::pipes::Timer, rshp::pipes::ValueToColor)
 {
 	GIVEN("Pipe type '" + TestType::name + "'")
 	{
 		THEN("it is registered in the pipe map")
 		{
-			auto& pipeMap = AbstractPipe::getPipeMap();
+			auto& pipeMap = rshp::base::AbstractPipe::getPipeMap();
 			REQUIRE(pipeMap.find(TestType::name) != pipeMap.end());
 			AND_THEN("it is constructible from the pipemap factory")
 			{
-				std::unique_ptr<AbstractPipe> pipe = nullptr;
-				REQUIRE_NOTHROW(pipe = std::move(AbstractPipe::createPipe(TestType::name)));
+				std::unique_ptr<rshp::base::AbstractPipe> pipe = nullptr;
+				REQUIRE_NOTHROW(pipe = std::move(rshp::base::AbstractPipe::createPipe(TestType::name)));
 				REQUIRE(pipe != nullptr);
 				AND_THEN("its name is available from the base class")
 				{
 					REQUIRE(TestType::name == pipe->getName());
-					if constexpr(std::is_base_of_v<AbstractSink, TestType>)
+					if constexpr(std::is_base_of_v<rshp::base::AbstractSink, TestType>)
 					{
 						AND_THEN("its input data ports are registered correctly")
 						{
-							auto sink = dynamic_cast<AbstractSink*>(pipe.get());
+							auto sink = dynamic_cast<rshp::base::AbstractSink*>(pipe.get());
 							auto ports = sink->getInputDataPorts();
 							REQUIRE(ports.size() == TestType::InputPorts::names.size());
 							for(int i = 0; i < ports.size(); i++)
@@ -181,11 +184,11 @@ TEMPLATE_TEST_CASE("base::pipes::Pipe registration", "", TestSource, TestSink, T
 						}
 					}
 
-					if constexpr(std::is_base_of_v<AbstractSource, TestType>)
+					if constexpr(std::is_base_of_v<rshp::base::AbstractSource, TestType>)
 					{
 						AND_THEN("its output data ports are registered correctly")
 						{
-							auto source = dynamic_cast<AbstractSource*>(pipe.get());
+							auto source = dynamic_cast<rshp::base::AbstractSource*>(pipe.get());
 							auto ports = source->getOutputDataPorts();
 							REQUIRE(ports.size() == TestType::OutputPorts::names.size());
 							for(int i = 0; i < ports.size(); i++)
@@ -205,13 +208,13 @@ TEST_CASE("base::pipes::Pipeline update behaviour")
 		TestSource A;
 		A.setMessage("This message comes from A");
 		auto& AO = A.getOutputDataPort<TestSource::OutputPorts::Message>();
-		auto& AU = A.getOutputEventPort(AbstractPipe::OutputEvents::Updated);
+		auto& AU = A.getOutputEventPort(rshp::base::AbstractPipe::OutputEvents::Updated);
 
 		AND_GIVEN("test sink B with one input port, BI, and update event BU")
 		{
 			TestSink B;
 			auto& BI = B.getInputDataPort<TestSink::InputPorts::Message>();
-			auto& BU = B.getOutputEventPort(AbstractPipe::OutputEvents::Updated);
+			auto& BU = B.getOutputEventPort(rshp::base::AbstractPipe::OutputEvents::Updated);
 
 			WHEN("BI is connected to AO")
 			{
@@ -241,7 +244,7 @@ TEST_CASE("base::pipes::Pipeline update behaviour")
 				auto& CI = C.getInputDataPort<TestPipe::InputPorts::Message>();
 				auto& CO1 = C.getOutputDataPort<TestPipe::OutputPorts::Message1>();
 				auto& CO2 = C.getOutputDataPort<TestPipe::OutputPorts::Message2>();
-				auto& CU = C.getOutputEventPort(AbstractPipe::OutputEvents::Updated);
+				auto& CU = C.getOutputEventPort(rshp::base::AbstractPipe::OutputEvents::Updated);
 
 				WHEN("AO is connected to CI, CO1 is connected to BI")
 				{
@@ -299,7 +302,7 @@ TEST_CASE("base::pipes::Pipeline update behaviour")
 					{
 						TestSink D;
 						auto& DI = D.getInputDataPort<TestSink::InputPorts::Message>();
-						auto& DU = D.getOutputEventPort(AbstractPipe::OutputEvents::Updated);
+						auto& DU = D.getOutputEventPort(rshp::base::AbstractPipe::OutputEvents::Updated);
 
 						WHEN("DI is connected to CO2")
 						{

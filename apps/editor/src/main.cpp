@@ -73,19 +73,19 @@ int main(int argc, char** argv)
 
 	
 	using namespace std::chrono_literals;
-	std::vector<std::unique_ptr<AbstractPipe>> pipes;
+	std::vector<std::unique_ptr<rshp::base::AbstractPipe>> pipes;
 	
-	std::unique_ptr<AbstractPipe> source = std::make_unique<RandomColorSource>();
-	std::unique_ptr<AbstractPipe> sink = std::make_unique<ClearBackgroundSink>();
-	std::unique_ptr<AbstractPipe> timer = std::make_unique<Timer>();
+	std::unique_ptr<rshp::base::AbstractPipe> source = std::make_unique<rshp::pipes::RandomColorSource>();
+	std::unique_ptr<rshp::base::AbstractPipe> sink = std::make_unique<rshp::pipes::ClearBackgroundSink>();
+	std::unique_ptr<rshp::base::AbstractPipe> timer = std::make_unique<rshp::pipes::Timer>();
 	auto tmpFrameController = std::make_unique<FrameControllerPipe>();
 	FrameControllerPipe* frameController = tmpFrameController.get();
 
-	timer->getOutputEventPort(Timer::OutputEvents::Timeout)
-		.connect(&sink->getInputEventPort(ClearBackgroundSink::InputEvents::Run));
-	timer->getOutputEventPort(Timer::OutputEvents::Timeout)
-		.connect(&source->getInputEventPort(RandomColorSource::InputEvents::QueueUpdate));
-	timer->getInputEventPort(Timer::InputEvents::Poll)
+	timer->getOutputEventPort(rshp::pipes::Timer::OutputEvents::Timeout)
+		.connect(&sink->getInputEventPort(rshp::pipes::ClearBackgroundSink::InputEvents::Run));
+	timer->getOutputEventPort(rshp::pipes::Timer::OutputEvents::Timeout)
+		.connect(&source->getInputEventPort(rshp::pipes::RandomColorSource::InputEvents::QueueUpdate));
+	timer->getInputEventPort(rshp::pipes::Timer::InputEvents::Poll)
 		.connect(&frameController->getOutputEventPort(FrameControllerPipe::OutputEvents::NewFrame));
 
 	pipes.push_back(std::move(source));

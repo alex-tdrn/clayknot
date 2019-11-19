@@ -8,7 +8,10 @@
 #include <vector>
 #include <memory>
 
-class AbstractPipe;
+namespace rshp::base
+{
+	class AbstractPipe;
+}
 
 class Node
 {
@@ -19,7 +22,7 @@ private:
 	float titleOffset = 0;
 	float centerSpacing = 0;
 	ax::NodeEditor::NodeId id = -1;
-	AbstractPipe* pipe = nullptr;
+	rshp::base::AbstractPipe* pipe = nullptr;
 	std::vector<std::unique_ptr<InputDataPin>> inputDataPins;
 	std::vector<std::unique_ptr<OutputDataPin>> outputDataPins;	
 	std::vector<std::unique_ptr<InputEventPin>> inputEventPins;
@@ -27,7 +30,7 @@ private:
 
 public:
 	Node() = default;
-	Node(AbstractPipe* element);
+	Node(rshp::base::AbstractPipe* element);
 	Node(Node&&) = default;
 	Node(Node const&) = delete;
 	Node& operator=(Node&&) = default;

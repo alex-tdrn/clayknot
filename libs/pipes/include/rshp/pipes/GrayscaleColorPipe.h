@@ -4,37 +4,41 @@
 #include <glm/glm.hpp>
 #include <array>
 
-
-
-class GrayscaleColorPipe : public Pipe<GrayscaleColorPipe, InputList<glm::vec3>, OutputList<glm::vec3>>
+namespace rshp::pipes
 {
-public:
-	struct InputPorts
+
+	class GrayscaleColorPipe : public rshp::base::Pipe<GrayscaleColorPipe, 
+		rshp::base::InputList<glm::vec3>, rshp::base::OutputList<glm::vec3>>
 	{
-		static inline std::array names = {
-			"Color"
-		};
-		enum
+	public:
+		struct InputPorts
 		{
-			Color
+			static inline std::array names = {
+				"Color"
+			};
+			enum
+			{
+				Color
+			};
 		};
+
+		struct OutputPorts
+		{
+			static inline std::array names = {
+				"Color"
+			};
+			enum
+			{
+				Color
+			};
+		};
+
+	public:
+		static inline std::string const name = registerPipe<GrayscaleColorPipe>("Grayscale Color Pipe");
+
+	public:
+		void update() override;
+
 	};
 
-	struct OutputPorts
-	{
-		static inline std::array names = {
-			"Color"
-		};
-		enum
-		{
-			Color
-		};
-	};
-
-public:
-	static inline std::string const name = registerPipe<GrayscaleColorPipe>("Grayscale Color Pipe");
-
-public:
-	void update() override;
-
-};
+}

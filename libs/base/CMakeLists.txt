@@ -23,3 +23,5 @@ target_include_directories(rendershop-base
 	PUBLIC
 	"include"
 )
+
+target_compile_features(rendershop-base PUBLIC cxx_std_17)
