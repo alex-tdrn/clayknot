@@ -1,8 +1,8 @@
 #pragma once
-#include "InputDataPin.h"
-#include "OutputDataPin.h"
-#include "InputEventPin.h"
-#include "OutputEventPin.h"
+#include "InputDataPort.h"
+#include "OutputDataPort.h"
+#include "InputEventPort.h"
+#include "OutputEventPort.h"
 
 #include <imgui_node_editor.h>
 #include <vector>
@@ -10,7 +10,7 @@
 
 namespace rshp::base
 {
-	class AbstractPipe;
+	class AbstractNode;
 }
 
 class Node
@@ -22,15 +22,15 @@ private:
 	float titleOffset = 0;
 	float centerSpacing = 0;
 	ax::NodeEditor::NodeId id = -1;
-	rshp::base::AbstractPipe* pipe = nullptr;
-	std::vector<std::unique_ptr<InputDataPin>> inputDataPins;
-	std::vector<std::unique_ptr<OutputDataPin>> outputDataPins;	
-	std::vector<std::unique_ptr<InputEventPin>> inputEventPins;
-	std::vector<std::unique_ptr<OutputEventPin>> outputEventPins;
+	rshp::base::AbstractNode* node = nullptr;
+	std::vector<std::unique_ptr<InputDataPort>> inputDataPorts;
+	std::vector<std::unique_ptr<OutputDataPort>> outputDataPorts;	
+	std::vector<std::unique_ptr<InputEventPort>> inputEventPorts;
+	std::vector<std::unique_ptr<OutputEventPort>> outputEventPorts;
 
 public:
 	Node() = default;
-	Node(rshp::base::AbstractPipe* element);
+	Node(rshp::base::AbstractNode* element);
 	Node(Node&&) = default;
 	Node(Node const&) = delete;
 	Node& operator=(Node&&) = default;

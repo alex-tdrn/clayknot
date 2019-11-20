@@ -1,8 +1,8 @@
 #include "catch.hpp"
-#include "rshp/base/InputDataPort.hpp"
-#include "rshp/base/OutputDataPort.hpp"
-#include "rshp/base/InputEventPort.hpp"
-#include "rshp/base/OutputEventPort.hpp"
+#include "rshp/base/port/InputDataPort.hpp"
+#include "rshp/base/port/OutputDataPort.hpp"
+#include "rshp/base/port/InputEventPort.hpp"
+#include "rshp/base/port/OutputEventPort.hpp"
 
 template <typename A, typename B>
 void testConnectionIsValid(A& a, B& b)

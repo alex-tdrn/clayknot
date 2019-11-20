@@ -1,12 +1,12 @@
 #include "NodeCanvas.h"
-#include "AbstractPin.hpp"
-#include "rshp/base/AbstractPipe.hpp"
+#include "AbstractPort.hpp"
+#include "rshp/base/node/AbstractNode.hpp"
 #include "Stylesheet.hpp"
 
 NodeCanvas::NodeCanvas()
 {
 	context = ax::NodeEditor::CreateEditor();
-	title = "Pipeline Canvas " + std::to_string(id);
+	title = "Graph Canvas " + std::to_string(id);
 	windowFlags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
 }
 
@@ -80,8 +80,8 @@ void NodeCanvas::drawContents()
 			ax::NodeEditor::PinId idPin1 = 0, idPin2 = 0;
 			if(ax::NodeEditor::QueryNewLink(&idPin1, &idPin2) && idPin1 != idPin2)
 			{
-				auto pin1 = AbstractPin::getPinForID(idPin1);
-				auto pin2 = AbstractPin::getPinForID(idPin2);
+				auto pin1 = AbstractPort::getPinForID(idPin1);
+				auto pin2 = AbstractPort::getPinForID(idPin2);
 				if(pin1->canConnect(pin2))
 				{
 					if(ax::NodeEditor::AcceptNewItem({0, 1, 0, 1, }, 2))
@@ -119,7 +119,7 @@ void NodeCanvas::drawContents()
 
 		if(ImGui::BeginPopup("Create New Node"))
 		{
-			for(auto [name, constructor] : rshp::base::AbstractPipe::getPipeMap())
+			for(auto [name, constructor] : rshp::base::AbstractNode::getNodeMap())
 			{
 				if(ImGui::MenuItem(name.c_str()))
 				{
@@ -138,9 +138,9 @@ void NodeCanvas::drawContents()
 	ImGui::End();
 }
 
-void NodeCanvas::setStore(std::vector<std::unique_ptr<rshp::base::AbstractPipe>>* store)
+void NodeCanvas::setStore(std::vector<std::unique_ptr<rshp::base::AbstractNode>>* store)
 {
 	this->store = store;
-	for(auto& pipe : *store)
-		nodes.emplace_back(pipe.get());
+	for(auto& node : *store)
+		nodes.emplace_back(node.get());
 }

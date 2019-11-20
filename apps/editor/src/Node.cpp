@@ -1,39 +1,39 @@
 #include "Node.h"
 #include "UniqueID.hpp"
 #include "UIDebug.hpp"
-#include "rshp/base/AbstractSink.hpp"
-#include "rshp/base/AbstractSource.hpp"
+#include "rshp/base/node/AbstractSink.hpp"
+#include "rshp/base/node/AbstractSource.hpp"
 #include "Stylesheet.hpp"
 
 #include <algorithm>
 
-Node::Node(rshp::base::AbstractPipe* pipe)
-	: pipe(pipe), id(uniqueID())
+Node::Node(rshp::base::AbstractNode* node)
+	: node(node), id(uniqueID())
 {
-	if(auto sink = dynamic_cast<rshp::base::AbstractSink*>(pipe); sink != nullptr)
+	if(auto sink = dynamic_cast<rshp::base::AbstractSink*>(node); sink != nullptr)
 		for(auto inputDataPort : sink->getInputDataPorts())
-			inputDataPins.push_back(std::make_unique<InputDataPin>(inputDataPort));
+			inputDataPorts.push_back(std::make_unique<InputDataPort>(inputDataPort));
 	
-	if(auto source = dynamic_cast<rshp::base::AbstractSource*>(pipe); source != nullptr)
-		for(auto outputPin : source->getOutputDataPorts())
-			outputDataPins.push_back(std::make_unique<OutputDataPin>(outputPin));
-	pipe->registerInputEvents();
-	pipe->registerOutputEvents();
-	for(auto& [index, port] : pipe->getInputEventPorts())
-		inputEventPins.push_back(std::make_unique<InputEventPin>(port.get()));
+	if(auto source = dynamic_cast<rshp::base::AbstractSource*>(node); source != nullptr)
+		for(auto OutputPort : source->getOutputDataPorts())
+			outputDataPorts.push_back(std::make_unique<OutputDataPort>(OutputPort));
+	node->registerInputEvents();
+	node->registerOutputEvents();
+	for(auto& [index, port] : node->getInputEventPorts())
+		inputEventPorts.push_back(std::make_unique<InputEventPort>(port.get()));
 
-	for(auto& [index, port] : pipe->getOutputEventPorts())
-		outputEventPins.push_back(std::make_unique<OutputEventPin>(&port));
+	for(auto& [index, port] : node->getOutputEventPorts())
+		outputEventPorts.push_back(std::make_unique<OutputEventPort>(&port));
 }
 
 bool Node::hasInputs() const
 {
-	return !inputDataPins.empty() || !inputEventPins.empty();
+	return !inputDataPorts.empty() || !inputEventPorts.empty();
 }
 
 bool Node::hasOutputs() const
 {
-	return !outputDataPins.empty() || !outputEventPins.empty();
+	return !outputDataPorts.empty() || !outputEventPorts.empty();
 }
 
 void Node::initializeLayout()
@@ -53,10 +53,10 @@ void Node::initializeLayout()
 		return pinGroupWidth;
 	};
 
-	measurePinGroup(inputDataPins, inputEventPins);
-	outputsWidth = measurePinGroup(outputDataPins, outputEventPins);
+	measurePinGroup(inputDataPorts, inputEventPorts);
+	outputsWidth = measurePinGroup(outputDataPorts, outputEventPorts);
 
-	float const titleWidth = ImGui::CalcTextSize(pipe->getName().c_str()).x;
+	float const titleWidth = ImGui::CalcTextSize(node->getName().c_str()).x;
 
 	if(titleWidth > contentsWidth + minimumCenterSpacing)
 	{
@@ -94,7 +94,7 @@ void Node::drawTitle()
 	if(titleOffset > 0)
 		ImGui::Indent(titleOffset);
 
-	ImGui::Text(pipe->getName().c_str());
+	ImGui::Text(node->getName().c_str());
 
 	if(titleOffset > 0)
 		ImGui::Unindent(titleOffset);
@@ -105,15 +105,15 @@ void Node::drawInputs()
 	if(hasInputs())
 	{
 		ImGui::BeginGroup();
-		for(auto& inputPin : inputDataPins)
+		for(auto& InputPort : inputDataPorts)
 		{
-			inputPin->draw();
+			InputPort->draw();
 			ImGui::SameLine();
 			ImGui::Dummy({0, 0});
 		}
-		for(auto& inputPin : inputEventPins)
+		for(auto& InputPort : inputEventPorts)
 		{
-			inputPin->draw();
+			InputPort->draw();
 			ImGui::SameLine();
 			ImGui::Dummy({0, 0});
 		}
@@ -126,17 +126,17 @@ void Node::drawOutputs()
 	if(hasOutputs())
 	{
 		ImGui::BeginGroup();
-		for(auto& outputPin : outputDataPins)
+		for(auto& OutputPort : outputDataPorts)
 		{
-			ImGui::Dummy({outputsWidth - outputPin->calculateSize().x, 0});
+			ImGui::Dummy({outputsWidth - OutputPort->calculateSize().x, 0});
 			ImGui::SameLine();
-			outputPin->draw();
+			OutputPort->draw();
 		}
-		for(auto& outputPin : outputEventPins)
+		for(auto& OutputPort : outputEventPorts)
 		{
-			ImGui::Dummy({outputsWidth - outputPin->calculateSize().x, 0});
+			ImGui::Dummy({outputsWidth - OutputPort->calculateSize().x, 0});
 			ImGui::SameLine();
-			outputPin->draw();
+			OutputPort->draw();
 		}
 		ImGui::EndGroup();
 	}
@@ -171,9 +171,9 @@ void Node::draw()
 
 void Node::drawInputLinks()
 {
-	for(auto& inputPin : inputDataPins)
-		inputPin->drawLink();
-	for(auto& inputEventPin : inputEventPins)
-		inputEventPin->drawLink();
+	for(auto& InputPort : inputDataPorts)
+		InputPort->drawLink();
+	for(auto& InputEventPort : inputEventPorts)
+		InputEventPort->drawLink();
 }
 

@@ -8,14 +8,14 @@
 
 namespace rshp::base
 {
-	class AbstractPipe;
+	class AbstractNode;
 }
 
 class NodeCanvas final : public Window
 {
 private:
 	ax::NodeEditor::EditorContext* context;
-	std::vector<std::unique_ptr<rshp::base::AbstractPipe>>* store = nullptr;
+	std::vector<std::unique_ptr<rshp::base::AbstractNode>>* store = nullptr;
 	std::vector<Node> nodes;
 	
 public:
@@ -30,6 +30,6 @@ private:
 	void drawContents() override;
 
 public:
-	void setStore(std::vector<std::unique_ptr<rshp::base::AbstractPipe>>* store);
+	void setStore(std::vector<std::unique_ptr<rshp::base::AbstractNode>>* store);
 
 };

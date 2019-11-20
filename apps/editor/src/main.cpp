@@ -1,13 +1,13 @@
-#include "rshp/pipes/RandomColorSource.h"
-#include "rshp/pipes/ClearBackgroundSink.h"
-#include "rshp/pipes/GrayscaleColorPipe.h"
-#include "rshp/pipes/MixColors.h"
-#include "rshp/pipes/Timer.hpp"
-#include "rshp/pipes/DecomposeColor.h"
-#include "rshp/pipes/ValueToColor.h"
+#include "rshp/nodes/RandomColorSource.h"
+#include "rshp/nodes/ClearBackgroundSink.h"
+#include "rshp/nodes/GrayscaleColorNode.h"
+#include "rshp/nodes/MixColors.h"
+#include "rshp/nodes/Timer.hpp"
+#include "rshp/nodes/ClearBackgroundSink.h"
+#include "rshp/nodes/ValueToColor.h"
 #include "NodeCanvas.h"
 #include "RootWindow.h"
-#include "FrameControllerPipe.h"
+#include "FrameControllerNode.h"
 #include "Stylesheet.hpp"
 #include "StylesheetWindow.h"
 
@@ -73,32 +73,32 @@ int main(int argc, char** argv)
 
 	
 	using namespace std::chrono_literals;
-	std::vector<std::unique_ptr<rshp::base::AbstractPipe>> pipes;
+	std::vector<std::unique_ptr<rshp::base::AbstractNode>> nodes;
 	
-	std::unique_ptr<rshp::base::AbstractPipe> source = std::make_unique<rshp::pipes::RandomColorSource>();
-	std::unique_ptr<rshp::base::AbstractPipe> sink = std::make_unique<rshp::pipes::ClearBackgroundSink>();
-	std::unique_ptr<rshp::base::AbstractPipe> timer = std::make_unique<rshp::pipes::Timer>();
-	auto tmpFrameController = std::make_unique<FrameControllerPipe>();
-	FrameControllerPipe* frameController = tmpFrameController.get();
+	std::unique_ptr<rshp::base::AbstractNode> source = std::make_unique<rshp::nodes::RandomColorSource>();
+	std::unique_ptr<rshp::base::AbstractNode> sink = std::make_unique<rshp::nodes::ClearBackgroundSink>();
+	std::unique_ptr<rshp::base::AbstractNode> timer = std::make_unique<rshp::nodes::Timer>();
+	auto tmpFrameController = std::make_unique<FrameControllerNode>();
+	FrameControllerNode* frameController = tmpFrameController.get();
 
-	timer->getOutputEventPort(rshp::pipes::Timer::OutputEvents::Timeout)
-		.connect(&sink->getInputEventPort(rshp::pipes::ClearBackgroundSink::InputEvents::Run));
-	timer->getOutputEventPort(rshp::pipes::Timer::OutputEvents::Timeout)
-		.connect(&source->getInputEventPort(rshp::pipes::RandomColorSource::InputEvents::QueueUpdate));
-	timer->getInputEventPort(rshp::pipes::Timer::InputEvents::Poll)
-		.connect(&frameController->getOutputEventPort(FrameControllerPipe::OutputEvents::NewFrame));
+	timer->getOutputEventPort(rshp::nodes::Timer::OutputEvents::Timeout)
+		.connect(&sink->getInputEventPort(rshp::nodes::ClearBackgroundSink::InputEvents::Run));
+	timer->getOutputEventPort(rshp::nodes::Timer::OutputEvents::Timeout)
+		.connect(&source->getInputEventPort(rshp::nodes::RandomColorSource::InputEvents::QueueUpdate));
+	timer->getInputEventPort(rshp::nodes::Timer::InputEvents::Poll)
+		.connect(&frameController->getOutputEventPort(FrameControllerNode::OutputEvents::NewFrame));
 
-	pipes.push_back(std::move(source));
-	pipes.push_back(std::move(sink));
-	pipes.push_back(std::move(timer));
-	pipes.push_back(std::move(tmpFrameController));
+	nodes.push_back(std::move(source));
+	nodes.push_back(std::move(sink));
+	nodes.push_back(std::move(timer));
+	nodes.push_back(std::move(tmpFrameController));
 	
 
 	Stylesheet::addSheet(Stylesheet());
 
 	RootWindow rootWindow;
 	NodeCanvas* canvas = rootWindow.addChild(std::make_unique<NodeCanvas>());
-	canvas->setStore(&pipes);
+	canvas->setStore(&nodes);
 	rootWindow.addChild(std::make_unique<StylesheetWindow>());
 
 	while(!glfwWindowShouldClose(window))

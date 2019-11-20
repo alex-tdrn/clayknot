@@ -1,32 +1,32 @@
 add_executable(rendershop-editor
-	"src/FrameControllerPipe.cpp"
-	"src/InputDataPin.cpp"
-	"src/InputEventPin.cpp"
-	"src/InputPin.cpp"
+	"src/FrameControllernode.cpp"
+	"src/InputDataPort.cpp"
+	"src/InputEventPort.cpp"
+	"src/InputPort.cpp"
 	"src/main.cpp"
 	"src/Node.cpp"
 	"src/NodeCanvas.cpp"
-	"src/OutputDataPin.cpp"
-	"src/OutputDataPinDelegate.cpp"
-	"src/OutputEventPin.cpp"
-	"src/OutputPin.cpp"
+	"src/OutputDataPort.cpp"
+	"src/OutputDataPortDelegate.cpp"
+	"src/OutputEventPort.cpp"
+	"src/OutputPort.cpp"
 	"src/RootWindow.cpp"
 	"src/StylesheetWindow.cpp"
 	"src/Window.cpp"
 	"include/AbstractNode.hpp"
-	"include/AbstractPin.hpp"
+	"include/AbstractPort.hpp"
 	"include/Animation.hpp"
-	"include/FrameControllerPipe.h"
+	"include/FrameControllernode.h"
 	"include/ImGuiUtilities.hpp"
-	"include/InputDataPin.h"
-	"include/InputEventPin.h"
-	"include/InputPin.h"
+	"include/InputDataPort.h"
+	"include/InputEventPort.h"
+	"include/InputPort.h"
 	"include/Node.h"
 	"include/NodeCanvas.h"
-	"include/OutputDataPin.h"
-	"include/OutputDataPinDelegate.h"
-	"include/OutputEventPin.h"
-	"include/OutputPin.h"
+	"include/OutputDataPort.h"
+	"include/OutputDataPortDelegate.h"
+	"include/OutputEventPort.h"
+	"include/OutputPort.h"
 	"include/RootWindow.h"
 	"include/Stylesheet.hpp"
 	"include/StylesheetWindow.h"
@@ -44,7 +44,7 @@ target_include_directories(rendershop-editor
 target_link_libraries(rendershop-editor
 	PRIVATE
 	rendershop-base
-	rendershop-pipes
+	rendershop-nodes
 	glad
 	glfw
 	imgui
