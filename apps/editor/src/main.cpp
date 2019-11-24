@@ -1,28 +1,28 @@
-#include "rshp/nodes/RandomColorSource.h"
+#include "rshp/gui/Stylesheet.hpp"
+#include "rshp/gui/nodes/FrameControllerNode.h"
+#include "rshp/gui/panels/NodeEditor.h"
+#include "rshp/gui/panels/RootPanel.h"
+#include "rshp/gui/panels/StyleEditor.h"
 #include "rshp/nodes/ClearBackgroundSink.h"
 #include "rshp/nodes/GrayscaleColorNode.h"
 #include "rshp/nodes/MixColors.h"
+#include "rshp/nodes/RandomColorSource.h"
 #include "rshp/nodes/Timer.hpp"
-#include "rshp/nodes/ClearBackgroundSink.h"
 #include "rshp/nodes/ValueToColor.h"
-#include "rshp/gui/panels/NodeEditor.h"
-#include "rshp/gui/panels/RootPanel.h"
-#include "rshp/gui/nodes/FrameControllerNode.h"
-#include "rshp/gui/Stylesheet.hpp"
-#include "rshp/gui/panels/StyleEditor.h"
+
+#include <glad/glad.h>
+
+#include <GLFW/glfw3.h>
 
 #include <imgui.h>
-#include <imgui_node_editor.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include <imgui_node_editor.h>
 #include <iostream>
 #include <thread>
 #include <vector>
 
-
-void APIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, 
+void APIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
 	const GLchar* message, const void* userParam);
 void ImGuiCherryStyle();
 
@@ -36,7 +36,7 @@ int main(int argc, char** argv)
 #ifdef _DEBUG
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 #endif
-	
+
 	GLFWwindow* window = glfwCreateWindow(1920, 1080, "rendershop", nullptr, nullptr);
 	if(!window)
 		throw "Failed to create GLFW window\n";
@@ -60,7 +60,6 @@ int main(int argc, char** argv)
 
 	glfwSwapInterval(1);
 
-
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
@@ -71,10 +70,9 @@ int main(int argc, char** argv)
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 420");
 
-	
 	using namespace std::chrono_literals;
 	std::vector<std::unique_ptr<rshp::base::AbstractNode>> nodes;
-	
+
 	std::unique_ptr<rshp::base::AbstractNode> source = std::make_unique<rshp::nodes::RandomColorSource>();
 	std::unique_ptr<rshp::base::AbstractNode> sink = std::make_unique<rshp::nodes::ClearBackgroundSink>();
 	std::unique_ptr<rshp::base::AbstractNode> timer = std::make_unique<rshp::nodes::Timer>();
@@ -92,7 +90,6 @@ int main(int argc, char** argv)
 	nodes.push_back(std::move(sink));
 	nodes.push_back(std::move(timer));
 	nodes.push_back(std::move(tmpFrameController));
-	
 
 	rshp::gui::Stylesheet::addSheet(rshp::gui::Stylesheet());
 
@@ -143,14 +140,14 @@ int main(int argc, char** argv)
 	return 0;
 }
 
-void ImGuiCherryStyle() 
+void ImGuiCherryStyle()
 {
 	// cherry colors, 3 intensities
-#define HI(v)   ImVec4(0.502f, 0.075f, 0.256f, v)
-#define MED(v)  ImVec4(0.455f, 0.198f, 0.301f, v)
-#define LOW(v)  ImVec4(0.232f, 0.201f, 0.271f, v)
+#define HI(v) ImVec4(0.502f, 0.075f, 0.256f, v)
+#define MED(v) ImVec4(0.455f, 0.198f, 0.301f, v)
+#define LOW(v) ImVec4(0.232f, 0.201f, 0.271f, v)
 // backgrounds (@todo: complete with BG_MED, BG_LOW)
-#define BG(v)   ImVec4(0.200f, 0.220f, 0.270f, v)
+#define BG(v) ImVec4(0.200f, 0.220f, 0.270f, v)
 // text
 #define TEXT(v) ImVec4(0.860f, 0.930f, 0.890f, v)
 
@@ -213,79 +210,80 @@ void ImGuiCherryStyle()
 	style.WindowBorderSize = 1.0f;
 }
 
-void glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, 
+void glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message,
 	const void* userParam)
 {
 	std::cout << "-----------------------------------\n"
-		<< "OpenGL Debug Message (" << id << "): \n" << message << '\n';
+			  << "OpenGL Debug Message (" << id << "): \n"
+			  << message << '\n';
 	std::cout << "Source: ";
 	switch(source)
 	{
-	case GL_DEBUG_SOURCE_API:
-		std::cout << "API";
-		break;
-	case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
-		std::cout << "Window System";
-		break;
-	case GL_DEBUG_SOURCE_SHADER_COMPILER:
-		std::cout << "Shader Compiler";
-		break;
-	case GL_DEBUG_SOURCE_THIRD_PARTY:
-		std::cout << "Third Party";
-		break;
-	case GL_DEBUG_SOURCE_APPLICATION:
-		std::cout << "Application";
-		break;
-	default:
-		std::cout << "Other";
-		break;
+		case GL_DEBUG_SOURCE_API:
+			std::cout << "API";
+			break;
+		case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+			std::cout << "Window System";
+			break;
+		case GL_DEBUG_SOURCE_SHADER_COMPILER:
+			std::cout << "Shader Compiler";
+			break;
+		case GL_DEBUG_SOURCE_THIRD_PARTY:
+			std::cout << "Third Party";
+			break;
+		case GL_DEBUG_SOURCE_APPLICATION:
+			std::cout << "Application";
+			break;
+		default:
+			std::cout << "Other";
+			break;
 	}
 	std::cout << "\nType: ";
 	switch(type)
 	{
-	case GL_DEBUG_TYPE_ERROR:
-		std::cout << "Error";
-		break;
-	case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
-		std::cout << "Deprecated Behaviour";
-		break;
-	case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
-		std::cout << "Undefined Behaviour";
-		break;
-	case GL_DEBUG_TYPE_PORTABILITY:
-		std::cout << "Portability";
-		break;
-	case GL_DEBUG_TYPE_PERFORMANCE:
-		std::cout << "Performance";
-		break;
-	case GL_DEBUG_TYPE_MARKER:
-		std::cout << "Marker";
-		break;
-	case GL_DEBUG_TYPE_PUSH_GROUP:
-		std::cout << "Push Group";
-		break;
-	case GL_DEBUG_TYPE_POP_GROUP:
-		std::cout << "Pop Group";
-		break;
-	default:
-		std::cout << "Other";
-		break;
+		case GL_DEBUG_TYPE_ERROR:
+			std::cout << "Error";
+			break;
+		case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+			std::cout << "Deprecated Behaviour";
+			break;
+		case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+			std::cout << "Undefined Behaviour";
+			break;
+		case GL_DEBUG_TYPE_PORTABILITY:
+			std::cout << "Portability";
+			break;
+		case GL_DEBUG_TYPE_PERFORMANCE:
+			std::cout << "Performance";
+			break;
+		case GL_DEBUG_TYPE_MARKER:
+			std::cout << "Marker";
+			break;
+		case GL_DEBUG_TYPE_PUSH_GROUP:
+			std::cout << "Push Group";
+			break;
+		case GL_DEBUG_TYPE_POP_GROUP:
+			std::cout << "Pop Group";
+			break;
+		default:
+			std::cout << "Other";
+			break;
 	}
 	std::cout << "\nSeverity: ";
 	switch(severity)
 	{
-	case GL_DEBUG_SEVERITY_HIGH:
-		std::cout << "High";
-		break;
-	case GL_DEBUG_SEVERITY_MEDIUM:
-		std::cout << "Medium";
-		break;
-	case GL_DEBUG_SEVERITY_LOW:
-		std::cout << "Low";
-		break;
-	case GL_DEBUG_SEVERITY_NOTIFICATION:
-		std::cout << "Notification";
-		break;
+		case GL_DEBUG_SEVERITY_HIGH:
+			std::cout << "High";
+			break;
+		case GL_DEBUG_SEVERITY_MEDIUM:
+			std::cout << "Medium";
+			break;
+		case GL_DEBUG_SEVERITY_LOW:
+			std::cout << "Low";
+			break;
+		case GL_DEBUG_SEVERITY_NOTIFICATION:
+			std::cout << "Notification";
+			break;
 	}
 	std::cout << '\n';
 }

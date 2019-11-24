@@ -1,42 +1,38 @@
 #pragma once
+
 #include "rshp/base/node/Node.hpp"
 
-#include <glm/glm.hpp>
 #include <array>
+#include <glm/glm.hpp>
 
 namespace rshp::nodes
 {
-
-	class ValueToColor : public rshp::base::Node<ValueToColor, 
-		rshp::base::InputList<float>, rshp::base::OutputList<glm::vec3>>
+class ValueToColor
+	: public rshp::base::Node<ValueToColor, rshp::base::InputList<float>, rshp::base::OutputList<glm::vec3>>
+{
+public:
+	struct InputPorts
 	{
-	public:
-		struct InputPorts
+		static inline std::array names = {"Value"};
+		enum
 		{
-			static inline std::array names = {
-				"Value"
-			};
-			enum {
-				Value
-			};
-
+			Value
 		};
-		struct OutputPorts
+	};
+	struct OutputPorts
+	{
+		static inline std::array names = {"Color"};
+		enum
 		{
-			static inline std::array names = {
-				"Color"
-			};
-			enum {
-				Color
-			};
+			Color
 		};
-
-	public:
-		static inline std::string const name = registerNode<ValueToColor>("Value To Color");
-
-	public:
-		void update() override;
-
 	};
 
-}
+public:
+	static inline std::string const name = registerNode<ValueToColor>("Value To Color");
+
+public:
+	void update() override;
+};
+
+} // namespace rshp::nodes

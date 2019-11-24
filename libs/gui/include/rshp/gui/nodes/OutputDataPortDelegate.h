@@ -1,20 +1,20 @@
 #pragma once
+
 #include <memory>
 
 namespace rshp::base
 {
-	class DataPort;
+class DataPort;
 }
 
 namespace rshp::gui
 {
+class OutputDataPortDelegate
+{
+public:
+	static std::unique_ptr<OutputDataPortDelegate> create(rshp::base::DataPort* port);
 
-	class OutputDataPortDelegate
-	{
-	public:
-		static std::unique_ptr<OutputDataPortDelegate> create(rshp::base::DataPort* port);
+	virtual void draw() const = 0;
+};
 
-		virtual void draw() const = 0;
-	};
-
-}
+} // namespace rshp::gui

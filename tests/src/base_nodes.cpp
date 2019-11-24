@@ -8,17 +8,15 @@
 #include "rshp/nodes/Timer.hpp"
 #include "rshp/nodes/ValueToColor.h"
 
-#include <utility>
 #include <array>
+#include <utility>
 
 class TestSource : public rshp::base::Source<TestSource, rshp::base::OutputList<std::string>>
 {
 public:
 	struct OutputPorts
 	{
-		static inline std::array names = {
-			"Message"
-		};
+		static inline std::array names = {"Message"};
 		enum
 		{
 			Message,
@@ -54,7 +52,6 @@ public:
 	{
 		return updatesRan;
 	}
-
 };
 
 class TestSink : public rshp::base::Sink<TestSink, rshp::base::InputList<std::string>>
@@ -62,9 +59,7 @@ class TestSink : public rshp::base::Sink<TestSink, rshp::base::InputList<std::st
 public:
 	struct InputPorts
 	{
-		static inline std::array names = {
-			"Message"
-		};
+		static inline std::array names = {"Message"};
 		enum
 		{
 			Message,
@@ -98,15 +93,14 @@ public:
 	}
 };
 
-class TestNode : public rshp::base::Node<TestNode, 
-	rshp::base::InputList<std::string>, rshp::base::OutputList<std::string, std::string>>
+class TestNode
+	: public rshp::base::Node<TestNode, rshp::base::InputList<std::string>,
+		  rshp::base::OutputList<std::string, std::string>>
 {
 public:
 	struct InputPorts
 	{
-		static inline std::array names = {
-			"Message"
-		};
+		static inline std::array names = {"Message"};
 		enum
 		{
 			Message,
@@ -115,10 +109,7 @@ public:
 
 	struct OutputPorts
 	{
-		static inline std::array names = {
-			"Message1",
-			"Message2"
-		};
+		static inline std::array names = {"Message1", "Message2"};
 		enum
 		{
 			Message1,
@@ -154,8 +145,8 @@ public:
 	}
 };
 
-TEMPLATE_TEST_CASE("base::nodes::Node registration", "", TestSource, TestSink, TestNode, 
-	rshp::nodes::ClearBackgroundSink, rshp::nodes::DecomposeColor, rshp::nodes::GrayscaleColorNode, 
+TEMPLATE_TEST_CASE("base::nodes::Node registration", "", TestSource, TestSink, TestNode,
+	rshp::nodes::ClearBackgroundSink, rshp::nodes::DecomposeColor, rshp::nodes::GrayscaleColorNode,
 	rshp::nodes::MixColors, rshp::nodes::RandomColorSource, rshp::nodes::Timer, rshp::nodes::ValueToColor)
 {
 	GIVEN("Node type '" + TestType::name + "'")
@@ -374,4 +365,3 @@ TEST_CASE("base::nodes::Graph update behaviour")
 		}
 	}
 }
-

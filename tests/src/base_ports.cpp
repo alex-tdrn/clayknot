@@ -1,8 +1,8 @@
 #include "catch.hpp"
 #include "rshp/base/port/InputDataPort.hpp"
+#include "rshp/base/port/InputEventPort.h"
 #include "rshp/base/port/OutputDataPort.hpp"
-#include "rshp/base/port/InputEventPort.hpp"
-#include "rshp/base/port/OutputEventPort.hpp"
+#include "rshp/base/port/OutputEventPort.h"
 
 template <typename A, typename B>
 void testConnectionIsValid(A& a, B& b)
@@ -48,8 +48,12 @@ void testConnectionIsInvalid(A& a, B& b)
 TEST_CASE("base::ports::Connections between input and output ports")
 {
 	class TestOutputPort;
-	class TestInputPort : public rshp::base::InputPort<TestOutputPort> {};
-	class TestOutputPort : public rshp::base::OutputPort<TestInputPort> {};
+	class TestInputPort : public rshp::base::InputPort<TestOutputPort>
+	{
+	};
+	class TestOutputPort : public rshp::base::OutputPort<TestInputPort>
+	{
+	};
 
 	GIVEN("A disconnected input port A")
 	{
@@ -175,7 +179,8 @@ TEST_CASE("base::ports::Connections between event ports")
 {
 	GIVEN("A, an input event port referencing an empty lambda")
 	{
-		rshp::base::InputEventPort A{[](){}};
+		rshp::base::InputEventPort A{[]() {
+		}};
 		AND_GIVEN("B, an output event port")
 		{
 			rshp::base::OutputEventPort B;
@@ -183,7 +188,8 @@ TEST_CASE("base::ports::Connections between event ports")
 		}
 		AND_GIVEN("B, an input event port referencing an empty lambda")
 		{
-			rshp::base::InputEventPort B{[](){}};
+			rshp::base::InputEventPort B{[]() {
+			}};
 			testConnectionIsInvalid(A, B);
 		}
 	}
@@ -252,7 +258,6 @@ TEST_CASE("base::ports::Event triggering")
 					}
 				}
 			}
-
 		}
 	}
 	GIVEN("F, G, and H boolean flags initially set to false")
@@ -322,7 +327,6 @@ TEST_CASE("base::ports::Event triggering")
 					}
 				}
 			}
-
 		}
 	}
 }
