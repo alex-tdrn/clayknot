@@ -1,5 +1,6 @@
 add_library(rendershop-base
 	"src/stupidHeaderOnlyWorkaroundSoThatTheHeadersGetShownCorrectlyInIDEs.cpp"
+	
 	"include/rshp/base/port/DataPort.hpp"
 	"include/rshp/base/node/AbstractNode.hpp"
 	"include/rshp/base/port/Port.hpp"
@@ -23,5 +24,3 @@ target_include_directories(rendershop-base
 	PUBLIC
 	"include"
 )
-
-target_compile_features(rendershop-base PUBLIC cxx_std_17)

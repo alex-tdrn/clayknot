@@ -1,38 +1,5 @@
 add_executable(rendershop-editor
-	"src/FrameControllernode.cpp"
-	"src/InputDataPort.cpp"
-	"src/InputEventPort.cpp"
-	"src/InputPort.cpp"
 	"src/main.cpp"
-	"src/Node.cpp"
-	"src/NodeCanvas.cpp"
-	"src/OutputDataPort.cpp"
-	"src/OutputDataPortDelegate.cpp"
-	"src/OutputEventPort.cpp"
-	"src/OutputPort.cpp"
-	"src/RootWindow.cpp"
-	"src/StylesheetWindow.cpp"
-	"src/Window.cpp"
-	"include/AbstractNode.hpp"
-	"include/AbstractPort.hpp"
-	"include/Animation.hpp"
-	"include/FrameControllernode.h"
-	"include/ImGuiUtilities.hpp"
-	"include/InputDataPort.h"
-	"include/InputEventPort.h"
-	"include/InputPort.h"
-	"include/Node.h"
-	"include/NodeCanvas.h"
-	"include/OutputDataPort.h"
-	"include/OutputDataPortDelegate.h"
-	"include/OutputEventPort.h"
-	"include/OutputPort.h"
-	"include/RootWindow.h"
-	"include/Stylesheet.hpp"
-	"include/StylesheetWindow.h"
-	"include/UIDebug.hpp"
-	"include/UniqueID.hpp"
-	"include/Window.h"
 )
 
 target_include_directories(rendershop-editor
@@ -45,10 +12,9 @@ target_link_libraries(rendershop-editor
 	PRIVATE
 	rendershop-base
 	rendershop-nodes
+	rendershop-gui
 	glad
 	glfw
 	imgui
 	imgui-node-editor
 )
-
-target_compile_features(rendershop-editor PUBLIC cxx_std_17)

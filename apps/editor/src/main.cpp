@@ -5,11 +5,11 @@
 #include "rshp/nodes/Timer.hpp"
 #include "rshp/nodes/ClearBackgroundSink.h"
 #include "rshp/nodes/ValueToColor.h"
-#include "NodeCanvas.h"
-#include "RootWindow.h"
-#include "FrameControllerNode.h"
-#include "Stylesheet.hpp"
-#include "StylesheetWindow.h"
+#include "rshp/gui/panels/NodeEditor.h"
+#include "rshp/gui/panels/RootPanel.h"
+#include "rshp/gui/nodes/FrameControllerNode.h"
+#include "rshp/gui/Stylesheet.hpp"
+#include "rshp/gui/panels/StyleEditor.h"
 
 #include <imgui.h>
 #include <imgui_node_editor.h>
@@ -78,15 +78,15 @@ int main(int argc, char** argv)
 	std::unique_ptr<rshp::base::AbstractNode> source = std::make_unique<rshp::nodes::RandomColorSource>();
 	std::unique_ptr<rshp::base::AbstractNode> sink = std::make_unique<rshp::nodes::ClearBackgroundSink>();
 	std::unique_ptr<rshp::base::AbstractNode> timer = std::make_unique<rshp::nodes::Timer>();
-	auto tmpFrameController = std::make_unique<FrameControllerNode>();
-	FrameControllerNode* frameController = tmpFrameController.get();
+	auto tmpFrameController = std::make_unique<rshp::gui::FrameControllerNode>();
+	rshp::gui::FrameControllerNode* frameController = tmpFrameController.get();
 
 	timer->getOutputEventPort(rshp::nodes::Timer::OutputEvents::Timeout)
 		.connect(&sink->getInputEventPort(rshp::nodes::ClearBackgroundSink::InputEvents::Run));
 	timer->getOutputEventPort(rshp::nodes::Timer::OutputEvents::Timeout)
 		.connect(&source->getInputEventPort(rshp::nodes::RandomColorSource::InputEvents::QueueUpdate));
 	timer->getInputEventPort(rshp::nodes::Timer::InputEvents::Poll)
-		.connect(&frameController->getOutputEventPort(FrameControllerNode::OutputEvents::NewFrame));
+		.connect(&frameController->getOutputEventPort(rshp::gui::FrameControllerNode::OutputEvents::NewFrame));
 
 	nodes.push_back(std::move(source));
 	nodes.push_back(std::move(sink));
@@ -94,12 +94,12 @@ int main(int argc, char** argv)
 	nodes.push_back(std::move(tmpFrameController));
 	
 
-	Stylesheet::addSheet(Stylesheet());
+	rshp::gui::Stylesheet::addSheet(rshp::gui::Stylesheet());
 
-	RootWindow rootWindow;
-	NodeCanvas* canvas = rootWindow.addChild(std::make_unique<NodeCanvas>());
+	rshp::gui::RootPanel rootWindow;
+	rshp::gui::NodeEditor* canvas = rootWindow.addChild(std::make_unique<rshp::gui::NodeEditor>());
 	canvas->setStore(&nodes);
-	rootWindow.addChild(std::make_unique<StylesheetWindow>());
+	rootWindow.addChild(std::make_unique<rshp::gui::StyleEditor>());
 
 	while(!glfwWindowShouldClose(window))
 	{

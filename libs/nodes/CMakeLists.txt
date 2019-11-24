@@ -1,17 +1,23 @@
 add_library(rendershop-nodes
 	"src/ClearBackgroundSink.cpp"
-	"src/DecomposeColor.cpp"
-	"src/GrayscaleColorNode.cpp"
-	"src/MixColors.cpp"
-	"src/RandomColorSource.cpp"
-	"src/Timer.cpp"
-	"src/ValueToColor.cpp"
 	"include/rshp/nodes/ClearBackgroundSink.h"
+
+	"src/DecomposeColor.cpp"
 	"include/rshp/nodes/DecomposeColor.h"
+
+	"src/GrayscaleColorNode.cpp"
 	"include/rshp/nodes/GrayscaleColorNode.h"
+
+	"src/MixColors.cpp"
 	"include/rshp/nodes/MixColors.h"
+
+	"src/RandomColorSource.cpp"
 	"include/rshp/nodes/RandomColorSource.h"
+
+	"src/Timer.cpp"
 	"include/rshp/nodes/Timer.hpp"
+	
+	"src/ValueToColor.cpp"
 	"include/rshp/nodes/ValueToColor.h"
 )
 
@@ -22,10 +28,7 @@ target_include_directories(rendershop-nodes
 )
 
 target_link_libraries(rendershop-nodes
-	PUBLIC
-	rendershop-base
 	PRIVATE
+	rendershop-base
 	glad
 )
-
-target_compile_features(rendershop-nodes PUBLIC cxx_std_17)
