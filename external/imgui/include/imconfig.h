@@ -54,15 +54,23 @@
 
 //---- Define constructor and implicit cast operators to convert back<>forth between your math types and ImVec2/ImVec4.
 // This will be inlined as part of ImVec2 and ImVec4 class declarations.
-/*
+
+#ifdef IMGUI_ADD_VECTOR_CONVERSIONS
+
+#include <glm/glm.hpp>
+#include "rshp/base/ColorRGBA.hpp"
+
 #define IM_VEC2_CLASS_EXTRA                                                 \
-        ImVec2(const MyVec2& f) { x = f.x; y = f.y; }                       \
-        operator MyVec2() const { return MyVec2(x,y); }
+        ImVec2(const glm::vec2& f) { x = f.x; y = f.y; }                    \
+        operator glm::vec2() const { return glm::vec2(x,y); }
 
 #define IM_VEC4_CLASS_EXTRA                                                 \
-        ImVec4(const MyVec4& f) { x = f.x; y = f.y; z = f.z; w = f.w; }     \
-        operator MyVec4() const { return MyVec4(x,y,z,w); }
-*/
+        ImVec4(const glm::vec4& f) { x = f.x; y = f.y; z = f.z; w = f.w; }     \
+        operator glm::vec4() const { return glm::vec4(x,y,z,w); }              \
+        ImVec4(const rshp::base::ColorRGBA& f) { x = f.r(); y = f.g(); z = f.b(); w = f.a(); }     \
+        operator rshp::base::ColorRGBA() const { return rshp::base::ColorRGBA(x,y,z,w); }
+
+#endif
 
 //---- Using 32-bits vertex indices (default is 16-bits) is one way to allow large meshes with more than 64K vertices.
 // Your renderer back-end will need to support it (most example renderer back-ends support both 16/32-bits indices).

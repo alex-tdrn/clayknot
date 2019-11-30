@@ -1,13 +1,13 @@
 #pragma once
 
+#include "rshp/base/ColorRGB.hpp"
 #include "rshp/base/node/Sink.hpp"
 
 #include <array>
-#include <glm/glm.hpp>
 
 namespace rshp::nodes
 {
-class ClearBackgroundSink : public rshp::base::Sink<ClearBackgroundSink, rshp::base::InputList<glm::vec3>>
+class ClearBackgroundSink : public rshp::base::Sink<ClearBackgroundSink, rshp::base::InputList<rshp::base::ColorRGB>>
 {
 public:
 	struct InputPorts

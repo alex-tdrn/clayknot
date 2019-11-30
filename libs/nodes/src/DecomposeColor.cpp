@@ -7,7 +7,7 @@ void rshp::nodes::DecomposeColor::update()
 	auto& g = getOutputData<OutputPorts::G>();
 	auto& b = getOutputData<OutputPorts::B>();
 
-	r = color.r;
-	g = color.g;
-	b = color.b;
+	r = color.r();
+	g = color.g();
+	b = color.b();
 }

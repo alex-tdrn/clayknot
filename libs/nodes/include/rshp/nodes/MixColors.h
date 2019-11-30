@@ -1,15 +1,15 @@
 #pragma once
 
+#include "rshp/base/ColorRGB.hpp"
 #include "rshp/base/node/Node.hpp"
 
 #include <array>
-#include <glm/glm.hpp>
 
 namespace rshp::nodes
 {
 class MixColors
-	: public rshp::base::Node<MixColors, rshp::base::InputList<float, glm::vec3, glm::vec3>,
-		  rshp::base::OutputList<glm::vec3>>
+	: public rshp::base::Node<MixColors, rshp::base::InputList<float, rshp::base::ColorRGB, rshp::base::ColorRGB>,
+		  rshp::base::OutputList<rshp::base::ColorRGB>>
 {
 public:
 	struct InputPorts

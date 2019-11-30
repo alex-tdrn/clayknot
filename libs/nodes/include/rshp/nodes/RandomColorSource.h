@@ -1,13 +1,13 @@
 #pragma once
 
+#include "rshp/base/ColorRGB.hpp"
 #include "rshp/base/node/Source.hpp"
 
 #include <array>
-#include <glm/glm.hpp>
 
 namespace rshp::nodes
 {
-class RandomColorSource : public rshp::base::Source<RandomColorSource, rshp::base::OutputList<glm::vec3>>
+class RandomColorSource : public rshp::base::Source<RandomColorSource, rshp::base::OutputList<rshp::base::ColorRGB>>
 {
 public:
 	struct OutputPorts

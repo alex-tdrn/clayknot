@@ -20,9 +20,12 @@ add_library(rendershop-base
 	"include/rshp/base/node/Source.hpp"
 	"include/rshp/base/Timestamp.hpp"
 	"include/rshp/base/Utility.hpp"
+	"include/rshp/base/ColorRGB.hpp"
+	"include/rshp/base/ColorRGBA.hpp"
 )
 
 target_include_directories(rendershop-base
 	PUBLIC
 	"include"
+	"../../external/glm/include"
 )

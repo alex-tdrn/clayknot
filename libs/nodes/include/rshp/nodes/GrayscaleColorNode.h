@@ -1,14 +1,15 @@
 #pragma once
 
+#include "rshp/base/ColorRGB.hpp"
 #include "rshp/base/node/Node.hpp"
 
 #include <array>
-#include <glm/glm.hpp>
 
 namespace rshp::nodes
 {
 class GrayscaleColorNode
-	: public rshp::base::Node<GrayscaleColorNode, rshp::base::InputList<glm::vec3>, rshp::base::OutputList<glm::vec3>>
+	: public rshp::base::Node<GrayscaleColorNode, rshp::base::InputList<rshp::base::ColorRGB>,
+		  rshp::base::OutputList<rshp::base::ColorRGB>>
 {
 public:
 	struct InputPorts

@@ -20,46 +20,46 @@ void StyleEditor::drawContents()
 		if(ImGui::CollapsingHeader("Canvas", ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			ImGui::Text("Canvas Background Color");
-			ImGui::ColorEdit4("##CanvasBackgroundColor", &sheet->nodeEditorBackgroundColor.x);
+			ImGui::ColorEdit4("##CanvasBackgroundColor", sheet->nodeEditorBackgroundColor.data());
 			ImGui::NewLine();
 
 			ImGui::Text("Canvas Grid Color");
-			ImGui::ColorEdit4("##CanvasGridColor", &sheet->nodeEditorGridColor.x);
+			ImGui::ColorEdit4("##CanvasGridColor", sheet->nodeEditorGridColor.data());
 			ImGui::NewLine();
 
 			ImGui::Text("Node Selection Rect Color");
-			ImGui::ColorEdit4("##NodeSelectionRectColor", &sheet->nodeSelectionRectColor.x);
+			ImGui::ColorEdit4("##NodeSelectionRectColor", sheet->nodeSelectionRectColor.data());
 			ImGui::NewLine();
 
 			ImGui::Text("Node Selection Rect Border Color");
-			ImGui::ColorEdit4("##NodeSelectionRectBorderColor", &sheet->nodeSelectionRectBorderColor.x);
+			ImGui::ColorEdit4("##NodeSelectionRectBorderColor", sheet->nodeSelectionRectBorderColor.data());
 			ImGui::NewLine();
 
 			ImGui::Text("Link Selection Rect Color");
-			ImGui::ColorEdit4("##LinkSelectionRectColor", &sheet->linkSelectionRectColor.x);
+			ImGui::ColorEdit4("##LinkSelectionRectColor", sheet->linkSelectionRectColor.data());
 			ImGui::NewLine();
 
 			ImGui::Text("Link Selection Rect Border Color");
-			ImGui::ColorEdit4("##LinkSelectionRectBorderColor", &sheet->linkSelectionRectBorderColor.x);
+			ImGui::ColorEdit4("##LinkSelectionRectBorderColor", sheet->linkSelectionRectBorderColor.data());
 			ImGui::NewLine();
 		}
 
 		if(ImGui::CollapsingHeader("Nodes", ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			ImGui::Text("Node Background Color");
-			ImGui::ColorEdit4("##NodeBackgroundColor", &sheet->nodeBackgroundColor.x);
+			ImGui::ColorEdit4("##NodeBackgroundColor", sheet->nodeBackgroundColor.data());
 			ImGui::NewLine();
 
 			ImGui::Text("Node Border Color");
-			ImGui::ColorEdit4("##NodeBorderColor", &sheet->nodeBorderColor.x);
+			ImGui::ColorEdit4("##NodeBorderColor", sheet->nodeBorderColor.data());
 			ImGui::NewLine();
 
 			ImGui::Text("Hovered Node Border Color");
-			ImGui::ColorEdit4("##HoveredNodeBorderColor", &sheet->hoveredNodeBorderColor.x);
+			ImGui::ColorEdit4("##HoveredNodeBorderColor", sheet->hoveredNodeBorderColor.data());
 			ImGui::NewLine();
 
 			ImGui::Text("Selected Node Border Color");
-			ImGui::ColorEdit4("##SelectedNodeBorderColor", &sheet->selectedNodeBorderColor.x);
+			ImGui::ColorEdit4("##SelectedNodeBorderColor", sheet->selectedNodeBorderColor.data());
 			ImGui::NewLine();
 
 			ImGui::Text("Node Border Width");
@@ -86,19 +86,19 @@ void StyleEditor::drawContents()
 		if(ImGui::CollapsingHeader("Pins", ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			ImGui::Text("Pin Rect Color");
-			ImGui::ColorEdit4("##PinRectColor", &sheet->pinRectColor.x);
+			ImGui::ColorEdit4("##PinRectColor", sheet->pinRectColor.data());
 			ImGui::NewLine();
 
 			ImGui::Text("Pin Rect Border Color");
-			ImGui::ColorEdit4("##PinRectBorderColor", &sheet->pinRectBorderColor.x);
+			ImGui::ColorEdit4("##PinRectBorderColor", sheet->pinRectBorderColor.data());
 			ImGui::NewLine();
 
 			ImGui::Text("Event Color");
-			ImGui::ColorEdit4("##EventColor", &sheet->eventColor.x);
+			ImGui::ColorEdit4("##EventColor", sheet->eventColor.data());
 			ImGui::NewLine();
 
 			ImGui::Text("Event Text Color");
-			ImGui::ColorEdit4("##EventTextColor", &sheet->eventTextColor.x);
+			ImGui::ColorEdit4("##EventTextColor", sheet->eventTextColor.data());
 			ImGui::NewLine();
 
 			ImGui::Text("Anchor Offset");
@@ -141,11 +141,11 @@ void StyleEditor::drawContents()
 		if(ImGui::CollapsingHeader("Links", ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			ImGui::Text("Hovered Link Border Color");
-			ImGui::ColorEdit4("##HoveredLinkBorderColor", &sheet->hoveredLinkBorderColor.x);
+			ImGui::ColorEdit4("##HoveredLinkBorderColor", sheet->hoveredLinkBorderColor.data());
 			ImGui::NewLine();
 
 			ImGui::Text("Selected Link Border Color");
-			ImGui::ColorEdit4("##SelectedLinkBorderColor", &sheet->selectedLinkBorderColor.x);
+			ImGui::ColorEdit4("##SelectedLinkBorderColor", sheet->selectedLinkBorderColor.data());
 			ImGui::NewLine();
 
 			ImGui::Text("Link Strength");

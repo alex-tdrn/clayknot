@@ -1,14 +1,14 @@
 #pragma once
 
+#include "rshp/base/ColorRGB.hpp"
 #include "rshp/base/node/Node.hpp"
 
 #include <array>
-#include <glm/glm.hpp>
 
 namespace rshp::nodes
 {
 class DecomposeColor
-	: public rshp::base::Node<DecomposeColor, rshp::base::InputList<glm::vec3>,
+	: public rshp::base::Node<DecomposeColor, rshp::base::InputList<rshp::base::ColorRGB>,
 		  rshp::base::OutputList<float, float, float>>
 {
 public:

@@ -3,5 +3,5 @@
 void rshp::nodes::RandomColorSource::update()
 {
 	auto& color = getOutputData<OutputPorts::Color>();
-	color = {rand() % 256 / 256.0, rand() % 256 / 256.0, rand() % 256 / 256.0};
+	color = {rand() % 256 / 256.0f, rand() % 256 / 256.0f, rand() % 256 / 256.0f};
 }

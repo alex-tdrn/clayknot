@@ -1,7 +1,7 @@
 #include "rshp/gui/nodes/OutputDataPortDelegate.h"
+#include "rshp/base/ColorRGB.hpp"
 #include "rshp/base/port/OutputDataPort.hpp"
 
-#include <glm/glm.hpp>
 #include <imgui.h>
 
 namespace rshp::gui
@@ -22,10 +22,10 @@ public:
 };
 
 template <>
-void Delegate<glm::vec3>::draw() const
+void Delegate<rshp::base::ColorRGB>::draw() const
 {
 	auto output = port->get();
-	ImGui::ColorButton(id.c_str(), {output.r, output.g, output.b, 1},
+	ImGui::ColorButton(id.c_str(), {output.r(), output.g(), output.b(), 1},
 		ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoDragDrop, ImVec2(32, 32));
 }
 
@@ -38,9 +38,9 @@ void Delegate<float>::draw() const
 
 std::unique_ptr<OutputDataPortDelegate> OutputDataPortDelegate::create(rshp::base::DataPort* port)
 {
-	auto colorPort = dynamic_cast<rshp::base::OutputDataPort<glm::vec3> const*>(port);
+	auto colorPort = dynamic_cast<rshp::base::OutputDataPort<rshp::base::ColorRGB> const*>(port);
 	if(colorPort)
-		return std::make_unique<Delegate<glm::vec3>>(colorPort);
+		return std::make_unique<Delegate<rshp::base::ColorRGB>>(colorPort);
 
 	auto floatPort = dynamic_cast<rshp::base::OutputDataPort<float> const*>(port);
 	if(floatPort)

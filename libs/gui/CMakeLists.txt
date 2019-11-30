@@ -51,6 +51,11 @@ target_include_directories(rendershop-gui
 	"../../external/glm/include"
 )
 
+target_compile_definitions(rendershop-gui
+	PUBLIC 
+	IMGUI_ADD_VECTOR_CONVERSIONS
+)
+
 target_link_libraries(rendershop-gui
 	PRIVATE
 	rendershop-base
