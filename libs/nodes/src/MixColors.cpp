@@ -1,6 +1,6 @@
-#include "rshp/nodes/MixColors.h"
+#include "rsp/nodes/MixColors.h"
 
-void rshp::nodes::MixColors::update()
+void rsp::nodes::MixColors::update()
 {
 	auto& factor = getInputData<InputPorts::Factor>();
 	auto& colorA = getInputData<InputPorts::ColorA>();

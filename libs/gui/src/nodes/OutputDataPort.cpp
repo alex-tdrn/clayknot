@@ -1,25 +1,22 @@
-#include "rshp/gui/nodes/OutputDataPort.h"
-#include "rshp/base/port/OutputDataPort.hpp"
-#include "rshp/gui/ImGuiUtilities.hpp"
-#include "rshp/gui/nodes/OutputDataPortDelegate.h"
+#include "rsp/gui/nodes/OutputDataPort.h"
+#include "rsp/base/port/OutputDataPort.hpp"
+#include "rsp/gui/ImGuiUtilities.hpp"
+#include "rsp/gui/nodes/OutputDataPortDelegate.h"
 
 #include <glm/glm.hpp>
 
-namespace rshp::gui
+namespace rsp::gui
 {
-OutputDataPort::OutputDataPort(rshp::base::DataPort* port) : OutputPort(port), port(port)
+OutputDataPort::OutputDataPort(rsp::DataPort* port) : OutputPort(port), port(port)
 {
-	delegate = OutputDataPortDelegate::create(port);
+	delegate = OutputDataPortDelegate::create(port, port->getName());
 }
 
 void OutputDataPort::draw()
 {
 	ax::NodeEditor::BeginPin(id, ax::NodeEditor::PinKind::Output);
 	ImGui::BeginGroup();
-	ImGui::Text(port->getName().c_str());
-
 	delegate->draw();
-
 	ImGui::EndGroup();
 
 	auto anchorPosition = calculateAnchorPosition();
@@ -40,4 +37,4 @@ ImVec2 OutputDataPort::calculateSize() const
 	return ImGui::CalcTextSize(port->getName().c_str());
 }
 
-} // namespace rshp::gui
+} // namespace rsp::gui

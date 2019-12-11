@@ -1,6 +1,6 @@
-#include "rshp/gui/nodes/FrameControllerNode.h"
+#include "rsp/gui/nodes/FrameControllerNode.h"
 
-namespace rshp::gui
+namespace rsp::gui
 {
 void FrameControllerNode::registerOutputEvents()
 {
@@ -18,4 +18,4 @@ void FrameControllerNode::newFrame()
 	trigger(OutputEvents::NewFrame);
 }
 
-} // namespace rshp::gui
+} // namespace rsp::gui

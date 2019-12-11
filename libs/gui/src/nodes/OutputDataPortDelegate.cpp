@@ -1,53 +1,44 @@
-#include "rshp/gui/nodes/OutputDataPortDelegate.h"
-#include "rshp/base/ColorRGB.hpp"
-#include "rshp/base/port/OutputDataPort.hpp"
+#include "rsp/gui/nodes/OutputDataPortDelegate.h"
+#include "rsp/base/ColorRGB.hpp"
+#include "rsp/base/port/OutputDataPort.hpp"
+#include "rsp/gui/widgets/Viewer.hpp"
 
 #include <imgui.h>
 
-namespace rshp::gui
+namespace rsp::gui
 {
 template <typename T>
 class Delegate : public OutputDataPortDelegate
 {
-	rshp::base::OutputDataPort<T> const* port;
+	rsp::OutputDataPort<T> const* port;
+	rsp::gui::Viewer<T> viewer;
 	std::string id = "##OutputPort";
 
 public:
-	Delegate(rshp::base::OutputDataPort<T> const* port) : port(port)
+	Delegate(rsp::OutputDataPort<T> const* port, std::string name) : port(port), viewer(port->get(), name)
 	{
 		id += port->getName();
+		viewer.setMaximumWidth(200);
 	}
 
-	void draw() const;
+	void draw() const
+	{
+		viewer.draw();
+	}
 };
 
-template <>
-void Delegate<rshp::base::ColorRGB>::draw() const
+std::unique_ptr<OutputDataPortDelegate> OutputDataPortDelegate::create(rsp::DataPort* port, std::string name)
 {
-	auto output = port->get();
-	ImGui::ColorButton(id.c_str(), {output.r(), output.g(), output.b(), 1},
-		ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoDragDrop, ImVec2(32, 32));
-}
-
-template <>
-void Delegate<float>::draw() const
-{
-	auto output = port->get();
-	ImGui::Text("%.2f", output);
-}
-
-std::unique_ptr<OutputDataPortDelegate> OutputDataPortDelegate::create(rshp::base::DataPort* port)
-{
-	auto colorPort = dynamic_cast<rshp::base::OutputDataPort<rshp::base::ColorRGB> const*>(port);
+	auto colorPort = dynamic_cast<rsp::OutputDataPort<rsp::ColorRGB> const*>(port);
 	if(colorPort)
-		return std::make_unique<Delegate<rshp::base::ColorRGB>>(colorPort);
+		return std::make_unique<Delegate<rsp::ColorRGB>>(colorPort, name);
 
-	auto floatPort = dynamic_cast<rshp::base::OutputDataPort<float> const*>(port);
+	auto floatPort = dynamic_cast<rsp::OutputDataPort<float> const*>(port);
 	if(floatPort)
-		return std::make_unique<Delegate<float>>(floatPort);
+		return std::make_unique<Delegate<float>>(floatPort, name);
 
 	assert(false);
 	return nullptr;
 }
 
-} // namespace rshp::gui
+} // namespace rsp::gui

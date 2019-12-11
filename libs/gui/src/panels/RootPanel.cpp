@@ -1,8 +1,8 @@
-#include "rshp/gui/panels/RootPanel.h"
+#include "rsp/gui/panels/RootPanel.h"
 
 #include <imgui.h>
 
-namespace rshp::gui
+namespace rsp::gui
 {
 RootPanel::RootPanel()
 {
@@ -16,6 +16,8 @@ RootPanel::RootPanel()
 	flags |= ImGuiWindowFlags_NoMove;
 	flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
 	flags |= ImGuiWindowFlags_NoNavFocus;
+
+	customWindowSetup = true;
 }
 
 Panel* RootPanel::addChildImpl(std::unique_ptr<Panel>&& widget)
@@ -57,4 +59,4 @@ void RootPanel::drawContents()
 		child->draw();
 }
 
-} // namespace rshp::gui
+} // namespace rsp::gui

@@ -1,6 +1,8 @@
-#include "rshp/gui/panels/StyleEditor.h"
+#include "rsp/gui/panels/StyleEditor.h"
+#include "rsp/gui/widgets/Editor.hpp"
+#include "rsp/gui/widgets/Viewer.hpp"
 
-namespace rshp::gui
+namespace rsp::gui
 {
 StyleEditor::StyleEditor()
 {
@@ -11,173 +13,54 @@ void StyleEditor::setStylesheet(Stylesheet& sheet)
 {
 	this->sheet = &sheet;
 	title = "Stylesheet " + sheet.getName();
+
+	styleWidgets.clear();
+
+	styleWidgets.push_back(makeEditor(this->sheet->nodeEditorBackgroundColor, "Canvas Background Color"));
+	styleWidgets.push_back(makeEditor(this->sheet->nodeEditorGridColor, "Canvas Grid Color"));
+	styleWidgets.push_back(makeEditor(this->sheet->nodeSelectionRectColor, "Node Selection Rect Color"));
+	styleWidgets.push_back(makeEditor(this->sheet->nodeSelectionRectBorderColor, "Node Selection Rect Border Color"));
+	styleWidgets.push_back(makeEditor(this->sheet->linkSelectionRectColor, "Link Selection Rect Color"));
+	styleWidgets.push_back(makeEditor(this->sheet->linkSelectionRectBorderColor, "Link Selection Rect Border Color"));
+	styleWidgets.push_back(makeEditor(this->sheet->nodeBackgroundColor, "Node Background Color"));
+	styleWidgets.push_back(makeEditor(this->sheet->nodeBorderColor, "Node Border Color"));
+	styleWidgets.push_back(makeEditor(this->sheet->hoveredNodeBorderColor, "Hovered Node Border Color"));
+	styleWidgets.push_back(makeEditor(this->sheet->selectedNodeBorderColor, "Selected Node Border Color"));
+	styleWidgets.push_back(makeEditor(this->sheet->nodeBorderWidth, "Node Border Width"));
+	styleWidgets.push_back(makeEditor(this->sheet->hoveredNodeBorderWidth, "Hovered Border Width"));
+	styleWidgets.push_back(makeEditor(this->sheet->selectedNodeBorderWidth, "Selected Border Width"));
+	styleWidgets.push_back(makeEditor(this->sheet->nodeRounding, "Node Rounding"));
+	styleWidgets.push_back(makeEditor(this->sheet->nodePadding, "Node Padding"));
+	styleWidgets.push_back(makeEditor(this->sheet->pinRectColor, "Pin Rect Color"));
+	styleWidgets.push_back(makeEditor(this->sheet->pinRectBorderColor, "Pin Rect Border Color"));
+	styleWidgets.push_back(makeEditor(this->sheet->eventColor, "Event Color"));
+	styleWidgets.push_back(makeEditor(this->sheet->eventTextColor, "Event Text Color"));
+	styleWidgets.push_back(makeEditor(this->sheet->anchorOffset, "Anchor Offset"));
+	styleWidgets.push_back(makeEditor(this->sheet->animatedAnchorOffset, "Animated Anchor Offset"));
+	styleWidgets.push_back(makeEditor(this->sheet->animatedAnchorOffsetDuration, "Duration Anchor Offset Animation"));
+	styleWidgets.push_back(makeEditor(this->sheet->pinBorderWidth, "Pin Border Width"));
+	styleWidgets.push_back(makeEditor(this->sheet->pinRounding, "Pin Rounding"));
+	styleWidgets.push_back(makeEditor(this->sheet->pinRadius, "Pin Radius"));
+	styleWidgets.push_back(makeEditor(this->sheet->pinArrowSize, "Pin Arrow Size"));
+	styleWidgets.push_back(makeEditor(this->sheet->pinArrowWidth, "Pin Arrow Width"));
+	styleWidgets.push_back(makeEditor(this->sheet->hoveredLinkBorderColor, "Hovered Link Border Color"));
+	styleWidgets.push_back(makeEditor(this->sheet->selectedLinkBorderColor, "Selected Link Border Color"));
+	styleWidgets.push_back(makeEditor(this->sheet->linkStrength, "Link Strength"));
+	styleWidgets.push_back(makeEditor(this->sheet->linkThickness, "Link Thickness"));
+	styleWidgets.push_back(makeEditor(this->sheet->targetDirection, "Target Direction"));
+	styleWidgets.push_back(makeEditor(this->sheet->sourceDirection, "Source Direction"));
+	styleWidgets.push_back(makeEditor(this->sheet->flowMarkerDistance, "Flow Marker Distance"));
+	styleWidgets.push_back(makeEditor(this->sheet->flowSpeed, "Flow Speed"));
+	styleWidgets.push_back(makeEditor(this->sheet->flowDuration, "Flow Duration"));
 }
 
 void StyleEditor::drawContents()
 {
-	if(ImGui::Begin(title.c_str(), &visible, flags))
+	for(auto& widget : styleWidgets)
 	{
-		if(ImGui::CollapsingHeader("Canvas", ImGuiTreeNodeFlags_DefaultOpen))
-		{
-			ImGui::Text("Canvas Background Color");
-			ImGui::ColorEdit4("##CanvasBackgroundColor", sheet->nodeEditorBackgroundColor.data());
-			ImGui::NewLine();
-
-			ImGui::Text("Canvas Grid Color");
-			ImGui::ColorEdit4("##CanvasGridColor", sheet->nodeEditorGridColor.data());
-			ImGui::NewLine();
-
-			ImGui::Text("Node Selection Rect Color");
-			ImGui::ColorEdit4("##NodeSelectionRectColor", sheet->nodeSelectionRectColor.data());
-			ImGui::NewLine();
-
-			ImGui::Text("Node Selection Rect Border Color");
-			ImGui::ColorEdit4("##NodeSelectionRectBorderColor", sheet->nodeSelectionRectBorderColor.data());
-			ImGui::NewLine();
-
-			ImGui::Text("Link Selection Rect Color");
-			ImGui::ColorEdit4("##LinkSelectionRectColor", sheet->linkSelectionRectColor.data());
-			ImGui::NewLine();
-
-			ImGui::Text("Link Selection Rect Border Color");
-			ImGui::ColorEdit4("##LinkSelectionRectBorderColor", sheet->linkSelectionRectBorderColor.data());
-			ImGui::NewLine();
-		}
-
-		if(ImGui::CollapsingHeader("Nodes", ImGuiTreeNodeFlags_DefaultOpen))
-		{
-			ImGui::Text("Node Background Color");
-			ImGui::ColorEdit4("##NodeBackgroundColor", sheet->nodeBackgroundColor.data());
-			ImGui::NewLine();
-
-			ImGui::Text("Node Border Color");
-			ImGui::ColorEdit4("##NodeBorderColor", sheet->nodeBorderColor.data());
-			ImGui::NewLine();
-
-			ImGui::Text("Hovered Node Border Color");
-			ImGui::ColorEdit4("##HoveredNodeBorderColor", sheet->hoveredNodeBorderColor.data());
-			ImGui::NewLine();
-
-			ImGui::Text("Selected Node Border Color");
-			ImGui::ColorEdit4("##SelectedNodeBorderColor", sheet->selectedNodeBorderColor.data());
-			ImGui::NewLine();
-
-			ImGui::Text("Node Border Width");
-			ImGui::SliderFloat("##NodeBorderWidth", &sheet->nodeBorderWidth, 1.0f, 10.0f);
-			ImGui::NewLine();
-
-			ImGui::Text("Hovered Border Width");
-			ImGui::SliderFloat("##HoveredBorderWidth", &sheet->hoveredNodeBorderWidth, 1.0f, 10.0f);
-			ImGui::NewLine();
-
-			ImGui::Text("Selected Border Width");
-			ImGui::SliderFloat("##SelectedBorderWidth", &sheet->selectedNodeBorderWidth, 1.0f, 10.0f);
-			ImGui::NewLine();
-
-			ImGui::Text("Node Rounding");
-			ImGui::SliderFloat("##NodeRounding", &sheet->nodeRounding, 0.0f, 100.0f);
-			ImGui::NewLine();
-
-			ImGui::Text("Node Padding");
-			ImGui::SliderFloat4("##NodePadding", &sheet->nodePadding.x, 0.0f, 100.0f);
-			ImGui::NewLine();
-		}
-
-		if(ImGui::CollapsingHeader("Pins", ImGuiTreeNodeFlags_DefaultOpen))
-		{
-			ImGui::Text("Pin Rect Color");
-			ImGui::ColorEdit4("##PinRectColor", sheet->pinRectColor.data());
-			ImGui::NewLine();
-
-			ImGui::Text("Pin Rect Border Color");
-			ImGui::ColorEdit4("##PinRectBorderColor", sheet->pinRectBorderColor.data());
-			ImGui::NewLine();
-
-			ImGui::Text("Event Color");
-			ImGui::ColorEdit4("##EventColor", sheet->eventColor.data());
-			ImGui::NewLine();
-
-			ImGui::Text("Event Text Color");
-			ImGui::ColorEdit4("##EventTextColor", sheet->eventTextColor.data());
-			ImGui::NewLine();
-
-			ImGui::Text("Anchor Offset");
-			ImGui::SliderFloat("##AnchorOffset", &sheet->anchorOffset, 0.0f, 100.0f);
-			ImGui::NewLine();
-
-			ImGui::Text("Animated Anchor Offset");
-			ImGui::SliderFloat("##AnimatedAnchorOffset", &sheet->animatedAnchorOffset, 0.0f, 100.0f);
-			ImGui::NewLine();
-
-			ImGui::Text("Duration Anchor Offset Animation");
-			int duration = sheet->animatedAnchorOffsetDuration.count();
-			ImGui::InputInt("##DurationAnchorOffsetAnimation", &duration, 10, 100);
-			if(duration < 0)
-				duration = 0;
-			sheet->animatedAnchorOffsetDuration = std::chrono::milliseconds(duration);
-			ImGui::NewLine();
-
-			ImGui::Text("Pin Border Width");
-			ImGui::SliderFloat("##PinBorderWidth", &sheet->pinBorderWidth, 0.0f, 100.0f);
-			ImGui::NewLine();
-
-			ImGui::Text("Pin Rounding");
-			ImGui::SliderFloat("##PinRounding", &sheet->pinRounding, 0.0f, 100.0f);
-			ImGui::NewLine();
-
-			ImGui::Text("Pin Radius");
-			ImGui::SliderFloat("##PinRadius", &sheet->pinRadius, 0.0f, 100.0f);
-			ImGui::NewLine();
-
-			ImGui::Text("Pin Arrow Size");
-			ImGui::SliderFloat("##PinArrowSize", &sheet->pinArrowSize, 0.0f, 100.0f);
-			ImGui::NewLine();
-
-			ImGui::Text("Pin Arrow Width");
-			ImGui::SliderFloat("##PinArrowWidth", &sheet->pinArrowWidth, 0.0f, 100.0f);
-			ImGui::NewLine();
-		}
-
-		if(ImGui::CollapsingHeader("Links", ImGuiTreeNodeFlags_DefaultOpen))
-		{
-			ImGui::Text("Hovered Link Border Color");
-			ImGui::ColorEdit4("##HoveredLinkBorderColor", sheet->hoveredLinkBorderColor.data());
-			ImGui::NewLine();
-
-			ImGui::Text("Selected Link Border Color");
-			ImGui::ColorEdit4("##SelectedLinkBorderColor", sheet->selectedLinkBorderColor.data());
-			ImGui::NewLine();
-
-			ImGui::Text("Link Strength");
-			ImGui::SliderFloat("##LinkStrength", &sheet->linkStrength, 0.0f, 1000.0f);
-			ImGui::NewLine();
-
-			ImGui::Text("Link Thickness");
-			ImGui::SliderFloat("##LinkThickness", &sheet->linkThickness, 1.0f, 10.0f);
-			ImGui::NewLine();
-
-			ImGui::Text("Target Direction");
-			ImGui::SliderFloat2("##TargetDirection", &sheet->targetDirection.x, -1.0f, 1.0f);
-			ImGui::NewLine();
-
-			ImGui::Text("Source Direction");
-			ImGui::SliderFloat2("##SourceDirection", &sheet->sourceDirection.x, -1.0f, 1.0f);
-			ImGui::NewLine();
-
-			ImGui::Text("Flow Marker Distance");
-			ImGui::SliderFloat("##FlowMarkerDistance", &sheet->flowMarkerDistance, 0.0f, 100.0f);
-			ImGui::NewLine();
-
-			ImGui::Text("Flow Speed");
-			ImGui::SliderFloat("##FlowSpeed", &sheet->flowSpeed, 0.0f, 1000.0f);
-			ImGui::NewLine();
-
-			ImGui::Text("Flow Duration");
-			ImGui::SliderFloat("##FlowDuration", &sheet->flowDuration, 0.0f, 10.0f);
-			ImGui::NewLine();
-		}
+		widget->draw();
+		ImGui::NewLine();
 	}
-	ImGui::End();
 }
 
-} // namespace rshp::gui
+} // namespace rsp::gui

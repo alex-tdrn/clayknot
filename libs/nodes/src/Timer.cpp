@@ -1,6 +1,6 @@
-#include "rshp/nodes/Timer.hpp"
+#include "rsp/nodes/Timer.hpp"
 
-namespace rshp::nodes
+namespace rsp::nodes
 {
 void Timer::registerInputEvents()
 {
@@ -30,4 +30,4 @@ void Timer::poll()
 	}
 }
 
-} // namespace rshp::nodes
+} // namespace rsp::nodes

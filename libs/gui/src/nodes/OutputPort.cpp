@@ -1,10 +1,10 @@
-#include "rshp/gui/nodes/OutputPort.h"
-#include "rshp/gui/Stylesheet.hpp"
-#include "rshp/gui/nodes/InputPort.h"
+#include "rsp/gui/nodes/OutputPort.h"
+#include "rsp/gui/Stylesheet.hpp"
+#include "rsp/gui/nodes/InputPort.h"
 
-namespace rshp::gui
+namespace rsp::gui
 {
-OutputPort::OutputPort(rshp::base::Port* port) : AbstractPort(port)
+OutputPort::OutputPort(rsp::Port* port) : AbstractPort(port)
 {
 	for(auto connection : port->getConnections())
 		if(auto pin = getPinForPort(connection); pin != nullptr)
@@ -37,4 +37,4 @@ void OutputPort::connect(AbstractPort* inputPort)
 	dynamic_cast<InputPort*>(inputPort)->connect(this);
 }
 
-} // namespace rshp::gui
+} // namespace rsp::gui

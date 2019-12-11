@@ -1,7 +1,7 @@
-#include "rshp/base/port/InputEventPort.h"
-#include "rshp/base/port/OutputEventPort.h"
+#include "rsp/base/port/InputEventPort.h"
+#include "rsp/base/port/OutputEventPort.h"
 
-namespace rshp::base
+namespace rsp
 {
 int InputEventPort::getTimesTriggered() const
 {
@@ -19,4 +19,4 @@ void InputEventPort::operator()() const
 	trigger();
 }
 
-} // namespace rshp::base
+} // namespace rsp

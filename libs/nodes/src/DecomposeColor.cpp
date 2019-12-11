@@ -1,6 +1,6 @@
-#include "rshp/nodes/DecomposeColor.h"
+#include "rsp/nodes/DecomposeColor.h"
 
-void rshp::nodes::DecomposeColor::update()
+void rsp::nodes::DecomposeColor::update()
 {
 	auto& color = getInputData<InputPorts::Color>();
 	auto& r = getOutputData<OutputPorts::R>();

@@ -58,17 +58,57 @@
 #ifdef IMGUI_ADD_VECTOR_CONVERSIONS
 
 #include <glm/glm.hpp>
-#include "rshp/base/ColorRGBA.hpp"
+#include "rsp/base/ColorRGBA.hpp"
+#include "rsp/base/Bounded.hpp"
 
-#define IM_VEC2_CLASS_EXTRA                                                 \
-        ImVec2(const glm::vec2& f) { x = f.x; y = f.y; }                    \
-        operator glm::vec2() const { return glm::vec2(x,y); }
+#define IM_VEC2_CLASS_EXTRA                                                    \
+        ImVec2(const glm::vec2& f)                                             \
+        {                                                                      \
+            x = f.x;                                                           \
+            y = f.y;                                                           \
+        }                                                                      \
+        operator glm::vec2() const                                             \
+        {                                                                      \
+            return glm::vec2(x,y);                                             \
+        }                                                                      \
+        ImVec2(const rsp::Bounded<glm::vec2>& f)                               \
+        {                                                                      \
+            glm::vec2 v = f.getVal();                                          \
+            x = v.x;                                                           \
+            y = v.y;                                                           \
+        }                                                                      \
 
-#define IM_VEC4_CLASS_EXTRA                                                 \
-        ImVec4(const glm::vec4& f) { x = f.x; y = f.y; z = f.z; w = f.w; }     \
-        operator glm::vec4() const { return glm::vec4(x,y,z,w); }              \
-        ImVec4(const rshp::base::ColorRGBA& f) { x = f.r(); y = f.g(); z = f.b(); w = f.a(); }     \
-        operator rshp::base::ColorRGBA() const { return rshp::base::ColorRGBA(x,y,z,w); }
+#define IM_VEC4_CLASS_EXTRA                                                    \
+        ImVec4(const glm::vec4& f)                                             \
+        {                                                                      \
+            x = f.x;                                                           \
+            y = f.y;                                                           \
+            z = f.z;                                                           \
+            w = f.w;                                                           \
+        }                                                                      \
+        operator glm::vec4() const                                             \
+        {                                                                      \
+            return glm::vec4(x,y,z,w);                                         \
+        }                                                                      \
+        ImVec4(const rsp::ColorRGBA& f)                                        \
+        {                                                                      \
+            x = f.r();                                                         \
+            y = f.g();                                                         \
+            z = f.b();                                                         \
+            w = f.a();                                                         \
+        }                                                                      \
+        operator rsp::ColorRGBA() const                                        \
+        {                                                                      \
+            return rsp::ColorRGBA(x,y,z,w);                                    \
+        }                                                                      \
+        ImVec4(const rsp::Bounded<glm::vec4>& f)                               \
+        {                                                                      \
+            glm::vec4 v = f.getVal();                                          \
+            x = v.x;                                                           \
+            y = v.y;                                                           \
+            z = v.z;                                                           \
+            w = v.w;                                                           \
+        }                                                                      \
 
 #endif
 

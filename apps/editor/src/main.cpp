@@ -1,14 +1,14 @@
-#include "rshp/gui/Stylesheet.hpp"
-#include "rshp/gui/nodes/FrameControllerNode.h"
-#include "rshp/gui/panels/NodeEditor.h"
-#include "rshp/gui/panels/RootPanel.h"
-#include "rshp/gui/panels/StyleEditor.h"
-#include "rshp/nodes/ClearBackgroundSink.h"
-#include "rshp/nodes/GrayscaleColorNode.h"
-#include "rshp/nodes/MixColors.h"
-#include "rshp/nodes/RandomColorSource.h"
-#include "rshp/nodes/Timer.hpp"
-#include "rshp/nodes/ValueToColor.h"
+#include "rsp/gui/Stylesheet.hpp"
+#include "rsp/gui/nodes/FrameControllerNode.h"
+#include "rsp/gui/panels/NodeEditor.h"
+#include "rsp/gui/panels/RootPanel.h"
+#include "rsp/gui/panels/StyleEditor.h"
+#include "rsp/nodes/ClearBackgroundSink.h"
+#include "rsp/nodes/GrayscaleColorNode.h"
+#include "rsp/nodes/MixColors.h"
+#include "rsp/nodes/RandomColorSource.h"
+#include "rsp/nodes/Timer.hpp"
+#include "rsp/nodes/ValueToColor.h"
 
 #include <glad/glad.h>
 
@@ -71,32 +71,32 @@ int main(int argc, char** argv)
 	ImGui_ImplOpenGL3_Init("#version 420");
 
 	using namespace std::chrono_literals;
-	std::vector<std::unique_ptr<rshp::base::AbstractNode>> nodes;
+	std::vector<std::unique_ptr<rsp::AbstractNode>> nodes;
 
-	std::unique_ptr<rshp::base::AbstractNode> source = std::make_unique<rshp::nodes::RandomColorSource>();
-	std::unique_ptr<rshp::base::AbstractNode> sink = std::make_unique<rshp::nodes::ClearBackgroundSink>();
-	std::unique_ptr<rshp::base::AbstractNode> timer = std::make_unique<rshp::nodes::Timer>();
-	auto tmpFrameController = std::make_unique<rshp::gui::FrameControllerNode>();
-	rshp::gui::FrameControllerNode* frameController = tmpFrameController.get();
+	std::unique_ptr<rsp::AbstractNode> source = std::make_unique<rsp::nodes::RandomColorSource>();
+	std::unique_ptr<rsp::AbstractNode> sink = std::make_unique<rsp::nodes::ClearBackgroundSink>();
+	std::unique_ptr<rsp::AbstractNode> timer = std::make_unique<rsp::nodes::Timer>();
+	auto tmpFrameController = std::make_unique<rsp::gui::FrameControllerNode>();
+	rsp::gui::FrameControllerNode* frameController = tmpFrameController.get();
 
-	timer->getOutputEventPort(rshp::nodes::Timer::OutputEvents::Timeout)
-		.connect(&sink->getInputEventPort(rshp::nodes::ClearBackgroundSink::InputEvents::Run));
-	timer->getOutputEventPort(rshp::nodes::Timer::OutputEvents::Timeout)
-		.connect(&source->getInputEventPort(rshp::nodes::RandomColorSource::InputEvents::QueueUpdate));
-	timer->getInputEventPort(rshp::nodes::Timer::InputEvents::Poll)
-		.connect(&frameController->getOutputEventPort(rshp::gui::FrameControllerNode::OutputEvents::NewFrame));
+	timer->getOutputEventPort(rsp::nodes::Timer::OutputEvents::Timeout)
+		.connect(&sink->getInputEventPort(rsp::nodes::ClearBackgroundSink::InputEvents::Run));
+	timer->getOutputEventPort(rsp::nodes::Timer::OutputEvents::Timeout)
+		.connect(&source->getInputEventPort(rsp::nodes::RandomColorSource::InputEvents::QueueUpdate));
+	timer->getInputEventPort(rsp::nodes::Timer::InputEvents::Poll)
+		.connect(&frameController->getOutputEventPort(rsp::gui::FrameControllerNode::OutputEvents::NewFrame));
 
 	nodes.push_back(std::move(source));
 	nodes.push_back(std::move(sink));
 	nodes.push_back(std::move(timer));
 	nodes.push_back(std::move(tmpFrameController));
 
-	rshp::gui::Stylesheet::addSheet(rshp::gui::Stylesheet());
+	rsp::gui::Stylesheet::addSheet(rsp::gui::Stylesheet());
 
-	rshp::gui::RootPanel rootWindow;
-	rshp::gui::NodeEditor* canvas = rootWindow.addChild(std::make_unique<rshp::gui::NodeEditor>());
+	rsp::gui::RootPanel rootWindow;
+	rsp::gui::NodeEditor* canvas = rootWindow.addChild(std::make_unique<rsp::gui::NodeEditor>());
 	canvas->setStore(&nodes);
-	rootWindow.addChild(std::make_unique<rshp::gui::StyleEditor>());
+	rootWindow.addChild(std::make_unique<rsp::gui::StyleEditor>());
 
 	while(!glfwWindowShouldClose(window))
 	{

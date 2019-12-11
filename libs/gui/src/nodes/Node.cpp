@@ -1,21 +1,21 @@
-#include "rshp/gui/nodes/Node.h"
-#include "rshp/base/node/AbstractSink.hpp"
-#include "rshp/base/node/AbstractSource.hpp"
-#include "rshp/gui/Stylesheet.hpp"
-#include "rshp/gui/UIDebug.hpp"
-#include "rshp/gui/UniqueID.hpp"
+#include "rsp/gui/nodes/Node.h"
+#include "rsp/base/node/AbstractSink.hpp"
+#include "rsp/base/node/AbstractSource.hpp"
+#include "rsp/gui/Stylesheet.hpp"
+#include "rsp/gui/UIDebug.hpp"
+#include "rsp/gui/UniqueID.hpp"
 
 #include <algorithm>
 
-namespace rshp::gui
+namespace rsp::gui
 {
-Node::Node(rshp::base::AbstractNode* node) : node(node), id(uniqueID())
+Node::Node(rsp::AbstractNode* node) : node(node), id(uniqueID())
 {
-	if(auto sink = dynamic_cast<rshp::base::AbstractSink*>(node); sink != nullptr)
+	if(auto sink = dynamic_cast<rsp::AbstractSink*>(node); sink != nullptr)
 		for(auto inputDataPort : sink->getInputDataPorts())
 			inputDataPorts.push_back(std::make_unique<InputDataPort>(inputDataPort));
 
-	if(auto source = dynamic_cast<rshp::base::AbstractSource*>(node); source != nullptr)
+	if(auto source = dynamic_cast<rsp::AbstractSource*>(node); source != nullptr)
 		for(auto OutputPort : source->getOutputDataPorts())
 			outputDataPorts.push_back(std::make_unique<OutputDataPort>(OutputPort));
 	node->registerInputEvents();
@@ -178,4 +178,4 @@ void Node::drawInputLinks()
 		InputEventPort->drawLink();
 }
 
-} // namespace rshp::gui
+} // namespace rsp::gui

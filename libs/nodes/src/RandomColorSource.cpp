@@ -1,6 +1,6 @@
-#include "rshp/nodes/RandomColorSource.h"
+#include "rsp/nodes/RandomColorSource.h"
 
-void rshp::nodes::RandomColorSource::update()
+void rsp::nodes::RandomColorSource::update()
 {
 	auto& color = getOutputData<OutputPorts::Color>();
 	color = {rand() % 256 / 256.0f, rand() % 256 / 256.0f, rand() % 256 / 256.0f};

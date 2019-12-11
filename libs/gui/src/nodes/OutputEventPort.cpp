@@ -1,13 +1,13 @@
-#include "rshp/gui/nodes/OutputEventPort.h"
-#include "rshp/base/port/OutputEventPort.h"
-#include "rshp/gui/ImGuiUtilities.hpp"
-#include "rshp/gui/Stylesheet.hpp"
+#include "rsp/gui/nodes/OutputEventPort.h"
+#include "rsp/base/port/OutputEventPort.h"
+#include "rsp/gui/ImGuiUtilities.hpp"
+#include "rsp/gui/Stylesheet.hpp"
 
 #include <glm/glm.hpp>
 
-namespace rshp::gui
+namespace rsp::gui
 {
-OutputEventPort::OutputEventPort(rshp::base::OutputEventPort* port) : OutputPort(port), port(port)
+OutputEventPort::OutputEventPort(rsp::OutputEventPort* port) : OutputPort(port), port(port)
 {
 }
 
@@ -43,4 +43,4 @@ ImVec2 OutputEventPort::calculateSize() const
 	return ImGui::CalcTextSize(port->getName().c_str());
 }
 
-} // namespace rshp::gui
+} // namespace rsp::gui

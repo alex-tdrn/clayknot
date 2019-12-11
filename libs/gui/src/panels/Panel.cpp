@@ -1,12 +1,21 @@
-#include "rshp/gui/panels/Panel.h"
+#include "rsp/gui/panels/Panel.h"
 
-namespace rshp::gui
+namespace rsp::gui
 {
 void Panel::draw()
 {
 	if(!visible)
 		return;
-	drawContents();
+	if(customWindowSetup)
+	{
+		drawContents();
+	}
+	else
+	{
+		if(ImGui::Begin(title.c_str(), &visible, flags))
+			drawContents();
+		ImGui::End();
+	}
 }
 
 std::string const& Panel::getTitle() const
@@ -34,4 +43,4 @@ void Panel::hide()
 	visible = false;
 }
 
-} // namespace rshp::gui
+} // namespace rsp::gui
