@@ -1,14 +1,18 @@
 {
 	"catch2TestExplorer.executables": [
 		{
-			"name": "${relPath} ${filename}",
-			"pattern": "build/Release/tests/tests.exe"
+			"name": "Tests Base Release",
+			"pattern": "build/Release/tests/base/tests_base.exe"
+		},
+		{
+			"name": "Tests Base Debug",
+			"pattern": "build/Debug/tests/base/tests_base.exe"
 		}
 	],
 	"catch2TestExplorer.debugConfigTemplate": {
 		"type": "cppvsdbg",
 		"request": "launch",
-		"program": "${workspaceFolder}/build/Debug/tests/tests.exe",
+		"program": "${workspaceFolder}/build/Debug/tests/base/tests_base.exe",
 		"stopAtEntry": false,
 		"cwd": "${workspaceFolder}/build/Debug/tests",
 		"externalConsole": false

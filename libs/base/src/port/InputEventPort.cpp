@@ -10,7 +10,7 @@ int InputEventPort::getTimesTriggered() const
 
 void InputEventPort::trigger() const
 {
-	f->call();
+	f();
 	timesTriggered++;
 }
 

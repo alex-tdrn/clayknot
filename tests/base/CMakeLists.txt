@@ -4,15 +4,8 @@ add_executable(tests_base
 	"src/main.cpp"
 )
 
-target_include_directories(tests_base
-	PRIVATE
-	"include"
-)
-
 target_link_libraries(tests_base
 	PRIVATE
+	Catch2::Catch2
 	rendershop-base
-	rendershop-nodes
-	glad
-	glfw
 )

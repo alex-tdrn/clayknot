@@ -1,5 +1,5 @@
-#include "catch.hpp"
 #include "rsp/base/node/Node.hpp"
+#include <catch2/catch.hpp>
 
 #include <array>
 #include <utility>

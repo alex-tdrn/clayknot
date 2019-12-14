@@ -9,3 +9,7 @@ add_subdirectory("glfw")
 add_subdirectory("imgui")
 add_subdirectory("imgui-node-editor")
 
+set(CATCH_BUILD_TESTING OFF)
+set(CATCH_INSTALL_DOCS OFF)
+set(CATCH_INSTALL_HELPERS OFF)
+add_subdirectory("Catch2")
