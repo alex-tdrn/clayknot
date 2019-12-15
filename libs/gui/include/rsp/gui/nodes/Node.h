@@ -30,6 +30,8 @@ private:
 	std::vector<std::unique_ptr<OutputDataPort>> outputDataPorts;
 	std::vector<std::unique_ptr<InputEventPort>> inputEventPorts;
 	std::vector<std::unique_ptr<OutputEventPort>> outputEventPorts;
+	bool ran = false;
+	Animation<float> borderWidth;
 
 public:
 	Node() = default;

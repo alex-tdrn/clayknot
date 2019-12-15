@@ -13,7 +13,7 @@ class OutputEventPort final : public OutputPort
 {
 private:
 	rsp::OutputEventPort* port;
-	int triggerCount = 0;
+	bool triggerFailed = false;
 
 public:
 	OutputEventPort() = default;

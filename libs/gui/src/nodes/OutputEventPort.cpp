@@ -9,17 +9,17 @@ namespace rsp::gui
 {
 OutputEventPort::OutputEventPort(rsp::OutputEventPort* port) : OutputPort(port), port(port)
 {
+	port->registerObserverFlag(EventPort::ObserverFlags::onTriggerFailed, &triggerFailed);
 }
 
 void OutputEventPort::draw()
 {
 	ax::NodeEditor::BeginPin(id, ax::NodeEditor::PinKind::Output);
 
-	if(port->getTimesTriggered() > triggerCount)
+	if(triggerFailed)
 	{
-		triggerCount = port->getTimesTriggered();
-		if(!port->isConnected())
-			anchorOffset.play();
+		anchorOffset.play();
+		triggerFailed = false;
 	}
 
 	ImGui::PushStyleColor(ImGuiCol_Text, Stylesheet::getCurrentSheet().eventTextColor);

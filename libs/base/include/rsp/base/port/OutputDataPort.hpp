@@ -38,17 +38,24 @@ public:
 
 	Data& get()
 	{
+		notifyObserverFlags(DataPort::ObserverFlags::onDataRequested);
 		return data;
 	}
 
 	Data const& get() const
 	{
+		notifyObserverFlags(DataPort::ObserverFlags::onDataRequested);
 		return data;
 	}
 
-	void update() const final override
+	[[nodiscard]] bool update() const final override
 	{
-		parent->run();
+		if(!parent->update())
+		{
+			notifyObserverFlags(DataPort::ObserverFlags::onFailedUpdate);
+			return false;
+		}
+		return true;
 	}
 
 	void setParent(AbstractSource* parent)

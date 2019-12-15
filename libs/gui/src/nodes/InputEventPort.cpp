@@ -9,16 +9,12 @@ namespace rsp::gui
 {
 InputEventPort::InputEventPort(rsp::InputEventPort* port) : InputPort(port), port(port)
 {
+	port->registerObserverFlag(EventPort::ObserverFlags::onTriggered, &triggered);
 }
 
 void InputEventPort::draw()
 {
 	ax::NodeEditor::BeginPin(id, ax::NodeEditor::PinKind::Input);
-
-	justTriggered = port->getTimesTriggered() > triggerCount;
-	triggerCount = port->getTimesTriggered();
-	if(justTriggered && !port->isConnected())
-		anchorOffset.play();
 
 	ImGui::PushStyleColor(ImGuiCol_Text, Stylesheet::getCurrentSheet().eventTextColor);
 	ImGui::Text(port->getName().c_str());
@@ -48,10 +44,10 @@ void InputEventPort::drawLink()
 		ax::NodeEditor::Link(linkID, connection->getID(), id, Stylesheet::getCurrentSheet().eventColor,
 			Stylesheet::getCurrentSheet().linkThickness);
 
-		if(justTriggered)
+		if(triggered)
 		{
 			ax::NodeEditor::Flow(linkID, Stylesheet::getCurrentSheet().eventColor);
-			justTriggered = false;
+			triggered = false;
 		}
 	}
 }

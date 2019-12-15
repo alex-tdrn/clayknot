@@ -1,12 +1,24 @@
 #pragma once
 
+#include "rsp/base/Observable.hpp"
+
 #include <set>
 #include <string>
 
 namespace rsp
 {
-class Port
+class Port : public Observable
 {
+public:
+	struct ObserverFlags
+	{
+		enum
+		{
+			onConnected,
+			onDisconnected
+		};
+	};
+
 private:
 	std::string name = "Unnamed";
 

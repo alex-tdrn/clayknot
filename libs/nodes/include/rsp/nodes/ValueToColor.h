@@ -31,7 +31,7 @@ public:
 	static inline std::string const name = registerNode<ValueToColor>("Value To Color");
 
 public:
-	void update() override;
+	void run() override;
 };
 
 } // namespace rsp::nodes

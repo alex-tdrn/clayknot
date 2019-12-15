@@ -14,7 +14,7 @@ void Timer::registerOutputEvents()
 	registerOutputEvent(OutputEvents::Timeout, "Timeout");
 }
 
-void Timer::update()
+void Timer::run()
 {
 	poll();
 }

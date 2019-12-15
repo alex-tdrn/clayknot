@@ -3,15 +3,10 @@
 
 namespace rsp
 {
-int InputEventPort::getTimesTriggered() const
-{
-	return timesTriggered;
-}
-
 void InputEventPort::trigger() const
 {
 	f();
-	timesTriggered++;
+	notifyObserverFlags(EventPort::ObserverFlags::onTriggered);
 }
 
 void InputEventPort::operator()() const

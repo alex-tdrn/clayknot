@@ -25,6 +25,8 @@ Node::Node(rsp::AbstractNode* node) : node(node), id(uniqueID())
 
 	for(auto& [index, port] : node->getOutputEventPorts())
 		outputEventPorts.push_back(std::make_unique<OutputEventPort>(&port));
+
+	node->registerObserverFlag(AbstractNode::ObserverFlags::onRun, &ran);
 }
 
 bool Node::hasInputs() const
@@ -149,7 +151,14 @@ void Node::draw()
 		initializeLayout();
 	auto& nodeEditorStyle = ax::NodeEditor::GetStyle();
 
-	nodeEditorStyle.NodeBorderWidth = Stylesheet::getCurrentSheet().nodeBorderWidth;
+	if(ran)
+	{
+		borderWidth.play();
+		ran = false;
+	}
+
+	nodeEditorStyle.NodeBorderWidth = borderWidth.get(Stylesheet::getCurrentSheet().nodeBorderWidth * 5,
+		Stylesheet::getCurrentSheet().nodeBorderWidth, 1s, AnimationCurve::linear);
 
 	ax::NodeEditor::BeginNode(id);
 

@@ -80,9 +80,9 @@ int main(int argc, char** argv)
 	rsp::gui::FrameControllerNode* frameController = tmpFrameController.get();
 
 	timer->getOutputEventPort(rsp::nodes::Timer::OutputEvents::Timeout)
-		.connect(&sink->getInputEventPort(rsp::nodes::ClearBackgroundSink::InputEvents::Run));
+		.connect(&sink->getInputEventPort(rsp::nodes::ClearBackgroundSink::InputEvents::Update));
 	timer->getOutputEventPort(rsp::nodes::Timer::OutputEvents::Timeout)
-		.connect(&source->getInputEventPort(rsp::nodes::RandomColorSource::InputEvents::QueueUpdate));
+		.connect(&source->getInputEventPort(rsp::nodes::RandomColorSource::InputEvents::QueueRun));
 	timer->getInputEventPort(rsp::nodes::Timer::InputEvents::Poll)
 		.connect(&frameController->getOutputEventPort(rsp::gui::FrameControllerNode::OutputEvents::NewFrame));
 

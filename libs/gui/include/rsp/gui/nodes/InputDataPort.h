@@ -13,7 +13,7 @@ class InputDataPort final : public InputPort
 {
 private:
 	rsp::DataPort* port;
-	int dataRequests = 0;
+	bool portUpdateFailed = false;
 	bool dataRequested = false;
 
 public:

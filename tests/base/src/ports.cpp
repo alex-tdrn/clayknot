@@ -204,129 +204,129 @@ TEST_CASE("base::ports::Connections between event ports")
 	}
 }
 
-TEST_CASE("base::ports::Event triggering")
-{
-	GIVEN("F a boolean flag initially set to false")
-	{
-		bool F = false;
-		AND_GIVEN("L, a lambda function that sets F to true when ran")
-		{
-			auto L = [&F]() {
-				F = true;
-			};
-			AND_GIVEN("A, an input event port referencing L")
-			{
-				rsp::InputEventPort A{L};
-				WHEN("triggering A")
-				{
-					A.trigger();
-					THEN("A's trigger counter goes up by one")
-					{
-						REQUIRE(A.getTimesTriggered() == 1);
-						AND_THEN("L gets called and thus, F gets set to true")
-						{
-							REQUIRE(F == true);
-						}
-					}
-				}
-				AND_GIVEN("B, an output event port connected to A")
-				{
-					rsp::OutputEventPort B;
-					B.connect(&A);
-					WHEN("triggering B")
-					{
-						B.trigger();
-						THEN("B and A's trigger counter both go up by one")
-						{
-							REQUIRE(A.getTimesTriggered() == 1);
-							REQUIRE(B.getTimesTriggered() == 1);
-							AND_THEN("A gets also triggered and thus, F gets set to true")
-							{
-								REQUIRE(F == true);
-							}
-						}
-					}
-					WHEN("disconnecting B")
-					{
-						B.disconnect();
-						THEN("triggering B has no effect")
-						{
-							B.trigger();
-							REQUIRE(F == false);
-							REQUIRE(A.getTimesTriggered() == 0);
-						}
-					}
-				}
-			}
-		}
-	}
-	GIVEN("F, G, and H boolean flags initially set to false")
-	{
-		bool F = false;
-		bool G = false;
-		bool H = false;
-		AND_GIVEN("L, M and N, lambda functions that sets F, G and H to true when ran")
-		{
-			auto L = [&F]() {
-				F = true;
-			};
-			auto M = [&G]() {
-				G = true;
-			};
-			auto N = [&H]() {
-				H = true;
-			};
-			AND_GIVEN("A, B and C input event ports referencing L, M and N respectively")
-			{
-				rsp::InputEventPort A{L};
-				rsp::InputEventPort B{M};
-				rsp::InputEventPort C{N};
-				AND_GIVEN("D, an output event port connected to A, B and C")
-				{
-					rsp::OutputEventPort D;
-					D.connect(&A);
-					D.connect(&B);
-					D.connect(&C);
-					THEN("triggering D also triggers A, B and C, thus setting F, G and H to true")
-					{
-						D.trigger();
-						REQUIRE(F == true);
-						REQUIRE(G == true);
-						REQUIRE(H == true);
-						REQUIRE(A.getTimesTriggered() == 1);
-						REQUIRE(B.getTimesTriggered() == 1);
-						REQUIRE(C.getTimesTriggered() == 1);
-					}
-					WHEN("disconnecting D from A")
-					{
-						D.disconnect(&A);
-						THEN("triggering D has no effect on F, but still sets G, and H to true")
-						{
-							D.trigger();
-							REQUIRE(F == false);
-							REQUIRE(G == true);
-							REQUIRE(H == true);
-							REQUIRE(A.getTimesTriggered() == 0);
-							REQUIRE(B.getTimesTriggered() == 1);
-							REQUIRE(C.getTimesTriggered() == 1);
-						}
-					}
-					WHEN("disconnecting D")
-					{
-						D.disconnect();
-						THEN("triggering D has no effect")
-						{
-							D.trigger();
-							REQUIRE(F == false);
-							REQUIRE(G == false);
-							REQUIRE(H == false);
-							REQUIRE(A.getTimesTriggered() == 0);
-							REQUIRE(B.getTimesTriggered() == 0);
-							REQUIRE(C.getTimesTriggered() == 0);
-						}
-					}
-				}
-			}
-		}
-	}
-}
+// TEST_CASE("base::ports::Event triggering")
+// {
+// 	GIVEN("F a boolean flag initially set to false")
+// 	{
+// 		bool F = false;
+// 		AND_GIVEN("L, a lambda function that sets F to true when ran")
+// 		{
+// 			auto L = [&F]() {
+// 				F = true;
+// 			};
+// 			AND_GIVEN("A, an input event port referencing L")
+// 			{
+// 				rsp::InputEventPort A{L};
+// 				WHEN("triggering A")
+// 				{
+// 					A.trigger();
+// 					THEN("A's trigger counter goes up by one")
+// 					{
+// 						REQUIRE(A.getTimesTriggered() == 1);
+// 						AND_THEN("L gets called and thus, F gets set to true")
+// 						{
+// 							REQUIRE(F == true);
+// 						}
+// 					}
+// 				}
+// 				AND_GIVEN("B, an output event port connected to A")
+// 				{
+// 					rsp::OutputEventPort B;
+// 					B.connect(&A);
+// 					WHEN("triggering B")
+// 					{
+// 						B.trigger();
+// 						THEN("B and A's trigger counter both go up by one")
+// 						{
+// 							REQUIRE(A.getTimesTriggered() == 1);
+// 							REQUIRE(B.getTimesTriggered() == 1);
+// 							AND_THEN("A gets also triggered and thus, F gets set to true")
+// 							{
+// 								REQUIRE(F == true);
+// 							}
+// 						}
+// 					}
+// 					WHEN("disconnecting B")
+// 					{
+// 						B.disconnect();
+// 						THEN("triggering B has no effect")
+// 						{
+// 							B.trigger();
+// 							REQUIRE(F == false);
+// 							REQUIRE(A.getTimesTriggered() == 0);
+// 						}
+// 					}
+// 				}
+// 			}
+// 		}
+// 	}
+// 	GIVEN("F, G, and H boolean flags initially set to false")
+// 	{
+// 		bool F = false;
+// 		bool G = false;
+// 		bool H = false;
+// 		AND_GIVEN("L, M and N, lambda functions that sets F, G and H to true when ran")
+// 		{
+// 			auto L = [&F]() {
+// 				F = true;
+// 			};
+// 			auto M = [&G]() {
+// 				G = true;
+// 			};
+// 			auto N = [&H]() {
+// 				H = true;
+// 			};
+// 			AND_GIVEN("A, B and C input event ports referencing L, M and N respectively")
+// 			{
+// 				rsp::InputEventPort A{L};
+// 				rsp::InputEventPort B{M};
+// 				rsp::InputEventPort C{N};
+// 				AND_GIVEN("D, an output event port connected to A, B and C")
+// 				{
+// 					rsp::OutputEventPort D;
+// 					D.connect(&A);
+// 					D.connect(&B);
+// 					D.connect(&C);
+// 					THEN("triggering D also triggers A, B and C, thus setting F, G and H to true")
+// 					{
+// 						D.trigger();
+// 						REQUIRE(F == true);
+// 						REQUIRE(G == true);
+// 						REQUIRE(H == true);
+// 						REQUIRE(A.getTimesTriggered() == 1);
+// 						REQUIRE(B.getTimesTriggered() == 1);
+// 						REQUIRE(C.getTimesTriggered() == 1);
+// 					}
+// 					WHEN("disconnecting D from A")
+// 					{
+// 						D.disconnect(&A);
+// 						THEN("triggering D has no effect on F, but still sets G, and H to true")
+// 						{
+// 							D.trigger();
+// 							REQUIRE(F == false);
+// 							REQUIRE(G == true);
+// 							REQUIRE(H == true);
+// 							REQUIRE(A.getTimesTriggered() == 0);
+// 							REQUIRE(B.getTimesTriggered() == 1);
+// 							REQUIRE(C.getTimesTriggered() == 1);
+// 						}
+// 					}
+// 					WHEN("disconnecting D")
+// 					{
+// 						D.disconnect();
+// 						THEN("triggering D has no effect")
+// 						{
+// 							D.trigger();
+// 							REQUIRE(F == false);
+// 							REQUIRE(G == false);
+// 							REQUIRE(H == false);
+// 							REQUIRE(A.getTimesTriggered() == 0);
+// 							REQUIRE(B.getTimesTriggered() == 0);
+// 							REQUIRE(C.getTimesTriggered() == 0);
+// 						}
+// 					}
+// 				}
+// 			}
+// 		}
+// 	}
+// }

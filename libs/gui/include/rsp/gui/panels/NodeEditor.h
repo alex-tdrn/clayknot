@@ -18,7 +18,7 @@ class NodeEditor final : public Panel
 private:
 	ax::NodeEditor::EditorContext* context;
 	std::vector<std::unique_ptr<rsp::AbstractNode>>* store = nullptr;
-	std::vector<Node> nodes;
+	std::vector<std::unique_ptr<Node>> nodes;
 
 public:
 	NodeEditor();

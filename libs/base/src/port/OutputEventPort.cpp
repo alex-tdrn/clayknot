@@ -3,16 +3,14 @@
 
 namespace rsp
 {
-int OutputEventPort::getTimesTriggered() const
-{
-	return timesTriggered;
-}
-
 void OutputEventPort::trigger() const
 {
 	for(auto connection : connections)
 		connection->trigger();
-	timesTriggered++;
+	if(connections.empty())
+		notifyObserverFlags(EventPort::ObserverFlags::onTriggerFailed);
+	else
+		notifyObserverFlags(EventPort::ObserverFlags::onTriggered);
 }
 void OutputEventPort::operator()() const
 {

@@ -71,9 +71,9 @@ void NodeEditor::drawContents()
 		Stylesheet::getCurrentSheet().pinRectBorderColor;
 
 	for(auto& node : nodes)
-		node.draw();
+		node->draw();
 	for(auto& node : nodes)
-		node.drawInputLinks();
+		node->drawInputLinks();
 	if(ax::NodeEditor::BeginCreate())
 	{
 		ax::NodeEditor::PinId idPin1 = 0, idPin2 = 0;
@@ -130,7 +130,7 @@ void NodeEditor::drawContents()
 			if(ImGui::MenuItem(name.c_str()))
 			{
 				auto source = constructor();
-				nodes.emplace_back(source.get());
+				nodes.push_back(std::make_unique<Node>(source.get()));
 				store->push_back(std::move(source));
 			}
 		}
@@ -145,7 +145,7 @@ void NodeEditor::setStore(std::vector<std::unique_ptr<rsp::AbstractNode>>* store
 {
 	this->store = store;
 	for(auto& node : *store)
-		nodes.emplace_back(node.get());
+		nodes.push_back(std::make_unique<Node>(node.get()));
 }
 
 } // namespace rsp::gui

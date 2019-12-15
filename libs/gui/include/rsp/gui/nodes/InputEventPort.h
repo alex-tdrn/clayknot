@@ -13,8 +13,7 @@ class InputEventPort final : public InputPort
 {
 private:
 	rsp::InputEventPort* port;
-	int triggerCount = 0;
-	bool justTriggered = false;
+	bool triggered = false;
 
 public:
 	InputEventPort() = default;

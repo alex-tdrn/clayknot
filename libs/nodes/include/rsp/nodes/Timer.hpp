@@ -48,7 +48,7 @@ protected:
 	void registerOutputEvents() override;
 
 public:
-	void update() override;
+	void run() override;
 	void poll();
 };
 

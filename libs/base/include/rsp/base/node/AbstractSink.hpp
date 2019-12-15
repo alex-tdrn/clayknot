@@ -13,7 +13,7 @@ public:
 	{
 		enum
 		{
-			Run = AbstractNode::InputEvents::SinkEvents
+			Update = AbstractNode::InputEvents::SinkEvents
 		};
 	};
 
@@ -36,26 +36,12 @@ public:
 	virtual ~AbstractSink() = default;
 
 protected:
-	virtual void updateAllInputs() const = 0;
-
-	bool allInputsConnected() const
-	{
-		bool ret = true;
-		for(auto inputDataPort : abstractInputDataPorts)
-		{
-			if(!inputDataPort->isConnected())
-			{
-				inputDataPort->requestFailed();
-				ret = false;
-			}
-		}
-		return ret;
-	}
+	[[nodiscard]] virtual bool updateAllInputs() const = 0;
 
 	void registerInputEvents() override
 	{
 		AbstractNode::registerInputEvents();
-		registerInputEvent(InputEvents::Run, "Run", [this]() { run(); });
+		registerInputEvent(InputEvents::Update, "Update", [this]() { update(); });
 	}
 
 	void registerOutputEvents() override
@@ -69,14 +55,15 @@ public:
 		return abstractInputDataPorts;
 	}
 
-	virtual void run() override
+	[[nodiscard]] virtual bool update() override
 	{
-		if(!allInputsConnected())
-			return;
+		if(!updateAllInputs())
+			return false;
 
-		updateAllInputs();
-		update();
-		trigger(AbstractNode::OutputEvents::Updated);
+		run();
+		notifyObserverFlags(AbstractNode::ObserverFlags::onRun);
+		trigger(AbstractNode::OutputEvents::Ran);
+		return true;
 	}
 };
 

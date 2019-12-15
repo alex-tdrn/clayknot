@@ -8,6 +8,8 @@ namespace rsp::gui
 {
 InputDataPort::InputDataPort(rsp::DataPort* port) : InputPort(port), port(port)
 {
+	port->registerObserverFlag(DataPort::ObserverFlags::onFailedUpdate, &portUpdateFailed);
+	port->registerObserverFlag(DataPort::ObserverFlags::onDataRequested, &dataRequested);
 }
 
 void InputDataPort::draw()
@@ -16,10 +18,11 @@ void InputDataPort::draw()
 
 	ImGui::Text(port->getName().c_str());
 
-	dataRequested = port->getRequestCount() > dataRequests;
-	dataRequests = port->getRequestCount();
-	if(dataRequested && !port->isConnected())
+	if(portUpdateFailed)
+	{
 		anchorOffset.play();
+		portUpdateFailed = false;
+	}
 
 	auto anchorPosition = calculateAnchorPosition();
 	auto anchorColor = ImGui::ColorFromHash(port->getDataTypeHash());

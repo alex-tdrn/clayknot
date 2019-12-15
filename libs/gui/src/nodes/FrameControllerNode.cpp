@@ -9,7 +9,7 @@ void FrameControllerNode::registerOutputEvents()
 	registerOutputEvent(OutputEvents::NewFrame, "New Frame");
 }
 
-void FrameControllerNode::update()
+void FrameControllerNode::run()
 {
 }
 

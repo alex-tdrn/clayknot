@@ -18,7 +18,7 @@ public:
 	{
 		enum
 		{
-			QueueUpdate = AbstractNode::InputEvents::SourceEvents
+			QueueRun = AbstractNode::InputEvents::SourceEvents
 		};
 	};
 
@@ -42,7 +42,7 @@ public:
 	virtual ~AbstractSource() = default;
 
 protected:
-	bool isUpdateQueued() const
+	bool isRunQueued() const
 	{
 		return timestamp.isReset();
 	}
@@ -50,7 +50,7 @@ protected:
 	void registerInputEvents() override
 	{
 		AbstractNode::registerInputEvents();
-		registerInputEvent(InputEvents::QueueUpdate, "Queue Update", [this]() { queueUpdate(); });
+		registerInputEvent(InputEvents::QueueRun, "Queue Run", [this]() { queueRun(); });
 	}
 
 	void registerOutputEvents() override
@@ -64,7 +64,7 @@ public:
 		return abstractOutputDataPorts;
 	}
 
-	void queueUpdate()
+	void queueRun()
 	{
 		timestamp.reset();
 	}

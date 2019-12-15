@@ -24,6 +24,8 @@ add_library(rendershop-base
 	"include/rsp/base/ColorRGBA.hpp"
 	"include/rsp/base/Bounded.hpp"
 	"include/rsp/base/TimeUnit.hpp"
+	"include/rsp/base/Observable.hpp"
+	"include/rsp/base/port/EventPort.hpp"
 )
 
 target_include_directories(rendershop-base

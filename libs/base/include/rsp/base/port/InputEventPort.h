@@ -1,5 +1,6 @@
 #pragma once
 
+#include "rsp/base/port/EventPort.hpp"
 #include "rsp/base/port/InputPort.hpp"
 #include "rsp/base/port/OutputEventPort.h"
 
@@ -10,11 +11,12 @@ namespace rsp
 {
 class OutputEventPort;
 
-class InputEventPort : public InputPort<OutputEventPort>
+class InputEventPort final
+	: public InputPort<OutputEventPort>
+	, public EventPort
 {
 private:
 	std::function<void()> f;
-	mutable int timesTriggered = 0;
 
 public:
 	template <typename F>
@@ -28,7 +30,6 @@ public:
 	virtual ~InputEventPort() = default;
 
 public:
-	int getTimesTriggered() const;
 	void trigger() const;
 	void operator()() const;
 };

@@ -93,6 +93,7 @@
 		"xutility": "cpp",
 		"cassert": "cpp",
 		"algorithm": "cpp",
-		"xstring": "cpp"
+		"xstring": "cpp",
+		"resumable": "cpp"
 	}
 }

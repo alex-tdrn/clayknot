@@ -8,9 +8,18 @@ class Timestamp;
 
 class DataPort : public virtual Port
 {
+public:
+	struct ObserverFlags
+	{
+		enum
+		{
+			onFailedUpdate = 16,
+			onDataRequested
+		};
+	};
+
 protected:
 	std::size_t dataTypeHash;
-	mutable int requestCount = 0;
 
 public:
 	DataPort() = default;
@@ -22,20 +31,10 @@ public:
 
 public:
 	virtual Timestamp const& getTimestamp() const = 0;
-	virtual void update() const = 0;
+	[[nodiscard]] virtual bool update() const = 0;
 	std::size_t getDataTypeHash() const
 	{
 		return dataTypeHash;
-	}
-
-	void requestFailed() const
-	{
-		requestCount++;
-	}
-
-	int getRequestCount() const
-	{
-		return requestCount;
 	}
 };
 

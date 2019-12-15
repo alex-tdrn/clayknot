@@ -35,7 +35,7 @@ public:
 	static inline std::string const name = registerNode<MixColors>("Mix Colors");
 
 public:
-	void update() override;
+	void run() override;
 };
 
 } // namespace rsp::nodes

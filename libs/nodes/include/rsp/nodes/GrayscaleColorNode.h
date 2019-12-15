@@ -33,7 +33,7 @@ public:
 	static inline std::string const name = registerNode<GrayscaleColorNode>("Grayscale Color Node");
 
 public:
-	void update() override;
+	void run() override;
 };
 
 } // namespace rsp::nodes

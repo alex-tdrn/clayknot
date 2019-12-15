@@ -2,7 +2,7 @@
 
 #include <glm/glm.hpp>
 
-void rsp::nodes::GrayscaleColorNode::update()
+void rsp::nodes::GrayscaleColorNode::run()
 {
 	auto const& inputColor = getInputData<InputPorts::Color>();
 	auto& outputColor = getOutputData<OutputPorts::Color>();

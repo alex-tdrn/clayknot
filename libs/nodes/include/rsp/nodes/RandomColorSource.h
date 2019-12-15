@@ -23,7 +23,7 @@ public:
 	static inline std::string const name = registerNode<RandomColorSource>("Random Color Source");
 
 protected:
-	void update() override;
+	void run() override;
 };
 
 } // namespace rsp::nodes

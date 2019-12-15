@@ -35,9 +35,11 @@ public:
 	virtual ~Sink() = default;
 
 protected:
-	void updateAllInputs() const override final
+	[[nodiscard]] bool updateAllInputs() const override final
 	{
-		static_for(inputs.list, [](auto const& input) { input.update(); });
+		bool success = true;
+		static_for(inputs.list, [&](auto const& input) { success = input.update(); });
+		return success;
 	}
 
 public:

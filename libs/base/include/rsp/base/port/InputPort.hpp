@@ -49,6 +49,7 @@ public:
 			auto oldConnection = connection;
 			connection = nullptr;
 			oldConnection->disconnect(this);
+			notifyObserverFlags(Port::ObserverFlags::onDisconnected);
 		}
 	}
 
@@ -61,6 +62,7 @@ public:
 			disconnect();
 			connection = port;
 			port->connect(this);
+			notifyObserverFlags(Port::ObserverFlags::onConnected);
 		}
 	}
 };

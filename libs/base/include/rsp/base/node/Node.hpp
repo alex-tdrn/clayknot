@@ -52,14 +52,12 @@ public:
 		return ConcreteNode::name;
 	}
 
-	void run() override
+	[[nodiscard]] bool update() override
 	{
-		if(!this->allInputsConnected())
-			return;
+		if(!this->updateAllInputs())
+			return false;
 
-		this->updateAllInputs();
-
-		if(!this->isUpdateQueued())
+		if(!this->isRunQueued())
 		{
 			bool outputsOutdated = false;
 			static_for(this->inputs.list, [&](auto const& input) {
@@ -68,12 +66,14 @@ public:
 			});
 
 			if(!outputsOutdated)
-				return;
+				return true;
 		}
 
-		this->update();
+		this->run();
+		notifyObserverFlags(AbstractNode::ObserverFlags::onRun);
 		this->timestamp.update();
-		this->trigger(AbstractNode::OutputEvents::Updated);
+		this->trigger(AbstractNode::OutputEvents::Ran);
+		return true;
 	}
 };
 

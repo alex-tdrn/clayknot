@@ -2,7 +2,7 @@
 
 #include <glad/glad.h>
 
-void rsp::nodes::ClearBackgroundSink::update()
+void rsp::nodes::ClearBackgroundSink::run()
 {
 	auto const& color = getInputData<InputPorts::Color>();
 	glClearColor(color.r(), color.g(), color.b(), 1);

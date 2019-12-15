@@ -36,14 +36,16 @@ public:
 	virtual ~Source() = default;
 
 public:
-	void run() override
+	[[nodiscard]] bool update() override
 	{
-		if(isUpdateQueued())
+		if(isRunQueued())
 		{
-			update();
-			trigger(AbstractNode::OutputEvents::Updated);
+			run();
+			notifyObserverFlags(AbstractNode::ObserverFlags::onRun);
+			trigger(AbstractNode::OutputEvents::Ran);
 			timestamp.update();
 		}
+		return true;
 	}
 
 	std::string const& getName() const override

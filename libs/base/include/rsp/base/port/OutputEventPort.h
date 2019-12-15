@@ -1,16 +1,16 @@
 #pragma once
 
+#include "rsp/base/port/EventPort.hpp"
 #include "rsp/base/port/OutputPort.hpp"
 
 namespace rsp
 {
 class InputEventPort;
 
-class OutputEventPort final : public OutputPort<InputEventPort>
+class OutputEventPort final
+	: public OutputPort<InputEventPort>
+	, public EventPort
 {
-private:
-	mutable int timesTriggered = 0;
-
 public:
 	OutputEventPort() = default;
 	OutputEventPort(OutputEventPort const&) = delete;
@@ -20,7 +20,6 @@ public:
 	~OutputEventPort() = default;
 
 public:
-	int getTimesTriggered() const;
 	void trigger() const;
 	void operator()() const;
 };

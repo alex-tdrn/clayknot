@@ -63,6 +63,7 @@ public:
 			return;
 		connections.insert(port);
 		port->connect(this);
+		notifyObserverFlags(Port::ObserverFlags::onConnected);
 	}
 
 	void disconnect(Port* port)
@@ -79,6 +80,7 @@ public:
 			return;
 		connections.erase(port);
 		port->disconnect();
+		notifyObserverFlags(Port::ObserverFlags::onDisconnected);
 	}
 };
 

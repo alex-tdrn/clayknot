@@ -23,7 +23,7 @@ public:
 	static inline std::string const name = registerNode<ClearBackgroundSink>("Clear Background Sink");
 
 protected:
-	void update() override;
+	void run() override;
 };
 
 } // namespace rsp::nodes

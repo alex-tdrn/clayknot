@@ -24,7 +24,7 @@ protected:
 	void registerOutputEvents() override;
 
 public:
-	void update() override;
+	void run() override;
 	void newFrame();
 };
 } // namespace rsp::gui

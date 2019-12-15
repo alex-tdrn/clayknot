@@ -33,15 +33,19 @@ public:
 		return this->connection->getTimestamp();
 	}
 
-	void update() const final override
+	[[nodiscard]] bool update() const final override
 	{
+		bool success = false;
 		if(this->connection)
-			this->connection->update();
+			success = this->connection->update();
+		if(!success)
+			notifyObserverFlags(DataPort::ObserverFlags::onFailedUpdate);
+		return success;
 	}
 
 	Data const& get() const
 	{
-		requestCount++;
+		notifyObserverFlags(DataPort::ObserverFlags::onDataRequested);
 		return this->connection->get();
 	}
 };

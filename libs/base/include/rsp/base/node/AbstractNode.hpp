@@ -6,13 +6,23 @@
 #include <unordered_map>
 #include <vector>
 
+#include "rsp/base/Observable.hpp"
 #include "rsp/base/node/EventNode.hpp"
 
 namespace rsp
 {
-class AbstractNode : public virtual EventNode
+class AbstractNode
+	: public Observable
+	, public virtual EventNode
 {
 public:
+	struct ObserverFlags
+	{
+		enum
+		{
+			onRun
+		};
+	};
 	struct InputEvents
 	{
 		enum
@@ -28,7 +38,7 @@ public:
 	{
 		enum
 		{
-			Updated,
+			Ran,
 			SourceEvents = 8,
 			SinkEvents = 16,
 			NodeEvents = 24,
@@ -52,7 +62,7 @@ private:
 	}
 
 protected:
-	virtual void update() = 0;
+	virtual void run() = 0;
 
 	template <typename ConcreteNode>
 	static std::string registerNode(std::string name)
@@ -65,7 +75,7 @@ protected:
 	}
 
 public:
-	virtual void run() = 0;
+	[[nodiscard]] virtual bool update() = 0;
 
 	void registerInputEvents() override
 	{
@@ -73,7 +83,7 @@ public:
 
 	void registerOutputEvents() override
 	{
-		registerOutputEvent(OutputEvents::Updated, "Updated");
+		registerOutputEvent(OutputEvents::Ran, "Ran");
 	}
 
 	static std::unordered_map<std::string, std::unique_ptr<AbstractNode> (*)()> const& getNodeMap()
