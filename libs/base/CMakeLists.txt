@@ -26,6 +26,8 @@ add_library(rendershop-base
 	"include/rsp/base/TimeUnit.hpp"
 	"include/rsp/base/Observable.hpp"
 	"include/rsp/base/port/EventPort.hpp"
+	"include/rsp/base/node/FixedSource.hpp"
+	"include/rsp/base/DataTypeName.hpp"
 )
 
 target_include_directories(rendershop-base

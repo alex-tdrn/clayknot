@@ -35,15 +35,21 @@ public:
 	Source& operator=(Source&&) = default;
 	virtual ~Source() = default;
 
+protected:
+	void outputsUpdated()
+	{
+		notifyObserverFlags(AbstractNode::ObserverFlags::onRun);
+		trigger(AbstractNode::OutputEvents::Ran);
+		timestamp.update();
+	}
+
 public:
 	[[nodiscard]] bool update() override
 	{
 		if(isRunQueued())
 		{
 			run();
-			notifyObserverFlags(AbstractNode::ObserverFlags::onRun);
-			trigger(AbstractNode::OutputEvents::Ran);
-			timestamp.update();
+			outputsUpdated();
 		}
 		return true;
 	}

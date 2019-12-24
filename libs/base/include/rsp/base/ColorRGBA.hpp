@@ -234,4 +234,10 @@ ColorRGBA operator/(ColorRGBA const& lhs, T const& rhs)
 	return result;
 }
 
+template <>
+static std::string DataTypeName<ColorRGBA>::get()
+{
+	return "Color with transparency";
+}
+
 } // namespace rsp

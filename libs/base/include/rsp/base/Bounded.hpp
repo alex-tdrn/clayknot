@@ -1,8 +1,9 @@
 #pragma once
 
-#include <glm/glm.hpp>
+#include "rsp/base/DataTypeName.hpp"
 
 #include <cassert>
+#include <glm/glm.hpp>
 
 namespace rsp
 {
@@ -140,5 +141,14 @@ inline bool Bounded<glm::vec4>::valid()
 	}
 	return true;
 }
+
+template <typename DataType>
+struct DataTypeName<Bounded<DataType>>
+{
+	static std::string get()
+	{
+		return "Bounded " + DataTypeName<DataType>::get();
+	}
+};
 
 } // namespace rsp

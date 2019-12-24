@@ -59,20 +59,18 @@ public:
 
 		if(!this->isRunQueued())
 		{
-			bool outputsOutdated = false;
+			bool haveOutputsBeenOutdated = false;
 			static_for(this->inputs.list, [&](auto const& input) {
 				if(input.getTimestamp().isNewerThan(this->timestamp))
-					outputsOutdated = true;
+					haveOutputsBeenOutdated = true;
 			});
 
-			if(!outputsOutdated)
+			if(!haveOutputsBeenOutdated)
 				return true;
 		}
 
 		this->run();
-		notifyObserverFlags(AbstractNode::ObserverFlags::onRun);
-		this->timestamp.update();
-		this->trigger(AbstractNode::OutputEvents::Ran);
+		outputsUpdated();
 		return true;
 	}
 };

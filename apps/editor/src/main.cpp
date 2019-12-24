@@ -1,3 +1,4 @@
+#include "rsp/base/node/FixedSource.hpp"
 #include "rsp/gui/Stylesheet.hpp"
 #include "rsp/gui/nodes/FrameControllerNode.h"
 #include "rsp/gui/panels/NodeEditor.h"
@@ -70,12 +71,26 @@ int main(int argc, char** argv)
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 420");
 
+	rsp::FixedSource<bool> ggg;
+	rsp::FixedSource<int> aaaaa;
+	rsp::FixedSource<float> bbb;
+	rsp::FixedSource<rsp::Bounded<float>> bhbb;
+	rsp::FixedSource<std::chrono::nanoseconds> dfghdf;
+	rsp::FixedSource<rsp::ColorRGB> dfhdfhj;
+	rsp::FixedSource<rsp::ColorRGBA> dfhdfhdsgj;
+
+	auto caca = rsp::DataTypeName<double>::get();
 	using namespace std::chrono_literals;
 	std::vector<std::unique_ptr<rsp::AbstractNode>> nodes;
 
-	std::unique_ptr<rsp::AbstractNode> source = std::make_unique<rsp::nodes::RandomColorSource>();
-	std::unique_ptr<rsp::AbstractNode> sink = std::make_unique<rsp::nodes::ClearBackgroundSink>();
-	std::unique_ptr<rsp::AbstractNode> timer = std::make_unique<rsp::nodes::Timer>();
+	auto source = std::make_unique<rsp::nodes::RandomColorSource>();
+	auto sink = std::make_unique<rsp::nodes::ClearBackgroundSink>();
+	auto timer = std::make_unique<rsp::nodes::Timer>();
+	std::unique_ptr<rsp::FixedSource<rsp::ColorRGB>> fixedColorSource =
+		std::make_unique<rsp::FixedSource<rsp::ColorRGB>>();
+
+	fixedColorSource->setFixedData(rsp::ColorRGB(0.6f, 0.7f, 0.2f));
+
 	auto tmpFrameController = std::make_unique<rsp::gui::FrameControllerNode>();
 	rsp::gui::FrameControllerNode* frameController = tmpFrameController.get();
 
@@ -90,6 +105,7 @@ int main(int argc, char** argv)
 	nodes.push_back(std::move(sink));
 	nodes.push_back(std::move(timer));
 	nodes.push_back(std::move(tmpFrameController));
+	nodes.push_back(std::move(fixedColorSource));
 
 	rsp::gui::Stylesheet::addSheet(rsp::gui::Stylesheet());
 
@@ -150,7 +166,6 @@ void ImGuiCherryStyle()
 #define BG(v) ImVec4(0.200f, 0.220f, 0.270f, v)
 // text
 #define TEXT(v) ImVec4(0.860f, 0.930f, 0.890f, v)
-
 	auto& style = ImGui::GetStyle();
 	style.Colors[ImGuiCol_Text] = TEXT(0.78f);
 	style.Colors[ImGuiCol_TextDisabled] = TEXT(0.28f);
