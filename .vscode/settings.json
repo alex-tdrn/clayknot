@@ -94,6 +94,7 @@
 		"cassert": "cpp",
 		"algorithm": "cpp",
 		"xstring": "cpp",
+		"*.rh": "cpp",
 		"resumable": "cpp"
 	}
 }

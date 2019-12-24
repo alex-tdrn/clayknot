@@ -60,7 +60,7 @@ public:
 		if(!this->isRunQueued())
 		{
 			bool haveOutputsBeenOutdated = false;
-			static_for(this->inputs.list, [&](auto const& input) {
+			meta::static_for(this->inputs.list, [&](auto const& input) {
 				if(input.getTimestamp().isNewerThan(this->timestamp))
 					haveOutputsBeenOutdated = true;
 			});

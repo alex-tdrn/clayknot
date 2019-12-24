@@ -32,6 +32,7 @@ private:
 	std::vector<std::unique_ptr<OutputEventPort>> outputEventPorts;
 	bool ran = false;
 	Animation<float> borderWidth;
+	glm::vec2 size{0, 0};
 
 public:
 	Node() = default;
@@ -45,12 +46,21 @@ public:
 private:
 	bool hasInputs() const;
 	bool hasOutputs() const;
-	void initializeLayout();
+	void calculateLayout();
 	void drawTitle();
 	void drawInputs();
 	void drawOutputs();
+	void toggleInputWidgets();
+	void toggleOutputWidgets();
+	void toggleAllWidgets();
 
 public:
+	void setInputWidgetsVisibility(bool visibility);
+	void setOutputWidgetsVisibility(bool visibility);
+	int countVisibleInputWidgets() const;
+	int countVisibleOutputWidgets() const;
+	int countHiddenInputWidgets() const;
+	int countHiddenOutputWidgets() const;
 	void draw();
 	void drawInputLinks();
 };

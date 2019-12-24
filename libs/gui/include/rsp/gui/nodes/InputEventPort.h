@@ -24,9 +24,10 @@ public:
 	InputEventPort& operator=(InputEventPort const&) = delete;
 	~InputEventPort() = default;
 
+private:
+	void drawContents() override;
+
 public:
-	void draw() final override;
-	ImVec2 calculateSize() const final override;
 	void drawLink();
 };
 

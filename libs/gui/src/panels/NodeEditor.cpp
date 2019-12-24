@@ -1,12 +1,19 @@
 #include "rsp/gui/panels/NodeEditor.h"
 #include "rsp/base/node/AbstractNode.hpp"
+#include "rsp/base/node/FixedSource.hpp"
 #include "rsp/gui/Stylesheet.hpp"
 #include "rsp/gui/nodes/AbstractPort.hpp"
+#include "rsp/gui/widgets/Editor.hpp"
 
 namespace rsp::gui
 {
 NodeEditor::NodeEditor()
 {
+	SupportedEditorTypes::for_each([&](auto* t) {
+		using ResourceType = std::remove_reference_t<decltype(*t)>;
+		rsp::FixedSource<ResourceType> node;
+	});
+
 	context = ax::NodeEditor::CreateEditor();
 	title = "Graph Canvas " + std::to_string(id);
 	flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
@@ -17,12 +24,67 @@ NodeEditor::~NodeEditor()
 	ax::NodeEditor::DestroyEditor(context);
 }
 
+void NodeEditor::toggleInputWidgets()
+{
+	int visibleCount = 0;
+	int hiddenCount = 0;
+	for(auto& node : nodes)
+	{
+		visibleCount += node->countVisibleInputWidgets();
+		hiddenCount += node->countHiddenInputWidgets();
+	}
+	bool visible = visibleCount < hiddenCount;
+	showInputWidgets = visible;
+	for(auto& node : nodes)
+		node->setInputWidgetsVisibility(visible);
+}
+
+void NodeEditor::toggleOutputWidgets()
+{
+	int visibleCount = 0;
+	int hiddenCount = 0;
+	for(auto& node : nodes)
+	{
+		visibleCount += node->countVisibleOutputWidgets();
+		hiddenCount += node->countHiddenOutputWidgets();
+	}
+	bool visible = visibleCount < hiddenCount;
+	showOutputWidgets = visible;
+	for(auto& node : nodes)
+		node->setOutputWidgetsVisibility(visible);
+}
+
+void NodeEditor::toggleAllWidgets()
+{
+	int visibleCount = 0;
+	int hiddenCount = 0;
+	for(auto& node : nodes)
+	{
+		visibleCount += node->countVisibleInputWidgets();
+		visibleCount += node->countVisibleOutputWidgets();
+		hiddenCount += node->countHiddenInputWidgets();
+		hiddenCount += node->countHiddenOutputWidgets();
+	}
+	bool visible = visibleCount < hiddenCount;
+	showInputWidgets = visible;
+	showOutputWidgets = visible;
+	for(auto& node : nodes)
+	{
+		node->setInputWidgetsVisibility(visible);
+		node->setOutputWidgetsVisibility(visible);
+	}
+}
+
 void NodeEditor::drawContents()
 {
+	glm::vec2 overlayPosition = {10.0f, 30.0f};
+
 	ax::NodeEditor::SetCurrentEditor(context);
 	ax::NodeEditor::Begin(title.c_str());
-	ax::NodeEditor::GetStyle().LinkStrength = Stylesheet::getCurrentSheet().linkStrength;
 
+	overlayPosition += glm::vec2(ImGui::GetWindowPos());
+
+	ax::NodeEditor::GetStyle().LinkStrength = Stylesheet::getCurrentSheet().linkStrength;
 	ax::NodeEditor::GetStyle().NodePadding = Stylesheet::getCurrentSheet().nodePadding;
 	ax::NodeEditor::GetStyle().NodeRounding = Stylesheet::getCurrentSheet().nodeRounding;
 	ax::NodeEditor::GetStyle().NodeBorderWidth = Stylesheet::getCurrentSheet().nodeBorderWidth;
@@ -131,6 +193,8 @@ void NodeEditor::drawContents()
 			{
 				auto source = constructor();
 				nodes.push_back(std::make_unique<Node>(source.get()));
+				nodes.back()->setInputWidgetsVisibility(showInputWidgets);
+				nodes.back()->setOutputWidgetsVisibility(showOutputWidgets);
 				store->push_back(std::move(source));
 			}
 		}
@@ -139,6 +203,25 @@ void NodeEditor::drawContents()
 	ax::NodeEditor::Resume();
 
 	ax::NodeEditor::End();
+	ImGui::SetNextWindowPos(overlayPosition);
+	ImGui::PushID(this);
+	if(ImGui::Begin("Node Editor Overlay", nullptr,
+		   ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar |
+			   ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings |
+			   ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav))
+	{
+		if(ImGui::Button("Toggle input widgets"))
+			toggleInputWidgets();
+		if(ImGui::Button("Toggle output widgets"))
+			toggleOutputWidgets();
+		if(ImGui::Button("Toggle all widgets"))
+		{
+			toggleInputWidgets();
+			toggleOutputWidgets();
+		}
+	}
+	ImGui::End();
+	ImGui::PopID();
 }
 
 void NodeEditor::setStore(std::vector<std::unique_ptr<rsp::AbstractNode>>* store)

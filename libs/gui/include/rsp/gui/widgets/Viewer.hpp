@@ -4,7 +4,7 @@
 #include "rsp/base/ColorRGB.hpp"
 #include "rsp/base/ColorRGBA.hpp"
 #include "rsp/base/TimeUnit.hpp"
-#include "rsp/base/Utility.hpp"
+#include "rsp/base/TypeList.hpp"
 #include "rsp/gui/widgets/Widget.hpp"
 
 #include <imgui.h>
@@ -30,8 +30,12 @@ public:
 	}
 };
 
+using SupportedViewerTypes =
+	meta::TypeList<bool, int, float, glm::vec2, glm::vec3, glm::vec4, Bounded<int>, Bounded<float>, Bounded<glm::vec2>,
+		Bounded<glm::vec3>, Bounded<glm::vec4>, ColorRGB, ColorRGBA, std::chrono::nanoseconds>;
+
 template <typename T>
-inline std::unique_ptr<Viewer<T>> makeViewer(T const& resource, std::string resourceName)
+inline std::unique_ptr<Widget> makeViewer(T const& resource, std::string resourceName)
 {
 	return std::make_unique<Viewer<T>>(resource, std::move(resourceName));
 }
@@ -136,13 +140,13 @@ inline void Viewer<ColorRGB>::drawContents() const
 		auto s = getAvailableWidth();
 
 		ImGui::ColorButton(label.c_str(), ImVec4(resource.r(), resource.g(), resource.b(), 1.0f),
-			ImGuiColorEditFlags_NoTooltip, {s, s});
+			ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoDragDrop, {s, s});
 	}
 	else
 	{
 		ImGui::SameLine();
-		ImGui::ColorButton(
-			label.c_str(), ImVec4(resource.r(), resource.g(), resource.b(), 1.0f), ImGuiColorEditFlags_NoTooltip);
+		ImGui::ColorButton(label.c_str(), ImVec4(resource.r(), resource.g(), resource.b(), 1.0f),
+			ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoDragDrop);
 	}
 }
 
@@ -154,12 +158,13 @@ inline void Viewer<ColorRGBA>::drawContents() const
 	{
 		auto s = getAvailableWidth();
 
-		ImGui::ColorButton(label.c_str(), resource, ImGuiColorEditFlags_NoTooltip, {s, s});
+		ImGui::ColorButton(
+			label.c_str(), resource, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoDragDrop, {s, s});
 	}
 	else
 	{
 		ImGui::SameLine();
-		ImGui::ColorButton(label.c_str(), resource, ImGuiColorEditFlags_NoTooltip);
+		ImGui::ColorButton(label.c_str(), resource, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoDragDrop);
 	}
 }
 

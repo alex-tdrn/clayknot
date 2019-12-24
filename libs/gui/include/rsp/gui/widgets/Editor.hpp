@@ -4,56 +4,107 @@
 #include "rsp/base/ColorRGB.hpp"
 #include "rsp/base/ColorRGBA.hpp"
 #include "rsp/base/TimeUnit.hpp"
+#include "rsp/base/TypeList.hpp"
 #include "rsp/gui/widgets/Widget.hpp"
 
+#include <functional>
 #include <imgui.h>
+#include <optional>
 
 namespace rsp::gui
 {
+namespace impl
+{
+struct OwningTag
+{
+};
+} // namespace impl
+
 template <typename T>
 class Editor final : public Widget
 {
 private:
 	T& resource;
+	std::optional<T> ownedResource;
+	std::optional<std::function<void(T const&)>> modifiedCallback;
 
 public:
 	explicit Editor(T& resource, std::string resourceName) : Widget(resourceName), resource(resource)
 	{
 	}
+	explicit Editor(impl::OwningTag tag, T ownedResource, std::string resourceName)
+		: Widget(resourceName), ownedResource(ownedResource), resource(this->ownedResource.value())
+	{
+	}
 	~Editor() = default;
 
+protected:
+	void resourceModified() const
+	{
+		if(modifiedCallback)
+			(*modifiedCallback)(resource);
+	}
+
 public:
+	void setModifiedCallback(std::optional<std::function<void(T const&)>> callback)
+	{
+		modifiedCallback = callback;
+	}
+
 	void drawContents() const override
 	{
 		static_assert(false, "Not Implemented");
 	}
 };
 
+using SupportedEditorTypes =
+	meta::TypeList<bool, int, float, glm::vec2, glm::vec3, glm::vec4, Bounded<int>, Bounded<float>, Bounded<glm::vec2>,
+		Bounded<glm::vec3>, Bounded<glm::vec4>, ColorRGB, ColorRGBA, std::chrono::nanoseconds>;
+
 template <typename T>
-inline std::unique_ptr<Editor<T>> makeEditor(T& resource, std::string resourceName)
+inline std::unique_ptr<Widget> makeEditor(T& resource, std::string resourceName)
 {
 	return std::make_unique<Editor<T>>(resource, std::move(resourceName));
+}
+
+template <typename T, typename F>
+inline std::unique_ptr<Widget> makeEditor(T& resource, std::string resourceName, F&& modifiedCallback)
+{
+	auto editor = std::make_unique<Editor<T>>(resource, std::move(resourceName));
+	editor->setModifiedCallback(std::forward<F>(modifiedCallback));
+	return editor;
+}
+
+template <typename T, typename F>
+inline std::unique_ptr<Widget> makeOwningEditor(T initialResourceValue, std::string resourceName, F&& modifiedCallback)
+{
+	auto editor = std::make_unique<Editor<T>>(impl::OwningTag{}, initialResourceValue, std::move(resourceName));
+	editor->setModifiedCallback(std::forward<F>(modifiedCallback));
+	return editor;
 }
 
 template <>
 inline void Editor<bool>::drawContents() const
 {
 	ImGui::SameLine();
-	ImGui::Checkbox(label.c_str(), &resource);
+	if(ImGui::Checkbox(label.c_str(), &resource))
+		resourceModified();
 }
 
 template <>
 inline void Editor<int>::drawContents() const
 {
 	ImGui::SetNextItemWidth(getAvailableWidth());
-	ImGui::DragInt(label.c_str(), &resource);
+	if(ImGui::DragInt(label.c_str(), &resource))
+		resourceModified();
 }
 
 template <>
 inline void Editor<float>::drawContents() const
 {
 	ImGui::SetNextItemWidth(getAvailableWidth());
-	ImGui::DragFloat(label.c_str(), &resource);
+	if(ImGui::DragFloat(label.c_str(), &resource))
+		resourceModified();
 }
 
 template <>
@@ -65,7 +116,8 @@ inline void Editor<glm::vec2>::drawContents() const
 		for(int i = 0; i < 2; i++)
 		{
 			ImGui::PushID(i);
-			ImGui::DragFloat(label.c_str(), &resource[i]);
+			if(ImGui::DragFloat(label.c_str(), &resource[i]))
+				resourceModified();
 			ImGui::PopID();
 		}
 		ImGui::PopItemWidth();
@@ -76,7 +128,8 @@ inline void Editor<glm::vec2>::drawContents() const
 		for(int i = 0; i < 2; i++)
 		{
 			ImGui::PushID(i);
-			ImGui::DragFloat(label.c_str(), &resource[i]);
+			if(ImGui::DragFloat(label.c_str(), &resource[i]))
+				resourceModified();
 			ImGui::PopID();
 			ImGui::SameLine();
 		}
@@ -94,7 +147,8 @@ inline void Editor<glm::vec3>::drawContents() const
 		for(int i = 0; i < 3; i++)
 		{
 			ImGui::PushID(i);
-			ImGui::DragFloat(label.c_str(), &resource[i]);
+			if(ImGui::DragFloat(label.c_str(), &resource[i]))
+				resourceModified();
 			ImGui::PopID();
 		}
 		ImGui::PopItemWidth();
@@ -105,7 +159,8 @@ inline void Editor<glm::vec3>::drawContents() const
 		for(int i = 0; i < 3; i++)
 		{
 			ImGui::PushID(i);
-			ImGui::DragFloat(label.c_str(), &resource[i]);
+			if(ImGui::DragFloat(label.c_str(), &resource[i]))
+				resourceModified();
 			ImGui::PopID();
 			ImGui::SameLine();
 		}
@@ -123,7 +178,8 @@ inline void Editor<glm::vec4>::drawContents() const
 		for(int i = 0; i < 4; i++)
 		{
 			ImGui::PushID(i);
-			ImGui::DragFloat(label.c_str(), &resource[i]);
+			if(ImGui::DragFloat(label.c_str(), &resource[i]))
+				resourceModified();
 			ImGui::PopID();
 		}
 		ImGui::PopItemWidth();
@@ -134,7 +190,8 @@ inline void Editor<glm::vec4>::drawContents() const
 		for(int i = 0; i < 4; i++)
 		{
 			ImGui::PushID(i);
-			ImGui::DragFloat(label.c_str(), &resource[i]);
+			if(ImGui::DragFloat(label.c_str(), &resource[i]))
+				resourceModified();
 			ImGui::PopID();
 			ImGui::SameLine();
 		}
@@ -147,14 +204,16 @@ template <>
 inline void Editor<Bounded<int>>::drawContents() const
 {
 	ImGui::SetNextItemWidth(getAvailableWidth());
-	ImGui::SliderInt(label.c_str(), resource.data(), resource.getMin(), resource.getMax());
+	if(ImGui::SliderInt(label.c_str(), resource.data(), resource.getMin(), resource.getMax()))
+		resourceModified();
 }
 
 template <>
 inline void Editor<Bounded<float>>::drawContents() const
 {
 	ImGui::SetNextItemWidth(getAvailableWidth());
-	ImGui::SliderFloat(label.c_str(), resource.data(), resource.getMin(), resource.getMax());
+	if(ImGui::SliderFloat(label.c_str(), resource.data(), resource.getMin(), resource.getMax()))
+		resourceModified();
 }
 
 template <>
@@ -166,8 +225,9 @@ inline void Editor<Bounded<glm::vec2>>::drawContents() const
 		for(int i = 0; i < 2; i++)
 		{
 			ImGui::PushID(i);
-			ImGui::SliderFloat(
-				label.c_str(), &(resource.data()->operator[](i)), resource.getMin()[i], resource.getMax()[i]);
+			if(ImGui::SliderFloat(
+				   label.c_str(), &(resource.data()->operator[](i)), resource.getMin()[i], resource.getMax()[i]))
+				resourceModified();
 			ImGui::PopID();
 		}
 		ImGui::PopItemWidth();
@@ -178,8 +238,9 @@ inline void Editor<Bounded<glm::vec2>>::drawContents() const
 		for(int i = 0; i < 2; i++)
 		{
 			ImGui::PushID(i);
-			ImGui::SliderFloat(
-				label.c_str(), &(resource.data()->operator[](i)), resource.getMin()[i], resource.getMax()[i]);
+			if(ImGui::SliderFloat(
+				   label.c_str(), &(resource.data()->operator[](i)), resource.getMin()[i], resource.getMax()[i]))
+				resourceModified();
 			ImGui::PopID();
 			ImGui::SameLine();
 		}
@@ -197,8 +258,9 @@ inline void Editor<Bounded<glm::vec3>>::drawContents() const
 		for(int i = 0; i < 3; i++)
 		{
 			ImGui::PushID(i);
-			ImGui::SliderFloat(
-				label.c_str(), &(resource.data()->operator[](i)), resource.getMin()[i], resource.getMax()[i]);
+			if(ImGui::SliderFloat(
+				   label.c_str(), &(resource.data()->operator[](i)), resource.getMin()[i], resource.getMax()[i]))
+				resourceModified();
 			ImGui::PopID();
 		}
 		ImGui::PopItemWidth();
@@ -209,8 +271,9 @@ inline void Editor<Bounded<glm::vec3>>::drawContents() const
 		for(int i = 0; i < 3; i++)
 		{
 			ImGui::PushID(i);
-			ImGui::SliderFloat(
-				label.c_str(), &(resource.data()->operator[](i)), resource.getMin()[i], resource.getMax()[i]);
+			if(ImGui::SliderFloat(
+				   label.c_str(), &(resource.data()->operator[](i)), resource.getMin()[i], resource.getMax()[i]))
+				resourceModified();
 			ImGui::PopID();
 			ImGui::SameLine();
 		}
@@ -228,8 +291,9 @@ inline void Editor<Bounded<glm::vec4>>::drawContents() const
 		for(int i = 0; i < 4; i++)
 		{
 			ImGui::PushID(i);
-			ImGui::SliderFloat(
-				label.c_str(), &(resource.data()->operator[](i)), resource.getMin()[i], resource.getMax()[i]);
+			if(ImGui::SliderFloat(
+				   label.c_str(), &(resource.data()->operator[](i)), resource.getMin()[i], resource.getMax()[i]))
+				resourceModified();
 			ImGui::PopID();
 		}
 		ImGui::PopItemWidth();
@@ -240,8 +304,9 @@ inline void Editor<Bounded<glm::vec4>>::drawContents() const
 		for(int i = 0; i < 4; i++)
 		{
 			ImGui::PushID(i);
-			ImGui::SliderFloat(
-				label.c_str(), &(resource.data()->operator[](i)), resource.getMin()[i], resource.getMax()[i]);
+			if(ImGui::SliderFloat(
+				   label.c_str(), &(resource.data()->operator[](i)), resource.getMin()[i], resource.getMax()[i]))
+				resourceModified();
 			ImGui::PopID();
 			ImGui::SameLine();
 		}
@@ -258,30 +323,38 @@ inline void Editor<ColorRGB>::drawContents() const
 	if(isExtendedPreferred())
 	{
 		ImGui::PushID(0);
-		ImGui::ColorEdit3(label.c_str(), resource.data(),
-			ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoSmallPreview | ImGuiColorEditFlags_Float);
+		if(ImGui::ColorEdit3(label.c_str(), resource.data(),
+			   ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoSmallPreview | ImGuiColorEditFlags_Float |
+				   ImGuiColorEditFlags_NoDragDrop))
+			resourceModified();
 		ImGui::PopID();
 
 		ImGui::PushID(1);
-		ImGui::ColorEdit3(label.c_str(), resource.data(),
-			ImGuiColorEditFlags_DisplayHSV | ImGuiColorEditFlags_NoSmallPreview | ImGuiColorEditFlags_Float);
+		if(ImGui::ColorEdit3(label.c_str(), resource.data(),
+			   ImGuiColorEditFlags_DisplayHSV | ImGuiColorEditFlags_NoSmallPreview | ImGuiColorEditFlags_Float |
+				   ImGuiColorEditFlags_NoDragDrop))
+			resourceModified();
 		ImGui::PopID();
 
 		ImGui::PushID(2);
-		ImGui::ColorEdit3(label.c_str(), resource.data(),
-			ImGuiColorEditFlags_DisplayHex | ImGuiColorEditFlags_NoPicker | ImGuiColorEditFlags_NoTooltip |
-				ImGuiColorEditFlags_Float);
+		if(ImGui::ColorEdit3(label.c_str(), resource.data(),
+			   ImGuiColorEditFlags_DisplayHex | ImGuiColorEditFlags_NoPicker | ImGuiColorEditFlags_NoTooltip |
+				   ImGuiColorEditFlags_Float | ImGuiColorEditFlags_NoDragDrop))
+			resourceModified();
 		ImGui::PopID();
 
 		ImGui::PushID(3);
-		ImGui::ColorPicker3(label.c_str(), resource.data(),
-			ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoSmallPreview | ImGuiColorEditFlags_NoSidePreview |
-				ImGuiColorEditFlags_Float);
+		if(ImGui::ColorPicker3(label.c_str(), resource.data(),
+			   ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoSmallPreview | ImGuiColorEditFlags_NoSidePreview |
+				   ImGuiColorEditFlags_Float | ImGuiColorEditFlags_NoDragDrop))
+			resourceModified();
 		ImGui::PopID();
 	}
 	else
 	{
-		ImGui::ColorEdit3(label.c_str(), resource.data(), ImGuiColorEditFlags_Float | ImGuiColorEditFlags_NoTooltip);
+		if(ImGui::ColorEdit3(label.c_str(), resource.data(),
+			   ImGuiColorEditFlags_Float | ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoDragDrop))
+			resourceModified();
 	}
 	ImGui::PopItemWidth();
 }
@@ -293,31 +366,38 @@ inline void Editor<ColorRGBA>::drawContents() const
 	if(isExtendedPreferred())
 	{
 		ImGui::PushID(0);
-		ImGui::ColorEdit4(label.c_str(), resource.data(),
-			ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoSmallPreview | ImGuiColorEditFlags_Float);
+		if(ImGui::ColorEdit4(label.c_str(), resource.data(),
+			   ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoSmallPreview | ImGuiColorEditFlags_Float |
+				   ImGuiColorEditFlags_NoDragDrop))
+			resourceModified();
 		ImGui::PopID();
 
 		ImGui::PushID(1);
-		ImGui::ColorEdit4(label.c_str(), resource.data(),
-			ImGuiColorEditFlags_DisplayHSV | ImGuiColorEditFlags_NoSmallPreview | ImGuiColorEditFlags_Float |
-				ImGuiColorEditFlags_NoAlpha);
+		if(ImGui::ColorEdit4(label.c_str(), resource.data(),
+			   ImGuiColorEditFlags_DisplayHSV | ImGuiColorEditFlags_NoSmallPreview | ImGuiColorEditFlags_Float |
+				   ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_NoDragDrop))
+			resourceModified();
 		ImGui::PopID();
 
 		ImGui::PushID(2);
-		ImGui::ColorEdit4(label.c_str(), resource.data(),
-			ImGuiColorEditFlags_DisplayHex | ImGuiColorEditFlags_NoPicker | ImGuiColorEditFlags_NoTooltip |
-				ImGuiColorEditFlags_Float);
+		if(ImGui::ColorEdit4(label.c_str(), resource.data(),
+			   ImGuiColorEditFlags_DisplayHex | ImGuiColorEditFlags_NoPicker | ImGuiColorEditFlags_NoTooltip |
+				   ImGuiColorEditFlags_Float | ImGuiColorEditFlags_NoDragDrop))
+			resourceModified();
 		ImGui::PopID();
 
 		ImGui::PushID(3);
-		ImGui::ColorPicker4(label.c_str(), resource.data(),
-			ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoSmallPreview | ImGuiColorEditFlags_NoSidePreview |
-				ImGuiColorEditFlags_Float);
+		if(ImGui::ColorPicker4(label.c_str(), resource.data(),
+			   ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoSmallPreview | ImGuiColorEditFlags_NoSidePreview |
+				   ImGuiColorEditFlags_Float | ImGuiColorEditFlags_NoDragDrop))
+			resourceModified();
 		ImGui::PopID();
 	}
 	else
 	{
-		ImGui::ColorEdit4(label.c_str(), resource.data(), ImGuiColorEditFlags_Float | ImGuiColorEditFlags_NoTooltip);
+		if(ImGui::ColorEdit4(label.c_str(), resource.data(),
+			   ImGuiColorEditFlags_Float | ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoDragDrop))
+			resourceModified();
 	}
 	ImGui::PopItemWidth();
 }
@@ -334,7 +414,8 @@ inline void Editor<std::chrono::nanoseconds>::drawContents() const
 		{
 			int v = unit.value;
 			ImGui::PushID(ct);
-			ImGui::DragInt(label.c_str(), &v, 0.1f, 0, 0, ("%i " + unit.suffix).c_str());
+			if(ImGui::DragInt(label.c_str(), &v, 0.1f, 0, 0, ("%i " + unit.suffix).c_str()))
+				resourceModified();
 			ImGui::PopID();
 			unit.value = v;
 			if(++ct % 2 != 0)
@@ -355,7 +436,8 @@ inline void Editor<std::chrono::nanoseconds>::drawContents() const
 				{
 					int v = timeUnits[j].value;
 					ImGui::PushID(j);
-					ImGui::DragInt(label.c_str(), &v, 0.1f, 0, 0, ("%i " + timeUnits[j].suffix).c_str());
+					if(ImGui::DragInt(label.c_str(), &v, 0.1f, 0, 0, ("%i " + timeUnits[j].suffix).c_str()))
+						resourceModified();
 					ImGui::PopID();
 					timeUnits[j].value = v;
 					ImGui::SameLine();

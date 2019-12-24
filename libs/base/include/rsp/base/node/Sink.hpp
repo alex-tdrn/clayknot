@@ -1,7 +1,7 @@
 #pragma once
 
+#include "rsp/base/Meta.hpp"
 #include "rsp/base/Timestamp.hpp"
-#include "rsp/base/Utility.hpp"
 #include "rsp/base/node/AbstractSink.hpp"
 #include "rsp/base/port/InputDataPort.hpp"
 
@@ -22,7 +22,7 @@ protected:
 public:
 	Sink()
 	{
-		static_for_index(inputs.list, [&](auto& inputDataPort, int index) {
+		meta::static_for_index(inputs.list, [&](auto& inputDataPort, int index) {
 			AbstractSink::abstractInputDataPorts.push_back(&inputDataPort);
 			inputDataPort.setName(ConcreteSink::InputPorts::names[index]);
 		});
@@ -38,7 +38,7 @@ protected:
 	[[nodiscard]] bool updateAllInputs() const override final
 	{
 		bool success = true;
-		static_for(inputs.list, [&](auto const& input) { success = input.update(); });
+		meta::static_for(inputs.list, [&](auto const& input) { success = input.update(); });
 		return success;
 	}
 
@@ -57,7 +57,7 @@ public:
 	template <int inputIndex>
 	auto& getInputData() const
 	{
-		return getInputDataPort<inputIndex>().get();
+		return getInputDataPort<inputIndex>().getData();
 	}
 };
 

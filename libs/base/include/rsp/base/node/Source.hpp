@@ -1,7 +1,7 @@
 #pragma once
 
+#include "rsp/base/Meta.hpp"
 #include "rsp/base/Timestamp.hpp"
-#include "rsp/base/Utility.hpp"
 #include "rsp/base/node/AbstractSource.hpp"
 #include "rsp/base/port/OutputDataPort.hpp"
 
@@ -22,7 +22,7 @@ private:
 public:
 	Source()
 	{
-		static_for_index(outputs.list, [&](auto& outputDataPort, int index) {
+		meta::static_for_index(outputs.list, [&](auto& outputDataPort, int index) {
 			AbstractSource::abstractOutputDataPorts.push_back(&outputDataPort);
 			outputDataPort.setName(ConcreteSource::OutputPorts::names[index]);
 			outputDataPort.setParent(this);
@@ -68,7 +68,7 @@ public:
 	template <int outputIndex>
 	auto& getOutputData() const
 	{
-		return getOutputDataPort<outputIndex>().get();
+		return getOutputDataPort<outputIndex>().getData();
 	}
 };
 

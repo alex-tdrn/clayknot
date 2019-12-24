@@ -12,19 +12,24 @@ OutputEventPort::OutputEventPort(rsp::OutputEventPort* port) : OutputPort(port),
 	port->registerObserverFlag(EventPort::ObserverFlags::onTriggerFailed, &triggerFailed);
 }
 
-void OutputEventPort::draw()
+void OutputEventPort::drawContents()
 {
+	ImGui::PushStyleColor(ImGuiCol_Text, Stylesheet::getCurrentSheet().eventTextColor);
+	ImGui::Text(port->getName().c_str());
+	ImGui::PopStyleColor();
+
+	ImGui::SameLine();
 	ax::NodeEditor::BeginPin(id, ax::NodeEditor::PinKind::Output);
+
+	ImGui::SameLine();
+
+	placeAnchor(ImGui::GetItemRectSize().y);
 
 	if(triggerFailed)
 	{
 		anchorOffset.play();
 		triggerFailed = false;
 	}
-
-	ImGui::PushStyleColor(ImGuiCol_Text, Stylesheet::getCurrentSheet().eventTextColor);
-	ImGui::Text(port->getName().c_str());
-	ImGui::PopStyleColor();
 
 	auto anchorPosition = calculateAnchorPosition();
 
@@ -36,11 +41,6 @@ void OutputEventPort::draw()
 	ax::NodeEditor::PinPivotRect(anchorPosition, anchorPosition);
 
 	ax::NodeEditor::EndPin();
-}
-
-ImVec2 OutputEventPort::calculateSize() const
-{
-	return ImGui::CalcTextSize(port->getName().c_str());
 }
 
 } // namespace rsp::gui

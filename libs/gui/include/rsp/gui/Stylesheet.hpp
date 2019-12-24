@@ -33,7 +33,7 @@ public:
 	rsp::ColorRGBA nodeBorderColor{255, 255, 255, 96};
 	rsp::ColorRGBA hoveredNodeBorderColor{50, 176, 255, 255};
 	rsp::ColorRGBA selectedNodeBorderColor{255, 176, 50, 255};
-	Bounded<float> nodeBorderWidth{2.0f, 1.0f, 10.0f};
+	Bounded<float> nodeBorderWidth{0.0f, 0.0f, 10.0f};
 	Bounded<float> hoveredNodeBorderWidth{3.5f, 1.0f, 10.0f};
 	Bounded<float> selectedNodeBorderWidth{3.5f, 1.0f, 10.0f};
 	Bounded<float> nodeRounding{0.0f, 0.0f, 100.0f};
@@ -43,7 +43,7 @@ public:
 	rsp::ColorRGBA pinRectBorderColor{60, 180, 255, 128};
 	rsp::ColorRGBA eventColor{1.0f};
 	rsp::ColorRGBA eventTextColor{1.0f, 0.9f, 0.68f, 1.0f};
-	Bounded<float> anchorOffset{7.0f, 0.0f, 100.0f};
+	Bounded<float> anchorOffset{0.0f, 0.0f, 100.0f};
 	Bounded<float> animatedAnchorOffset{10, 0.0f, 100.0f};
 	std::chrono::nanoseconds animatedAnchorOffsetDuration = 1s;
 	Bounded<float> pinBorderWidth{0.0f, 0.0f, 100.0f};

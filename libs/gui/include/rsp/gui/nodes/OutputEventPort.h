@@ -24,9 +24,8 @@ public:
 	OutputEventPort& operator=(OutputEventPort const&) = delete;
 	~OutputEventPort() = default;
 
-public:
-	void draw() override;
-	ImVec2 calculateSize() const override;
+private:
+	void drawContents() override;
 };
 
 } // namespace rsp::gui

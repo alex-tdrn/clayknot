@@ -4,6 +4,7 @@
 #include "rsp/gui/Animation.hpp"
 #include "rsp/gui/UniqueID.hpp"
 
+#include <glm/glm.hpp>
 #include <imgui_node_editor.h>
 #include <unordered_map>
 
@@ -14,6 +15,7 @@ class AbstractPort
 private:
 	static inline std::unordered_map<unsigned long long, AbstractPort*> pinMap;
 	static inline std::unordered_map<rsp::Port const*, ax::NodeEditor::PinId> portMap;
+	glm::vec2 size{0.0f, 0.0f};
 
 protected:
 	ax::NodeEditor::PinId id = -1;
@@ -39,6 +41,11 @@ public:
 
 protected:
 	virtual ImVec2 calculateAnchorPosition() const = 0;
+	virtual void drawContents() = 0;
+	void placeAnchor(float height)
+	{
+		ImGui::Dummy({10, height});
+	}
 
 public:
 	static AbstractPort* getPinForID(ax::NodeEditor::PinId id)
@@ -68,10 +75,21 @@ public:
 		return port;
 	}
 
+	void draw()
+	{
+		ImGui::BeginGroup();
+		drawContents();
+		ImGui::EndGroup();
+		size = ImGui::GetItemRectSize();
+	}
+
+	glm::vec2 getSize() const
+	{
+		return size;
+	}
+
 	virtual bool canConnect(AbstractPort* otherPin) = 0;
 	virtual void connect(AbstractPort* otherPin) = 0;
-	virtual void draw() = 0;
-	virtual ImVec2 calculateSize() const = 0;
 };
 
 } // namespace rsp::gui

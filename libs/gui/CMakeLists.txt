@@ -29,9 +29,6 @@ add_library(rendershop-gui
 	"src/nodes/OutputDataPort.cpp"
 	"include/rsp/gui/nodes/OutputDataPort.h"
 
-	"src/nodes/OutputDataPortDelegate.cpp"
-	"include/rsp/gui/nodes/OutputDataPortDelegate.h"
-
 	"src/nodes/OutputEventPort.cpp"
 	"include/rsp/gui/nodes/OutputEventPort.h"
 
@@ -47,6 +44,7 @@ add_library(rendershop-gui
 	"include/rsp/gui/Stylesheet.hpp"
 	"include/rsp/gui/UIDebug.hpp"
 	"include/rsp/gui/UniqueID.hpp"
+	"include/rsp/gui/nodes/DataPort.hpp"
 )
 
 target_include_directories(rendershop-gui

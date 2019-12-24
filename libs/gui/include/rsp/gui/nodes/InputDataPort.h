@@ -1,20 +1,19 @@
 #pragma once
 
+#include "rsp/gui/nodes/DataPort.hpp"
 #include "rsp/gui/nodes/InputPort.h"
-
-namespace rsp
-{
-class DataPort;
-}
+#include "rsp/gui/widgets/Widget.hpp"
 
 namespace rsp::gui
 {
-class InputDataPort final : public InputPort
+class InputDataPort final
+	: public InputPort
+	, public DataPort
 {
 private:
-	rsp::DataPort* port;
 	bool portUpdateFailed = false;
 	bool dataRequested = false;
+	bool connectionStateChanged = false;
 
 public:
 	InputDataPort() = default;
@@ -25,9 +24,11 @@ public:
 	InputDataPort& operator=(InputDataPort const&) = delete;
 	~InputDataPort() = default;
 
+private:
+	void generateViewer();
+	void drawContents() override;
+
 public:
-	void draw() final override;
-	ImVec2 calculateSize() const final override;
 	void drawLink();
 };
 

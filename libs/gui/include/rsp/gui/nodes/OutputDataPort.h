@@ -1,36 +1,29 @@
 #pragma once
 
-#include "rsp/gui/nodes/OutputDataPortDelegate.h"
+#include "rsp/gui/nodes/DataPort.hpp"
 #include "rsp/gui/nodes/OutputPort.h"
+#include "rsp/gui/widgets/Widget.hpp"
 
 #include <memory>
 
-namespace rsp
-{
-class DataPort;
-}
-
 namespace rsp::gui
 {
-class OutputDataPortDelegate;
+class Widget;
 
-class OutputDataPort final : public OutputPort
+class OutputDataPort final
+	: public OutputPort
+	, public DataPort
 {
-private:
-	rsp::DataPort* port;
-	std::unique_ptr<OutputDataPortDelegate> delegate;
-
 public:
 	OutputDataPort() = default;
-	OutputDataPort(rsp::DataPort* port);
+	OutputDataPort(rsp::DataPort* port, bool fixedNode = false);
 	OutputDataPort(OutputDataPort&&) = default;
 	OutputDataPort(OutputDataPort const&) = delete;
 	OutputDataPort& operator=(OutputDataPort&&) = default;
 	OutputDataPort& operator=(OutputDataPort const&) = delete;
 	~OutputDataPort() = default;
 
-public:
-	void draw() override;
-	ImVec2 calculateSize() const override;
+private:
+	void drawContents() override;
 };
 } // namespace rsp::gui

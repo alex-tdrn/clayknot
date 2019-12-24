@@ -16,9 +16,12 @@ ImVec2 OutputPort::calculateAnchorPosition() const
 	auto& currentStyle = Stylesheet::getCurrentSheet();
 	auto min = ImGui::GetItemRectMin();
 	auto max = ImGui::GetItemRectMax();
+	auto w = max.x - min.x;
+	auto x = min.x + w / 2 +
+			 anchorOffset.get(currentStyle.animatedAnchorOffset, currentStyle.anchorOffset,
+				 currentStyle.animatedAnchorOffsetDuration, AnimationCurve::spring);
+
 	auto h = max.y - min.y;
-	auto x = max.x + anchorOffset.get(currentStyle.animatedAnchorOffset, currentStyle.anchorOffset,
-						 currentStyle.animatedAnchorOffsetDuration, AnimationCurve::spring);
 	auto y = min.y + h / 2;
 	return {x, y};
 }

@@ -12,29 +12,26 @@ InputEventPort::InputEventPort(rsp::InputEventPort* port) : InputPort(port), por
 	port->registerObserverFlag(EventPort::ObserverFlags::onTriggered, &triggered);
 }
 
-void InputEventPort::draw()
+void InputEventPort::drawContents()
 {
 	ax::NodeEditor::BeginPin(id, ax::NodeEditor::PinKind::Input);
+	placeAnchor(getSize().y);
 
 	ImGui::PushStyleColor(ImGuiCol_Text, Stylesheet::getCurrentSheet().eventTextColor);
-	ImGui::Text(port->getName().c_str());
 	ImGui::PopStyleColor();
 
 	auto anchorPosition = calculateAnchorPosition();
-
 	if(port->isConnected())
 		ImGui::DrawDiamond(anchorPosition, 5, Stylesheet::getCurrentSheet().eventColor);
 	else
 		ImGui::DrawDiamond(anchorPosition, 5, {0, 0, 0, 1}, Stylesheet::getCurrentSheet().eventColor);
 
+	ImGui::SameLine();
 	ax::NodeEditor::PinPivotRect(anchorPosition, anchorPosition);
-
 	ax::NodeEditor::EndPin();
-}
 
-ImVec2 InputEventPort::calculateSize() const
-{
-	return ImGui::CalcTextSize(port->getName().c_str());
+	ImGui::SameLine();
+	ImGui::Text(port->getName().c_str());
 }
 
 void InputEventPort::drawLink()

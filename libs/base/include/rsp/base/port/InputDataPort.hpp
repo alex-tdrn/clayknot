@@ -43,10 +43,10 @@ public:
 		return success;
 	}
 
-	Data const& get() const
+	Data const& getData() const
 	{
 		notifyObserverFlags(DataPort::ObserverFlags::onDataRequested);
-		return this->connection->get();
+		return this->connection->getData();
 	}
 };
 

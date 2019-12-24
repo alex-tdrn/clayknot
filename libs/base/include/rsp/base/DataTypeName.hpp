@@ -1,5 +1,6 @@
 #pragma once
 
+#include <glm/glm.hpp>
 #include <string>
 #include <typeinfo>
 
@@ -10,7 +11,7 @@ struct DataTypeName
 {
 	static std::string get()
 	{
-		return "UNKNOWN TYPE";
+		return typeid(DataType).name();
 	}
 };
 
@@ -32,4 +33,21 @@ static std::string DataTypeName<bool>::get()
 	return "Boolean";
 }
 
+template <>
+static std::string DataTypeName<glm::vec2>::get()
+{
+	return "Vector2";
+}
+
+template <>
+static std::string DataTypeName<glm::vec3>::get()
+{
+	return "Vector3";
+}
+
+template <>
+static std::string DataTypeName<glm::vec4>::get()
+{
+	return "Vector4";
+}
 } // namespace rsp

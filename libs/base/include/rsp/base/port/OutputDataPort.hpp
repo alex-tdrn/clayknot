@@ -36,13 +36,13 @@ public:
 		return parent->getTimestamp();
 	}
 
-	Data& get()
+	Data& getData()
 	{
 		notifyObserverFlags(DataPort::ObserverFlags::onDataRequested);
 		return data;
 	}
 
-	Data const& get() const
+	Data const& getData() const
 	{
 		notifyObserverFlags(DataPort::ObserverFlags::onDataRequested);
 		return data;
@@ -56,6 +56,11 @@ public:
 			return false;
 		}
 		return true;
+	}
+
+	AbstractSource* getParent() const
+	{
+		return parent;
 	}
 
 	void setParent(AbstractSource* parent)

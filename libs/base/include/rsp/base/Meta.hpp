@@ -2,28 +2,34 @@
 
 #include <tuple>
 
+namespace rsp::meta
+{
+namespace impl
+{
 template <class Tup, class F, std::size_t... I>
-constexpr void static_for_impl(Tup&& t, F&& f, std::index_sequence<I...>)
+constexpr void static_for(Tup&& t, F&& f, std::index_sequence<I...>)
 {
 	(f(std::get<I>(t)), ...);
 }
 
+template <class Tup, class F, std::size_t... I>
+constexpr void static_for_index(Tup&& t, F&& f, std::index_sequence<I...>)
+{
+	(f(std::get<I>(t), I), ...);
+}
+
+} // namespace impl
+
 template <class... T, class F>
 constexpr void static_for(std::tuple<T...>& t, F&& f)
 {
-	static_for_impl(t, std::forward<F>(f), std::make_index_sequence<sizeof...(T)>{});
-}
-
-template <class Tup, class F, std::size_t... I>
-constexpr void static_for_impl_index(Tup&& t, F&& f, std::index_sequence<I...>)
-{
-	(f(std::get<I>(t), I), ...);
+	impl::static_for(t, std::forward<F>(f), std::make_index_sequence<sizeof...(T)>{});
 }
 
 template <class... T, class F>
 constexpr void static_for_index(std::tuple<T...>& t, F&& f)
 {
-	static_for_impl_index(t, std::forward<F>(f), std::make_index_sequence<sizeof...(T)>{});
+	impl::static_for_index(t, std::forward<F>(f), std::make_index_sequence<sizeof...(T)>{});
 }
 
 template <typename...>
@@ -49,3 +55,5 @@ struct is_base_of_any<Base, Head, Tail...>
 {
 	static constexpr bool value = std::is_base_of<Base, Head>::value || is_base_of_any<Base, Tail...>::value;
 };
+
+} // namespace rsp::meta

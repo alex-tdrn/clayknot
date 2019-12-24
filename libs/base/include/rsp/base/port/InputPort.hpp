@@ -42,7 +42,7 @@ public:
 		return {connection};
 	}
 
-	void disconnect() final override
+	void disconnect() override
 	{
 		if(connection != nullptr)
 		{
