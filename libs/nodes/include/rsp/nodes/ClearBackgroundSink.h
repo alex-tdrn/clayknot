@@ -1,29 +1,32 @@
 #pragma once
 
-#include "rsp/base/ColorRGB.hpp"
-#include "rsp/base/node/Sink.hpp"
+#include "rsp/base/Node.hpp"
+#include "rsp/util/ColorRGB.hpp"
 
 #include <array>
 
 namespace rsp::nodes
 {
-class ClearBackgroundSink : public rsp::Sink<ClearBackgroundSink, rsp::InputList<rsp::ColorRGB>>
+class ClearBackgroundSink final : public Node
 {
-public:
-	struct InputPorts
-	{
-		static inline std::array names = {"Color"};
-		enum
-		{
-			Color
-		};
-	};
+private:
+	InputPort<ColorRGB> clearColor{"Color"};
 
 public:
-	static inline std::string const name = registerNode<ClearBackgroundSink>("Clear Background Sink");
+	ClearBackgroundSink()
+	{
+		registerPort(clearColor);
+	}
 
 protected:
-	void run() override;
+	void update() override;
+
+public:
+	std::string const& getName() const override
+	{
+		static std::string name = "Clear Background Sink";
+		return name;
+	}
 };
 
 } // namespace rsp::nodes

@@ -1,6 +1,9 @@
 #include "rsp/gui/nodes/OutputPort.h"
+#include "rsp/gui/ImGuiUtilities.hpp"
 #include "rsp/gui/Stylesheet.hpp"
 #include "rsp/gui/nodes/InputPort.h"
+#include "rsp/gui/widgets/Editor.hpp"
+#include "rsp/gui/widgets/Viewer.hpp"
 
 namespace rsp::gui
 {
@@ -26,6 +29,29 @@ ImVec2 OutputPort::calculateAnchorPosition() const
 	return {x, y};
 }
 
+void OutputPort::drawContents()
+{
+	drawWidget();
+	ImGui::SameLine();
+
+	ax::NodeEditor::BeginPin(id, ax::NodeEditor::PinKind::Output);
+
+	ImGui::SameLine();
+	auto anchorColor = ImGui::ColorFromHash(port->getDataTypeHash());
+
+	placeAnchor(ImGui::GetItemRectSize().y);
+
+	auto anchorPosition = calculateAnchorPosition();
+	if(port->isConnected())
+		ImGui::DrawCircle(anchorPosition, 5, anchorColor);
+	else
+		ImGui::DrawCircle(anchorPosition, 5, {0, 0, 0, 1}, anchorColor);
+
+	ax::NodeEditor::PinPivotRect(anchorPosition, anchorPosition);
+
+	ax::NodeEditor::EndPin();
+}
+
 bool OutputPort::canConnect(AbstractPort* inputPort)
 {
 	if(!dynamic_cast<InputPort*>(inputPort))
@@ -41,3 +67,35 @@ void OutputPort::connect(AbstractPort* inputPort)
 }
 
 } // namespace rsp::gui
+
+// TODO ??????????/
+// OutputDataPort::OutputDataPort(rsp::DataPort* port, bool fixedNode) : OutputPort(port), DataPort(port)
+// {
+// 	if(fixedNode)
+// 	{
+// 		SupportedEditorTypes::find_and_apply([&](auto* t) {
+// 			using ResourceType = std::remove_reference_t<decltype(*t)>;
+// 			auto concretePort = dynamic_cast<rsp::OutputDataPort<ResourceType> const*>(port);
+// 			if(!concretePort)
+// 				return false;
+// 			auto fixedParent = dynamic_cast<rsp::FixedSource<ResourceType>*>(concretePort->getParent());
+// 			widget = makeOwningEditor(fixedParent->getFixedData(), port->getName(),
+// 				[fixedParent = fixedParent](auto const& modifiedData) { fixedParent->setFixedData(modifiedData); });
+// 			widget->setMaximumWidth(150);
+// 			return true;
+// 		});
+// 	}
+// 	else
+// 	{
+// 		SupportedViewerTypes::find_and_apply([&](auto* t) {
+// 			using ResourceType = std::remove_reference_t<decltype(*t)>;
+// 			auto concretePort = dynamic_cast<rsp::OutputDataPort<ResourceType> const*>(port);
+// 			if(!concretePort)
+// 				return false;
+// 			widget = makeViewer(concretePort->getData(), port->getName());
+// 			widget->setMaximumWidth(150);
+// 			return true;
+// 		});
+// 	}
+// 	assert(widget != nullptr);
+// }

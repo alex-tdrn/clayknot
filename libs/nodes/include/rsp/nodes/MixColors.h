@@ -1,41 +1,39 @@
 #pragma once
 
-#include "rsp/base/ColorRGB.hpp"
-#include "rsp/base/node/Node.hpp"
+#include "rsp/base/Node.hpp"
+#include "rsp/util/ColorRGB.hpp"
+
 
 #include <array>
 
 namespace rsp::nodes
 {
-class MixColors
-	: public rsp::Node<MixColors, rsp::InputList<float, rsp::ColorRGB, rsp::ColorRGB>, rsp::OutputList<rsp::ColorRGB>>
+class MixColors final : public Node
 {
+private:
+	InputPort<float> factor{"Factor"};
+	InputPort<ColorRGB> colorA{"Color A"};
+	InputPort<ColorRGB> colorB{"Color B"};
+	OutputPort<ColorRGB> mixedColor{"Mixed Color"};
+
 public:
-	struct InputPorts
+	MixColors()
 	{
-		static inline std::array names = {"Factor", "Color A", "Color B"};
-		enum
-		{
-			Factor,
-			ColorA,
-			ColorB
-		};
-	};
+		registerPort(factor);
+		registerPort(colorA);
+		registerPort(colorB);
+		registerPort(mixedColor);
+	}
 
-	struct OutputPorts
+private:
+	void update() override;
+
+public:
+	std::string const& getName() const override
 	{
-		static inline std::array names = {"Mixed Color"};
-		enum
-		{
-			MixedColor
-		};
-	};
-
-public:
-	static inline std::string const name = registerNode<MixColors>("Mix Colors");
-
-public:
-	void run() override;
+		static std::string name = "Mix Colors";
+		return name;
+	}
 };
 
 } // namespace rsp::nodes

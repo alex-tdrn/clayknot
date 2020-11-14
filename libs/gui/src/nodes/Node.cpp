@@ -1,7 +1,4 @@
 #include "rsp/gui/nodes/Node.h"
-#include "rsp/base/node/AbstractSink.hpp"
-#include "rsp/base/node/AbstractSource.hpp"
-#include "rsp/base/node/FixedSource.hpp"
 #include "rsp/gui/Stylesheet.hpp"
 #include "rsp/gui/UIDebug.hpp"
 #include "rsp/gui/UniqueID.hpp"
@@ -11,59 +8,24 @@
 
 namespace rsp::gui
 {
-Node::Node(rsp::AbstractNode* node) : node(node), id(uniqueID())
+Node::Node(rsp::Node* node) : node(node), id(uniqueID())
 {
 	bool isSupportedFixedSource = false;
-	SupportedEditorTypes::find_and_apply([&](auto* t) {
-		using ResourceType = std::remove_reference_t<decltype(*t)>;
-		auto concreteNode = dynamic_cast<rsp::FixedSource<ResourceType>*>(node);
-		if(!concreteNode)
-			return false;
-		isSupportedFixedSource = true;
-		return true;
-	});
 
-	if(auto sink = dynamic_cast<rsp::AbstractSink*>(node); sink != nullptr)
-	{
-		for(auto inputDataPort : sink->getInputDataPorts())
-		{
-			inputDataPorts.push_back(std::make_unique<InputDataPort>(inputDataPort));
-		}
-	}
-
-	if(auto source = dynamic_cast<rsp::AbstractSource*>(node); source != nullptr)
-	{
-		for(auto outputPort : source->getOutputDataPorts())
-		{
-			outputDataPorts.push_back(std::make_unique<OutputDataPort>(outputPort, isSupportedFixedSource));
-		}
-	}
-	node->registerInputEvents();
-	node->registerOutputEvents();
-	if(!isSupportedFixedSource)
-	{
-		for(auto& [index, port] : node->getInputEventPorts())
-		{
-			inputEventPorts.push_back(std::make_unique<InputEventPort>(port.get()));
-		}
-	}
-
-	for(auto& [index, port] : node->getOutputEventPorts())
-	{
-		outputEventPorts.push_back(std::make_unique<OutputEventPort>(&port));
-	}
-
-	node->registerObserverFlag(AbstractNode::ObserverFlags::onRun, &ran);
+	for(auto inputPort : node->getInputPorts())
+		inputPorts.push_back(std::make_unique<gui::InputPort>(inputPort));
+	for(auto outputPort : node->getOutputPorts())
+		outputPorts.push_back(std::make_unique<gui::OutputPort>(outputPort));
 }
 
 bool Node::hasInputs() const
 {
-	return !inputDataPorts.empty() || !inputEventPorts.empty();
+	return !inputPorts.empty();
 }
 
 bool Node::hasOutputs() const
 {
-	return !outputDataPorts.empty() || !outputEventPorts.empty();
+	return !outputPorts.empty();
 }
 
 void Node::calculateLayout()
@@ -76,20 +38,18 @@ void Node::calculateLayout()
 	float const itemSpacing = ImGui::GetStyle().ItemSpacing.x;
 	float const minimumCenterSpacing = 20;
 
-	auto measurePinGroup = [&](auto& dataPins, auto& eventPins) {
+	auto measurePinGroup = [&](auto& dataPins) {
 		float pinGroupWidth = 0;
 		for(auto const& pin : dataPins)
 			pinGroupWidth = std::max(pinGroupWidth, pin->getSize().x);
-		for(auto const& pin : eventPins)
-			pinGroupWidth = std::max(pinGroupWidth, pin->getSize().x);
 
-		if(dataPins.size() > 0 || eventPins.size() > 0)
+		if(dataPins.size() > 0)
 			contentsWidth += pinGroupWidth + itemSpacing * 2;
 		return pinGroupWidth;
 	};
 
-	measurePinGroup(inputDataPorts, inputEventPorts);
-	outputsWidth = measurePinGroup(outputDataPorts, outputEventPorts);
+	measurePinGroup(inputPorts);
+	outputsWidth = measurePinGroup(outputPorts);
 
 	float const titleWidth = ImGui::CalcTextSize(node->getName().c_str()).x;
 
@@ -153,13 +113,7 @@ void Node::drawInputs()
 	if(hasInputs())
 	{
 		ImGui::BeginGroup();
-		for(auto& InputPort : inputDataPorts)
-		{
-			InputPort->draw();
-			ImGui::SameLine();
-			ImGui::Dummy({0, 0});
-		}
-		for(auto& InputPort : inputEventPorts)
+		for(auto& InputPort : inputPorts)
 		{
 			InputPort->draw();
 			ImGui::SameLine();
@@ -174,13 +128,7 @@ void Node::drawOutputs()
 	if(hasOutputs())
 	{
 		ImGui::BeginGroup();
-		for(auto& OutputPort : outputDataPorts)
-		{
-			ImGui::Dummy({outputsWidth - OutputPort->getSize().x, 0});
-			ImGui::SameLine();
-			OutputPort->draw();
-		}
-		for(auto& OutputPort : outputEventPorts)
+		for(auto& OutputPort : outputPorts)
 		{
 			ImGui::Dummy({outputsWidth - OutputPort->getSize().x, 0});
 			ImGui::SameLine();
@@ -211,20 +159,20 @@ void Node::toggleAllWidgets()
 
 void Node::setInputWidgetsVisibility(bool visibility)
 {
-	for(auto& port : inputDataPorts)
+	for(auto& port : inputPorts)
 		port->setWidgetVisibility(visibility);
 }
 
 void Node::setOutputWidgetsVisibility(bool visibility)
 {
-	for(auto& port : outputDataPorts)
+	for(auto& port : outputPorts)
 		port->setWidgetVisibility(visibility);
 }
 
 int Node::countVisibleInputWidgets() const
 {
 	int visibleCount = 0;
-	for(auto& port : inputDataPorts)
+	for(auto& port : inputPorts)
 		if(port->isWidgetVisible())
 			visibleCount++;
 	return visibleCount;
@@ -233,7 +181,7 @@ int Node::countVisibleInputWidgets() const
 int Node::countVisibleOutputWidgets() const
 {
 	int visibleCount = 0;
-	for(auto& port : outputDataPorts)
+	for(auto& port : outputPorts)
 		if(port->isWidgetVisible())
 			visibleCount++;
 	return visibleCount;
@@ -242,7 +190,7 @@ int Node::countVisibleOutputWidgets() const
 int Node::countHiddenInputWidgets() const
 {
 	int hiddenCount = 0;
-	for(auto& port : inputDataPorts)
+	for(auto& port : inputPorts)
 		if(!port->isWidgetVisible())
 			hiddenCount++;
 	return hiddenCount;
@@ -251,7 +199,7 @@ int Node::countHiddenInputWidgets() const
 int Node::countHiddenOutputWidgets() const
 {
 	int hiddenCount = 0;
-	for(auto& port : outputDataPorts)
+	for(auto& port : outputPorts)
 		if(!port->isWidgetVisible())
 			hiddenCount++;
 	return hiddenCount;
@@ -259,8 +207,8 @@ int Node::countHiddenOutputWidgets() const
 
 void Node::draw()
 {
-	// if(!layoutInitialized)
-	calculateLayout();
+	if(!layoutInitialized)
+		calculateLayout();
 	auto& nodeEditorStyle = ax::NodeEditor::GetStyle();
 
 	if(ran)
@@ -293,10 +241,8 @@ void Node::draw()
 
 void Node::drawInputLinks()
 {
-	for(auto& InputPort : inputDataPorts)
+	for(auto& InputPort : inputPorts)
 		InputPort->drawLink();
-	for(auto& InputEventPort : inputEventPorts)
-		InputEventPort->drawLink();
 }
 
 } // namespace rsp::gui

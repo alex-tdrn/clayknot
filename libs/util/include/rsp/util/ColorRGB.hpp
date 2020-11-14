@@ -1,6 +1,6 @@
 #pragma once
 
-#include "rsp/base/DataTypeName.hpp"
+#include "rsp/util/DataTypeName.hpp"
 
 #include <cassert>
 #include <glm/glm.hpp>
@@ -210,7 +210,7 @@ ColorRGB operator/(ColorRGB const& lhs, T const& rhs)
 }
 
 template <>
-static std::string DataTypeName<ColorRGB>::get()
+inline std::string DataTypeName<ColorRGB>::get()
 {
 	return "Color";
 }

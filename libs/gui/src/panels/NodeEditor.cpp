@@ -1,6 +1,4 @@
 #include "rsp/gui/panels/NodeEditor.h"
-#include "rsp/base/node/AbstractNode.hpp"
-#include "rsp/base/node/FixedSource.hpp"
 #include "rsp/gui/Stylesheet.hpp"
 #include "rsp/gui/nodes/AbstractPort.hpp"
 #include "rsp/gui/widgets/Editor.hpp"
@@ -9,10 +7,11 @@ namespace rsp::gui
 {
 NodeEditor::NodeEditor()
 {
-	SupportedEditorTypes::for_each([&](auto* t) {
-		using ResourceType = std::remove_reference_t<decltype(*t)>;
-		rsp::FixedSource<ResourceType> node;
-	});
+	// TODO what was this??
+	// SupportedEditorTypes::for_each([&](auto* t) {
+	// 	using ResourceType = std::remove_reference_t<decltype(*t)>;
+	// 	rsp::FixedSource<ResourceType> node;
+	// });
 
 	context = ax::NodeEditor::CreateEditor();
 	title = "Graph Canvas " + std::to_string(id);
@@ -187,17 +186,18 @@ void NodeEditor::drawContents()
 
 	if(ImGui::BeginPopup("Create New Node"))
 	{
-		for(auto [name, constructor] : rsp::AbstractNode::getNodeMap())
-		{
-			if(ImGui::MenuItem(name.c_str()))
-			{
-				auto source = constructor();
-				nodes.push_back(std::make_unique<Node>(source.get()));
-				nodes.back()->setInputWidgetsVisibility(showInputWidgets);
-				nodes.back()->setOutputWidgetsVisibility(showOutputWidgets);
-				store->push_back(std::move(source));
-			}
-		}
+		// TODO we need a node factory
+		// for(auto [name, constructor] : rsp::AbstractNode::getNodeMap())
+		// {
+		// 	if(ImGui::MenuItem(name.c_str()))
+		// 	{
+		// 		auto source = constructor();
+		// 		nodes.push_back(std::make_unique<Node>(source.get()));
+		// 		nodes.back()->setInputWidgetsVisibility(showInputWidgets);
+		// 		nodes.back()->setOutputWidgetsVisibility(showOutputWidgets);
+		// 		store->push_back(std::move(source));
+		// 	}
+		// }
 		ImGui::EndPopup();
 	}
 	ax::NodeEditor::Resume();
@@ -224,7 +224,7 @@ void NodeEditor::drawContents()
 	ImGui::PopID();
 }
 
-void NodeEditor::setStore(std::vector<std::unique_ptr<rsp::AbstractNode>>* store)
+void NodeEditor::setStore(std::vector<std::unique_ptr<rsp::Node>>* store)
 {
 	this->store = store;
 	for(auto& node : *store)

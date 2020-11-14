@@ -5,6 +5,7 @@
 #include "rsp/gui/widgets/Widget.hpp"
 
 #include <memory>
+#include <vector>
 
 namespace rsp::gui
 {

@@ -1,41 +1,38 @@
 #pragma once
 
-#include "rsp/base/ColorRGB.hpp"
-#include "rsp/base/node/Node.hpp"
+#include "rsp/base/Node.hpp"
+#include "rsp/util/ColorRGB.hpp"
 
 #include <array>
 
 namespace rsp::nodes
 {
-class DecomposeColor
-	: public rsp::Node<DecomposeColor, rsp::InputList<rsp::ColorRGB>, rsp::OutputList<float, float, float>>
+class DecomposeColor final : public Node
 {
+private:
+	InputPort<ColorRGB> color{"Color"};
+	OutputPort<float> redComponent{"R"};
+	OutputPort<float> greenComponent{"R"};
+	OutputPort<float> blueComponent{"B"};
+
 public:
-	struct InputPorts
+	DecomposeColor()
 	{
-		static inline std::array names = {"Color"};
-		enum
-		{
-			Color
-		};
-	};
+		registerPort(color);
+		registerPort(redComponent);
+		registerPort(greenComponent);
+		registerPort(blueComponent);
+	}
 
-	struct OutputPorts
+protected:
+	void update() override;
+
+public:
+	std::string const& getName() const override
 	{
-		static inline std::array names = {"R", "G", "B"};
-		enum
-		{
-			R,
-			G,
-			B
-		};
-	};
-
-public:
-	static inline std::string const name = registerNode<DecomposeColor>("Decompose Colors");
-
-public:
-	void run() override;
+		static std::string name = "Decompose Colors";
+		return name;
+	}
 };
 
 } // namespace rsp::nodes

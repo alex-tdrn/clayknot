@@ -1,6 +1,6 @@
 #pragma once
 
-#include "rsp/base/node/Sink.hpp"
+#include "rsp/base/Node.hpp"
 
 #include <array>
 #include <chrono>
@@ -9,47 +9,26 @@ namespace rsp::nodes
 {
 using namespace std::chrono_literals;
 
-class Timer : public rsp::Sink<Timer, rsp::InputList<std::chrono::milliseconds>>
+class Timer final : public Node
 {
-public:
-	struct InputPorts
-	{
-		static inline std::array names = {"Interval"};
-		enum
-		{
-			Interval
-		};
-	};
-
-	struct InputEvents
-	{
-		enum
-		{
-			Poll = AbstractNode::InputEvents::UserEvents
-		};
-	};
-
-	struct OutputEvents
-	{
-		enum
-		{
-			Timeout = AbstractNode::OutputEvents::UserEvents
-		};
-	};
-
-public:
-	static inline std::string const name = registerNode<Timer>("Timer");
-
 private:
-	mutable std::chrono::steady_clock::time_point nextActivationTime = std::chrono::steady_clock::now() + 5'000ms;
-
-protected:
-	void registerInputEvents() override;
-	void registerOutputEvents() override;
+	InputPort<std::chrono::milliseconds> interval{"Interval"};
 
 public:
-	void run() override;
-	void poll();
+	Timer()
+	{
+		registerPort(interval);
+	}
+
+public:
+	void update() override;
+
+public:
+	std::string const& getName() const override
+	{
+		static std::string name = "Timer";
+		return name;
+	}
 };
 
 } // namespace rsp::nodes

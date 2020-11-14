@@ -16,8 +16,9 @@ public:
 	OutputPort& operator=(OutputPort const&) = delete;
 	virtual ~OutputPort() = default;
 
-protected:
+private:
 	ImVec2 calculateAnchorPosition() const override;
+	void drawContents() override;
 
 public:
 	bool canConnect(AbstractPort* inputPort) final override;

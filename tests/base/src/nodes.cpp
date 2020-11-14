@@ -1,356 +1,160 @@
-#include "rsp/base/node/Node.hpp"
+#include "rsp/base/Node.hpp"
+#include "rsp/base/Port.hpp"
+
 #include <catch2/catch.hpp>
 
-#include <array>
-#include <utility>
-
-class TestSource : public rsp::Source<TestSource, rsp::OutputList<std::string>>
+class TestNode final : public rsp::Node
 {
 public:
-	struct OutputPorts
+	rsp::InputPort<int> input0{"I_0"};
+	rsp::OutputPort<int> output0{"O_0"};
+	int ctUpdateCalled = 0;
+
+	TestNode()
 	{
-		static inline std::array names = {"Message"};
-		enum
-		{
-			Message,
-		};
-	};
-
-public:
-	static inline std::string const name = registerNode<TestSource>("Test Source");
-
-private:
-	std::string message = "No message";
-	int updatesRan = 0;
-
-protected:
-	void run() override
-	{
-		getOutputData<OutputPorts::Message>() = message;
-		updatesRan++;
+		registerPort(input0);
+		registerPort(output0);
 	}
 
-public:
-	std::string const& getMessage() const
+	void update() override
 	{
-		return message;
+		ctUpdateCalled++;
+		*output0 = *input0;
 	}
 
-	void setMessage(std::string message)
+	std::string const& getName() const override
 	{
-		this->message = message;
-	}
-
-	int getUpdatesRan() const
-	{
-		return updatesRan;
+		static const std::string name = "Test Node";
+		return name;
 	}
 };
 
-class TestSink : public rsp::Sink<TestSink, rsp::InputList<std::string>>
+TEST_CASE("New node types can be implemented by inheriting from rsp::Node", "[nodes], [ports]")
 {
-public:
-	struct InputPorts
+	GIVEN("TestNode A, with one input port AI_0 and one output port AO_0 of the same datatype")
 	{
-		static inline std::array names = {"Message"};
-		enum
-		{
-			Message,
-		};
-	};
+		TestNode A;
+		auto& AI_0 = A.input0;
+		auto& AO_0 = A.output0;
 
-public:
-	static inline std::string const name = registerNode<TestSink>("Test Sink");
-	static inline std::string const noMessageReceived = "No Message Received";
-
-private:
-	std::string message = noMessageReceived;
-	int updatesRan = 0;
-
-protected:
-	void run() override
-	{
-		message = getInputData<InputPorts::Message>();
-		updatesRan++;
-	}
-
-public:
-	std::string const& getMessage() const
-	{
-		return message;
-	}
-
-	int getUpdatesRan() const
-	{
-		return updatesRan;
-	}
-};
-
-class TestNode : public rsp::Node<TestNode, rsp::InputList<std::string>, rsp::OutputList<std::string, std::string>>
-{
-public:
-	struct InputPorts
-	{
-		static inline std::array names = {"Message"};
-		enum
-		{
-			Message,
-		};
-	};
-
-	struct OutputPorts
-	{
-		static inline std::array names = {"Message1", "Message2"};
-		enum
-		{
-			Message1,
-			Message2,
-		};
-	};
-
-public:
-	static inline std::string const name = registerNode<TestNode>("Test Node");
-
-private:
-	std::string message = TestSink::noMessageReceived;
-	int updatesRan = 0;
-
-protected:
-	void run() override
-	{
-		message = getInputData<InputPorts::Message>();
-		getOutputData<OutputPorts::Message1>() = message;
-		getOutputData<OutputPorts::Message2>() = message;
-		updatesRan++;
-	}
-
-public:
-	std::string const& getMessage() const
-	{
-		return message;
-	}
-
-	int getUpdatesRan() const
-	{
-		return updatesRan;
-	}
-};
-
-TEMPLATE_TEST_CASE("base::nodes::Node registration", "", TestSource, TestSink, TestNode)
-{
-	GIVEN("Node type '" + TestType::name + "'")
-	{
-		THEN("it is registered in the node map")
-		{
-			auto& nodeMap = rsp::AbstractNode::getNodeMap();
-			REQUIRE(nodeMap.find(TestType::name) != nodeMap.end());
-			AND_THEN("it is constructible from the nodemap factory")
+		auto requireNoPullUpdate = [&]() {
+			THEN("calling pull on AO_0 does not call update()")
 			{
-				std::unique_ptr<rsp::AbstractNode> node = nullptr;
-				REQUIRE_NOTHROW(node = std::move(rsp::AbstractNode::createNode(TestType::name)));
-				REQUIRE(node != nullptr);
-				AND_THEN("its name is available from the base class")
-				{
-					REQUIRE(TestType::name == node->getName());
-					if constexpr(std::is_base_of_v<rsp::AbstractSink, TestType>)
-					{
-						AND_THEN("its input data ports are registered correctly")
-						{
-							auto sink = dynamic_cast<rsp::AbstractSink*>(node.get());
-							auto ports = sink->getInputDataPorts();
-							REQUIRE(ports.size() == TestType::InputPorts::names.size());
-							for(int i = 0; i < ports.size(); i++)
-								REQUIRE(ports[i]->getName() == TestType::InputPorts::names[i]);
-						}
-					}
+				auto ctOld = A.ctUpdateCalled;
+				AO_0.pull();
+				auto ctUpdates = A.ctUpdateCalled - ctOld;
+				REQUIRE(ctUpdates == 0);
+			}
+		};
 
-					if constexpr(std::is_base_of_v<rsp::AbstractSource, TestType>)
-					{
-						AND_THEN("its output data ports are registered correctly")
-						{
-							auto source = dynamic_cast<rsp::AbstractSource*>(node.get());
-							auto ports = source->getOutputDataPorts();
-							REQUIRE(ports.size() == TestType::OutputPorts::names.size());
-							for(int i = 0; i < ports.size(); i++)
-								REQUIRE(ports[i]->getName() == TestType::OutputPorts::names[i]);
-						}
-					}
+		auto requireNoPushUpdate = [&]() {
+			THEN("calling push on AI_0 does not call update()")
+			{
+				auto ctOld = A.ctUpdateCalled;
+				AI_0.push();
+				auto ctUpdates = A.ctUpdateCalled - ctOld;
+				REQUIRE(ctUpdates == 0);
+			}
+		};
+
+		auto requirePushUpdate = [&]() {
+			THEN("calling push on AI_0 calls update() once")
+			{
+				auto ctOld = A.ctUpdateCalled;
+				AI_0.push();
+				auto ctUpdates = A.ctUpdateCalled - ctOld;
+				REQUIRE(ctUpdates == 1);
+			}
+		};
+
+		auto requirePullUpdate = [&]() {
+			THEN("calling pull on AO_0 calls update() once")
+			{
+				auto ctOld = A.ctUpdateCalled;
+				AO_0.pull();
+				auto ctUpdates = A.ctUpdateCalled - ctOld;
+				REQUIRE(ctUpdates == 1);
+			}
+		};
+
+		THEN("ports registered by the derived class, are accessible from the base class in the same order they where "
+			 "registered")
+		{
+			REQUIRE(&AI_0 == &A.getInputPort(0));
+			REQUIRE(&AO_0 == &A.getOutputPort(0));
+		}
+		requireNoPullUpdate();
+		requireNoPushUpdate();
+		AND_GIVEN("output port O_0, compatible with AI_0")
+		{
+			rsp::OutputPort<int> O_0{"O_0"};
+			WHEN("AI_0 and O_0 are connected")
+			{
+				AI_0.connectTo(O_0);
+				requireNoPullUpdate();
+				requireNoPushUpdate();
+				AND_WHEN("O_0's value is set")
+				{
+					*O_0 = 0;
+					requirePullUpdate();
+					requirePushUpdate();
 				}
 			}
 		}
 	}
 }
 
-// TEST_CASE("base::nodes::Graph update behaviour")
-// {
-// 	GIVEN("Source A with one output port, AO, and update event AU")
-// 	{
-// 		TestSource A;
-// 		A.setMessage("This message comes from A");
-// 		auto& AO = A.getOutputDataPort<TestSource::OutputPorts::Message>();
-// 		auto& AU = A.getOutputEventPort(rsp::AbstractNode::OutputEvents::Updated);
+TEST_CASE("Cycles are ignored", "[nodes], [ports]")
+{
+	GIVEN("Nodes A and B, connected to each other in a cycle")
+	{
+		TestNode A;
+		TestNode B;
+		A.input0.connectTo(B.output0);
+		A.output0.connectTo(B.input0);
 
-// 		AND_GIVEN("test sink B with one input port, BI, and update event BU")
-// 		{
-// 			TestSink B;
-// 			auto& BI = B.getInputDataPort<TestSink::InputPorts::Message>();
-// 			auto& BU = B.getOutputEventPort(rsp::AbstractNode::OutputEvents::Updated);
-
-// 			WHEN("BI is connected to AO")
-// 			{
-// 				BI.connect(&AO);
-// 				AND_WHEN("B is ran")
-// 				{
-// 					REQUIRE(B.run());
-// 					THEN("AU and BU are triggered once")
-// 					{
-// 						REQUIRE(AU.getTimesTriggered() == 1);
-// 						REQUIRE(BU.getTimesTriggered() == 1);
-// 						AND_THEN("A and B's update methods are ran once")
-// 						{
-// 							REQUIRE(A.getUpdatesRan() == 1);
-// 							REQUIRE(B.getUpdatesRan() == 1);
-// 							AND_THEN("BI's value is equal to AO's value")
-// 							{
-// 								REQUIRE(B.getMessage() == A.getMessage());
-// 							}
-// 						}
-// 					}
-// 				}
-// 			}
-// 			AND_GIVEN("test node C with one input port, CI and two output ports, CO1 and CO2, and update event CU")
-// 			{
-// 				TestNode C;
-// 				auto& CI = C.getInputDataPort<TestNode::InputPorts::Message>();
-// 				auto& CO1 = C.getOutputDataPort<TestNode::OutputPorts::Message1>();
-// 				auto& CO2 = C.getOutputDataPort<TestNode::OutputPorts::Message2>();
-// 				auto& CU = C.getOutputEventPort(rsp::AbstractNode::OutputEvents::Updated);
-
-// 				WHEN("AO is connected to CI, CO1 is connected to BI")
-// 				{
-// 					AO.connect(&CI);
-// 					CO1.connect(&BI);
-// 					AND_WHEN("C is ran")
-// 					{
-// 						REQUIRE(C.run());
-// 						THEN("AU and CU are triggered once, but BU is not triggered")
-// 						{
-// 							REQUIRE(AU.getTimesTriggered() == 1);
-// 							REQUIRE(BU.getTimesTriggered() == 0);
-// 							REQUIRE(CU.getTimesTriggered() == 1);
-// 							AND_THEN("A and C's update methods are ran once, but not B's")
-// 							{
-// 								REQUIRE(A.getUpdatesRan() == 1);
-// 								REQUIRE(B.getUpdatesRan() == 0);
-// 								REQUIRE(C.getUpdatesRan() == 1);
-// 								AND_THEN("CI's value is equal to AO's value")
-// 								{
-// 									REQUIRE(C.getMessage() == A.getMessage());
-// 								}
-// 							}
-// 						}
-// 					}
-// 					AND_WHEN("B is ran")
-// 					{
-// 						REQUIRE(B.run());
-// 						THEN("AU, BU and CU are triggered once")
-// 						{
-// 							REQUIRE(AU.getTimesTriggered() == 1);
-// 							REQUIRE(BU.getTimesTriggered() == 1);
-// 							REQUIRE(CU.getTimesTriggered() == 1);
-// 							AND_THEN("A, B and C's update methods are ran once")
-// 							{
-// 								REQUIRE(A.getUpdatesRan() == 1);
-// 								REQUIRE(B.getUpdatesRan() == 1);
-// 								REQUIRE(C.getUpdatesRan() == 1);
-// 								AND_THEN("CI's value is equal to AO's value")
-// 								{
-// 									REQUIRE(C.getMessage() == A.getMessage());
-// 									AND_THEN("BI's value is equal to CO1's value")
-// 									{
-// 										REQUIRE(B.getMessage() == C.getMessage());
-// 										AND_THEN("BI's value is equal to AO's value")
-// 										{
-// 											REQUIRE(B.getMessage() == A.getMessage());
-// 										}
-// 									}
-// 								}
-// 							}
-// 						}
-// 					}
-// 					AND_GIVEN("test sink D with one input port DI and an update event DU")
-// 					{
-// 						TestSink D;
-// 						auto& DI = D.getInputDataPort<TestSink::InputPorts::Message>();
-// 						auto& DU = D.getOutputEventPort(rsp::AbstractNode::OutputEvents::Updated);
-
-// 						WHEN("DI is connected to CO2")
-// 						{
-// 							DI.connect(&CO2);
-// 							AND_WHEN("B is ran")
-// 							{
-// 								REQUIRE(B.run());
-// 								THEN("AU, BU and CU are triggered once, but DU is not triggered")
-// 								{
-// 									REQUIRE(AU.getTimesTriggered() == 1);
-// 									REQUIRE(BU.getTimesTriggered() == 1);
-// 									REQUIRE(CU.getTimesTriggered() == 1);
-// 									REQUIRE(DU.getTimesTriggered() == 0);
-// 									AND_THEN("A, B and C's update methods are ran once, but not D's update method")
-// 									{
-// 										REQUIRE(A.getUpdatesRan() == 1);
-// 										REQUIRE(B.getUpdatesRan() == 1);
-// 										REQUIRE(C.getUpdatesRan() == 1);
-// 										REQUIRE(D.getUpdatesRan() == 0);
-// 										AND_THEN("CI's value is equal to AO's value")
-// 										{
-// 											REQUIRE(C.getMessage() == A.getMessage());
-// 											AND_THEN("BI's value is equal to CO1's value")
-// 											{
-// 												REQUIRE(B.getMessage() == C.getMessage());
-// 												AND_THEN("BI's value is equal to AO's value")
-// 												{
-// 													REQUIRE(B.getMessage() == A.getMessage());
-// 													AND_WHEN("D is ran")
-// 													{
-// 														REQUIRE(D.run());
-// 														THEN("only DU is triggered again")
-// 														{
-// 															REQUIRE(AU.getTimesTriggered() == 1);
-// 															REQUIRE(BU.getTimesTriggered() == 1);
-// 															REQUIRE(CU.getTimesTriggered() == 1);
-// 															REQUIRE(DU.getTimesTriggered() == 1);
-// 															AND_THEN("only D's update method is ran")
-// 															{
-// 																REQUIRE(A.getUpdatesRan() == 1);
-// 																REQUIRE(B.getUpdatesRan() == 1);
-// 																REQUIRE(C.getUpdatesRan() == 1);
-// 																REQUIRE(D.getUpdatesRan() == 1);
-// 																AND_THEN("CI's value is still equal to AO's value")
-// 																{
-// 																	REQUIRE(C.getMessage() == A.getMessage());
-// 																	AND_THEN("DI's value is equal to CO2's value")
-// 																	{
-// 																		REQUIRE(D.getMessage() == C.getMessage());
-// 																		AND_THEN("DI's value is equal to AO's value")
-// 																		{
-// 																			REQUIRE(D.getMessage() == A.getMessage());
-// 																		}
-// 																	}
-// 																}
-// 															}
-// 														}
-// 													}
-// 												}
-// 											}
-// 										}
-// 									}
-// 								}
-// 							}
-// 						}
-// 					}
-// 				}
-// 			}
-// 		}
-// 	}
-// }
+		auto cycleTraversedOnce = [&]() {
+			THEN("the cycle is traversed once, with no update calls")
+			{
+				REQUIRE(A.ctUpdateCalled == 0);
+				REQUIRE(B.ctUpdateCalled == 0);
+			}
+		};
+		WHEN("calling 'pull' on A")
+		{
+			A.pull();
+			cycleTraversedOnce();
+		}
+		WHEN("calling 'push' on A")
+		{
+			A.push();
+			cycleTraversedOnce();
+		}
+		WHEN("calling 'pull' on B")
+		{
+			B.pull();
+			cycleTraversedOnce();
+		}
+		WHEN("calling 'push' on B")
+		{
+			B.push();
+			cycleTraversedOnce();
+		}
+		WHEN("calling 'push' and 'pull' on A and B multiple times in any order")
+		{
+			B.push();
+			A.push();
+			B.push();
+			A.push();
+			B.push();
+			A.pull();
+			B.pull();
+			A.push();
+			A.pull();
+			B.pull();
+			B.pull();
+			A.pull();
+			cycleTraversedOnce();
+		}
+	}
+}

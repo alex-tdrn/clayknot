@@ -1,332 +1,359 @@
-#include "rsp/base/port/InputDataPort.hpp"
-#include "rsp/base/port/InputEventPort.h"
-#include "rsp/base/port/OutputDataPort.hpp"
-#include "rsp/base/port/OutputEventPort.h"
+#include "rsp/base/Port.hpp"
+
+#include <array>
 #include <catch2/catch.hpp>
+#include <memory>
+#include <tuple>
+#include <type_traits>
+#include <utility>
+#include <vector>
 
-template <typename A, typename B>
-void testConnectionIsValid(A& a, B& b)
+#define DATATYPES \
+	int, unsigned int, short, char*, (std::tuple<int, float>), (std::vector<int>), (std::array<int, 10>), \
+		std::unique_ptr<int>, std::shared_ptr<int>, (rsp::InputPort<int>), (rsp::OutputPort<int>)
+
+template <typename T, typename U>
+void requireConnectionImpossible(T& portA, U& portB);
+
+template <typename T, typename U>
+void requireConnected(T& portA, U& portB);
+
+template <typename T, typename U>
+void requireUnconnected(T& portA, U& portB);
+
+TEMPLATE_PRODUCT_TEST_CASE(
+	"Ports cannot connect to themselves", "[ports]", (rsp::InputPort, rsp::OutputPort), (DATATYPES))
 {
-	THEN("connecting A to B is possible")
+	GIVEN("a port")
 	{
-		REQUIRE(a.canConnect(&b));
-		AND_THEN("connecting A to B does not throw")
+		TestType A;
+		THEN("it cannot be connected to itself")
 		{
-			REQUIRE_NOTHROW(a.connect(&b));
-		}
-		AND_THEN("connecting B to A is possible")
-		{
-			REQUIRE(b.canConnect(&a));
-			AND_THEN("connecting B to A does not throw")
+			REQUIRE(!A.canConnectTo(A));
+			AND_WHEN("trying anyway, an exception is thrown")
 			{
-				REQUIRE_NOTHROW(b.connect(&a));
+				REQUIRE_THROWS(A.connectTo(A));
+				REQUIRE(!A.isConnected());
 			}
 		}
 	}
 }
-template <typename A, typename B>
-void testConnectionIsInvalid(A& a, B& b)
+
+TEMPLATE_PRODUCT_TEST_CASE(
+	"Ports of the same type cannot be connected", "[ports]", (rsp::InputPort, rsp::OutputPort), (DATATYPES))
 {
-	THEN("connecting A to B is impossible")
+	GIVEN("ports A and B of same type")
 	{
-		REQUIRE(!a.canConnect(&b));
-	}
-	THEN("connecting A to B throws")
-	{
-		REQUIRE_THROWS(a.connect(&b));
-	}
-	THEN("connecting B to A is impossible")
-	{
-		REQUIRE(!b.canConnect(&a));
-	}
-	THEN("connecting B to A throws")
-	{
-		REQUIRE_THROWS(b.connect(&a));
+		TestType A;
+		TestType B;
+		requireConnectionImpossible(A, B);
 	}
 }
 
-TEST_CASE("base::ports::Connections between input and output ports")
+TEST_CASE("Ports holding differing datatypes cannot be connected", "[ports]")
 {
-	class TestOutputPort;
-	class TestInputPort : public rsp::InputPort<TestOutputPort>
+	GIVEN("input port A of int and output port B of string")
 	{
-	};
-	class TestOutputPort : public rsp::OutputPort<TestInputPort>
-	{
-	};
+		rsp::InputPort<int> A;
+		rsp::OutputPort<std::string> B;
+		requireConnectionImpossible(A, B);
+	}
+}
 
-	GIVEN("A disconnected input port A")
+TEMPLATE_TEST_CASE("Ports holding the same datatype can be connected", "[ports]", DATATYPES)
+{
+	GIVEN("input port A and output port B, both holding the same datatype")
 	{
-		TestInputPort A;
-		REQUIRE(!A.isConnected());
-		AND_GIVEN("a disconnected output port B")
+		rsp::InputPort<TestType> A;
+		rsp::OutputPort<TestType> B;
+		THEN("they can be connected")
 		{
-			TestOutputPort B;
-			REQUIRE(!B.isConnected());
-			testConnectionIsValid(A, B);
-			WHEN("B is connected to another input port C")
+			REQUIRE(A.canConnectTo(B));
+			REQUIRE(B.canConnectTo(A));
+
+			AND_THEN("connecting A to B does not fail")
 			{
-				TestInputPort C;
-				B.connect(&C);
-				THEN("connecting A to B is still possible")
+				REQUIRE_NOTHROW(A.connectTo(B));
+				requireConnected(A, B);
+			}
+			AND_THEN("connecting B to A does not fail")
+			{
+				REQUIRE_NOTHROW(B.connectTo(A));
+				requireConnected(A, B);
+			}
+		}
+	}
+}
+
+TEMPLATE_TEST_CASE("Connected ports can be disconnected", "[ports]", DATATYPES)
+{
+	GIVEN("connected ports A, and B")
+	{
+		rsp::InputPort<TestType> A;
+		rsp::OutputPort<TestType> B;
+		A.connectTo(B);
+		THEN("the connection can be severed")
+		{
+			WHEN("A disconnects from all")
+			{
+				REQUIRE_NOTHROW(A.disconnect());
+				requireUnconnected(A, B);
+			}
+			WHEN("A disconnects from B")
+			{
+				REQUIRE_NOTHROW(A.disconnectFrom(B));
+				requireUnconnected(A, B);
+			}
+			WHEN("B disconnects from all")
+			{
+				REQUIRE_NOTHROW(B.disconnect());
+				requireUnconnected(A, B);
+			}
+			WHEN("B disconnects from A")
+			{
+				REQUIRE_NOTHROW(B.disconnectFrom(A));
+				requireUnconnected(A, B);
+			}
+		}
+	}
+}
+
+TEST_CASE("Ports disconnect automatically when their lifetime ends", "[ports]")
+{
+	GIVEN("input port A connected to output port B")
+	{
+		rsp::InputPort<int> A;
+		{
+			rsp::OutputPort<int> B;
+			A.connectTo(B);
+		}
+		THEN("when B's lifetime ends, A gets disconnected automatically")
+		{
+			REQUIRE_FALSE(A.isConnected());
+		}
+	}
+
+	GIVEN("output port B connected to input port A")
+	{
+		rsp::OutputPort<int> B;
+
+		{
+			rsp::InputPort<int> A;
+			B.connectTo(A);
+		}
+		THEN("when A's lifetime ends, B gets disconnected automatically")
+		{
+			REQUIRE_FALSE(B.isConnected());
+		}
+	}
+}
+
+TEMPLATE_TEST_CASE("Ports holding the same datatype return the same hash", "[ports]", DATATYPES)
+{
+	GIVEN("input port A and output port B, both holding the same datatype")
+	{
+		rsp::InputPort<TestType> A;
+		rsp::OutputPort<TestType> B;
+		THEN("they return the same datatype hash")
+		{
+			REQUIRE(A.getDataTypeHash() == B.getDataTypeHash());
+		}
+	}
+}
+
+TEST_CASE("Unconnected input ports cannot provide data", "[ports]")
+{
+	GIVEN("unconnected input port A")
+	{
+		rsp::InputPort<int> A;
+		THEN("trying to get data from it, fails")
+		{
+			REQUIRE_THROWS(A.get());
+			REQUIRE_THROWS(*A);
+			REQUIRE_THROWS(A.operator->());
+		}
+	}
+}
+
+TEST_CASE("Output ports can provide data", "[ports]")
+{
+	GIVEN("output port A")
+	{
+		rsp::OutputPort<std::string> A;
+		THEN("A can provide modifiable references to its data")
+		{
+			std::string const v1 = "1";
+			A.get() = v1;
+			REQUIRE(A.get() == v1);
+			REQUIRE(*A == v1);
+			REQUIRE(A->compare(v1) == 0);
+
+			std::string const v2 = "2";
+			*A = v2;
+			REQUIRE(A.get() == v2);
+			REQUIRE(*A == v2);
+			REQUIRE(A->compare(v2) == 0);
+
+			A->clear();
+			REQUIRE(A.get().empty());
+			REQUIRE((*A).empty());
+			REQUIRE(A->empty());
+		}
+		AND_GIVEN("B, a const reference to A")
+		{
+			auto const& B = A;
+			THEN("B can provide read-only references to its data")
+			{
+				auto v1 = &(B.get());
+				auto v2 = &(*B);
+				auto v3 = B.operator->();
+
+				REQUIRE(v1 == v2);
+				REQUIRE(v1 == v3);
+				STATIC_REQUIRE(std::is_const_v<std::remove_pointer_t<decltype(v1)>>);
+				STATIC_REQUIRE(std::is_const_v<std::remove_pointer_t<decltype(v2)>>);
+				STATIC_REQUIRE(std::is_const_v<std::remove_pointer_t<decltype(v3)>>);
+			}
+		}
+	}
+}
+
+TEST_CASE("Connected input ports can provide the data from their connection", "[ports]")
+{
+	GIVEN("output port A connected to multiple input ports")
+	{
+		rsp::OutputPort<int> A;
+		rsp::InputPort<int> inputPorts[3];
+		for(auto& port : inputPorts)
+			port.connectTo(A);
+
+		THEN("all connected input ports can provide read-only references to A's data")
+		{
+			auto originalValue = &(A.get());
+
+			for(auto& port : inputPorts)
+			{
+				REQUIRE_NOTHROW(port.get());
+				REQUIRE_NOTHROW(*port);
+				REQUIRE_NOTHROW(port.operator->());
+
+				auto v1 = &(port.get());
+				auto v2 = &(*port);
+				auto v3 = port.operator->();
+
+				REQUIRE(v1 == v2);
+				REQUIRE(v1 == v3);
+				REQUIRE(v1 == originalValue);
+
+				STATIC_REQUIRE(std::is_const_v<std::remove_pointer_t<decltype(v1)>>);
+				STATIC_REQUIRE(std::is_const_v<std::remove_pointer_t<decltype(v2)>>);
+				STATIC_REQUIRE(std::is_const_v<std::remove_pointer_t<decltype(v3)>>);
+			}
+		}
+	}
+}
+
+TEST_CASE(
+	"A push callback can be set on an input port in order to alert the port owner that an update occured", "[port]")
+{
+	GIVEN("input port A")
+	{
+		rsp::InputPort<int> A;
+		AND_GIVEN("non-throwing callable F, set as the push callback for A")
+		{
+			bool called = false;
+			auto F = [&](auto&&) {
+				called = true;
+			};
+			A.setPushCallback(std::move(F));
+			WHEN("calling A.push(), F is called as well")
+			{
+				A.push();
+				REQUIRE(called);
+			}
+
+			AND_GIVEN("output port B")
+			{
+				rsp::OutputPort<int> B;
+				WHEN("A and B are connected")
 				{
-					REQUIRE(A.canConnect(&B));
-					AND_WHEN("connecting A to B")
+					B.connectTo(A);
+
+					THEN("calling B.push(), transitively calls A.push(), and F as well")
 					{
-						REQUIRE_NOTHROW(A.connect(&B));
-						THEN("C remains connected")
-						{
-							REQUIRE(C.isConnected());
-						}
-					}
-					AND_THEN("connecting B to A is still possible")
-					{
-						REQUIRE(B.canConnect(&A));
-						AND_WHEN("connecting B to A")
-						{
-							REQUIRE_NOTHROW(B.connect(&A));
-							THEN("C remains connected")
-							{
-								REQUIRE(C.isConnected());
-							}
-						}
+						B.push();
+						REQUIRE(called);
 					}
 				}
 			}
-			WHEN("A is connected to another output port C")
+		}
+	}
+}
+
+TEST_CASE("A pull callback can be set on an output port in order to alert the port owner that an update may be needed",
+	"[port]")
+{
+	GIVEN("output port A")
+	{
+		rsp::OutputPort<int> A;
+		AND_GIVEN("non-throwing callable F, set as the pull callback for A")
+		{
+			bool called = false;
+			auto F = [&](auto&&) {
+				called = true;
+			};
+			A.setPullCallback(std::move(F));
+			WHEN("calling A.pull(), F is called as well")
 			{
-				TestOutputPort C;
-				A.connect(&C);
-				THEN("connecting A to B is still possible")
+				REQUIRE_NOTHROW(A.pull());
+				REQUIRE(called);
+			}
+
+			AND_GIVEN("output port B")
+			{
+				rsp::InputPort<int> B;
+				WHEN("A and B are connected")
 				{
-					REQUIRE(A.canConnect(&B));
-					AND_WHEN("connecting A to B")
+					B.connectTo(A);
+
+					THEN("calling B.pull(), transitively calls A.pull(), and F as well")
 					{
-						REQUIRE_NOTHROW(A.connect(&B));
-						THEN("C gets disconnected")
-						{
-							REQUIRE(!C.isConnected());
-						}
-					}
-					AND_THEN("connecting B to A is still possible")
-					{
-						REQUIRE(B.canConnect(&A));
-						AND_WHEN("connecting B to A")
-						{
-							REQUIRE_NOTHROW(B.connect(&A));
-							THEN("C gets disconnected")
-							{
-								REQUIRE(!C.isConnected());
-							}
-						}
+						B.pull();
+						REQUIRE(called);
 					}
 				}
 			}
 		}
-		AND_GIVEN("a disconnected input port B")
-		{
-			TestInputPort B;
-			REQUIRE(!B.isConnected());
-			testConnectionIsInvalid(A, B);
-		}
-	}
-	GIVEN("A disconnected output port A")
-	{
-		TestOutputPort A;
-		REQUIRE(!A.isConnected());
-		AND_GIVEN("a disconnected output port B")
-		{
-			TestOutputPort B;
-			REQUIRE(!B.isConnected());
-			testConnectionIsInvalid(A, B);
-		}
 	}
 }
 
-TEST_CASE("base::ports::Connections between data ports")
+template <typename T, typename U>
+void requireConnectionImpossible(T& A, U& B)
 {
-	GIVEN("A, an input data port holding an int")
+	THEN("they cannot be connected")
 	{
-		rsp::InputDataPort<int> A;
-		AND_GIVEN("B, an output data port holding an int")
+		REQUIRE_FALSE(A.canConnectTo(B));
+		REQUIRE_FALSE(B.canConnectTo(A));
+		AND_WHEN("trying anyway, an exception is thrown")
 		{
-			rsp::OutputDataPort<int> B;
-			testConnectionIsValid(A, B);
-		}
-		AND_GIVEN("B, an output data port holding a float")
-		{
-			rsp::OutputDataPort<float> B;
-			testConnectionIsInvalid(A, B);
-		}
-		AND_GIVEN("B, an input data port holding an int")
-		{
-			rsp::InputDataPort<int> B;
-			testConnectionIsInvalid(A, B);
-		}
-	}
-	GIVEN("A, an output data port holding an int")
-	{
-		rsp::OutputDataPort<int> A;
-		AND_GIVEN("B, an output data port holding an int")
-		{
-			rsp::OutputDataPort<float> B;
-			testConnectionIsInvalid(A, B);
+			REQUIRE_THROWS(A.connectTo(B));
+			requireUnconnected(A, B);
+			REQUIRE_THROWS(B.connectTo(A));
+			requireUnconnected(A, B);
 		}
 	}
 }
 
-TEST_CASE("base::ports::Connections between event ports")
+template <typename T, typename U>
+void requireConnected(T& A, U& B)
 {
-	GIVEN("A, an input event port referencing an empty lambda")
-	{
-		rsp::InputEventPort A{[]() {
-		}};
-		AND_GIVEN("B, an output event port")
-		{
-			rsp::OutputEventPort B;
-			testConnectionIsValid(A, B);
-		}
-		AND_GIVEN("B, an input event port referencing an empty lambda")
-		{
-			rsp::InputEventPort B{[]() {
-			}};
-			testConnectionIsInvalid(A, B);
-		}
-	}
-	GIVEN("A, an output event port")
-	{
-		rsp::OutputEventPort A;
-		AND_GIVEN("B, an output event port")
-		{
-			rsp::OutputEventPort B;
-			testConnectionIsInvalid(A, B);
-		}
-	}
+	REQUIRE(A.isConnectedTo(B));
+	REQUIRE(B.isConnectedTo(A));
 }
 
-// TEST_CASE("base::ports::Event triggering")
-// {
-// 	GIVEN("F a boolean flag initially set to false")
-// 	{
-// 		bool F = false;
-// 		AND_GIVEN("L, a lambda function that sets F to true when ran")
-// 		{
-// 			auto L = [&F]() {
-// 				F = true;
-// 			};
-// 			AND_GIVEN("A, an input event port referencing L")
-// 			{
-// 				rsp::InputEventPort A{L};
-// 				WHEN("triggering A")
-// 				{
-// 					A.trigger();
-// 					THEN("A's trigger counter goes up by one")
-// 					{
-// 						REQUIRE(A.getTimesTriggered() == 1);
-// 						AND_THEN("L gets called and thus, F gets set to true")
-// 						{
-// 							REQUIRE(F == true);
-// 						}
-// 					}
-// 				}
-// 				AND_GIVEN("B, an output event port connected to A")
-// 				{
-// 					rsp::OutputEventPort B;
-// 					B.connect(&A);
-// 					WHEN("triggering B")
-// 					{
-// 						B.trigger();
-// 						THEN("B and A's trigger counter both go up by one")
-// 						{
-// 							REQUIRE(A.getTimesTriggered() == 1);
-// 							REQUIRE(B.getTimesTriggered() == 1);
-// 							AND_THEN("A gets also triggered and thus, F gets set to true")
-// 							{
-// 								REQUIRE(F == true);
-// 							}
-// 						}
-// 					}
-// 					WHEN("disconnecting B")
-// 					{
-// 						B.disconnect();
-// 						THEN("triggering B has no effect")
-// 						{
-// 							B.trigger();
-// 							REQUIRE(F == false);
-// 							REQUIRE(A.getTimesTriggered() == 0);
-// 						}
-// 					}
-// 				}
-// 			}
-// 		}
-// 	}
-// 	GIVEN("F, G, and H boolean flags initially set to false")
-// 	{
-// 		bool F = false;
-// 		bool G = false;
-// 		bool H = false;
-// 		AND_GIVEN("L, M and N, lambda functions that sets F, G and H to true when ran")
-// 		{
-// 			auto L = [&F]() {
-// 				F = true;
-// 			};
-// 			auto M = [&G]() {
-// 				G = true;
-// 			};
-// 			auto N = [&H]() {
-// 				H = true;
-// 			};
-// 			AND_GIVEN("A, B and C input event ports referencing L, M and N respectively")
-// 			{
-// 				rsp::InputEventPort A{L};
-// 				rsp::InputEventPort B{M};
-// 				rsp::InputEventPort C{N};
-// 				AND_GIVEN("D, an output event port connected to A, B and C")
-// 				{
-// 					rsp::OutputEventPort D;
-// 					D.connect(&A);
-// 					D.connect(&B);
-// 					D.connect(&C);
-// 					THEN("triggering D also triggers A, B and C, thus setting F, G and H to true")
-// 					{
-// 						D.trigger();
-// 						REQUIRE(F == true);
-// 						REQUIRE(G == true);
-// 						REQUIRE(H == true);
-// 						REQUIRE(A.getTimesTriggered() == 1);
-// 						REQUIRE(B.getTimesTriggered() == 1);
-// 						REQUIRE(C.getTimesTriggered() == 1);
-// 					}
-// 					WHEN("disconnecting D from A")
-// 					{
-// 						D.disconnect(&A);
-// 						THEN("triggering D has no effect on F, but still sets G, and H to true")
-// 						{
-// 							D.trigger();
-// 							REQUIRE(F == false);
-// 							REQUIRE(G == true);
-// 							REQUIRE(H == true);
-// 							REQUIRE(A.getTimesTriggered() == 0);
-// 							REQUIRE(B.getTimesTriggered() == 1);
-// 							REQUIRE(C.getTimesTriggered() == 1);
-// 						}
-// 					}
-// 					WHEN("disconnecting D")
-// 					{
-// 						D.disconnect();
-// 						THEN("triggering D has no effect")
-// 						{
-// 							D.trigger();
-// 							REQUIRE(F == false);
-// 							REQUIRE(G == false);
-// 							REQUIRE(H == false);
-// 							REQUIRE(A.getTimesTriggered() == 0);
-// 							REQUIRE(B.getTimesTriggered() == 0);
-// 							REQUIRE(C.getTimesTriggered() == 0);
-// 						}
-// 					}
-// 				}
-// 			}
-// 		}
-// 	}
-// }
+template <typename T, typename U>
+void requireUnconnected(T& A, U& B)
+{
+	REQUIRE_FALSE(A.isConnectedTo(B));
+	REQUIRE_FALSE(B.isConnectedTo(A));
+}

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "rsp/base/DataTypeName.hpp"
+#include "rsp/util/DataTypeName.hpp"
 
 #include <cassert>
 #include <glm/glm.hpp>

@@ -6,18 +6,13 @@
 #include <memory>
 #include <vector>
 
-namespace rsp
-{
-class AbstractNode;
-}
-
 namespace rsp::gui
 {
 class NodeEditor final : public Panel
 {
 private:
 	ax::NodeEditor::EditorContext* context;
-	std::vector<std::unique_ptr<rsp::AbstractNode>>* store = nullptr;
+	std::vector<std::unique_ptr<rsp::Node>>* store = nullptr;
 	std::vector<std::unique_ptr<Node>> nodes;
 	bool showInputWidgets = true;
 	bool showOutputWidgets = true;
@@ -37,7 +32,7 @@ private:
 	void drawContents() override;
 
 public:
-	void setStore(std::vector<std::unique_ptr<rsp::AbstractNode>>* store);
+	void setStore(std::vector<std::unique_ptr<rsp::Node>>* store);
 };
 
 } // namespace rsp::gui

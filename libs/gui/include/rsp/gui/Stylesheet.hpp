@@ -1,11 +1,12 @@
 #pragma once
 
-#include "rsp/base/Bounded.hpp"
-#include "rsp/base/ColorRGBA.hpp"
 #include "rsp/gui/Animation.hpp"
+#include "rsp/util/Bounded.hpp"
+#include "rsp/util/ColorRGBA.hpp"
 
 #include <chrono>
 #include <imgui.h>
+#include <memory>
 #include <string>
 #include <unordered_map>
 
@@ -16,7 +17,7 @@ namespace rsp::gui
 class Stylesheet
 {
 private:
-	static inline std::unordered_map<std::string, Stylesheet> sheets;
+	static inline std::unordered_map<std::string, std::unique_ptr<Stylesheet>> sheets;
 	static inline std::string currentSheetName;
 	static inline Stylesheet* currentSheet = nullptr;
 	std::string name = "default";
@@ -76,10 +77,10 @@ public:
 	~Stylesheet() = default;
 
 public:
-	static void addSheet(Stylesheet&& sheet)
+	static void addSheet(std::unique_ptr<Stylesheet>&& sheet)
 	{
-		assert(sheets.find(sheet.getName()) == sheets.end());
-		sheets[sheet.getName()] = std::move(sheet);
+		assert(sheets.find(sheet->getName()) == sheets.end());
+		sheets[sheet->getName()] = std::move(sheet);
 		if(currentSheet == nullptr)
 			setCurrentSheet(sheets.begin()->first);
 	}
@@ -87,7 +88,7 @@ public:
 	static Stylesheet& getSheet(std::string name)
 	{
 		assert(sheets.find(name) != sheets.end());
-		return sheets[name];
+		return *sheets[name];
 	}
 
 	static void setCurrentSheet(std::string name)

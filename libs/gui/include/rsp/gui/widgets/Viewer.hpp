@@ -1,11 +1,11 @@
 #pragma once
 
-#include "rsp/base/Bounded.hpp"
-#include "rsp/base/ColorRGB.hpp"
-#include "rsp/base/ColorRGBA.hpp"
-#include "rsp/base/TimeUnit.hpp"
-#include "rsp/base/TypeList.hpp"
 #include "rsp/gui/widgets/Widget.hpp"
+#include "rsp/util/Bounded.hpp"
+#include "rsp/util/ColorRGB.hpp"
+#include "rsp/util/ColorRGBA.hpp"
+#include "rsp/util/TimeUnit.hpp"
+#include "rsp/util/TypeList.hpp"
 
 #include <imgui.h>
 
@@ -26,7 +26,7 @@ public:
 public:
 	void drawContents() const override
 	{
-		static_assert(false, "Not Implemented");
+		// static_assert(false, "Not Implemented");
 	}
 };
 

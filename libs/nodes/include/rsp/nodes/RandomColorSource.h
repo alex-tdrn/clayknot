@@ -1,29 +1,32 @@
 #pragma once
 
-#include "rsp/base/ColorRGB.hpp"
-#include "rsp/base/node/Source.hpp"
+#include "rsp/base/Node.hpp"
+#include "rsp/util/ColorRGB.hpp"
 
 #include <array>
 
 namespace rsp::nodes
 {
-class RandomColorSource : public rsp::Source<RandomColorSource, rsp::OutputList<rsp::ColorRGB>>
+class RandomColorSource final : public Node
 {
+private:
+	OutputPort<ColorRGB> color{"Color"};
+
 public:
-	struct OutputPorts
+	RandomColorSource()
 	{
-		static inline std::array names = {"Color"};
-		enum
-		{
-			Color
-		};
-	};
+		registerPort(color);
+	}
+
+private:
+	void update() override;
 
 public:
-	static inline std::string const name = registerNode<RandomColorSource>("Random Color Source");
-
-protected:
-	void run() override;
+	std::string const& getName() const override
+	{
+		static std::string name = "Random Color Source";
+		return name;
+	}
 };
 
 } // namespace rsp::nodes

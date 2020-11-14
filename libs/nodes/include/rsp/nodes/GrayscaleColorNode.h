@@ -1,39 +1,34 @@
 #pragma once
 
-#include "rsp/base/ColorRGB.hpp"
-#include "rsp/base/node/Node.hpp"
+#include "rsp/base/Node.hpp"
+#include "rsp/util/ColorRGB.hpp"
 
 #include <array>
 
 namespace rsp::nodes
 {
-class GrayscaleColorNode
-	: public rsp::Node<GrayscaleColorNode, rsp::InputList<rsp::ColorRGB>, rsp::OutputList<rsp::ColorRGB>>
+class GrayscaleColorNode final : public Node
 {
+private:
+	InputPort<ColorRGB> inputColor{"Color"};
+	OutputPort<ColorRGB> outputColor{"Color"};
+
 public:
-	struct InputPorts
+	GrayscaleColorNode()
 	{
-		static inline std::array names = {"Color"};
-		enum
-		{
-			Color
-		};
-	};
+		registerPort(inputColor);
+		registerPort(outputColor);
+	}
 
-	struct OutputPorts
+private:
+	void update() override;
+
+public:
+	std::string const& getName() const override
 	{
-		static inline std::array names = {"Color"};
-		enum
-		{
-			Color
-		};
-	};
-
-public:
-	static inline std::string const name = registerNode<GrayscaleColorNode>("Grayscale Color Node");
-
-public:
-	void run() override;
+		static std::string name = "Grayscale Color Node";
+		return name;
+	}
 };
 
 } // namespace rsp::nodes

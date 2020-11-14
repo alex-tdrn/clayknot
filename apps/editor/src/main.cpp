@@ -1,6 +1,4 @@
-#include "rsp/base/node/FixedSource.hpp"
 #include "rsp/gui/Stylesheet.hpp"
-#include "rsp/gui/nodes/FrameControllerNode.h"
 #include "rsp/gui/panels/NodeEditor.h"
 #include "rsp/gui/panels/RootPanel.h"
 #include "rsp/gui/panels/StyleEditor.h"
@@ -73,28 +71,17 @@ int main(int argc, char** argv)
 
 	auto caca = rsp::DataTypeName<double>::get();
 	using namespace std::chrono_literals;
-	std::vector<std::unique_ptr<rsp::AbstractNode>> nodes;
+	std::vector<std::unique_ptr<rsp::Node>> nodes;
 
 	auto source = std::make_unique<rsp::nodes::RandomColorSource>();
 	auto sink = std::make_unique<rsp::nodes::ClearBackgroundSink>();
 	auto timer = std::make_unique<rsp::nodes::Timer>();
 
-	auto tmpFrameController = std::make_unique<rsp::gui::FrameControllerNode>();
-	rsp::gui::FrameControllerNode* frameController = tmpFrameController.get();
-
-	timer->getOutputEventPort(rsp::nodes::Timer::OutputEvents::Timeout)
-		.connect(&sink->getInputEventPort(rsp::nodes::ClearBackgroundSink::InputEvents::Update));
-	timer->getOutputEventPort(rsp::nodes::Timer::OutputEvents::Timeout)
-		.connect(&source->getInputEventPort(rsp::nodes::RandomColorSource::InputEvents::QueueRun));
-	timer->getInputEventPort(rsp::nodes::Timer::InputEvents::Poll)
-		.connect(&frameController->getOutputEventPort(rsp::gui::FrameControllerNode::OutputEvents::NewFrame));
-
 	nodes.push_back(std::move(source));
 	nodes.push_back(std::move(sink));
 	nodes.push_back(std::move(timer));
-	nodes.push_back(std::move(tmpFrameController));
 
-	rsp::gui::Stylesheet::addSheet(rsp::gui::Stylesheet());
+	rsp::gui::Stylesheet::addSheet(std::make_unique<rsp::gui::Stylesheet>());
 
 	rsp::gui::RootPanel rootWindow;
 	rsp::gui::NodeEditor* canvas = rootWindow.addChild(std::make_unique<rsp::gui::NodeEditor>());
@@ -104,7 +91,6 @@ int main(int argc, char** argv)
 	while(!glfwWindowShouldClose(window))
 	{
 		glfwPollEvents();
-		frameController->newFrame();
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();

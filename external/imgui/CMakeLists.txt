@@ -27,3 +27,5 @@ target_link_libraries(imgui
 	glfw
 	glad
 )
+
+target_compile_definitions(imgui PUBLIC "IMGUI_IMPL_OPENGL_LOADER_GLAD")

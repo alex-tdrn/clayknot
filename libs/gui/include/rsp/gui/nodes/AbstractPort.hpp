@@ -1,8 +1,9 @@
 #pragma once
 
-#include "rsp/base/port/Port.hpp"
+#include "rsp/base/Port.hpp"
 #include "rsp/gui/Animation.hpp"
 #include "rsp/gui/UniqueID.hpp"
+#include "rsp/gui/widgets/Widget.hpp"
 
 #include <glm/glm.hpp>
 #include <imgui_node_editor.h>
@@ -21,6 +22,9 @@ protected:
 	ax::NodeEditor::PinId id = -1;
 	rsp::Port* port = nullptr;
 	Animation<float> anchorOffset;
+	std::unique_ptr<Widget> widget;
+	bool widgetVisible = true;
+	glm::vec2 widgetSize{0.0f, 0.0f};
 
 public:
 	AbstractPort() = default;
@@ -42,9 +46,27 @@ public:
 protected:
 	virtual ImVec2 calculateAnchorPosition() const = 0;
 	virtual void drawContents() = 0;
+
 	void placeAnchor(float height)
 	{
 		ImGui::Dummy({10, height});
+	}
+
+	void drawWidget()
+	{
+		if(widgetVisible && widget)
+			widget->draw();
+		else
+			ImGui::Text(port->getName().c_str());
+		widgetSize = ImGui::GetItemRectSize();
+
+		if(ImGui::IsItemHovered() && ImGui::IsMouseReleased(1))
+			toggleWidget();
+	}
+
+	glm::vec2 getWidgetSize() const
+	{
+		return widgetSize;
 	}
 
 public:
@@ -86,6 +108,29 @@ public:
 	glm::vec2 getSize() const
 	{
 		return size;
+	}
+
+	bool isWidgetVisible() const
+	{
+		return widgetVisible;
+	}
+
+	void setWidgetVisibility(bool visibility)
+	{
+		widgetVisible = visibility;
+	}
+
+	void showWidget()
+	{
+		widgetVisible = true;
+	}
+	void hideWidget()
+	{
+		widgetVisible = false;
+	}
+	void toggleWidget()
+	{
+		widgetVisible = !widgetVisible;
 	}
 
 	virtual bool canConnect(AbstractPort* otherPin) = 0;

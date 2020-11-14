@@ -11,26 +11,11 @@ add_library(rendershop-gui
 	"src/panels/NodeEditor.cpp"
 	"include/rsp/gui/panels/NodeEditor.h"
 
-	"src/nodes/FrameControllerNode.cpp"
-	"include/rsp/gui/nodes/FrameControllerNode.h"
-
-	"src/nodes/InputDataPort.cpp"
-	"include/rsp/gui/nodes/InputDataPort.h"
-
-	"src/nodes/InputEventPort.cpp"
-	"include/rsp/gui/nodes/InputEventPort.h"
-
 	"src/nodes/InputPort.cpp"
 	"include/rsp/gui/nodes/InputPort.h"
 
 	"src/nodes/Node.cpp"
 	"include/rsp/gui/nodes/Node.h"
-
-	"src/nodes/OutputDataPort.cpp"
-	"include/rsp/gui/nodes/OutputDataPort.h"
-
-	"src/nodes/OutputEventPort.cpp"
-	"include/rsp/gui/nodes/OutputEventPort.h"
 
 	"src/nodes/OutputPort.cpp"
 	"include/rsp/gui/nodes/OutputPort.h"
@@ -44,7 +29,6 @@ add_library(rendershop-gui
 	"include/rsp/gui/Stylesheet.hpp"
 	"include/rsp/gui/UIDebug.hpp"
 	"include/rsp/gui/UniqueID.hpp"
-	"include/rsp/gui/nodes/DataPort.hpp"
 )
 
 target_include_directories(rendershop-gui

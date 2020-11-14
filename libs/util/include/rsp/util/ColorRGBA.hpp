@@ -1,6 +1,6 @@
 #pragma once
 
-#include "rsp/base/ColorRGB.hpp"
+#include "rsp/util/ColorRGB.hpp"
 
 #include <cassert>
 
@@ -235,7 +235,7 @@ ColorRGBA operator/(ColorRGBA const& lhs, T const& rhs)
 }
 
 template <>
-static std::string DataTypeName<ColorRGBA>::get()
+inline std::string DataTypeName<ColorRGBA>::get()
 {
 	return "Color with transparency";
 }

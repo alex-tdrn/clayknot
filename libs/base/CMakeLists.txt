@@ -1,38 +1,18 @@
-add_library(rendershop-base
-	"src/port/InputEventPort.cpp"
-	"include/rsp/base/port/InputEventPort.h"
+add_library(rendershop-base INTERFACE)
 
-	"src/port/OutputEventPort.cpp"
-	"include/rsp/base/port/OutputEventPort.h"
-	
-	"include/rsp/base/port/DataPort.hpp"
-	"include/rsp/base/node/AbstractNode.hpp"
-	"include/rsp/base/port/Port.hpp"
-	"include/rsp/base/node/AbstractSink.hpp"
-	"include/rsp/base/node/AbstractSource.hpp"
-	"include/rsp/base/node/EventNode.hpp"
-	"include/rsp/base/port/InputDataPort.hpp"
-	"include/rsp/base/port/InputPort.hpp"
-	"include/rsp/base/port/OutputDataPort.hpp"
-	"include/rsp/base/port/OutputPort.hpp"
-	"include/rsp/base/node/Node.hpp"
-	"include/rsp/base/node/Sink.hpp"
-	"include/rsp/base/node/Source.hpp"
-	"include/rsp/base/Timestamp.hpp"
-	"include/rsp/base/Meta.hpp"
-	"include/rsp/base/ColorRGB.hpp"
-	"include/rsp/base/ColorRGBA.hpp"
-	"include/rsp/base/Bounded.hpp"
-	"include/rsp/base/TimeUnit.hpp"
-	"include/rsp/base/TypeList.hpp"
-	"include/rsp/base/Observable.hpp"
-	"include/rsp/base/port/EventPort.hpp"
-	"include/rsp/base/node/FixedSource.hpp"
-	"include/rsp/base/DataTypeName.hpp"
+target_sources(rendershop-base
+	INTERFACE
+	"include/rsp/base/Node.hpp"
+	"include/rsp/base/Data.hpp"
+	"include/rsp/base/Port.hpp"
 )
 
 target_include_directories(rendershop-base
-	PUBLIC
+	INTERFACE
 	"include"
-	"../../external/glm/include"
+)
+
+target_link_libraries(rendershop-base
+	INTERFACE
+	rendershop-util
 )

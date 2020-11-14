@@ -1,6 +1,6 @@
 ﻿x64
 /.vs
-.vscode/c_cpp_properties.json
+.vscode
 .VSCodeCounter
 imgui.ini
 NodeEditor.json

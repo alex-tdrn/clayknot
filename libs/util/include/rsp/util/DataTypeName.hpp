@@ -16,37 +16,37 @@ struct DataTypeName
 };
 
 template <>
-static std::string DataTypeName<int>::get()
+inline std::string DataTypeName<int>::get()
 {
 	return "Integer";
 }
 
 template <>
-static std::string DataTypeName<float>::get()
+inline std::string DataTypeName<float>::get()
 {
 	return "Float";
 }
 
 template <>
-static std::string DataTypeName<bool>::get()
+inline std::string DataTypeName<bool>::get()
 {
 	return "Boolean";
 }
 
 template <>
-static std::string DataTypeName<glm::vec2>::get()
+inline std::string DataTypeName<glm::vec2>::get()
 {
 	return "Vector2";
 }
 
 template <>
-static std::string DataTypeName<glm::vec3>::get()
+inline std::string DataTypeName<glm::vec3>::get()
 {
 	return "Vector3";
 }
 
 template <>
-static std::string DataTypeName<glm::vec4>::get()
+inline std::string DataTypeName<glm::vec4>::get()
 {
 	return "Vector4";
 }

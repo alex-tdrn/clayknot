@@ -1,18 +1,12 @@
 #pragma once
 
-#include "rsp/gui/nodes/InputDataPort.h"
-#include "rsp/gui/nodes/InputEventPort.h"
-#include "rsp/gui/nodes/OutputDataPort.h"
-#include "rsp/gui/nodes/OutputEventPort.h"
+#include "rsp/base/Node.hpp"
+#include "rsp/gui/nodes/InputPort.h"
+#include "rsp/gui/nodes/OutputPort.h"
 
 #include <imgui_node_editor.h>
 #include <memory>
 #include <vector>
-
-namespace rsp
-{
-class AbstractNode;
-}
 
 namespace rsp::gui
 {
@@ -25,18 +19,16 @@ private:
 	float titleOffset = 0;
 	float centerSpacing = 0;
 	ax::NodeEditor::NodeId id = -1;
-	rsp::AbstractNode* node = nullptr;
-	std::vector<std::unique_ptr<InputDataPort>> inputDataPorts;
-	std::vector<std::unique_ptr<OutputDataPort>> outputDataPorts;
-	std::vector<std::unique_ptr<InputEventPort>> inputEventPorts;
-	std::vector<std::unique_ptr<OutputEventPort>> outputEventPorts;
+	rsp::Node* node = nullptr;
+	std::vector<std::unique_ptr<gui::InputPort>> inputPorts;
+	std::vector<std::unique_ptr<gui::OutputPort>> outputPorts;
 	bool ran = false;
 	Animation<float> borderWidth;
 	glm::vec2 size{0, 0};
 
 public:
 	Node() = default;
-	Node(rsp::AbstractNode* element);
+	Node(rsp::Node* element);
 	Node(Node&&) = default;
 	Node(Node const&) = delete;
 	Node& operator=(Node&&) = default;

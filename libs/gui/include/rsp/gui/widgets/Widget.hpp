@@ -21,8 +21,7 @@ protected:
 
 public:
 	Widget() = delete;
-	Widget::Widget(std::string resourceName)
-		: resourceName(resourceName), title(resourceName + ":"), label("##" + resourceName)
+	Widget(std::string resourceName) : resourceName(resourceName), title(resourceName + ":"), label("##" + resourceName)
 	{
 	}
 	virtual ~Widget() = default;
@@ -43,7 +42,7 @@ protected:
 	}
 
 public:
-	void Widget::draw() const
+	void draw() const
 	{
 		ImGui::PushID(this);
 		ImGui::BeginGroup();

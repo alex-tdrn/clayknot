@@ -8,7 +8,7 @@ class OutputPort;
 
 class InputPort : public AbstractPort
 {
-protected:
+private:
 	OutputPort* connection = nullptr;
 	ax::NodeEditor::LinkId linkID = -1;
 
@@ -21,11 +21,13 @@ public:
 	InputPort& operator=(InputPort const&) = delete;
 	virtual ~InputPort() = default;
 
-protected:
+private:
 	ImVec2 calculateAnchorPosition() const override;
+	void generateViewer();
+	void drawContents() override;
 
 public:
-	virtual void drawLink() = 0;
+	void drawLink();
 	bool canConnect(AbstractPort* outputPort) final override;
 	void connect(AbstractPort* outputPort) final override;
 };
