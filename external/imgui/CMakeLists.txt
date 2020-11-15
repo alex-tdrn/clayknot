@@ -1,6 +1,7 @@
 project(imgui)
 
-add_library(imgui
+add_library(
+	imgui
 	"src/imgui.cpp"
 	"src/imgui_demo.cpp"
 	"src/imgui_draw.cpp"
@@ -17,15 +18,8 @@ add_library(imgui
 	"include/imstb_truetype.h"
 )
 
-target_include_directories(imgui 
-	PUBLIC 
-	"include"
-)
+target_include_directories(imgui PUBLIC "include")
 
-target_link_libraries(imgui
-	PUBLIC
-	glfw
-	glad
-)
+target_link_libraries(imgui PUBLIC glfw::glfw glad::glad)
 
 target_compile_definitions(imgui PUBLIC "IMGUI_IMPL_OPENGL_LOADER_GLAD")
