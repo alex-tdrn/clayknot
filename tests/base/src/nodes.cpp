@@ -36,7 +36,6 @@ TEST_CASE("New node types can be implemented by inheriting from rsp::Node", "[no
 		TestNode A;
 		auto& AI_0 = A.input0;
 		auto& AO_0 = A.output0;
-
 		auto requireNoPullUpdate = [&]() {
 			THEN("calling pull on AO_0 does not call update()")
 			{

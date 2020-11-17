@@ -1,5 +1,3 @@
-project(imgui)
-
 add_library(
 	imgui
 	"src/imgui.cpp"

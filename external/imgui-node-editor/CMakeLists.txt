@@ -1,6 +1,5 @@
-project(imgui-node-editor)
-
-add_library(imgui-node-editor
+add_library(
+	imgui-node-editor
 	"src/crude_json.cpp"
 	"src/imgui_canvas.cpp"
 	"src/imgui_node_editor.cpp"
@@ -16,12 +15,6 @@ add_library(imgui-node-editor
 	"include/imgui_node_editor_internal.inl"
 )
 
-target_include_directories(imgui-node-editor
-	PUBLIC
-	"include"
-)
+target_include_directories(imgui-node-editor PUBLIC "include")
 
-target_link_libraries(imgui-node-editor
-	PUBLIC
-	imgui
-)
+target_link_libraries(imgui-node-editor PUBLIC imgui)

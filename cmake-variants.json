@@ -1,0 +1,38 @@
+{
+	"buildType": {
+		"default": "debug",
+		"description": "Build type",
+		"choices": {
+			"debug": {
+				"short": "Debug",
+				"long": "Build with debugging information and no optimizations",
+				"buildType": "Debug"
+			},
+			"release": {
+				"short": "Release",
+				"long": "Build without debugging information, optimize for speed",
+				"buildType": "Release"
+			},
+			"asan": {
+				"short": "ASan",
+				"long": "Build with address sanitizer",
+				"buildType": "ASan"
+			},
+			"msan": {
+				"short": "MSan",
+				"long": "Build with memory sanitizer",
+				"buildType": "MSan"
+			},
+			"ubsan": {
+				"short": "UBSan",
+				"long": "Build with undefined behavior sanitizer",
+				"buildType": "UBSan"
+			},
+			"tbsan": {
+				"short": "TSan",
+				"long": "Build with thread sanitizer",
+				"buildType": "TSan"
+			}
+		}
+	}
+}

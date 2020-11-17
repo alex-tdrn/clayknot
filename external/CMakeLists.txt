@@ -1,3 +1,5 @@
+project(external)
+
 find_package(glfw REQUIRED)
 find_package(glad REQUIRED)
 
