@@ -1,6 +1,10 @@
 #pragma once
 
+#include "rsp/base/Port.hpp"
 #include "rsp/gui/nodes/AbstractPort.hpp"
+
+#include <imgui.h>
+#include <imgui_node_editor.h>
 
 namespace rsp::gui
 {
@@ -28,7 +32,7 @@ private:
 
 public:
 	void drawLink();
-	bool canConnect(AbstractPort* outputPort) final override;
+	bool canConnect(AbstractPort const* outputPort) const final override;
 	void connect(AbstractPort* outputPort) final override;
 };
 

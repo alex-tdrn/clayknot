@@ -1,9 +1,11 @@
 #pragma once
 
 #include "rsp/base/Node.hpp"
+#include "rsp/gui/Animation.hpp"
 #include "rsp/gui/nodes/InputPort.h"
 #include "rsp/gui/nodes/OutputPort.h"
 
+#include <glm/glm.hpp>
 #include <imgui_node_editor.h>
 #include <memory>
 #include <vector>

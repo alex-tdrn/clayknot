@@ -1,0 +1,12 @@
+---
+Checks:          '*,-fuchsia*,-google*,-zircon*,-abseil*,-llvm*, 
+                  -*braces-around-statements, -modernize-use-nodiscard,
+                  -*uppercase-literal-suffix, -cppcoreguidelines-pro-type-vararg,
+                  -hicpp-vararg, -cppcoreguidelines-pro-type-union-access,
+                  -*magic-numbers, -*signed-bitwise, -misc-no-recursion,
+                  -cppcoreguidelines-pro-bounds-array-to-pointer-decay, -hicpp-no-array-decay'
+HeaderFilterRegex: ''
+FormatStyle:     none
+
+
+#TODO: check if assert() in clang 12 still triggers array-to-pointer-decay checks

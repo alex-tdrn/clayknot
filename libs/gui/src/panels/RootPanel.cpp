@@ -1,6 +1,7 @@
 #include "rsp/gui/panels/RootPanel.h"
 
 #include <imgui.h>
+#include <utility>
 
 namespace rsp::gui
 {

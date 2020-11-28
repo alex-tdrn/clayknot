@@ -3,7 +3,9 @@
 #include "rsp/base/Port.hpp"
 #include "rsp/base/Sentinel.hpp"
 
+#include <algorithm>
 #include <cassert>
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
@@ -23,28 +25,25 @@ protected:
 public:
 	Node(Node&&) = delete;
 	Node(Node const&) = delete;
-	Node& operator=(Node const&) = delete;
-	Node& operator=(Node&&) = delete;
+	auto operator=(Node const&) -> Node& = delete;
+	auto operator=(Node&&) -> Node& = delete;
 	virtual ~Node() = default;
 
 private:
-	bool sentinelPresent() const
+	auto sentinelPresent() const -> bool
 	{
 		return !sentinel.expired();
 	}
 
-	bool updatePossible() const
+	auto updatePossible() const -> bool
 	{
-		for(auto port : inputPorts)
-			if(!port->isConnected())
-				return false;
-		return true;
+		return std::all_of(inputPorts.begin(), inputPorts.end(), std::mem_fn(&rsp::Port::isConnected));
 	}
 
-	bool updateNeeded() const
+	auto updateNeeded() const -> bool
 	{
-		for(auto outputPort : outputPorts)
-			for(auto inputPort : inputPorts)
+		for(auto* outputPort : outputPorts)
+			for(auto* inputPort : inputPorts)
 				if(inputPort->getTimestamp() > outputPort->getTimestamp())
 					return true;
 		return false;
@@ -54,7 +53,7 @@ protected:
 	template <typename T>
 	void registerPort(rsp::InputPort<T>& port)
 	{
-		for(auto inputPort : inputPorts)
+		for(auto* inputPort : inputPorts)
 			if(inputPort == &port)
 				return;
 		port.setPushCallback([&](auto sentinel) { this->push(sentinel); });
@@ -64,7 +63,7 @@ protected:
 	template <typename T>
 	void registerPort(rsp::OutputPort<T>& port)
 	{
-		for(auto outputPort : outputPorts)
+		for(auto* outputPort : outputPorts)
 			if(outputPort == &port)
 				return;
 		port.setPullCallback([&](auto sentinel) { this->pull(sentinel); });
@@ -74,25 +73,25 @@ protected:
 	virtual void update() = 0;
 
 public:
-	virtual std::string const& getName() const = 0;
+	virtual auto getName() const -> std::string const& = 0;
 
-	std::vector<rsp::Port*> const& getInputPorts() const noexcept
+	auto getInputPorts() const noexcept -> std::vector<rsp::Port*> const&
 	{
 		return inputPorts;
 	}
 
-	std::vector<rsp::Port*> const& getOutputPorts() const noexcept
+	auto getOutputPorts() const noexcept -> std::vector<rsp::Port*> const&
 	{
 		return outputPorts;
 	}
 
-	rsp::Port& getInputPort(std::size_t index) const noexcept
+	auto getInputPort(std::size_t index) const noexcept -> rsp::Port&
 	{
 		assert(index < inputPorts.size());
 		return *inputPorts[index];
 	}
 
-	rsp::Port& getOutputPort(std::size_t index) const noexcept
+	auto getOutputPort(std::size_t index) const noexcept -> rsp::Port&
 	{
 		assert(index < outputPorts.size());
 		return *outputPorts[index];
@@ -114,7 +113,7 @@ public:
 			this->sentinel = sentinel;
 		}
 
-		for(auto port : inputPorts)
+		for(auto* port : inputPorts)
 			port->pull(this->sentinel);
 
 		if(updateNeeded())
@@ -137,13 +136,13 @@ public:
 			this->sentinel = sentinel;
 		}
 
-		for(auto port : inputPorts)
+		for(auto* port : inputPorts)
 			port->pull(this->sentinel);
 
 		if(updateNeeded())
 			update();
 
-		for(auto port : outputPorts)
+		for(auto* port : outputPorts)
 			port->push(this->sentinel);
 	}
 };

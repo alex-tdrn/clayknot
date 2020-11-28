@@ -7,17 +7,15 @@ namespace rsp
 {
 class IData
 {
-protected:
+private:
 	std::string name;
 
 public:
 	IData() = default;
 	IData(IData const&) = delete;
 	IData(IData&&) = delete;
-	IData& operator=(IData const&) = delete;
-	IData& operator=(IData&&) = delete;
+	auto operator=(IData const&) -> IData& = delete;
+	auto operator=(IData&&) -> IData& = delete;
 	virtual ~IData() = default;
-
-public:
 };
 } // namespace rsp

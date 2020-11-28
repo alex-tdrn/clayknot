@@ -15,6 +15,6 @@ add_library(
 	"include/imgui_node_editor_internal.inl"
 )
 
-target_include_directories(imgui-node-editor PUBLIC "include")
+target_include_directories(imgui-node-editor SYSTEM PUBLIC "include")
 
 target_link_libraries(imgui-node-editor PUBLIC imgui)

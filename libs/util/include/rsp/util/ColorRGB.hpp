@@ -28,12 +28,12 @@ public:
 	}
 	ColorRGB(ColorRGB const&) = default;
 	ColorRGB(ColorRGB&&) = default;
-	ColorRGB& operator=(ColorRGB const& that) = default;
-	ColorRGB& operator=(ColorRGB&& that) = default;
+	auto operator=(ColorRGB const& that) -> ColorRGB& = default;
+	auto operator=(ColorRGB&& that) -> ColorRGB& = default;
 	~ColorRGB() = default;
 
 public:
-	bool valid() const
+	auto valid() const -> bool
 	{
 		for(int i = 0; i <= 2; i++)
 			if(values[i] < 0)
@@ -42,14 +42,14 @@ public:
 	}
 
 	template <typename T>
-	ColorRGB& operator+=(T const& that)
+	auto operator+=(T const& that) -> ColorRGB&
 	{
 		this->values += that;
 		assert(valid());
 		return *this;
 	}
 
-	ColorRGB& operator+=(ColorRGB const& that)
+	auto operator+=(ColorRGB const& that) -> ColorRGB&
 	{
 		this->values += that.values;
 		assert(valid());
@@ -57,14 +57,14 @@ public:
 	}
 
 	template <typename T>
-	ColorRGB& operator-=(T const& that)
+	auto operator-=(T const& that) -> ColorRGB&
 	{
 		this->values -= that;
 		assert(valid());
 		return *this;
 	}
 
-	ColorRGB& operator-=(ColorRGB const& that)
+	auto operator-=(ColorRGB const& that) -> ColorRGB&
 	{
 		this->values -= that.values;
 		assert(valid());
@@ -72,14 +72,14 @@ public:
 	}
 
 	template <typename T>
-	ColorRGB& operator*=(T const& that)
+	auto operator*=(T const& that) -> ColorRGB&
 	{
 		this->values *= that;
 		assert(valid());
 		return *this;
 	}
 
-	ColorRGB& operator*=(ColorRGB const& that)
+	auto operator*=(ColorRGB const& that) -> ColorRGB&
 	{
 		this->values *= that.values;
 		assert(valid());
@@ -87,53 +87,53 @@ public:
 	}
 
 	template <typename T>
-	ColorRGB& operator/=(T const& that)
+	auto operator/=(T const& that) -> ColorRGB&
 	{
 		this->values /= that;
 		assert(valid());
 		return *this;
 	}
 
-	ColorRGB& operator/=(ColorRGB const& that)
+	auto operator/=(ColorRGB const& that) -> ColorRGB&
 	{
 		this->values /= that.values;
 		assert(valid());
 		return *this;
 	}
 
-	float* data()
+	auto data() -> float*
 	{
 		return &values.r;
 	}
 
-	float r() const
+	auto r() const -> float
 	{
 		return values.r;
 	}
 
-	float g() const
+	auto g() const -> float
 	{
 		return values.g;
 	}
 
-	float b() const
+	auto b() const -> float
 	{
 		return values.b;
 	}
 
-	float operator[](std::size_t i) const
+	auto operator[](std::size_t i) const -> float
 	{
 		assert(i <= 2);
 		return values[i];
 	}
 
-	glm::vec3 vector() const
+	auto vector() const -> glm::vec3
 	{
 		return values;
 	}
 };
 
-ColorRGB inline operator+(ColorRGB const& lhs, ColorRGB const& rhs)
+auto inline operator+(ColorRGB const& lhs, ColorRGB const& rhs) -> ColorRGB
 {
 	ColorRGB result{lhs};
 	result += rhs;
@@ -141,7 +141,7 @@ ColorRGB inline operator+(ColorRGB const& lhs, ColorRGB const& rhs)
 }
 
 template <typename T>
-ColorRGB operator+(ColorRGB const& lhs, T const& rhs)
+auto operator+(ColorRGB const& lhs, T const& rhs) -> ColorRGB
 {
 	ColorRGB result{lhs};
 	result += rhs;
@@ -149,14 +149,14 @@ ColorRGB operator+(ColorRGB const& lhs, T const& rhs)
 }
 
 template <typename T>
-ColorRGB operator+(T const& lhs, ColorRGB const& rhs)
+auto operator+(T const& lhs, ColorRGB const& rhs) -> ColorRGB
 {
 	ColorRGB result{rhs};
 	result += lhs;
 	return result;
 }
 
-ColorRGB inline operator-(ColorRGB const& lhs, ColorRGB const& rhs)
+auto inline operator-(ColorRGB const& lhs, ColorRGB const& rhs) -> ColorRGB
 {
 	ColorRGB result{lhs};
 	result -= rhs;
@@ -164,14 +164,14 @@ ColorRGB inline operator-(ColorRGB const& lhs, ColorRGB const& rhs)
 }
 
 template <typename T>
-ColorRGB operator-(ColorRGB const& lhs, T const& rhs)
+auto operator-(ColorRGB const& lhs, T const& rhs) -> ColorRGB
 {
 	ColorRGB result{lhs};
 	result -= rhs;
 	return result;
 }
 
-ColorRGB inline operator*(ColorRGB const& lhs, ColorRGB const& rhs)
+auto inline operator*(ColorRGB const& lhs, ColorRGB const& rhs) -> ColorRGB
 {
 	ColorRGB result{lhs};
 	result *= rhs;
@@ -179,7 +179,7 @@ ColorRGB inline operator*(ColorRGB const& lhs, ColorRGB const& rhs)
 }
 
 template <typename T>
-ColorRGB operator*(ColorRGB const& lhs, T const& rhs)
+auto operator*(ColorRGB const& lhs, T const& rhs) -> ColorRGB
 {
 	ColorRGB result{lhs};
 	result *= rhs;
@@ -187,14 +187,14 @@ ColorRGB operator*(ColorRGB const& lhs, T const& rhs)
 }
 
 template <typename T>
-ColorRGB operator*(T const& lhs, ColorRGB const& rhs)
+auto operator*(T const& lhs, ColorRGB const& rhs) -> ColorRGB
 {
 	ColorRGB result{rhs};
 	result *= lhs;
 	return result;
 }
 
-ColorRGB inline operator/(ColorRGB const& lhs, ColorRGB const& rhs)
+auto inline operator/(ColorRGB const& lhs, ColorRGB const& rhs) -> ColorRGB
 {
 	ColorRGB result{lhs};
 	result /= rhs;
@@ -202,7 +202,7 @@ ColorRGB inline operator/(ColorRGB const& lhs, ColorRGB const& rhs)
 }
 
 template <typename T>
-ColorRGB operator/(ColorRGB const& lhs, T const& rhs)
+auto operator/(ColorRGB const& lhs, T const& rhs) -> ColorRGB
 {
 	ColorRGB result{lhs};
 	result /= rhs;
@@ -210,7 +210,7 @@ ColorRGB operator/(ColorRGB const& lhs, T const& rhs)
 }
 
 template <>
-inline std::string DataTypeName<ColorRGB>::get()
+inline auto DataTypeName<ColorRGB>::get() -> std::string
 {
 	return "Color";
 }

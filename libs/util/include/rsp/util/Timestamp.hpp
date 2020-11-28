@@ -23,27 +23,27 @@ public:
 		timepoint = chrono::time_point::min();
 	}
 
-	bool isReset() const
+	auto isReset() const -> bool
 	{
 		return timepoint == chrono::time_point::min();
 	}
 
-	bool operator>(Timestamp const& other) const
+	auto operator>(Timestamp const& other) const -> bool
 	{
 		return this->timepoint > other.timepoint;
 	}
 
-	bool operator<(Timestamp const& other) const
+	auto operator<(Timestamp const& other) const -> bool
 	{
 		return this->timepoint < other.timepoint;
 	}
 
-	bool isNewerThan(Timestamp const& other) const
+	auto isNewerThan(Timestamp const& other) const -> bool
 	{
 		return *this > other;
 	}
 
-	bool isOlderThan(Timestamp const& other) const
+	auto isOlderThan(Timestamp const& other) const -> bool
 	{
 		return *this < other;
 	}

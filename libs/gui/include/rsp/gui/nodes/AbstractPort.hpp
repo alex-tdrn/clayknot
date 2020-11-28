@@ -57,7 +57,7 @@ protected:
 		if(widgetVisible && widget)
 			widget->draw();
 		else
-			ImGui::Text(port->getName().c_str());
+			ImGui::Text("%s", port->getName().c_str());
 		widgetSize = ImGui::GetItemRectSize();
 
 		if(ImGui::IsItemHovered() && ImGui::IsMouseReleased(1))
@@ -133,7 +133,7 @@ public:
 		widgetVisible = !widgetVisible;
 	}
 
-	virtual bool canConnect(AbstractPort* otherPin) = 0;
+	virtual bool canConnect(AbstractPort const* otherPin) const = 0;
 	virtual void connect(AbstractPort* otherPin) = 0;
 };
 

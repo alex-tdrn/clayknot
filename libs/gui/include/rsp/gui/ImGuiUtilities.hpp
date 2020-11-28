@@ -5,7 +5,7 @@
 
 namespace ImGui
 {
-static void DrawCircle(ImVec2 pos, float radius, ImVec4 fillColor, ImVec4 contourColor = {0, 0, 0, 1})
+inline void DrawCircle(ImVec2 pos, float radius, ImVec4 fillColor, ImVec4 contourColor = {0, 0, 0, 1})
 {
 	auto drawList = ImGui::GetWindowDrawList();
 	const float contourThickness = 0.25 * radius;
@@ -13,7 +13,7 @@ static void DrawCircle(ImVec2 pos, float radius, ImVec4 fillColor, ImVec4 contou
 	drawList->AddCircle(pos, radius, ImGui::GetColorU32(contourColor), 12, contourThickness);
 }
 
-static void DrawDiamond(ImVec2 center, float size, ImVec4 fillColor, ImVec4 contourColor = {0, 0, 0, 1})
+inline void DrawDiamond(ImVec2 center, float size, ImVec4 fillColor, ImVec4 contourColor = {0, 0, 0, 1})
 {
 	auto drawList = ImGui::GetWindowDrawList();
 	const float contourThickness = 0.25 * size;
@@ -26,7 +26,7 @@ static void DrawDiamond(ImVec2 center, float size, ImVec4 fillColor, ImVec4 cont
 	drawList->PathStroke(ImGui::GetColorU32(contourColor), true, contourThickness);
 }
 
-static ImVec4 ColorFromHash(std::size_t hash)
+inline ImVec4 ColorFromHash(std::size_t hash)
 {
 	static std::unordered_map<std::size_t, ImVec4> colorMap;
 	if(colorMap.find(hash) == colorMap.end())

@@ -1,8 +1,10 @@
 #pragma once
 
+#include "rsp/base/Node.hpp"
 #include "rsp/gui/nodes/Node.h"
 #include "rsp/gui/panels/Panel.h"
 
+#include <imgui_node_editor.h>
 #include <memory>
 #include <vector>
 

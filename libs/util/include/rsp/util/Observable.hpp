@@ -14,7 +14,7 @@ private:
 protected:
 	void notifyObserverFlags(int flagType) const
 	{
-		for(auto const flag : observerFlags[flagType])
+		for(auto* const flag : observerFlags[flagType])
 			*flag = true;
 	}
 
@@ -24,7 +24,7 @@ public:
 		observerFlags[flagType].push_back(flag);
 	}
 
-	void deregisterObserverFlag(bool* flag)
+	void deregisterObserverFlag(bool* /*flag*/)
 	{
 		for(auto& observerFlagsCategory : observerFlags)
 		{

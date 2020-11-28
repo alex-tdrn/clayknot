@@ -1,7 +1,12 @@
 #include "rsp/gui/panels/NodeEditor.h"
 #include "rsp/gui/Stylesheet.hpp"
 #include "rsp/gui/nodes/AbstractPort.hpp"
-#include "rsp/gui/widgets/Editor.hpp"
+#include "rsp/util/Bounded.hpp"
+
+#include <algorithm>
+#include <glm/glm.hpp>
+#include <imgui.h>
+#include <string>
 
 namespace rsp::gui
 {

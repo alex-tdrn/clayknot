@@ -1,8 +1,18 @@
 #include "rsp/gui/nodes/InputPort.h"
+#include "rsp/gui/Animation.hpp"
 #include "rsp/gui/ImGuiUtilities.hpp"
 #include "rsp/gui/Stylesheet.hpp"
+#include "rsp/gui/UniqueID.hpp"
 #include "rsp/gui/nodes/OutputPort.h"
 #include "rsp/gui/widgets/Viewer.hpp"
+#include "rsp/gui/widgets/Widget.hpp"
+#include "rsp/util/Bounded.hpp"
+
+#include <assert.h>
+#include <glm/glm.hpp>
+#include <memory>
+#include <type_traits>
+#include <unordered_set>
 
 namespace rsp::gui
 {
@@ -78,9 +88,9 @@ void InputPort::drawLink()
 	}
 }
 
-bool InputPort::canConnect(AbstractPort* outputPort)
+bool InputPort::canConnect(const AbstractPort* outputPort) const
 {
-	if(!dynamic_cast<OutputPort*>(outputPort))
+	if(!dynamic_cast<OutputPort const*>(outputPort))
 		return false;
 	return port->canConnectTo(*outputPort->getPort());
 }

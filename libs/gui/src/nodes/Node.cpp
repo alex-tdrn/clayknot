@@ -1,10 +1,12 @@
 #include "rsp/gui/nodes/Node.h"
 #include "rsp/gui/Stylesheet.hpp"
-#include "rsp/gui/UIDebug.hpp"
 #include "rsp/gui/UniqueID.hpp"
-#include "rsp/gui/widgets/Editor.hpp"
+#include "rsp/util/Bounded.hpp"
 
 #include <algorithm>
+#include <chrono>
+#include <imgui.h>
+#include <string>
 
 namespace rsp::gui
 {

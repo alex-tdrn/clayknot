@@ -1,6 +1,5 @@
 #pragma once
 
-#include <glm/glm.hpp>
 #include <imgui.h>
 #include <string>
 
@@ -23,7 +22,7 @@ public:
 	Panel(Panel const&) = delete;
 	Panel(Panel&&) = default;
 	Panel& operator=(Panel const&) = delete;
-	Panel& operator=(Panel&&) = default;
+	Panel& operator=(Panel&&) = delete;
 	virtual ~Panel() = default;
 
 protected:

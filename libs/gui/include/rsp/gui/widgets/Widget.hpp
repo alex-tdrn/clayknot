@@ -21,7 +21,8 @@ protected:
 
 public:
 	Widget() = delete;
-	Widget(std::string resourceName) : resourceName(resourceName), title(resourceName + ":"), label("##" + resourceName)
+	explicit Widget(std::string resourceName)
+		: resourceName(std::move(resourceName)), title(resourceName + ":"), label("##" + resourceName)
 	{
 	}
 	virtual ~Widget() = default;
@@ -46,7 +47,7 @@ public:
 	{
 		ImGui::PushID(this);
 		ImGui::BeginGroup();
-		ImGui::Text(title.c_str());
+		ImGui::Text("%s", title.c_str());
 		if(extendedAvailable)
 		{
 			ImGui::SameLine();
@@ -83,8 +84,7 @@ public:
 	{
 		if(maximumWidth)
 			return maximumWidth.value();
-		else
-			return getLineWidth();
+		return getLineWidth();
 	}
 };
 } // namespace rsp::gui

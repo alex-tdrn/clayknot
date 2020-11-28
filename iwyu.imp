@@ -1,0 +1,3 @@
+[
+	{include: ["@<glm/.*>", "private", "<glm/glm.hpp>", "public"]}
+]

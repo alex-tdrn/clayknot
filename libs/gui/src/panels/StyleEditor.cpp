@@ -1,6 +1,8 @@
 #include "rsp/gui/panels/StyleEditor.h"
 #include "rsp/gui/widgets/Editor.hpp"
-#include "rsp/gui/widgets/Viewer.hpp"
+
+#include <imgui.h>
+#include <string>
 
 namespace rsp::gui
 {

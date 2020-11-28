@@ -22,56 +22,54 @@ public:
 		assert(valid());
 	}
 	Bounded(Bounded const&) = default;
-	Bounded(Bounded&&) = default;
-	Bounded& operator=(Bounded const& that) = default;
-	Bounded& operator=(Bounded&& that) = default;
-	Bounded& operator=(T const& that)
+	Bounded(Bounded&&) noexcept = default;
+	auto operator=(Bounded const& that) -> Bounded& = default;
+	auto operator=(Bounded&& that) noexcept -> Bounded& = default;
+	auto operator=(T const& that) -> Bounded&
 	{
 		val = that;
 		assert(valid());
 	}
-	Bounded& operator=(T&& that)
+	auto operator=(T&& that) -> Bounded&
 	{
 		val = std::move(that);
 		assert(valid());
 	}
 	~Bounded() = default;
 
-	bool valid()
+	auto valid() -> bool
 	{
-		if(min > max || val < min || val > max)
-			return false;
-		return true;
+		return min <= max && val >= min && val <= max;
 	}
 
 	void setMin(T min)
 	{
 		this->min = min;
-		assert(valid);
+		assert(valid());
 	}
 
 	void setMax(T max)
 	{
 		this->max = max;
-		assert(valid);
+		assert(valid());
 	}
 
-	T getMin() const
+	auto getMin() const -> T
 	{
 		return min;
 	}
 
-	T getMax() const
+	auto getMax() const -> T
 	{
 		return max;
 	}
 
-	T getVal() const
+	auto getVal() const -> T
 	{
 		return val;
 	}
 
-	T* data()
+	auto data() -> T*
 	{
 		return &val;
 	}
@@ -81,28 +79,28 @@ public:
 		return val;
 	}
 
-	Bounded& operator+=(T const& that)
+	auto operator+=(T const& that) -> Bounded&
 	{
 		this->value += that;
 		assert(valid());
 		return *this;
 	}
 
-	Bounded& operator-=(T const& that)
+	auto operator-=(T const& that) -> Bounded&
 	{
 		this->value -= that;
 		assert(valid());
 		return *this;
 	}
 
-	Bounded& operator*=(T const& that)
+	auto operator*=(T const& that) -> Bounded&
 	{
 		this->value *= that;
 		assert(valid());
 		return *this;
 	}
 
-	Bounded& operator/=(T const& that)
+	auto operator/=(T const& that) -> Bounded&
 	{
 		this->value /= that;
 		assert(valid());
@@ -110,7 +108,7 @@ public:
 	}
 };
 template <>
-inline bool Bounded<glm::vec2>::valid()
+inline auto Bounded<glm::vec2>::valid() -> bool
 {
 	for(int i = 0; i < 2; i++)
 	{
@@ -121,7 +119,7 @@ inline bool Bounded<glm::vec2>::valid()
 }
 
 template <>
-inline bool Bounded<glm::vec3>::valid()
+inline auto Bounded<glm::vec3>::valid() -> bool
 {
 	for(int i = 0; i < 3; i++)
 	{
@@ -132,7 +130,7 @@ inline bool Bounded<glm::vec3>::valid()
 }
 
 template <>
-inline bool Bounded<glm::vec4>::valid()
+inline auto Bounded<glm::vec4>::valid() -> bool
 {
 	for(int i = 0; i < 4; i++)
 	{
@@ -145,7 +143,7 @@ inline bool Bounded<glm::vec4>::valid()
 template <typename DataType>
 struct DataTypeName<Bounded<DataType>>
 {
-	static std::string get()
+	static auto get() -> std::string
 	{
 		return "Bounded " + DataTypeName<DataType>::get();
 	}

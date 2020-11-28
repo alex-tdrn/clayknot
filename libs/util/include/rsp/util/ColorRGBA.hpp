@@ -32,12 +32,12 @@ public:
 	}
 	ColorRGBA(ColorRGBA const&) = default;
 	ColorRGBA(ColorRGBA&&) = default;
-	ColorRGBA& operator=(ColorRGBA const& that) = default;
-	ColorRGBA& operator=(ColorRGBA&& that) = default;
+	auto operator=(ColorRGBA const& that) -> ColorRGBA& = default;
+	auto operator=(ColorRGBA&& that) -> ColorRGBA& = default;
 	~ColorRGBA() = default;
 
 public:
-	bool valid() const
+	auto valid() const -> bool
 	{
 		if(!rgbValue.valid())
 			return false;
@@ -47,7 +47,7 @@ public:
 	}
 
 	template <typename T>
-	ColorRGBA& operator+=(T const& that)
+	auto operator+=(T const& that) -> ColorRGBA&
 	{
 		this->rgbValue += that;
 		this->alphaValue += that;
@@ -55,7 +55,7 @@ public:
 		return *this;
 	}
 
-	ColorRGBA& operator+=(ColorRGBA const& that)
+	auto operator+=(ColorRGBA const& that) -> ColorRGBA&
 	{
 		this->rgbValue += that.rgbValue;
 		this->alphaValue += that.alphaValue;
@@ -64,7 +64,7 @@ public:
 	}
 
 	template <typename T>
-	ColorRGBA& operator-=(T const& that)
+	auto operator-=(T const& that) -> ColorRGBA&
 	{
 		this->rgbValue -= that;
 		this->alphaValue -= that;
@@ -72,7 +72,7 @@ public:
 		return *this;
 	}
 
-	ColorRGBA& operator-=(ColorRGBA const& that)
+	auto operator-=(ColorRGBA const& that) -> ColorRGBA&
 	{
 		this->rgbValue -= that.rgbValue;
 		this->alphaValue -= that.alphaValue;
@@ -81,7 +81,7 @@ public:
 	}
 
 	template <typename T>
-	ColorRGBA& operator*=(T const& that)
+	auto operator*=(T const& that) -> ColorRGBA&
 	{
 		this->rgbValue *= that;
 		this->alphaValue *= that;
@@ -89,7 +89,7 @@ public:
 		return *this;
 	}
 
-	ColorRGBA& operator*=(ColorRGBA const& that)
+	auto operator*=(ColorRGBA const& that) -> ColorRGBA&
 	{
 		this->rgbValue *= that.rgbValue;
 		this->alphaValue *= that.alphaValue;
@@ -98,7 +98,7 @@ public:
 	}
 
 	template <typename T>
-	ColorRGBA& operator/=(T const& that)
+	auto operator/=(T const& that) -> ColorRGBA&
 	{
 		this->rgbValue /= that;
 		this->alphaValue /= that;
@@ -106,7 +106,7 @@ public:
 		return *this;
 	}
 
-	ColorRGBA& operator/=(ColorRGBA const& that)
+	auto operator/=(ColorRGBA const& that) -> ColorRGBA&
 	{
 		this->rgbValue /= that.rgbValue;
 		this->alphaValue /= that.alphaValue;
@@ -114,32 +114,32 @@ public:
 		return *this;
 	}
 
-	float* data()
+	auto data() -> float*
 	{
 		return rgbValue.data();
 	}
 
-	float r() const
+	auto r() const -> float
 	{
 		return rgbValue.r();
 	}
 
-	float g() const
+	auto g() const -> float
 	{
 		return rgbValue.g();
 	}
 
-	float b() const
+	auto b() const -> float
 	{
 		return rgbValue.b();
 	}
 
-	float a() const
+	auto a() const -> float
 	{
 		return alphaValue;
 	}
 
-	float operator[](std::size_t i) const
+	auto operator[](std::size_t i) const -> float
 	{
 		assert(i <= 3);
 		if(i <= 2)
@@ -147,18 +147,18 @@ public:
 		return alphaValue;
 	}
 
-	ColorRGB rgb() const
+	auto rgb() const -> ColorRGB
 	{
 		return rgbValue;
 	}
 
-	glm::vec4 vector() const
+	auto vector() const -> glm::vec4
 	{
 		return {rgbValue.r(), rgbValue.g(), rgbValue.b(), alphaValue};
 	}
 };
 
-ColorRGBA inline operator+(ColorRGBA const& lhs, ColorRGBA const& rhs)
+auto inline operator+(ColorRGBA const& lhs, ColorRGBA const& rhs) -> ColorRGBA
 {
 	ColorRGBA result{lhs};
 	result += rhs;
@@ -166,7 +166,7 @@ ColorRGBA inline operator+(ColorRGBA const& lhs, ColorRGBA const& rhs)
 }
 
 template <typename T>
-ColorRGBA operator+(ColorRGBA const& lhs, T const& rhs)
+auto operator+(ColorRGBA const& lhs, T const& rhs) -> ColorRGBA
 {
 	ColorRGBA result{lhs};
 	result += rhs;
@@ -174,14 +174,14 @@ ColorRGBA operator+(ColorRGBA const& lhs, T const& rhs)
 }
 
 template <typename T>
-ColorRGBA operator+(T const& lhs, ColorRGBA const& rhs)
+auto operator+(T const& lhs, ColorRGBA const& rhs) -> ColorRGBA
 {
 	ColorRGBA result{rhs};
 	result += lhs;
 	return result;
 }
 
-ColorRGBA inline operator-(ColorRGBA const& lhs, ColorRGBA const& rhs)
+auto inline operator-(ColorRGBA const& lhs, ColorRGBA const& rhs) -> ColorRGBA
 {
 	ColorRGBA result{lhs};
 	result -= rhs;
@@ -189,14 +189,14 @@ ColorRGBA inline operator-(ColorRGBA const& lhs, ColorRGBA const& rhs)
 }
 
 template <typename T>
-ColorRGBA operator-(ColorRGBA const& lhs, T const& rhs)
+auto operator-(ColorRGBA const& lhs, T const& rhs) -> ColorRGBA
 {
 	ColorRGBA result{lhs};
 	result -= rhs;
 	return result;
 }
 
-ColorRGBA inline operator*(ColorRGBA const& lhs, ColorRGBA const& rhs)
+auto inline operator*(ColorRGBA const& lhs, ColorRGBA const& rhs) -> ColorRGBA
 {
 	ColorRGBA result{lhs};
 	result *= rhs;
@@ -204,7 +204,7 @@ ColorRGBA inline operator*(ColorRGBA const& lhs, ColorRGBA const& rhs)
 }
 
 template <typename T>
-ColorRGBA operator*(ColorRGBA const& lhs, T const& rhs)
+auto operator*(ColorRGBA const& lhs, T const& rhs) -> ColorRGBA
 {
 	ColorRGBA result{lhs};
 	result *= rhs;
@@ -212,14 +212,14 @@ ColorRGBA operator*(ColorRGBA const& lhs, T const& rhs)
 }
 
 template <typename T>
-ColorRGBA operator*(T const& lhs, ColorRGBA const& rhs)
+auto operator*(T const& lhs, ColorRGBA const& rhs) -> ColorRGBA
 {
 	ColorRGBA result{rhs};
 	result *= lhs;
 	return result;
 }
 
-ColorRGBA inline operator/(ColorRGBA const& lhs, ColorRGBA const& rhs)
+auto inline operator/(ColorRGBA const& lhs, ColorRGBA const& rhs) -> ColorRGBA
 {
 	ColorRGBA result{lhs};
 	result /= rhs;
@@ -227,7 +227,7 @@ ColorRGBA inline operator/(ColorRGBA const& lhs, ColorRGBA const& rhs)
 }
 
 template <typename T>
-ColorRGBA operator/(ColorRGBA const& lhs, T const& rhs)
+auto operator/(ColorRGBA const& lhs, T const& rhs) -> ColorRGBA
 {
 	ColorRGBA result{lhs};
 	result /= rhs;
@@ -235,7 +235,7 @@ ColorRGBA operator/(ColorRGBA const& lhs, T const& rhs)
 }
 
 template <>
-inline std::string DataTypeName<ColorRGBA>::get()
+inline auto DataTypeName<ColorRGBA>::get() -> std::string
 {
 	return "Color with transparency";
 }

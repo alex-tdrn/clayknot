@@ -35,7 +35,7 @@ using SupportedViewerTypes =
 		Bounded<glm::vec3>, Bounded<glm::vec4>, ColorRGB, ColorRGBA, std::chrono::nanoseconds>;
 
 template <typename T>
-inline std::unique_ptr<Widget> makeViewer(T const& resource, std::string resourceName)
+inline auto makeViewer(T const& resource, std::string resourceName) -> std::unique_ptr<Widget>
 {
 	return std::make_unique<Viewer<T>>(resource, std::move(resourceName));
 }

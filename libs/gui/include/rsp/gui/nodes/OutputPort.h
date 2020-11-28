@@ -1,7 +1,9 @@
 #pragma once
 
-#include "rsp/gui/Animation.hpp"
+#include "rsp/base/Port.hpp"
 #include "rsp/gui/nodes/AbstractPort.hpp"
+
+#include <imgui.h>
 
 namespace rsp::gui
 {
@@ -21,7 +23,7 @@ private:
 	void drawContents() override;
 
 public:
-	bool canConnect(AbstractPort* inputPort) final override;
+	bool canConnect(AbstractPort const* inputPort) const final override;
 	void connect(AbstractPort* inputPort) final override;
 };
 

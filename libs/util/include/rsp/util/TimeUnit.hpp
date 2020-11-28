@@ -16,54 +16,54 @@ struct TimeUnit
 	short range;
 
 	template <typename Representation, typename Period>
-	static TimeUnit extractHours(duration<Representation, Period> t)
+	static auto extractHours(duration<Representation, Period> t) -> TimeUnit
 	{
 		return {"h", static_cast<short>(duration_cast<hours>(t).count()), 24};
 	}
 
 	template <typename Representation, typename Period>
-	static TimeUnit extractMinutes(duration<Representation, Period> t)
+	static auto extractMinutes(duration<Representation, Period> t) -> TimeUnit
 	{
 		const short range = 60;
 		return {"m", static_cast<short>(duration_cast<minutes>(t).count() % range), range};
 	}
 
 	template <typename Representation, typename Period>
-	static TimeUnit extractSeconds(duration<Representation, Period> t)
+	static auto extractSeconds(duration<Representation, Period> t) -> TimeUnit
 	{
 		const short range = 60;
 		return {"s", static_cast<short>(duration_cast<seconds>(t).count() % range), range};
 	}
 
 	template <typename Representation, typename Period>
-	static TimeUnit extractMilliseconds(duration<Representation, Period> t)
+	static auto extractMilliseconds(duration<Representation, Period> t) -> TimeUnit
 	{
 		const short range = 1'000;
 		return {"ms", static_cast<short>(duration_cast<milliseconds>(t).count() % range), range};
 	}
 
 	template <typename Representation, typename Period>
-	static TimeUnit extractMicroseconds(duration<Representation, Period> t)
+	static auto extractMicroseconds(duration<Representation, Period> t) -> TimeUnit
 	{
 		const short range = 1'000;
 		return {"us", static_cast<short>(duration_cast<microseconds>(t).count() % range), range};
 	}
 
 	template <typename Representation, typename Period>
-	static TimeUnit extractNanoseconds(duration<Representation, Period> t)
+	static auto extractNanoseconds(duration<Representation, Period> t) -> TimeUnit
 	{
 		const short range = 1'000;
 		return {"ns", static_cast<short>(duration_cast<nanoseconds>(t).count() % range), range};
 	}
 
 	template <typename Representation, typename Period>
-	static std::array<TimeUnit, 6> decompose(duration<Representation, Period> t)
+	static auto decompose(duration<Representation, Period> t) -> std::array<TimeUnit, 6>
 	{
 		return {extractHours(t), extractMinutes(t), extractSeconds(t), extractMilliseconds(t), extractMicroseconds(t),
 			extractNanoseconds(t)};
 	}
 
-	static std::chrono::nanoseconds compose(const std::array<TimeUnit, 6>& units)
+	static auto compose(const std::array<TimeUnit, 6>& units) -> std::chrono::nanoseconds
 	{
 		auto ret = std::chrono::nanoseconds(units[5].value) + std::chrono::microseconds(units[4].value) +
 				   std::chrono::milliseconds(units[3].value) + std::chrono::seconds(units[2].value) +

@@ -25,13 +25,12 @@ protected:
 public:
 	Port(Port&&) = delete;
 	Port(Port const&) = delete;
-	Port& operator=(Port&&) = delete;
-	Port& operator=(Port const&) = delete;
+	auto operator=(Port&&) -> Port& = delete;
+	auto operator=(Port const&) -> Port& = delete;
 	virtual ~Port() = default;
 
-public:
-	virtual Timestamp getTimestamp() const noexcept = 0;
-	virtual std::size_t getDataTypeHash() const noexcept = 0;
+	virtual auto getTimestamp() const noexcept -> Timestamp = 0;
+	virtual auto getDataTypeHash() const noexcept -> std::size_t = 0;
 
 	void setName(const std::string& name)
 	{
@@ -43,18 +42,18 @@ public:
 		this->name = std::move(name);
 	}
 
-	std::string const& getName() const noexcept
+	auto getName() const noexcept -> std::string const&
 	{
 		return name;
 	}
 
-	virtual bool isConnected() const noexcept = 0;
-	virtual bool canConnectTo(Port const&) const noexcept = 0;
-	virtual bool isConnectedTo(Port const&) const noexcept = 0;
+	virtual auto isConnected() const noexcept -> bool = 0;
+	virtual auto canConnectTo(Port const&) const noexcept -> bool = 0;
+	virtual auto isConnectedTo(Port const&) const noexcept -> bool = 0;
 	virtual void connectTo(Port&) = 0;
 	virtual void disconnectFrom(Port&) = 0;
 	virtual void disconnect() = 0;
-	virtual std::unordered_set<Port const*> getConnections() const = 0;
+	virtual auto getConnections() const -> std::unordered_set<Port const*> = 0;
 	virtual void push(std::weak_ptr<rsp::Sentinel> const& sentinel = {}) noexcept = 0;
 	virtual void pull(std::weak_ptr<rsp::Sentinel> const& sentinel = {}) noexcept = 0;
 };
@@ -74,46 +73,45 @@ private:
 public:
 	InputPort() = default;
 
-	InputPort(std::string name)
+	explicit InputPort(std::string name)
 	{
 		setName(std::move(name));
 	}
 
 	InputPort(InputPort const&) = delete;
 	InputPort(InputPort&&) = delete;
-	InputPort& operator=(InputPort const&) = delete;
-	InputPort& operator=(InputPort&&) = delete;
+	auto operator=(InputPort const&) -> InputPort& = delete;
+	auto operator=(InputPort&&) -> InputPort& = delete;
 
-	~InputPort()
+	~InputPort() final
 	{
 		disconnect();
 	}
 
-public:
-	std::size_t getDataTypeHash() const noexcept override
+	auto getDataTypeHash() const noexcept -> std::size_t final
 	{
 		static std::size_t hash = std::type_index(typeid(T)).hash_code();
 		return hash;
 	}
 
-	Timestamp getTimestamp() const noexcept override
+	auto getTimestamp() const noexcept -> Timestamp final
 	{
 		if(!connection)
 			return {};
 		return connection->getTimestamp();
 	}
 
-	bool isConnected() const noexcept override
+	auto isConnected() const noexcept -> bool final
 	{
 		return connection;
 	}
 
-	bool canConnectTo(Port const& other) const noexcept override
+	auto canConnectTo(Port const& other) const noexcept -> bool final
 	{
 		return dynamic_cast<CompatiblePort const*>(&other);
 	}
 
-	bool isConnectedTo(Port const& other) const noexcept override
+	auto isConnectedTo(Port const& other) const noexcept -> bool final
 	{
 		if(!connection)
 			return false;
@@ -128,12 +126,12 @@ public:
 			other.connectTo(*this);
 	}
 
-	void connectTo(Port& other) override
+	void connectTo(Port& other) final
 	{
 		connectTo(dynamic_cast<CompatiblePort&>(other));
 	}
 
-	void disconnect() override
+	void disconnect() final
 	{
 		if(connection)
 		{
@@ -143,26 +141,26 @@ public:
 		}
 	}
 
-	void disconnectFrom(Port& other) override
+	void disconnectFrom(Port& other) final
 	{
 		if(isConnectedTo(other))
 			disconnect();
 	}
 
-	std::unordered_set<Port const*> getConnections() const override
+	auto getConnections() const -> std::unordered_set<Port const*> final
 	{
 		std::unordered_set<Port const*> connections;
 		connections.insert(connection);
 		return connections;
 	}
 
-	void push(std::weak_ptr<rsp::Sentinel> const& sentinel = {}) noexcept override
+	void push(std::weak_ptr<rsp::Sentinel> const& sentinel = {}) noexcept final
 	{
 		if(pushCallback)
 			pushCallback(sentinel);
 	}
 
-	void pull(std::weak_ptr<rsp::Sentinel> const& sentinel = {}) noexcept override
+	void pull(std::weak_ptr<rsp::Sentinel> const& sentinel = {}) noexcept final
 	{
 		if(connection)
 			connection->pull(sentinel);
@@ -178,19 +176,19 @@ public:
 		pushCallback = std::move(callback);
 	}
 
-	T const& get() const
+	auto get() const -> T const&
 	{
 		if(!connection)
 			throw "Port is not connected!";
 		return connection->get();
 	}
 
-	T const& operator*() const
+	auto operator*() const -> T const&
 	{
 		return get();
 	}
 
-	T const* operator->() const
+	auto operator->() const -> T const*
 	{
 		if(!connection)
 			throw "Port is not connected!";
@@ -204,7 +202,7 @@ class OutputPort final : public Port
 	using CompatiblePort = InputPort<T>;
 
 private:
-	T data;
+	T data = {};
 	Timestamp timestamp;
 	std::unordered_set<CompatiblePort*> connections;
 	std::function<void(std::weak_ptr<rsp::Sentinel> const&)> pullCallback;
@@ -212,44 +210,43 @@ private:
 public:
 	OutputPort() = default;
 
-	OutputPort(std::string name)
+	explicit OutputPort(std::string name)
 	{
 		setName(std::move(name));
 	}
 
 	OutputPort(OutputPort const&) = delete;
 	OutputPort(OutputPort&&) = delete;
-	OutputPort& operator=(OutputPort const&) = delete;
-	OutputPort& operator=(OutputPort&&) = delete;
+	auto operator=(OutputPort const&) -> OutputPort& = delete;
+	auto operator=(OutputPort&&) -> OutputPort& = delete;
 
-	~OutputPort()
+	~OutputPort() final
 	{
 		disconnect();
 	}
 
-public:
-	std::size_t getDataTypeHash() const noexcept override
+	auto getDataTypeHash() const noexcept -> std::size_t final
 	{
 		static std::size_t hash = std::type_index(typeid(T)).hash_code();
 		return hash;
 	}
 
-	Timestamp getTimestamp() const noexcept override
+	auto getTimestamp() const noexcept -> Timestamp final
 	{
 		return timestamp;
 	}
 
-	bool isConnected() const noexcept override
+	auto isConnected() const noexcept -> bool final
 	{
 		return !connections.empty();
 	}
 
-	bool canConnectTo(Port const& other) const noexcept override
+	auto canConnectTo(Port const& other) const noexcept -> bool final
 	{
 		return dynamic_cast<CompatiblePort const*>(&other);
 	}
 
-	bool isConnectedTo(Port const& other) const noexcept override
+	auto isConnectedTo(Port const& other) const noexcept -> bool final
 	{
 		for(auto const port : connections)
 			if(port == dynamic_cast<CompatiblePort const*>(&other))
@@ -264,7 +261,7 @@ public:
 			other.connectTo(*this);
 	}
 
-	void connectTo(Port& other) override
+	void connectTo(Port& other) final
 	{
 		connectTo(dynamic_cast<CompatiblePort&>(other));
 	}
@@ -276,20 +273,20 @@ public:
 			other.disconnect();
 	}
 
-	void disconnectFrom(Port& other) override
+	void disconnectFrom(Port& other) final
 	{
 		auto castedPort = dynamic_cast<CompatiblePort*>(&other);
 		if(castedPort)
 			disconnectFrom(*castedPort);
 	}
 
-	void disconnect() override
+	void disconnect() final
 	{
 		while(!connections.empty())
 			disconnectFrom(**connections.begin());
 	}
 
-	std::unordered_set<Port const*> getConnections() const override
+	auto getConnections() const -> std::unordered_set<Port const*> final
 	{
 		std::unordered_set<Port const*> connections;
 		for(auto connection : this->connections)
@@ -297,13 +294,13 @@ public:
 		return connections;
 	}
 
-	void push(std::weak_ptr<rsp::Sentinel> const& sentinel = {}) noexcept override
+	void push(std::weak_ptr<rsp::Sentinel> const& sentinel = {}) noexcept final
 	{
 		for(auto connection : connections)
 			connection->push(sentinel);
 	}
 
-	void pull(std::weak_ptr<rsp::Sentinel> const& sentinel = {}) noexcept override
+	void pull(std::weak_ptr<rsp::Sentinel> const& sentinel = {}) noexcept final
 	{
 		if(pullCallback)
 			pullCallback(sentinel);
@@ -319,35 +316,35 @@ public:
 		this->pullCallback = std::move(callback);
 	}
 
-	T& get() noexcept
+	auto get() noexcept -> T&
 	{
 		timestamp.update();
 		return data;
 	}
 
-	T const& get() const noexcept
+	auto get() const noexcept -> T const&
 	{
 		return data;
 	}
 
-	T& operator*() noexcept
+	auto operator*() noexcept -> T&
 	{
 		timestamp.update();
 		return get();
 	}
 
-	T const& operator*() const noexcept
+	auto operator*() const noexcept -> T const&
 	{
 		return get();
 	}
 
-	T* operator->() noexcept
+	auto operator->() noexcept -> T*
 	{
 		timestamp.update();
 		return &data;
 	}
 
-	T const* operator->() const noexcept
+	auto operator->() const noexcept -> T const*
 	{
 		return &data;
 	}

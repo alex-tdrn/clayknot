@@ -1,10 +1,12 @@
 #pragma once
 
 #include "rsp/base/Node.hpp"
+#include "rsp/base/Port.hpp"
 #include "rsp/util/ColorRGB.hpp"
 
-
-#include <array>
+#include <string>
+#include <unordered_set>
+#include <vector>
 
 namespace rsp::nodes
 {

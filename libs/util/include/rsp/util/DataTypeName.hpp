@@ -9,44 +9,44 @@ namespace rsp
 template <typename DataType>
 struct DataTypeName
 {
-	static std::string get()
+	static auto get() -> std::string
 	{
 		return typeid(DataType).name();
 	}
 };
 
 template <>
-inline std::string DataTypeName<int>::get()
+inline auto DataTypeName<int>::get() -> std::string
 {
 	return "Integer";
 }
 
 template <>
-inline std::string DataTypeName<float>::get()
+inline auto DataTypeName<float>::get() -> std::string
 {
 	return "Float";
 }
 
 template <>
-inline std::string DataTypeName<bool>::get()
+inline auto DataTypeName<bool>::get() -> std::string
 {
 	return "Boolean";
 }
 
 template <>
-inline std::string DataTypeName<glm::vec2>::get()
+inline auto DataTypeName<glm::vec2>::get() -> std::string
 {
 	return "Vector2";
 }
 
 template <>
-inline std::string DataTypeName<glm::vec3>::get()
+inline auto DataTypeName<glm::vec3>::get() -> std::string
 {
 	return "Vector3";
 }
 
 template <>
-inline std::string DataTypeName<glm::vec4>::get()
+inline auto DataTypeName<glm::vec4>::get() -> std::string
 {
 	return "Vector4";
 }

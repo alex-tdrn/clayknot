@@ -1,9 +1,13 @@
 #include "rsp/gui/nodes/OutputPort.h"
+#include "rsp/gui/Animation.hpp"
 #include "rsp/gui/ImGuiUtilities.hpp"
 #include "rsp/gui/Stylesheet.hpp"
 #include "rsp/gui/nodes/InputPort.h"
-#include "rsp/gui/widgets/Editor.hpp"
-#include "rsp/gui/widgets/Viewer.hpp"
+#include "rsp/util/Bounded.hpp"
+
+#include <assert.h>
+#include <imgui_node_editor.h>
+#include <unordered_set>
 
 namespace rsp::gui
 {
@@ -52,9 +56,9 @@ void OutputPort::drawContents()
 	ax::NodeEditor::EndPin();
 }
 
-bool OutputPort::canConnect(AbstractPort* inputPort)
+bool OutputPort::canConnect(AbstractPort const* inputPort) const
 {
-	if(!dynamic_cast<InputPort*>(inputPort))
+	if(!dynamic_cast<InputPort const*>(inputPort))
 		return false;
 	return inputPort->canConnect(this);
 }

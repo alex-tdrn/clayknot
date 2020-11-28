@@ -3,6 +3,7 @@
 #include "rsp/gui/panels/Panel.h"
 
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace rsp::gui

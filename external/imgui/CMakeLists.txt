@@ -16,7 +16,7 @@ add_library(
 	"include/imstb_truetype.h"
 )
 
-target_include_directories(imgui PUBLIC "include")
+target_include_directories(imgui SYSTEM PUBLIC "include")
 
 target_link_libraries(imgui PUBLIC glfw::glfw glad::glad)
 

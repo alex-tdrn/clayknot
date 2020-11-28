@@ -3,11 +3,14 @@
 #include <array>
 #include <catch2/catch.hpp>
 #include <memory>
+#include <string>
 #include <tuple>
 #include <type_traits>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
+// NOLINTNEXTLINE
 #define DATATYPES \
 	int, unsigned int, short, char*, (std::tuple<int, float>), (std::vector<int>), (std::array<int, 10>), \
 		std::unique_ptr<int>, std::shared_ptr<int>, (rsp::InputPort<int>), (rsp::OutputPort<int>)
@@ -21,6 +24,7 @@ void requireConnected(T& portA, U& portB);
 template <typename T, typename U>
 void requireUnconnected(T& portA, U& portB);
 
+// NOLINTNEXTLINE
 TEMPLATE_PRODUCT_TEST_CASE(
 	"Ports cannot connect to themselves", "[ports]", (rsp::InputPort, rsp::OutputPort), (DATATYPES))
 {
@@ -39,6 +43,7 @@ TEMPLATE_PRODUCT_TEST_CASE(
 	}
 }
 
+// NOLINTNEXTLINE
 TEMPLATE_PRODUCT_TEST_CASE(
 	"Ports of the same type cannot be connected", "[ports]", (rsp::InputPort, rsp::OutputPort), (DATATYPES))
 {
@@ -60,6 +65,7 @@ TEST_CASE("Ports holding differing datatypes cannot be connected", "[ports]")
 	}
 }
 
+// NOLINTNEXTLINE
 TEMPLATE_TEST_CASE("Ports holding the same datatype can be connected", "[ports]", DATATYPES)
 {
 	GIVEN("input port A and output port B, both holding the same datatype")
@@ -85,6 +91,7 @@ TEMPLATE_TEST_CASE("Ports holding the same datatype can be connected", "[ports]"
 	}
 }
 
+// NOLINTNEXTLINE
 TEMPLATE_TEST_CASE("Connected ports can be disconnected", "[ports]", DATATYPES)
 {
 	GIVEN("connected ports A, and B")
@@ -148,6 +155,7 @@ TEST_CASE("Ports disconnect automatically when their lifetime ends", "[ports]")
 	}
 }
 
+// NOLINTNEXTLINE
 TEMPLATE_TEST_CASE("Ports holding the same datatype return the same hash", "[ports]", DATATYPES)
 {
 	GIVEN("input port A and output port B, both holding the same datatype")
@@ -186,13 +194,11 @@ TEST_CASE("Output ports can provide data", "[ports]")
 			A.get() = v1;
 			REQUIRE(A.get() == v1);
 			REQUIRE(*A == v1);
-			REQUIRE(A->compare(v1) == 0);
 
 			std::string const v2 = "2";
 			*A = v2;
 			REQUIRE(A.get() == v2);
 			REQUIRE(*A == v2);
-			REQUIRE(A->compare(v2) == 0);
 
 			A->clear();
 			REQUIRE(A.get().empty());
@@ -204,9 +210,9 @@ TEST_CASE("Output ports can provide data", "[ports]")
 			auto const& B = A;
 			THEN("B can provide read-only references to its data")
 			{
-				auto v1 = &(B.get());
-				auto v2 = &(*B);
-				auto v3 = B.operator->();
+				const auto* v1 = &(B.get());
+				const auto* v2 = &(*B);
+				const auto* v3 = B.operator->();
 
 				REQUIRE(v1 == v2);
 				REQUIRE(v1 == v3);
@@ -223,13 +229,13 @@ TEST_CASE("Connected input ports can provide the data from their connection", "[
 	GIVEN("output port A connected to multiple input ports")
 	{
 		rsp::OutputPort<int> A;
-		rsp::InputPort<int> inputPorts[3];
+		std::array<rsp::InputPort<int>, 3> inputPorts;
 		for(auto& port : inputPorts)
 			port.connectTo(A);
 
 		THEN("all connected input ports can provide read-only references to A's data")
 		{
-			auto originalValue = &(A.get());
+			auto* originalValue = &(A.get());
 
 			for(auto& port : inputPorts)
 			{
@@ -237,9 +243,9 @@ TEST_CASE("Connected input ports can provide the data from their connection", "[
 				REQUIRE_NOTHROW(*port);
 				REQUIRE_NOTHROW(port.operator->());
 
-				auto v1 = &(port.get());
-				auto v2 = &(*port);
-				auto v3 = port.operator->();
+				const auto* v1 = &(port.get());
+				const auto* v2 = &(*port);
+				const auto* v3 = port.operator->();
 
 				REQUIRE(v1 == v2);
 				REQUIRE(v1 == v3);
@@ -262,7 +268,7 @@ TEST_CASE(
 		AND_GIVEN("non-throwing callable F, set as the push callback for A")
 		{
 			bool called = false;
-			auto F = [&](auto&&) {
+			auto F = [&](auto&& /*unused*/) {
 				called = true;
 			};
 			A.setPushCallback(std::move(F));
@@ -299,7 +305,7 @@ TEST_CASE("A pull callback can be set on an output port in order to alert the po
 		AND_GIVEN("non-throwing callable F, set as the pull callback for A")
 		{
 			bool called = false;
-			auto F = [&](auto&&) {
+			auto F = [&](auto&& /*unused*/) {
 				called = true;
 			};
 			A.setPullCallback(std::move(F));
