@@ -5,7 +5,7 @@
 #include "rsp/gui/nodes/InputPort.h"
 #include "rsp/util/Bounded.hpp"
 
-#include <assert.h>
+#include <cassert>
 #include <imgui_node_editor.h>
 #include <unordered_set>
 
@@ -13,19 +13,19 @@ namespace rsp::gui
 {
 OutputPort::OutputPort(rsp::Port* port) : AbstractPort(port)
 {
-	for(auto connection : port->getConnections())
-		if(auto pin = getPinForPort(connection); pin != nullptr)
+	for(const auto* connection : port->getConnections())
+		if(auto* pin = getPinForPort(connection); pin != nullptr)
 			connect(pin);
 }
 
-ImVec2 OutputPort::calculateAnchorPosition() const
+auto OutputPort::calculateAnchorPosition() const -> ImVec2
 {
 	auto& currentStyle = Stylesheet::getCurrentSheet();
 	auto min = ImGui::GetItemRectMin();
 	auto max = ImGui::GetItemRectMax();
 	auto w = max.x - min.x;
 	auto x = min.x + w / 2 +
-			 anchorOffset.get(currentStyle.animatedAnchorOffset, currentStyle.anchorOffset,
+			 anchorOffset.get(currentStyle.animatedAnchorOffset.getVal(), currentStyle.anchorOffset.getVal(),
 				 currentStyle.animatedAnchorOffsetDuration, AnimationCurve::spring);
 
 	auto h = max.y - min.y;
@@ -56,9 +56,9 @@ void OutputPort::drawContents()
 	ax::NodeEditor::EndPin();
 }
 
-bool OutputPort::canConnect(AbstractPort const* inputPort) const
+auto OutputPort::canConnect(AbstractPort const* inputPort) const -> bool
 {
-	if(!dynamic_cast<InputPort const*>(inputPort))
+	if(dynamic_cast<InputPort const*>(inputPort) == nullptr)
 		return false;
 	return inputPort->canConnect(this);
 }

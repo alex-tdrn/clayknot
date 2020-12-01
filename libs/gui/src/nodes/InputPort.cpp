@@ -8,7 +8,7 @@
 #include "rsp/gui/widgets/Widget.hpp"
 #include "rsp/util/Bounded.hpp"
 
-#include <assert.h>
+#include <cassert>
 #include <glm/glm.hpp>
 #include <memory>
 #include <type_traits>
@@ -20,19 +20,19 @@ InputPort::InputPort(rsp::Port* port) : AbstractPort(port), linkID(uniqueID())
 {
 	auto connections = port->getConnections();
 	assert(connections.size() <= 1);
-	for(auto connection : connections)
-		if(auto pin = getPinForPort(connection); pin != nullptr)
+	for(const auto* connection : connections)
+		if(auto* pin = getPinForPort(connection); pin != nullptr)
 			connect(pin);
 }
 
-ImVec2 InputPort::calculateAnchorPosition() const
+auto InputPort::calculateAnchorPosition() const -> ImVec2
 {
 	auto currentStyle = Stylesheet::getCurrentSheet();
 	auto min = ImGui::GetItemRectMin();
 	auto max = ImGui::GetItemRectMax();
 	auto w = max.x - min.x;
 	auto x = min.x + w / 2 -
-			 anchorOffset.get(currentStyle.animatedAnchorOffset, currentStyle.anchorOffset,
+			 anchorOffset.get(currentStyle.animatedAnchorOffset.getVal(), currentStyle.anchorOffset.getVal(),
 				 currentStyle.animatedAnchorOffsetDuration, AnimationCurve::spring);
 
 	auto h = max.y - min.y;
@@ -84,13 +84,14 @@ void InputPort::drawLink()
 	if(connection != nullptr)
 	{
 		auto portColor = ImGui::ColorFromHash(port->getDataTypeHash());
-		ax::NodeEditor::Link(linkID, connection->getID(), id, portColor, Stylesheet::getCurrentSheet().linkThickness);
+		ax::NodeEditor::Link(
+			linkID, connection->getID(), id, portColor, Stylesheet::getCurrentSheet().linkThickness.getVal());
 	}
 }
 
-bool InputPort::canConnect(const AbstractPort* outputPort) const
+auto InputPort::canConnect(const AbstractPort* outputPort) const -> bool
 {
-	if(!dynamic_cast<OutputPort const*>(outputPort))
+	if(dynamic_cast<OutputPort const*>(outputPort) == nullptr)
 		return false;
 	return port->canConnectTo(*outputPort->getPort());
 }

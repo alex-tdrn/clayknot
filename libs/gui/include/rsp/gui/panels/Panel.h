@@ -21,8 +21,8 @@ public:
 	Panel() = default;
 	Panel(Panel const&) = delete;
 	Panel(Panel&&) = default;
-	Panel& operator=(Panel const&) = delete;
-	Panel& operator=(Panel&&) = delete;
+	auto operator=(Panel const&) -> Panel& = delete;
+	auto operator=(Panel&&) -> Panel& = delete;
 	virtual ~Panel() = default;
 
 protected:
@@ -30,8 +30,8 @@ protected:
 
 public:
 	void draw();
-	std::string const& getTitle() const;
-	bool isVisible() const;
+	auto getTitle() const -> std::string const&;
+	auto isVisible() const -> bool;
 	void toggleVisibility();
 	void show();
 	void hide();

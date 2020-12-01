@@ -18,12 +18,12 @@ void Panel::draw()
 	}
 }
 
-std::string const& Panel::getTitle() const
+auto Panel::getTitle() const -> std::string const&
 {
 	return title;
 }
 
-bool Panel::isVisible() const
+auto Panel::isVisible() const -> bool
 {
 	return visible;
 }

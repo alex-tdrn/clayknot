@@ -18,22 +18,22 @@ private:
 
 public:
 	InputPort() = default;
-	InputPort(rsp::Port* port);
+	explicit InputPort(rsp::Port* port);
 	InputPort(InputPort&&) = default;
 	InputPort(InputPort const&) = delete;
-	InputPort& operator=(InputPort&&) = default;
-	InputPort& operator=(InputPort const&) = delete;
-	virtual ~InputPort() = default;
+	auto operator=(InputPort&&) -> InputPort& = default;
+	auto operator=(InputPort const&) -> InputPort& = delete;
+	~InputPort() override = default;
 
 private:
-	ImVec2 calculateAnchorPosition() const override;
+	auto calculateAnchorPosition() const -> ImVec2 override;
 	void generateViewer();
 	void drawContents() override;
 
 public:
 	void drawLink();
-	bool canConnect(AbstractPort const* outputPort) const final override;
-	void connect(AbstractPort* outputPort) final override;
+	auto canConnect(AbstractPort const* outputPort) const -> bool final;
+	void connect(AbstractPort* outputPort) final;
 };
 
 } // namespace rsp::gui

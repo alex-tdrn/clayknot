@@ -30,16 +30,16 @@ private:
 
 public:
 	Node() = default;
-	Node(rsp::Node* element);
+	explicit Node(rsp::Node* node);
 	Node(Node&&) = default;
 	Node(Node const&) = delete;
-	Node& operator=(Node&&) = default;
-	Node& operator=(Node const&) = delete;
+	auto operator=(Node&&) -> Node& = default;
+	auto operator=(Node const&) -> Node& = delete;
 	~Node() = default;
 
 private:
-	bool hasInputs() const;
-	bool hasOutputs() const;
+	auto hasInputs() const -> bool;
+	auto hasOutputs() const -> bool;
 	void calculateLayout();
 	void drawTitle();
 	void drawInputs();
@@ -51,10 +51,10 @@ private:
 public:
 	void setInputWidgetsVisibility(bool visibility);
 	void setOutputWidgetsVisibility(bool visibility);
-	int countVisibleInputWidgets() const;
-	int countVisibleOutputWidgets() const;
-	int countHiddenInputWidgets() const;
-	int countHiddenOutputWidgets() const;
+	auto countVisibleInputWidgets() const -> int;
+	auto countVisibleOutputWidgets() const -> int;
+	auto countHiddenInputWidgets() const -> int;
+	auto countHiddenOutputWidgets() const -> int;
 	void draw();
 	void drawInputLinks();
 };

@@ -12,6 +12,7 @@
 
 namespace rsp
 {
+// TODO move update() to separate Algorithm class contained in the node.
 class Node
 {
 private:
@@ -53,9 +54,8 @@ protected:
 	template <typename T>
 	void registerPort(rsp::InputPort<T>& port)
 	{
-		for(auto* inputPort : inputPorts)
-			if(inputPort == &port)
-				return;
+		if(std::find(inputPorts.begin(), inputPorts.end(), &port) != inputPorts.end())
+			return;
 		port.setPushCallback([&](auto sentinel) { this->push(sentinel); });
 		inputPorts.push_back(&port);
 	}
@@ -63,9 +63,8 @@ protected:
 	template <typename T>
 	void registerPort(rsp::OutputPort<T>& port)
 	{
-		for(auto* outputPort : outputPorts)
-			if(outputPort == &port)
-				return;
+		if(std::find(outputPorts.begin(), outputPorts.end(), &port) != outputPorts.end())
+			return;
 		port.setPullCallback([&](auto sentinel) { this->pull(sentinel); });
 		outputPorts.push_back(&port);
 	}

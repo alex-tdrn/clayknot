@@ -4,9 +4,9 @@
 #include "rsp/util/Timestamp.hpp"
 
 #include <algorithm>
-#include <exception>
 #include <functional>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <typeindex>
 #include <typeinfo>
@@ -179,7 +179,7 @@ public:
 	auto get() const -> T const&
 	{
 		if(!connection)
-			throw "Port is not connected!";
+			throw std::runtime_error("Port is not connected!");
 		return connection->get();
 	}
 
@@ -191,7 +191,7 @@ public:
 	auto operator->() const -> T const*
 	{
 		if(!connection)
-			throw "Port is not connected!";
+			throw std::runtime_error("Port is not connected!");
 		return connection->operator->();
 	}
 };

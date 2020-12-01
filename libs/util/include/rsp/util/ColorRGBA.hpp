@@ -27,7 +27,8 @@ public:
 	{
 	}
 	explicit ColorRGBA(int r, int g, int b, int a)
-		: rgbValue(r / 255.0f, g / 255.0f, b / 255.0f), alphaValue(a / 255.0f)
+		: rgbValue(static_cast<float>(r) / 255.0f, static_cast<float>(g) / 255.0f, static_cast<float>(b) / 255.0f)
+		, alphaValue(static_cast<float>(a) / 255.0f)
 	{
 	}
 	ColorRGBA(ColorRGBA const&) = default;

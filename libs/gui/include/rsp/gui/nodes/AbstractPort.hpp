@@ -28,15 +28,15 @@ protected:
 
 public:
 	AbstractPort() = default;
-	AbstractPort(rsp::Port* port) : id(uniqueID()), port(port)
+	explicit AbstractPort(rsp::Port* port) : id(uniqueID()), port(port)
 	{
 		pinMap[id.Get()] = this;
 		portMap[port] = id;
 	}
 	AbstractPort(AbstractPort&&) = default;
 	AbstractPort(AbstractPort const&) = delete;
-	AbstractPort& operator=(AbstractPort&&) = default;
-	AbstractPort& operator=(AbstractPort const&) = delete;
+	auto operator=(AbstractPort&&) -> AbstractPort& = default;
+	auto operator=(AbstractPort const&) -> AbstractPort& = delete;
 	virtual ~AbstractPort()
 	{
 		pinMap.erase(id.Get());
@@ -44,10 +44,10 @@ public:
 	}
 
 protected:
-	virtual ImVec2 calculateAnchorPosition() const = 0;
+	virtual auto calculateAnchorPosition() const -> ImVec2 = 0;
 	virtual void drawContents() = 0;
 
-	void placeAnchor(float height)
+	static void placeAnchor(float height)
 	{
 		ImGui::Dummy({10, height});
 	}
@@ -64,35 +64,35 @@ protected:
 			toggleWidget();
 	}
 
-	glm::vec2 getWidgetSize() const
+	auto getWidgetSize() const -> glm::vec2
 	{
 		return widgetSize;
 	}
 
 public:
-	static AbstractPort* getPinForID(ax::NodeEditor::PinId id)
+	static auto getPinForID(ax::NodeEditor::PinId id) -> AbstractPort*
 	{
 		if(pinMap.find(id.Get()) != pinMap.end())
 			return pinMap[id.Get()];
 		return nullptr;
 	}
-	static ax::NodeEditor::PinId getIDForPort(rsp::Port const* port)
+	static auto getIDForPort(rsp::Port const* port) -> ax::NodeEditor::PinId
 	{
 		if(portMap.find(port) != portMap.end())
 			return portMap[port];
 		return {};
 	}
-	static AbstractPort* getPinForPort(rsp::Port const* port)
+	static auto getPinForPort(rsp::Port const* port) -> AbstractPort*
 	{
 		return getPinForID(getIDForPort(port));
 	}
 
-	ax::NodeEditor::PinId getID() const
+	auto getID() const -> ax::NodeEditor::PinId
 	{
 		return id;
 	}
 
-	rsp::Port* getPort() const
+	auto getPort() const -> rsp::Port*
 	{
 		return port;
 	}
@@ -105,12 +105,12 @@ public:
 		size = ImGui::GetItemRectSize();
 	}
 
-	glm::vec2 getSize() const
+	auto getSize() const -> glm::vec2
 	{
 		return size;
 	}
 
-	bool isWidgetVisible() const
+	auto isWidgetVisible() const -> bool
 	{
 		return widgetVisible;
 	}
@@ -133,7 +133,7 @@ public:
 		widgetVisible = !widgetVisible;
 	}
 
-	virtual bool canConnect(AbstractPort const* otherPin) const = 0;
+	virtual auto canConnect(AbstractPort const* otherPin) const -> bool = 0;
 	virtual void connect(AbstractPort* otherPin) = 0;
 };
 

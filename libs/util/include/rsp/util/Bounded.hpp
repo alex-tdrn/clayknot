@@ -11,9 +11,9 @@ template <typename T>
 class Bounded
 {
 private:
+	T val;
 	T min;
 	T max;
-	T val;
 
 public:
 	Bounded() = default;
@@ -74,7 +74,7 @@ public:
 		return &val;
 	}
 
-	operator T() const
+	explicit operator T() const
 	{
 		return val;
 	}

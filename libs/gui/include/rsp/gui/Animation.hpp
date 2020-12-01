@@ -20,22 +20,22 @@ private:
 
 public:
 	Animation() = default;
-	Animation(Animation&&) = default;
+	Animation(Animation&&) noexcept = default;
 	Animation(Animation const&) = default;
-	Animation& operator=(Animation&&) = default;
-	Animation& operator=(Animation const&) = default;
+	auto operator=(Animation&&) noexcept -> Animation& = default;
+	auto operator=(Animation const&) -> Animation& = default;
 	~Animation() = default;
 
 private:
-	T static inline linear(T const& startValue, T const& endValue, float p)
+	auto static inline linear(T const& startValue, T const& endValue, float p) -> T
 	{
 		T difference = endValue - startValue;
 		return startValue + p * difference;
 	}
 
-	T static inline spring(T const& startValue, T const& endValue, float p)
+	auto static inline spring(T const& startValue, T const& endValue, float p) -> T
 	{
-		float f = std::sin(p * 10 * 3.141) / (p + 1);
+		float f = std::sinf(p * 10 * 3.141f) / (p + 1);
 		T difference = endValue - startValue;
 		return endValue - f * difference;
 	}
@@ -47,7 +47,7 @@ public:
 		playing = true;
 	}
 
-	T get(T startValue, T endValue, std::chrono::nanoseconds const& duration, AnimationCurve curveType) const
+	auto get(T startValue, T endValue, std::chrono::nanoseconds const& duration, AnimationCurve curveType) const -> T
 	{
 		if(!playing)
 			return endValue;
@@ -60,7 +60,7 @@ public:
 		}
 		auto currentDuration = std::chrono::duration_cast<std::chrono::nanoseconds>(now - startTime);
 
-		float p = double(currentDuration.count()) / double(duration.count());
+		float p = float(currentDuration.count()) / float(duration.count());
 
 		switch(curveType)
 		{

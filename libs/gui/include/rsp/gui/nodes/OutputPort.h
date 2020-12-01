@@ -11,20 +11,20 @@ class OutputPort : public AbstractPort
 {
 public:
 	OutputPort() = default;
-	OutputPort(rsp::Port* port);
+	explicit OutputPort(rsp::Port* port);
 	OutputPort(OutputPort&&) = default;
 	OutputPort(OutputPort const&) = delete;
-	OutputPort& operator=(OutputPort&&) = default;
-	OutputPort& operator=(OutputPort const&) = delete;
-	virtual ~OutputPort() = default;
+	auto operator=(OutputPort&&) -> OutputPort& = default;
+	auto operator=(OutputPort const&) -> OutputPort& = delete;
+	~OutputPort() override = default;
 
 private:
-	ImVec2 calculateAnchorPosition() const override;
+	auto calculateAnchorPosition() const -> ImVec2 override;
 	void drawContents() override;
 
 public:
-	bool canConnect(AbstractPort const* inputPort) const final override;
-	void connect(AbstractPort* inputPort) final override;
+	auto canConnect(AbstractPort const* inputPort) const -> bool final;
+	void connect(AbstractPort* inputPort) final;
 };
 
 } // namespace rsp::gui

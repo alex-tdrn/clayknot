@@ -23,9 +23,9 @@ public:
 	NodeEditor();
 	NodeEditor(NodeEditor const&) = delete;
 	NodeEditor(NodeEditor&&) = default;
-	NodeEditor& operator=(NodeEditor const&) = delete;
-	NodeEditor& operator=(NodeEditor&&) = default;
-	~NodeEditor();
+	auto operator=(NodeEditor const&) -> NodeEditor& = delete;
+	auto operator=(NodeEditor&&) -> NodeEditor& = delete;
+	~NodeEditor() override;
 
 private:
 	void toggleInputWidgets();

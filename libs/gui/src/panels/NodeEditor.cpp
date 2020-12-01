@@ -88,25 +88,25 @@ void NodeEditor::drawContents()
 
 	overlayPosition += glm::vec2(ImGui::GetWindowPos());
 
-	ax::NodeEditor::GetStyle().LinkStrength = Stylesheet::getCurrentSheet().linkStrength;
-	ax::NodeEditor::GetStyle().NodePadding = Stylesheet::getCurrentSheet().nodePadding;
-	ax::NodeEditor::GetStyle().NodeRounding = Stylesheet::getCurrentSheet().nodeRounding;
-	ax::NodeEditor::GetStyle().NodeBorderWidth = Stylesheet::getCurrentSheet().nodeBorderWidth;
-	ax::NodeEditor::GetStyle().HoveredNodeBorderWidth = Stylesheet::getCurrentSheet().hoveredNodeBorderWidth;
-	ax::NodeEditor::GetStyle().SelectedNodeBorderWidth = Stylesheet::getCurrentSheet().selectedNodeBorderWidth;
-	ax::NodeEditor::GetStyle().PinRounding = Stylesheet::getCurrentSheet().pinRounding;
-	ax::NodeEditor::GetStyle().PinBorderWidth = Stylesheet::getCurrentSheet().pinBorderWidth;
+	ax::NodeEditor::GetStyle().LinkStrength = Stylesheet::getCurrentSheet().linkStrength.getVal();
+	ax::NodeEditor::GetStyle().NodePadding = Stylesheet::getCurrentSheet().nodePadding.getVal();
+	ax::NodeEditor::GetStyle().NodeRounding = Stylesheet::getCurrentSheet().nodeRounding.getVal();
+	ax::NodeEditor::GetStyle().NodeBorderWidth = Stylesheet::getCurrentSheet().nodeBorderWidth.getVal();
+	ax::NodeEditor::GetStyle().HoveredNodeBorderWidth = Stylesheet::getCurrentSheet().hoveredNodeBorderWidth.getVal();
+	ax::NodeEditor::GetStyle().SelectedNodeBorderWidth = Stylesheet::getCurrentSheet().selectedNodeBorderWidth.getVal();
+	ax::NodeEditor::GetStyle().PinRounding = Stylesheet::getCurrentSheet().pinRounding.getVal();
+	ax::NodeEditor::GetStyle().PinBorderWidth = Stylesheet::getCurrentSheet().pinBorderWidth.getVal();
 	ax::NodeEditor::GetStyle().SourceDirection = Stylesheet::getCurrentSheet().sourceDirection;
 	ax::NodeEditor::GetStyle().TargetDirection = Stylesheet::getCurrentSheet().targetDirection;
-	ax::NodeEditor::GetStyle().FlowMarkerDistance = Stylesheet::getCurrentSheet().flowMarkerDistance;
-	ax::NodeEditor::GetStyle().FlowSpeed = Stylesheet::getCurrentSheet().flowSpeed;
-	ax::NodeEditor::GetStyle().FlowDuration = Stylesheet::getCurrentSheet().flowDuration;
+	ax::NodeEditor::GetStyle().FlowMarkerDistance = Stylesheet::getCurrentSheet().flowMarkerDistance.getVal();
+	ax::NodeEditor::GetStyle().FlowSpeed = Stylesheet::getCurrentSheet().flowSpeed.getVal();
+	ax::NodeEditor::GetStyle().FlowDuration = Stylesheet::getCurrentSheet().flowDuration.getVal();
 	ax::NodeEditor::GetStyle().PivotAlignment = Stylesheet::getCurrentSheet().pivotAlignment;
 	ax::NodeEditor::GetStyle().PivotSize = Stylesheet::getCurrentSheet().pivotSize;
 	ax::NodeEditor::GetStyle().PivotScale = Stylesheet::getCurrentSheet().pivotScale;
-	ax::NodeEditor::GetStyle().PinRadius = Stylesheet::getCurrentSheet().pinRadius;
-	ax::NodeEditor::GetStyle().PinArrowSize = Stylesheet::getCurrentSheet().pinArrowSize;
-	ax::NodeEditor::GetStyle().PinArrowWidth = Stylesheet::getCurrentSheet().pinArrowWidth;
+	ax::NodeEditor::GetStyle().PinRadius = Stylesheet::getCurrentSheet().pinRadius.getVal();
+	ax::NodeEditor::GetStyle().PinArrowSize = Stylesheet::getCurrentSheet().pinArrowSize.getVal();
+	ax::NodeEditor::GetStyle().PinArrowWidth = Stylesheet::getCurrentSheet().pinArrowWidth.getVal();
 
 	ax::NodeEditor::GetStyle().Colors[ax::NodeEditor::StyleColor_Bg] =
 		Stylesheet::getCurrentSheet().nodeEditorBackgroundColor;

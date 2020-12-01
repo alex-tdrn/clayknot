@@ -14,29 +14,33 @@ private:
 	mutable bool extendedPreferred = false;
 
 protected:
-	std::string const resourceName;
 	std::string const title;
 	std::string const label;
+	std::string const resourceName;
 	std::optional<float> maximumWidth;
 
 public:
 	Widget() = delete;
 	explicit Widget(std::string resourceName)
-		: resourceName(std::move(resourceName)), title(resourceName + ":"), label("##" + resourceName)
+		: title(resourceName + ":"), label("##" + resourceName), resourceName(std::move(resourceName))
 	{
 	}
+	Widget(Widget const&) = delete;
+	Widget(Widget&&) = delete;
+	auto operator=(Widget const&) -> Widget& = delete;
+	auto operator=(Widget&&) -> Widget& = delete;
 	virtual ~Widget() = default;
 
 protected:
 	virtual void drawContents() const = 0;
 
-	float getLineWidth() const
+	static auto getLineWidth() -> float
 	{
 		return ImGui::GetContentRegionMax().x - ImGui::GetStyle().ScrollbarSize - ImGui::GetStyle().WindowPadding.x -
 			   ImGui::GetStyle().FramePadding.x;
 	}
 
-	bool isExtendedPreferred() const
+	auto isExtendedPreferred() const -> bool
 	{
 		extendedAvailable = true;
 		return extendedPreferred;
@@ -80,7 +84,7 @@ public:
 		maximumWidth.reset();
 	}
 
-	float getAvailableWidth() const
+	auto getAvailableWidth() const -> float
 	{
 		if(maximumWidth)
 			return maximumWidth.value();

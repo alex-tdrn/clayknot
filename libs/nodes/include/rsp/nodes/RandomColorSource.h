@@ -6,7 +6,6 @@
 
 #include <string>
 #include <unordered_set>
-#include <vector>
 
 namespace rsp::nodes
 {
@@ -25,7 +24,7 @@ private:
 	void update() override;
 
 public:
-	std::string const& getName() const override
+	auto getName() const -> std::string const& override
 	{
 		static std::string name = "Random Color Source";
 		return name;

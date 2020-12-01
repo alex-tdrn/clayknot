@@ -2,7 +2,7 @@
 
 namespace rsp::gui
 {
-inline int uniqueID()
+inline auto uniqueID() -> int
 {
 	static int lastID = 1;
 	return lastID++;

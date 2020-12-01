@@ -21,7 +21,7 @@ RootPanel::RootPanel()
 	customWindowSetup = true;
 }
 
-Panel* RootPanel::addChildImpl(std::unique_ptr<Panel>&& widget)
+auto RootPanel::addChildImpl(std::unique_ptr<Panel>&& widget) -> Panel*
 {
 	children.push_back(std::move(widget));
 	return children.back().get();

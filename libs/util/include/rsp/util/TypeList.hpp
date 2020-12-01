@@ -14,7 +14,7 @@ public:
 
 private:
 	template <typename F>
-	static void find_and_apply_impl(F&& functor)
+	static void find_and_apply_impl(F&& /*functor*/)
 	{
 	}
 
@@ -28,7 +28,7 @@ private:
 	}
 
 	template <typename F>
-	static void for_each_impl(F&& functor)
+	static void for_each_impl(F&& /*functor*/)
 	{
 	}
 

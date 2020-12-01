@@ -6,26 +6,26 @@
 #include <algorithm>
 #include <chrono>
 #include <imgui.h>
+#include <iterator>
 #include <string>
 
 namespace rsp::gui
 {
-Node::Node(rsp::Node* node) : node(node), id(uniqueID())
+Node::Node(rsp::Node* node) : id(uniqueID()), node(node)
 {
-	bool isSupportedFixedSource = false;
+	std::transform(node->getInputPorts().begin(), node->getInputPorts().end(), std::back_inserter(inputPorts),
+		[](auto inputPort) { return std::make_unique<InputPort>(inputPort); });
 
-	for(auto inputPort : node->getInputPorts())
-		inputPorts.push_back(std::make_unique<gui::InputPort>(inputPort));
-	for(auto outputPort : node->getOutputPorts())
-		outputPorts.push_back(std::make_unique<gui::OutputPort>(outputPort));
+	std::transform(node->getOutputPorts().begin(), node->getOutputPorts().end(), std::back_inserter(outputPorts),
+		[](auto outputPort) { return std::make_unique<OutputPort>(outputPort); });
 }
 
-bool Node::hasInputs() const
+auto Node::hasInputs() const -> bool
 {
 	return !inputPorts.empty();
 }
 
-bool Node::hasOutputs() const
+auto Node::hasOutputs() const -> bool
 {
 	return !outputPorts.empty();
 }
@@ -45,7 +45,7 @@ void Node::calculateLayout()
 		for(auto const& pin : dataPins)
 			pinGroupWidth = std::max(pinGroupWidth, pin->getSize().x);
 
-		if(dataPins.size() > 0)
+		if(!dataPins.empty())
 			contentsWidth += pinGroupWidth + itemSpacing * 2;
 		return pinGroupWidth;
 	};
@@ -85,13 +85,13 @@ void Node::drawTitle()
 	max.x += contentsWidth;
 	max.y += ImGui::GetTextLineHeight();
 	auto color = ImGui::GetColorU32(coreStyle.Colors[ImGuiCol_TitleBgActive]);
-	auto drawList = ax::NodeEditor::GetNodeBackgroundDrawList(id);
+	auto* drawList = ax::NodeEditor::GetNodeBackgroundDrawList(id);
 	drawList->AddRectFilled(min, max, color, nodeEditorStyle.NodeRounding, ImDrawCornerFlags_Top);
 
 	if(titleOffset > 0)
 		ImGui::Indent(titleOffset);
 
-	ImGui::Text(node->getName().c_str());
+	ImGui::Text("%s", node->getName().c_str());
 
 	if(titleOffset > 0)
 		ImGui::Unindent(titleOffset);
@@ -171,40 +171,26 @@ void Node::setOutputWidgetsVisibility(bool visibility)
 		port->setWidgetVisibility(visibility);
 }
 
-int Node::countVisibleInputWidgets() const
+auto Node::countVisibleInputWidgets() const -> int
 {
-	int visibleCount = 0;
-	for(auto& port : inputPorts)
-		if(port->isWidgetVisible())
-			visibleCount++;
-	return visibleCount;
+	return std::count_if(inputPorts.cbegin(), inputPorts.cend(), std::mem_fn(&rsp::gui::InputPort::isWidgetVisible));
 }
 
-int Node::countVisibleOutputWidgets() const
+auto Node::countVisibleOutputWidgets() const -> int
 {
-	int visibleCount = 0;
-	for(auto& port : outputPorts)
-		if(port->isWidgetVisible())
-			visibleCount++;
-	return visibleCount;
+	return std::count_if(outputPorts.cbegin(), outputPorts.cend(), std::mem_fn(&rsp::gui::OutputPort::isWidgetVisible));
 }
 
-int Node::countHiddenInputWidgets() const
+auto Node::countHiddenInputWidgets() const -> int
 {
-	int hiddenCount = 0;
-	for(auto& port : inputPorts)
-		if(!port->isWidgetVisible())
-			hiddenCount++;
-	return hiddenCount;
+	return std::count_if(
+		inputPorts.cbegin(), inputPorts.cend(), [](auto const& port) { return !port->isWidgetVisible(); });
 }
 
-int Node::countHiddenOutputWidgets() const
+auto Node::countHiddenOutputWidgets() const -> int
 {
-	int hiddenCount = 0;
-	for(auto& port : outputPorts)
-		if(!port->isWidgetVisible())
-			hiddenCount++;
-	return hiddenCount;
+	return std::count_if(
+		outputPorts.cbegin(), outputPorts.cend(), [](auto const& port) { return !port->isWidgetVisible(); });
 }
 
 void Node::draw()
@@ -219,8 +205,8 @@ void Node::draw()
 		ran = false;
 	}
 
-	nodeEditorStyle.NodeBorderWidth = borderWidth.get(Stylesheet::getCurrentSheet().nodeBorderWidth * 5,
-		Stylesheet::getCurrentSheet().nodeBorderWidth, 1s, AnimationCurve::linear);
+	nodeEditorStyle.NodeBorderWidth = borderWidth.get(Stylesheet::getCurrentSheet().nodeBorderWidth.getVal() * 5,
+		Stylesheet::getCurrentSheet().nodeBorderWidth.getVal(), 1s, AnimationCurve::linear);
 
 	ax::NodeEditor::BeginNode(id);
 

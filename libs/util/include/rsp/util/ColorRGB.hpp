@@ -23,7 +23,8 @@ public:
 	explicit ColorRGB(float r, float g, float b) : values(r, g, b)
 	{
 	}
-	explicit ColorRGB(int r, int g, int b) : values(r / 255.0f, g / 255.0f, b / 255.0f)
+	explicit ColorRGB(int r, int g, int b)
+		: values(static_cast<float>(r) / 255.0f, static_cast<float>(g) / 255.0f, static_cast<float>(b) / 255.0f)
 	{
 	}
 	ColorRGB(ColorRGB const&) = default;

@@ -67,13 +67,13 @@ public:
 	Bounded<float> flowDuration{1.0f, 0.0f, 10.0f};
 
 public:
-	Stylesheet(std::string name = "default") : name(name)
+	explicit Stylesheet(std::string name = "default") : name(std::move(name))
 	{
 	}
 	Stylesheet(Stylesheet&&) = default;
 	Stylesheet(Stylesheet const&) = default;
-	Stylesheet& operator=(Stylesheet&&) = default;
-	Stylesheet& operator=(Stylesheet const&) = default;
+	auto operator=(Stylesheet&&) -> Stylesheet& = default;
+	auto operator=(Stylesheet const&) -> Stylesheet& = default;
 	~Stylesheet() = default;
 
 public:
@@ -85,25 +85,25 @@ public:
 			setCurrentSheet(sheets.begin()->first);
 	}
 
-	static Stylesheet& getSheet(std::string name)
+	static auto getSheet(const std::string& name) -> Stylesheet&
 	{
 		assert(sheets.find(name) != sheets.end());
 		return *sheets[name];
 	}
 
-	static void setCurrentSheet(std::string name)
+	static void setCurrentSheet(const std::string& name)
 	{
 		currentSheetName = name;
 		currentSheet = &getSheet(name);
 	}
 
-	static Stylesheet& getCurrentSheet()
+	static auto getCurrentSheet() -> Stylesheet&
 	{
 		assert(currentSheet != nullptr);
 		return *currentSheet;
 	}
 
-	std::string getName() const
+	auto getName() const -> std::string
 	{
 		return name;
 	}

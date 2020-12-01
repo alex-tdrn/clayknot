@@ -24,36 +24,51 @@ struct TimeUnit
 	template <typename Representation, typename Period>
 	static auto extractMinutes(duration<Representation, Period> t) -> TimeUnit
 	{
-		const short range = 60;
-		return {"m", static_cast<short>(duration_cast<minutes>(t).count() % range), range};
+		auto unit = TimeUnit{};
+		unit.suffix = "m";
+		unit.range = 60;
+		unit.value = static_cast<short>(duration_cast<minutes>(t).count() % unit.range);
+		return unit;
 	}
 
 	template <typename Representation, typename Period>
 	static auto extractSeconds(duration<Representation, Period> t) -> TimeUnit
 	{
-		const short range = 60;
-		return {"s", static_cast<short>(duration_cast<seconds>(t).count() % range), range};
+		auto unit = TimeUnit{};
+		unit.suffix = "s";
+		unit.range = 60;
+		unit.value = static_cast<short>(duration_cast<seconds>(t).count() % unit.range);
+		return unit;
 	}
 
 	template <typename Representation, typename Period>
 	static auto extractMilliseconds(duration<Representation, Period> t) -> TimeUnit
 	{
-		const short range = 1'000;
-		return {"ms", static_cast<short>(duration_cast<milliseconds>(t).count() % range), range};
+		auto unit = TimeUnit{};
+		unit.suffix = "ms";
+		unit.range = 1'000;
+		unit.value = static_cast<short>(duration_cast<milliseconds>(t).count() % unit.range);
+		return unit;
 	}
 
 	template <typename Representation, typename Period>
 	static auto extractMicroseconds(duration<Representation, Period> t) -> TimeUnit
 	{
-		const short range = 1'000;
-		return {"us", static_cast<short>(duration_cast<microseconds>(t).count() % range), range};
+		auto unit = TimeUnit{};
+		unit.suffix = "us";
+		unit.range = 1'000;
+		unit.value = static_cast<short>(duration_cast<microseconds>(t).count() % unit.range);
+		return unit;
 	}
 
 	template <typename Representation, typename Period>
 	static auto extractNanoseconds(duration<Representation, Period> t) -> TimeUnit
 	{
-		const short range = 1'000;
-		return {"ns", static_cast<short>(duration_cast<nanoseconds>(t).count() % range), range};
+		auto unit = TimeUnit{};
+		unit.suffix = "ns";
+		unit.range = 1'000;
+		unit.value = static_cast<short>(duration_cast<nanoseconds>(t).count() % unit.range);
+		return unit;
 	}
 
 	template <typename Representation, typename Period>

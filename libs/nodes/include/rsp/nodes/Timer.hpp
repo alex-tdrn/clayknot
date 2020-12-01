@@ -6,7 +6,6 @@
 #include <chrono>
 #include <string>
 #include <unordered_set>
-#include <vector>
 
 namespace rsp::nodes
 {
@@ -27,7 +26,7 @@ public:
 	void update() override;
 
 public:
-	std::string const& getName() const override
+	auto getName() const -> std::string const& override
 	{
 		static std::string name = "Timer";
 		return name;

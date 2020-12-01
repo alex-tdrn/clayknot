@@ -18,10 +18,10 @@ private:
 	T const& resource;
 
 public:
-	explicit Viewer(T const& resource, std::string resourceName) : Widget(resourceName), resource(resource)
+	explicit Viewer(T const& resource, const std::string& resourceName) : Widget(resourceName), resource(resource)
 	{
 	}
-	~Viewer() = default;
+	~Viewer() final = default;
 
 public:
 	void drawContents() const override
@@ -176,7 +176,7 @@ inline void Viewer<std::chrono::nanoseconds>::drawContents() const
 	{
 		for(auto const& unit : timeUnits)
 		{
-			if(unit.value)
+			if(unit.value != 0)
 			{
 				ImGui::Text(("%i" + unit.suffix).c_str(), unit.value);
 				ImGui::SameLine();

@@ -12,16 +12,16 @@ namespace rsp::gui
 class StyleEditor final : public Panel
 {
 private:
-	Stylesheet* sheet;
+	Stylesheet* sheet = nullptr;
 	std::vector<std::unique_ptr<Widget>> styleWidgets;
 
 public:
 	StyleEditor();
 	StyleEditor(StyleEditor const&) = delete;
 	StyleEditor(StyleEditor&&) = default;
-	StyleEditor& operator=(StyleEditor const&) = delete;
-	StyleEditor& operator=(StyleEditor&&) = default;
-	~StyleEditor() = default;
+	auto operator=(StyleEditor const&) -> StyleEditor& = delete;
+	auto operator=(StyleEditor&&) -> StyleEditor& = delete;
+	~StyleEditor() final = default;
 
 private:
 	void setStylesheet(Stylesheet& sheet);

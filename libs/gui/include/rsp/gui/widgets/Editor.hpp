@@ -29,14 +29,19 @@ private:
 	std::optional<std::function<void(T const&)>> modifiedCallback;
 
 public:
-	explicit Editor(T& resource, std::string resourceName) : Widget(resourceName), resource(resource)
+	Editor() = delete;
+	explicit Editor(T& resource, const std::string& resourceName) : Widget(resourceName), resource(resource)
 	{
 	}
-	explicit Editor(impl::OwningTag tag, T ownedResource, std::string resourceName)
+	explicit Editor(impl::OwningTag /*tag*/, T ownedResource, const std::string& resourceName)
 		: Widget(resourceName), ownedResource(ownedResource), resource(this->ownedResource.value())
 	{
 	}
-	~Editor() = default;
+	Editor(Editor const&) = delete;
+	Editor(Editor&&) = delete;
+	auto operator=(Editor const&) -> Editor& = delete;
+	auto operator=(Editor&&) -> Editor& = delete;
+	~Editor() final = default;
 
 protected:
 	void resourceModified() const
@@ -62,13 +67,13 @@ using SupportedEditorTypes =
 		Bounded<glm::vec3>, Bounded<glm::vec4>, ColorRGB, ColorRGBA, std::chrono::nanoseconds>;
 
 template <typename T>
-inline std::unique_ptr<Widget> makeEditor(T& resource, std::string resourceName)
+inline auto makeEditor(T& resource, std::string resourceName) -> std::unique_ptr<Widget>
 {
 	return std::make_unique<Editor<T>>(resource, std::move(resourceName));
 }
 
 template <typename T, typename F>
-inline std::unique_ptr<Widget> makeEditor(T& resource, std::string resourceName, F&& modifiedCallback)
+inline auto makeEditor(T& resource, std::string resourceName, F&& modifiedCallback) -> std::unique_ptr<Widget>
 {
 	auto editor = std::make_unique<Editor<T>>(resource, std::move(resourceName));
 	editor->setModifiedCallback(std::forward<F>(modifiedCallback));
@@ -76,7 +81,8 @@ inline std::unique_ptr<Widget> makeEditor(T& resource, std::string resourceName,
 }
 
 template <typename T, typename F>
-inline std::unique_ptr<Widget> makeOwningEditor(T initialResourceValue, std::string resourceName, F&& modifiedCallback)
+inline auto makeOwningEditor(T initialResourceValue, std::string resourceName, F&& modifiedCallback)
+	-> std::unique_ptr<Widget>
 {
 	auto editor = std::make_unique<Editor<T>>(impl::OwningTag{}, initialResourceValue, std::move(resourceName));
 	editor->setModifiedCallback(std::forward<F>(modifiedCallback));
@@ -417,7 +423,7 @@ inline void Editor<std::chrono::nanoseconds>::drawContents() const
 			if(ImGui::DragInt(label.c_str(), &v, 0.1f, 0, 0, ("%i " + unit.suffix).c_str()))
 				resourceModified();
 			ImGui::PopID();
-			unit.value = v;
+			unit.value = static_cast<short>(v);
 			if(++ct % 2 != 0)
 				ImGui::SameLine();
 		}
@@ -426,11 +432,11 @@ inline void Editor<std::chrono::nanoseconds>::drawContents() const
 	}
 	else
 	{
-		const int maxUnitsToDraw = 2;
+		const std::size_t maxUnitsToDraw = 2;
 		ImGui::PushItemWidth(getAvailableWidth() / 2.0f);
-		for(int i = 0; i < timeUnits.size(); i++)
+		for(std::size_t i = 0; i < timeUnits.size(); i++)
 		{
-			if(timeUnits[i].value || timeUnits.size() - i == maxUnitsToDraw)
+			if((timeUnits[i].value != 0) || timeUnits.size() - i == maxUnitsToDraw)
 			{
 				for(int j = i; j < timeUnits.size() && j - i < maxUnitsToDraw; j++)
 				{
@@ -439,7 +445,7 @@ inline void Editor<std::chrono::nanoseconds>::drawContents() const
 					if(ImGui::DragInt(label.c_str(), &v, 0.1f, 0, 0, ("%i " + timeUnits[j].suffix).c_str()))
 						resourceModified();
 					ImGui::PopID();
-					timeUnits[j].value = v;
+					timeUnits[j].value = static_cast<short>(v);
 					ImGui::SameLine();
 				}
 				break;
