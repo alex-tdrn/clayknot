@@ -18,13 +18,12 @@ public:
 	auto operator=(OutputPort const&) -> OutputPort& = delete;
 	~OutputPort() override = default;
 
+	auto canConnect(AbstractPort const* inputPort) const -> bool final;
+	void connect(AbstractPort* inputPort) final;
+
 private:
 	auto calculateAnchorPosition() const -> ImVec2 override;
 	void drawContents() override;
-
-public:
-	auto canConnect(AbstractPort const* inputPort) const -> bool final;
-	void connect(AbstractPort* inputPort) final;
 };
 
 } // namespace rsp::gui

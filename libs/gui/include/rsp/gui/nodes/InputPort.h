@@ -12,10 +12,6 @@ class OutputPort;
 
 class InputPort : public AbstractPort
 {
-private:
-	OutputPort* connection = nullptr;
-	ax::NodeEditor::LinkId linkID = -1;
-
 public:
 	InputPort() = default;
 	explicit InputPort(rsp::Port* port);
@@ -25,15 +21,17 @@ public:
 	auto operator=(InputPort const&) -> InputPort& = delete;
 	~InputPort() override = default;
 
-private:
-	auto calculateAnchorPosition() const -> ImVec2 override;
-	void generateViewer();
-	void drawContents() override;
-
-public:
 	void drawLink();
 	auto canConnect(AbstractPort const* outputPort) const -> bool final;
 	void connect(AbstractPort* outputPort) final;
+
+private:
+	OutputPort* connection = nullptr;
+	ax::NodeEditor::LinkId linkID = -1;
+
+	auto calculateAnchorPosition() const -> ImVec2 override;
+	void generateViewer();
+	void drawContents() override;
 };
 
 } // namespace rsp::gui

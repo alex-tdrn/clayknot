@@ -4,7 +4,6 @@
 #include "rsp/gui/panels/RootPanel.h"
 #include "rsp/gui/panels/StyleEditor.h"
 #include "rsp/nodes/RandomColorSource.h"
-#include "rsp/nodes/Timer.hpp"
 
 #include <glad/glad.h>
 
@@ -71,10 +70,8 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 		std::vector<std::unique_ptr<rsp::Node>> nodes;
 
 		auto source = std::make_unique<rsp::nodes::RandomColorSource>();
-		auto timer = std::make_unique<rsp::nodes::Timer>();
 
 		nodes.push_back(std::move(source));
-		nodes.push_back(std::move(timer));
 
 		rsp::gui::Stylesheet::addSheet(std::make_unique<rsp::gui::Stylesheet>());
 

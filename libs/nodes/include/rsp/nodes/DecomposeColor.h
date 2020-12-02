@@ -11,30 +11,17 @@ namespace rsp::nodes
 {
 class DecomposeColor final : public Node
 {
+public:
+	DecomposeColor();
+	auto getName() const -> std::string const& override;
+
 private:
 	InputPort<ColorRGB> color{"Color"};
 	OutputPort<float> redComponent{"R"};
 	OutputPort<float> greenComponent{"R"};
 	OutputPort<float> blueComponent{"B"};
 
-public:
-	DecomposeColor()
-	{
-		registerPort(color);
-		registerPort(redComponent);
-		registerPort(greenComponent);
-		registerPort(blueComponent);
-	}
-
-protected:
 	void update() override;
-
-public:
-	auto getName() const -> std::string const& override
-	{
-		static std::string name = "Decompose Colors";
-		return name;
-	}
 };
 
 } // namespace rsp::nodes

@@ -8,12 +8,10 @@ add_library(
 	"include/rsp/nodes/MixColors.h"
 	"src/RandomColorSource.cpp"
 	"include/rsp/nodes/RandomColorSource.h"
-	"src/Timer.cpp"
-	"include/rsp/nodes/Timer.hpp"
 	"src/ValueToColor.cpp"
 	"include/rsp/nodes/ValueToColor.h"
 )
 
-target_include_directories(rendershop-nodes PUBLIC "include" "../../external/glm/include")
+target_include_directories(rendershop-nodes PUBLIC "include")
 
-target_link_libraries(rendershop-nodes PRIVATE rendershop-base)
+target_link_libraries(rendershop-nodes PRIVATE rendershop-base glm::glm)

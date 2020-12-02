@@ -11,10 +11,6 @@ namespace rsp::gui
 {
 class StyleEditor final : public Panel
 {
-private:
-	Stylesheet* sheet = nullptr;
-	std::vector<std::unique_ptr<Widget>> styleWidgets;
-
 public:
 	StyleEditor();
 	StyleEditor(StyleEditor const&) = delete;
@@ -24,6 +20,9 @@ public:
 	~StyleEditor() final = default;
 
 private:
+	Stylesheet* sheet = nullptr;
+	std::vector<std::unique_ptr<Widget>> styleWidgets;
+
 	void setStylesheet(Stylesheet& sheet);
 	void drawContents() override;
 };

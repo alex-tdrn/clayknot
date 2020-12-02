@@ -23,43 +23,25 @@ struct OwningTag
 template <typename T>
 class Editor final : public Widget
 {
-private:
-	T& resource;
-	std::optional<T> ownedResource;
-	std::optional<std::function<void(T const&)>> modifiedCallback;
-
 public:
 	Editor() = delete;
-	explicit Editor(T& resource, const std::string& resourceName) : Widget(resourceName), resource(resource)
-	{
-	}
-	explicit Editor(impl::OwningTag /*tag*/, T ownedResource, const std::string& resourceName)
-		: Widget(resourceName), ownedResource(ownedResource), resource(this->ownedResource.value())
-	{
-	}
+	explicit Editor(T& resource, const std::string& resourceName);
+	explicit Editor(impl::OwningTag /*tag*/, T ownedResource, const std::string& resourceName);
 	Editor(Editor const&) = delete;
 	Editor(Editor&&) = delete;
 	auto operator=(Editor const&) -> Editor& = delete;
 	auto operator=(Editor&&) -> Editor& = delete;
 	~Editor() final = default;
 
-protected:
-	void resourceModified() const
-	{
-		if(modifiedCallback)
-			(*modifiedCallback)(resource);
-	}
+	void setModifiedCallback(std::optional<std::function<void(T const&)>> callback);
+	void drawContents() const override;
 
-public:
-	void setModifiedCallback(std::optional<std::function<void(T const&)>> callback)
-	{
-		modifiedCallback = callback;
-	}
+private:
+	T& resource;
+	std::optional<T> ownedResource;
+	std::optional<std::function<void(T const&)>> modifiedCallback;
 
-	void drawContents() const override
-	{
-		// static_assert(false, "Not Implemented");
-	}
+	void resourceModified() const;
 };
 
 using SupportedEditorTypes =
@@ -87,6 +69,36 @@ inline auto makeOwningEditor(T initialResourceValue, std::string resourceName, F
 	auto editor = std::make_unique<Editor<T>>(impl::OwningTag{}, initialResourceValue, std::move(resourceName));
 	editor->setModifiedCallback(std::forward<F>(modifiedCallback));
 	return editor;
+}
+
+template <typename T>
+Editor<T>::Editor(T& resource, const std::string& resourceName) : Widget(resourceName), resource(resource)
+{
+}
+
+template <typename T>
+Editor<T>::Editor(impl::OwningTag /*tag*/, T ownedResource, const std::string& resourceName)
+	: Widget(resourceName), ownedResource(ownedResource), resource(this->ownedResource.value())
+{
+}
+
+template <typename T>
+void Editor<T>::setModifiedCallback(std::optional<std::function<void(T const&)>> callback)
+{
+	modifiedCallback = callback;
+}
+
+template <typename T>
+void Editor<T>::drawContents() const
+{
+	// static_assert(false, "Not Implemented");
+}
+
+template <typename T>
+void Editor<T>::resourceModified() const
+{
+	if(modifiedCallback)
+		(*modifiedCallback)(resource);
 }
 
 template <>

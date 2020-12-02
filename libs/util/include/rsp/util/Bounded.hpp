@@ -10,103 +10,62 @@ namespace rsp
 template <typename T>
 class Bounded
 {
-private:
-	T val;
-	T min;
-	T max;
-
 public:
 	Bounded() = default;
-	explicit Bounded(T val, T min, T max) : val(val), min(min), max(max)
-	{
-		assert(valid());
-	}
+	explicit Bounded(T val, T min, T max);
 	Bounded(Bounded const&) = default;
 	Bounded(Bounded&&) noexcept = default;
 	auto operator=(Bounded const& that) -> Bounded& = default;
 	auto operator=(Bounded&& that) noexcept -> Bounded& = default;
-	auto operator=(T const& that) -> Bounded&
-	{
-		val = that;
-		assert(valid());
-	}
-	auto operator=(T&& that) -> Bounded&
-	{
-		val = std::move(that);
-		assert(valid());
-	}
+	auto operator=(T const& that) -> Bounded&;
+	auto operator=(T&& that) -> Bounded&;
 	~Bounded() = default;
 
-	auto valid() -> bool
-	{
-		return min <= max && val >= min && val <= max;
-	}
+	auto valid() -> bool;
+	void setMin(T min);
+	void setMax(T max);
+	auto getMin() const -> T;
+	auto getMax() const -> T;
+	auto getVal() const -> T;
+	auto data() -> T*;
+	explicit operator T() const;
+	auto operator+=(T const& that) -> Bounded&;
+	auto operator-=(T const& that) -> Bounded&;
+	auto operator*=(T const& that) -> Bounded&;
+	auto operator/=(T const& that) -> Bounded&;
 
-	void setMin(T min)
-	{
-		this->min = min;
-		assert(valid());
-	}
-
-	void setMax(T max)
-	{
-		this->max = max;
-		assert(valid());
-	}
-
-	auto getMin() const -> T
-	{
-		return min;
-	}
-
-	auto getMax() const -> T
-	{
-		return max;
-	}
-
-	auto getVal() const -> T
-	{
-		return val;
-	}
-
-	auto data() -> T*
-	{
-		return &val;
-	}
-
-	explicit operator T() const
-	{
-		return val;
-	}
-
-	auto operator+=(T const& that) -> Bounded&
-	{
-		this->value += that;
-		assert(valid());
-		return *this;
-	}
-
-	auto operator-=(T const& that) -> Bounded&
-	{
-		this->value -= that;
-		assert(valid());
-		return *this;
-	}
-
-	auto operator*=(T const& that) -> Bounded&
-	{
-		this->value *= that;
-		assert(valid());
-		return *this;
-	}
-
-	auto operator/=(T const& that) -> Bounded&
-	{
-		this->value /= that;
-		assert(valid());
-		return *this;
-	}
+private:
+	T val;
+	T min;
+	T max;
 };
+
+template <typename T>
+Bounded<T>::Bounded(T val, T min, T max) : val(val), min(min), max(max)
+{
+	assert(valid());
+}
+
+template <typename T>
+auto Bounded<T>::operator=(T const& that) -> Bounded&
+{
+	val = that;
+	assert(valid());
+}
+
+template <typename T>
+auto Bounded<T>::operator=(T&& that) -> Bounded&
+{
+	val = std::move(that);
+	assert(valid());
+}
+
+template <typename T>
+auto Bounded<T>::valid() -> bool
+{
+	return min <= max && val >= min && val <= max;
+}
+
 template <>
 inline auto Bounded<glm::vec2>::valid() -> bool
 {
@@ -138,6 +97,82 @@ inline auto Bounded<glm::vec4>::valid() -> bool
 			return false;
 	}
 	return true;
+}
+
+template <typename T>
+void Bounded<T>::setMin(T min)
+{
+	this->min = min;
+	assert(valid());
+}
+
+template <typename T>
+void Bounded<T>::setMax(T max)
+{
+	this->max = max;
+	assert(valid());
+}
+
+template <typename T>
+auto Bounded<T>::getMin() const -> T
+{
+	return min;
+}
+
+template <typename T>
+auto Bounded<T>::getMax() const -> T
+{
+	return max;
+}
+
+template <typename T>
+auto Bounded<T>::getVal() const -> T
+{
+	return val;
+}
+
+template <typename T>
+auto Bounded<T>::data() -> T*
+{
+	return &val;
+}
+
+template <typename T>
+Bounded<T>::operator T() const
+{
+	return val;
+}
+
+template <typename T>
+auto Bounded<T>::operator+=(T const& that) -> Bounded&
+{
+	this->value += that;
+	assert(valid());
+	return *this;
+}
+
+template <typename T>
+auto Bounded<T>::operator-=(T const& that) -> Bounded&
+{
+	this->value -= that;
+	assert(valid());
+	return *this;
+}
+
+template <typename T>
+auto Bounded<T>::operator*=(T const& that) -> Bounded&
+{
+	this->value *= that;
+	assert(valid());
+	return *this;
+}
+
+template <typename T>
+auto Bounded<T>::operator/=(T const& that) -> Bounded&
+{
+	this->value /= that;
+	assert(valid());
+	return *this;
 }
 
 template <typename DataType>

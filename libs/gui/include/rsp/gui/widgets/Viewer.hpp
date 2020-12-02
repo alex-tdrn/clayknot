@@ -14,20 +14,19 @@ namespace rsp::gui
 template <typename T>
 class Viewer final : public Widget
 {
-private:
-	T const& resource;
-
 public:
-	explicit Viewer(T const& resource, const std::string& resourceName) : Widget(resourceName), resource(resource)
-	{
-	}
+	Viewer() = delete;
+	explicit Viewer(T const& resource, const std::string& resourceName);
+	Viewer(Viewer const&) = delete;
+	Viewer(Viewer&&) = delete;
+	auto operator=(Viewer const&) -> Viewer& = delete;
+	auto operator=(Viewer&&) -> Viewer& = delete;
 	~Viewer() final = default;
 
-public:
-	void drawContents() const override
-	{
-		// static_assert(false, "Not Implemented");
-	}
+	void drawContents() const override;
+
+private:
+	T const& resource;
 };
 
 using SupportedViewerTypes =
@@ -38,6 +37,17 @@ template <typename T>
 inline auto makeViewer(T const& resource, std::string resourceName) -> std::unique_ptr<Widget>
 {
 	return std::make_unique<Viewer<T>>(resource, std::move(resourceName));
+}
+
+template <typename T>
+Viewer<T>::Viewer(T const& resource, const std::string& resourceName) : Widget(resourceName), resource(resource)
+{
+}
+
+template <typename T>
+void Viewer<T>::drawContents() const
+{
+	// static_assert(false, "Not Implemented");
 }
 
 template <>

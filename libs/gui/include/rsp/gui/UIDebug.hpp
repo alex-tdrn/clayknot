@@ -4,9 +4,9 @@
 
 namespace rsp::gui::debug
 {
-static inline void drawItemRect(ImDrawList* drawList, ImVec4 color = {1, 0, 1, 1})
+inline void drawItemRect(ImDrawList* drawList, ImVec4 color = {1, 0, 1, 1})
 {
-#ifdef DEBUG
+#ifndef NDEBUG
 	auto min = ImGui::GetItemRectMin();
 	auto max = ImGui::GetItemRectMax();
 
@@ -20,9 +20,9 @@ static inline void drawItemRect(ImDrawList* drawList, ImVec4 color = {1, 0, 1, 1
 #endif
 }
 
-static inline void drawSpacingRect(ImDrawList* drawList, ImVec4 color = {1, 1, 0, 1})
+inline void drawSpacingRect(ImDrawList* drawList, ImVec4 color = {1, 1, 0, 1})
 {
-#ifdef DEBUG
+#ifndef NDEBUG
 	auto cursor = ImGui::GetCursorPos();
 	drawList->AddRect(
 		{
@@ -33,17 +33,17 @@ static inline void drawSpacingRect(ImDrawList* drawList, ImVec4 color = {1, 1, 0
 #endif
 }
 
-static inline void drawRect(ImDrawList* drawList, ImVec2 start, float w, ImVec4 color = {0, 1, 1, 1})
+inline void drawRect(ImDrawList* drawList, ImVec2 start, float w, ImVec4 color = {0, 1, 1, 1})
 {
-#ifdef DEBUG
+#ifndef NDEBUG
 	drawList->AddRect(start, {start.x + w, start.y + ImGui::GetTextLineHeight() + ImGui::GetStyle().ItemSpacing.y},
 		ImGui::GetColorU32(color));
 #endif
 }
 
-static inline void drawRect(ImDrawList* drawList, ImVec2 start, float w, float h, ImVec4 color = {0, 1, 1, 1})
+inline void drawRect(ImDrawList* drawList, ImVec2 start, float w, float h, ImVec4 color = {0, 1, 1, 1})
 {
-#ifdef DEBUG
+#ifndef NDEBUG
 	drawList->AddRect(start, {start.x + w, start.y + h}, ImGui::GetColorU32(color));
 #endif
 }

@@ -14,6 +14,24 @@ namespace rsp::gui
 {
 class Node
 {
+public:
+	Node() = default;
+	explicit Node(rsp::Node* node);
+	Node(Node&&) = default;
+	Node(Node const&) = delete;
+	auto operator=(Node&&) -> Node& = default;
+	auto operator=(Node const&) -> Node& = delete;
+	~Node() = default;
+
+	void setInputWidgetsVisibility(bool visibility);
+	void setOutputWidgetsVisibility(bool visibility);
+	auto countVisibleInputWidgets() const -> int;
+	auto countVisibleOutputWidgets() const -> int;
+	auto countHiddenInputWidgets() const -> int;
+	auto countHiddenOutputWidgets() const -> int;
+	void draw();
+	void drawInputLinks();
+
 private:
 	bool layoutInitialized = false;
 	float outputsWidth = 0;
@@ -28,16 +46,6 @@ private:
 	Animation<float> borderWidth;
 	glm::vec2 size{0, 0};
 
-public:
-	Node() = default;
-	explicit Node(rsp::Node* node);
-	Node(Node&&) = default;
-	Node(Node const&) = delete;
-	auto operator=(Node&&) -> Node& = default;
-	auto operator=(Node const&) -> Node& = delete;
-	~Node() = default;
-
-private:
 	auto hasInputs() const -> bool;
 	auto hasOutputs() const -> bool;
 	void calculateLayout();
@@ -47,16 +55,6 @@ private:
 	void toggleInputWidgets();
 	void toggleOutputWidgets();
 	void toggleAllWidgets();
-
-public:
-	void setInputWidgetsVisibility(bool visibility);
-	void setOutputWidgetsVisibility(bool visibility);
-	auto countVisibleInputWidgets() const -> int;
-	auto countVisibleOutputWidgets() const -> int;
-	auto countHiddenInputWidgets() const -> int;
-	auto countHiddenOutputWidgets() const -> int;
-	void draw();
-	void drawInputLinks();
 };
 
 } // namespace rsp::gui

@@ -12,6 +12,18 @@ public:
 	using get = std::tuple_element_t<Index, std::tuple<Types...>>;
 	static constexpr std::size_t size = sizeof...(Types);
 
+	template <typename F>
+	static void find_and_apply(F&& functor)
+	{
+		find_and_apply_impl<F, Types...>(std::forward<F>(functor));
+	}
+
+	template <typename F>
+	static void for_each(F&& functor)
+	{
+		for_each_impl<F, Types...>(std::forward<F>(functor));
+	}
+
 private:
 	template <typename F>
 	static void find_and_apply_impl(F&& /*functor*/)
@@ -38,19 +50,6 @@ private:
 		Head* hack{nullptr};
 		functor(hack);
 		for_each_impl<F, Tail...>(std::forward<F>(functor));
-	}
-
-public:
-	template <typename F>
-	static void find_and_apply(F&& functor)
-	{
-		find_and_apply_impl<F, Types...>(std::forward<F>(functor));
-	}
-
-	template <typename F>
-	static void for_each(F&& functor)
-	{
-		for_each_impl<F, Types...>(std::forward<F>(functor));
 	}
 };
 

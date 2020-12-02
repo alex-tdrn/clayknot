@@ -7,7 +7,6 @@ target_sources(
 				"include/rsp/util/ColorRGBA.hpp"
 				"include/rsp/util/DataTypeName.hpp"
 				"include/rsp/util/Meta.hpp"
-				"include/rsp/util/Observable.hpp"
 				"include/rsp/util/Timestamp.hpp"
 				"include/rsp/util/TimeUnit.hpp"
 				"include/rsp/util/TypeList.hpp"
