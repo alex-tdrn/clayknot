@@ -34,9 +34,9 @@ protected:
 	Node() = default;
 
 	template <typename T>
-	void registerPort(rsp::InputPort<T>& port);
+	void registerPort(rsp::InputPortOf<T>& port);
 	template <typename T>
-	void registerPort(rsp::OutputPort<T>& port);
+	void registerPort(rsp::OutputPortOf<T>& port);
 	virtual void update() = 0;
 
 private:
@@ -48,6 +48,24 @@ private:
 	auto updatePossible() const -> bool;
 	auto updateNeeded() const -> bool;
 };
+
+template <typename T>
+void Node::registerPort(rsp::InputPortOf<T>& port)
+{
+	if(std::find(inputPorts.begin(), inputPorts.end(), &port) != inputPorts.end())
+		return;
+	port.setPushCallback([&](auto sentinel) { this->push(sentinel); });
+	inputPorts.push_back(&port);
+}
+
+template <typename T>
+void Node::registerPort(rsp::OutputPortOf<T>& port)
+{
+	if(std::find(outputPorts.begin(), outputPorts.end(), &port) != outputPorts.end())
+		return;
+	port.setPullCallback([&](auto sentinel) { this->pull(sentinel); });
+	outputPorts.push_back(&port);
+}
 
 inline auto Node::getInputPorts() const noexcept -> std::vector<rsp::Port*> const&
 {
@@ -118,24 +136,6 @@ inline void Node::push(std::weak_ptr<rsp::Sentinel> const& sentinel)
 
 	for(auto* port : outputPorts)
 		port->push(this->sentinel);
-}
-
-template <typename T>
-void Node::registerPort(rsp::InputPort<T>& port)
-{
-	if(std::find(inputPorts.begin(), inputPorts.end(), &port) != inputPorts.end())
-		return;
-	port.setPushCallback([&](auto sentinel) { this->push(sentinel); });
-	inputPorts.push_back(&port);
-}
-
-template <typename T>
-void Node::registerPort(rsp::OutputPort<T>& port)
-{
-	if(std::find(outputPorts.begin(), outputPorts.end(), &port) != outputPorts.end())
-		return;
-	port.setPullCallback([&](auto sentinel) { this->pull(sentinel); });
-	outputPorts.push_back(&port);
 }
 
 inline auto Node::sentinelPresent() const -> bool

@@ -16,8 +16,8 @@ public:
 	auto getName() const -> std::string const& override;
 
 private:
-	InputPort<ColorRGB> inputColor{"Color"};
-	OutputPort<ColorRGB> outputColor{"Color"};
+	InputPortOf<ColorRGB> inputColor{"Color"};
+	OutputPortOf<ColorRGB> outputColor{"Color"};
 
 	void update() override;
 };

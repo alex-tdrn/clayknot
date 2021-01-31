@@ -17,8 +17,8 @@ public:
 	auto getName() const -> std::string const& override;
 
 private:
-	InputPort<float> value{"Value"};
-	OutputPort<ColorRGB> color{"Color"};
+	InputPortOf<float> value{"Value"};
+	OutputPortOf<ColorRGB> color{"Color"};
 
 	void update() override;
 };

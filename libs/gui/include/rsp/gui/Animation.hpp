@@ -77,7 +77,7 @@ auto Animation<T>::linear(T const& startValue, T const& endValue, float p) -> T
 template <typename T>
 auto Animation<T>::spring(T const& startValue, T const& endValue, float p) -> T
 {
-	float f = std::sinf(p * 10 * 3.141f) / (p + 1);
+	float f = std::sin(p * 10 * 3.141f) / (p + 1);
 	T difference = endValue - startValue;
 	return endValue - f * difference;
 }

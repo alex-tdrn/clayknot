@@ -1,5 +1,4 @@
 #include "rsp/base/Node.hpp"
-#include "rsp/base/Port.hpp"
 
 #include <catch2/catch.hpp>
 #include <chrono>
@@ -15,8 +14,8 @@ TEST_CASE("New node types can be implemented by inheriting from rsp::Node", "[no
 	class TestNode final : public rsp::Node
 	{
 	private:
-		rsp::InputPort<int> input0{"I_0"};
-		rsp::OutputPort<int> output0{"O_0"};
+		rsp::InputPortOf<int> input0{"I_0"};
+		rsp::OutputPortOf<int> output0{"O_0"};
 		unsigned int ctUpdateCalled = 0;
 
 	public:

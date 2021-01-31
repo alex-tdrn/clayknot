@@ -17,10 +17,10 @@ public:
 	auto getName() const -> std::string const& override;
 
 private:
-	InputPort<float> factor{"Factor"};
-	InputPort<ColorRGB> colorA{"Color A"};
-	InputPort<ColorRGB> colorB{"Color B"};
-	OutputPort<ColorRGB> mixedColor{"Mixed Color"};
+	InputPortOf<float> factor{"Factor"};
+	InputPortOf<ColorRGB> colorA{"Color A"};
+	InputPortOf<ColorRGB> colorB{"Color B"};
+	OutputPortOf<ColorRGB> mixedColor{"Mixed Color"};
 
 	void update() override;
 };

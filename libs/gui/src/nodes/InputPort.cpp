@@ -45,7 +45,7 @@ void InputPort::generateViewer()
 	widget.reset();
 	SupportedViewerTypes::find_and_apply([&](auto* t) {
 		using ResourceType = std::remove_reference_t<decltype(*t)>;
-		auto concretePort = dynamic_cast<rsp::InputPort<ResourceType> const*>(port);
+		auto concretePort = dynamic_cast<rsp::InputPortOf<ResourceType> const*>(port);
 		if(!concretePort)
 			return false;
 		widget = makeViewer(*concretePort, port->getName());

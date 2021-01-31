@@ -14,4 +14,4 @@ add_library(
 
 target_include_directories(rendershop-nodes PUBLIC "include")
 
-target_link_libraries(rendershop-nodes PRIVATE rendershop-base glm::glm)
+target_link_libraries(rendershop-nodes PUBLIC rendershop-base glm::glm)
