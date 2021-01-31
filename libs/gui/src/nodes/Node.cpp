@@ -53,18 +53,18 @@ void Node::calculateLayout()
 	measurePinGroup(inputPorts);
 	outputsWidth = measurePinGroup(outputPorts);
 
-	float const titleWidth = ImGui::CalcTextSize(node->getName().c_str()).x;
+	// //float const titleWidth = ImGui::CalcTextSize(node->getName().c_str()).x;
 
-	if(titleWidth > contentsWidth + minimumCenterSpacing)
-	{
-		centerSpacing = titleWidth - contentsWidth;
-	}
-	else
-	{
-		centerSpacing = minimumCenterSpacing;
-		titleOffset = (contentsWidth + centerSpacing - titleWidth) / 2;
-	}
-	contentsWidth += centerSpacing;
+	// if(titleWidth > contentsWidth + minimumCenterSpacing)
+	// {
+	// 	centerSpacing = titleWidth - contentsWidth;
+	// }
+	// else
+	// {
+	// 	centerSpacing = minimumCenterSpacing;
+	// 	titleOffset = (contentsWidth + centerSpacing - titleWidth) / 2;
+	// }
+	// contentsWidth += centerSpacing;
 
 	layoutInitialized = true;
 }
@@ -91,7 +91,7 @@ void Node::drawTitle()
 	if(titleOffset > 0)
 		ImGui::Indent(titleOffset);
 
-	ImGui::Text("%s", node->getName().c_str());
+	// ImGui::Text("%s", node->getName().c_str());
 
 	if(titleOffset > 0)
 		ImGui::Unindent(titleOffset);

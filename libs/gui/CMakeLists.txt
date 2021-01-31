@@ -28,4 +28,4 @@ target_include_directories(rendershop-gui PUBLIC "include")
 
 target_compile_definitions(rendershop-gui PUBLIC IMGUI_ADD_VECTOR_CONVERSIONS)
 
-target_link_libraries(rendershop-gui PUBLIC rendershop-base rendershop-nodes imgui imgui-node-editor)
+target_link_libraries(rendershop-gui PUBLIC rendershop-base rendershop-algorithms imgui imgui-node-editor)

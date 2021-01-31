@@ -1,5 +1,6 @@
 #pragma once
 
+#include "rsp/base/Algorithm.hpp"
 #include "rsp/base/Port.hpp"
 #include "rsp/base/Sentinel.hpp"
 
@@ -12,36 +13,25 @@
 
 namespace rsp
 {
-// TODO move update() to separate Algorithm class contained in the node.
 class Node
 {
 public:
+	Node() = default;
+	explicit Node(std::unique_ptr<rsp::Algorithm>&& algorithm);
 	Node(Node&&) = delete;
 	Node(Node const&) = delete;
 	auto operator=(Node const&) -> Node& = delete;
 	auto operator=(Node&&) -> Node& = delete;
-	virtual ~Node() = default;
+	~Node() = default;
 
-	auto getInputPorts() const noexcept -> std::vector<rsp::Port*> const&;
-	auto getOutputPorts() const noexcept -> std::vector<rsp::Port*> const&;
-	auto getInputPort(std::size_t index) const noexcept -> rsp::Port&;
-	auto getOutputPort(std::size_t index) const noexcept -> rsp::Port&;
+	void setAlgorithm(std::unique_ptr<rsp::Algorithm>&& algorithm);
+	auto getInputPorts() const -> std::vector<rsp::InputPort*> const&;
+	auto getOutputPorts() const -> std::vector<rsp::OutputPort*> const&;
 	void pull(std::weak_ptr<rsp::Sentinel> const& sentinel = {});
 	void push(std::weak_ptr<rsp::Sentinel> const& sentinel = {});
-	virtual auto getName() const -> std::string const& = 0;
-
-protected:
-	Node() = default;
-
-	template <typename T>
-	void registerPort(rsp::InputPortOf<T>& port);
-	template <typename T>
-	void registerPort(rsp::OutputPortOf<T>& port);
-	virtual void update() = 0;
 
 private:
-	std::vector<rsp::Port*> inputPorts;
-	std::vector<rsp::Port*> outputPorts;
+	std::unique_ptr<rsp::Algorithm> algorithm;
 	std::weak_ptr<rsp::Sentinel> sentinel;
 
 	auto sentinelPresent() const -> bool;
@@ -49,44 +39,32 @@ private:
 	auto updateNeeded() const -> bool;
 };
 
-template <typename T>
-void Node::registerPort(rsp::InputPortOf<T>& port)
+inline Node::Node(std::unique_ptr<rsp::Algorithm>&& algorithm)
 {
-	if(std::find(inputPorts.begin(), inputPorts.end(), &port) != inputPorts.end())
-		return;
-	port.setPushCallback([&](auto sentinel) { this->push(sentinel); });
-	inputPorts.push_back(&port);
+	setAlgorithm(std::move(algorithm));
 }
 
-template <typename T>
-void Node::registerPort(rsp::OutputPortOf<T>& port)
+inline void Node::setAlgorithm(std::unique_ptr<rsp::Algorithm>&& algorithm)
 {
-	if(std::find(outputPorts.begin(), outputPorts.end(), &port) != outputPorts.end())
-		return;
-	port.setPullCallback([&](auto sentinel) { this->pull(sentinel); });
-	outputPorts.push_back(&port);
+	this->algorithm = std::move(algorithm);
+	for(auto* port : this->algorithm->getInputPorts())
+		port->setPushCallback([&](auto sentinel) { this->push(sentinel); });
+	for(auto* port : this->algorithm->getOutputPorts())
+		port->setPullCallback([&](auto sentinel) { this->pull(sentinel); });
 }
 
-inline auto Node::getInputPorts() const noexcept -> std::vector<rsp::Port*> const&
+inline auto Node::getInputPorts() const -> std::vector<rsp::InputPort*> const&
 {
-	return inputPorts;
+	if(algorithm == nullptr)
+		throw std::exception("No algorithm set!");
+	return algorithm->getInputPorts();
 }
 
-inline auto Node::getOutputPorts() const noexcept -> std::vector<rsp::Port*> const&
+inline auto Node::getOutputPorts() const -> std::vector<rsp::OutputPort*> const&
 {
-	return outputPorts;
-}
-
-inline auto Node::getInputPort(std::size_t index) const noexcept -> rsp::Port&
-{
-	assert(index < inputPorts.size());
-	return *inputPorts[index];
-}
-
-inline auto Node::getOutputPort(std::size_t index) const noexcept -> rsp::Port&
-{
-	assert(index < outputPorts.size());
-	return *outputPorts[index];
+	if(algorithm == nullptr)
+		throw std::exception("No algorithm set!");
+	return algorithm->getOutputPorts();
 }
 
 inline void Node::pull(std::weak_ptr<rsp::Sentinel> const& sentinel)
@@ -105,11 +83,11 @@ inline void Node::pull(std::weak_ptr<rsp::Sentinel> const& sentinel)
 		this->sentinel = sentinel;
 	}
 
-	for(auto* port : inputPorts)
+	for(auto* port : getInputPorts())
 		port->pull(this->sentinel);
 
 	if(updateNeeded())
-		update();
+		algorithm->update();
 }
 
 inline void Node::push(std::weak_ptr<rsp::Sentinel> const& sentinel)
@@ -128,13 +106,13 @@ inline void Node::push(std::weak_ptr<rsp::Sentinel> const& sentinel)
 		this->sentinel = sentinel;
 	}
 
-	for(auto* port : inputPorts)
+	for(auto* port : getInputPorts())
 		port->pull(this->sentinel);
 
 	if(updateNeeded())
-		update();
+		algorithm->update();
 
-	for(auto* port : outputPorts)
+	for(auto* port : getOutputPorts())
 		port->push(this->sentinel);
 }
 
@@ -145,13 +123,15 @@ inline auto Node::sentinelPresent() const -> bool
 
 inline auto Node::updatePossible() const -> bool
 {
-	return std::all_of(inputPorts.begin(), inputPorts.end(), std::mem_fn(&rsp::Port::isConnected));
+	if(algorithm == nullptr)
+		return false;
+	return std::all_of(getInputPorts().begin(), getInputPorts().end(), std::mem_fn(&rsp::Port::isConnected));
 }
 
 inline auto Node::updateNeeded() const -> bool
 {
-	for(auto* outputPort : outputPorts)
-		for(auto* inputPort : inputPorts)
+	for(auto* outputPort : getOutputPorts())
+		for(auto* inputPort : getInputPorts())
 			if(inputPort->getTimestamp() > outputPort->getTimestamp())
 				return true;
 	return false;

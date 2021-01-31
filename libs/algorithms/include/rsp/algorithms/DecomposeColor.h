@@ -1,27 +1,26 @@
 #pragma once
 
-#include "rsp/base/Node.hpp"
-#include "rsp/base/Port.hpp"
+#include "rsp/base/Algorithm.hpp"
 #include "rsp/util/ColorRGB.hpp"
 
 #include <string>
 #include <unordered_set>
 
-namespace rsp::nodes
+namespace rsp::algorithms
 {
-class DecomposeColor final : public Node
+class DecomposeColor final : public Algorithm
 {
 public:
 	DecomposeColor();
-	auto getName() const -> std::string const& override;
+	auto getName() const noexcept -> std::string const& final;
 
 private:
 	InputPortOf<ColorRGB> color{"Color"};
 	OutputPortOf<float> redComponent{"R"};
-	OutputPortOf<float> greenComponent{"R"};
+	OutputPortOf<float> greenComponent{"G"};
 	OutputPortOf<float> blueComponent{"B"};
 
-	void update() override;
+	void update() final;
 };
 
 // class DecomposeColor final : public rsp::Algorithm<DecomposeColor>
@@ -49,4 +48,4 @@ private:
 // 	float blueComponent;
 // };
 
-} // namespace rsp::nodes
+} // namespace rsp::algorithms

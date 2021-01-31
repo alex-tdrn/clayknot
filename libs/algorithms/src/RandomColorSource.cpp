@@ -1,16 +1,16 @@
-#include "rsp/nodes/RandomColorSource.h"
+#include "rsp/algorithms/RandomColorSource.h"
 
 #include <chrono>
 #include <random>
 
-namespace rsp::nodes
+namespace rsp::algorithms
 {
 RandomColorSource::RandomColorSource()
 {
 	registerPort(color);
 }
 
-auto RandomColorSource::getName() const -> std::string const&
+auto RandomColorSource::getName() const noexcept -> std::string const&
 {
 	static std::string name = "Random Color Source";
 	return name;
@@ -23,4 +23,4 @@ void RandomColorSource::update()
 
 	*color = ColorRGB{dis(generator), dis(generator), dis(generator)};
 }
-} // namespace rsp::nodes
+} // namespace rsp::algorithms

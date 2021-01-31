@@ -1,7 +1,6 @@
 #pragma once
 
-#include "rsp/base/Node.hpp"
-#include "rsp/base/Port.hpp"
+#include "rsp/base/Algorithm.hpp"
 #include "rsp/util/ColorRGB.hpp"
 
 #include <string>
@@ -9,14 +8,15 @@
 
 namespace rsp::nodes
 {
-class RandomColorSource final : public Node
+class ValueToColor final : public Algorithm
 {
 public:
-	RandomColorSource();
+	ValueToColor();
 
-	auto getName() const -> std::string const& override;
+	auto getName() const noexcept -> std::string const& override;
 
 private:
+	InputPortOf<float> value{"Value"};
 	OutputPortOf<ColorRGB> color{"Color"};
 
 	void update() override;

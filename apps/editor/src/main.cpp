@@ -1,9 +1,9 @@
+#include "rsp/algorithms/RandomColorSource.h"
 #include "rsp/base/Node.hpp"
 #include "rsp/gui/Stylesheet.hpp"
 #include "rsp/gui/panels/NodeEditor.h"
 #include "rsp/gui/panels/RootPanel.h"
 #include "rsp/gui/panels/StyleEditor.h"
-#include "rsp/nodes/RandomColorSource.h"
 
 #include <glad/glad.h>
 
@@ -69,9 +69,9 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 		using namespace std::chrono_literals;
 		std::vector<std::unique_ptr<rsp::Node>> nodes;
 
-		auto source = std::make_unique<rsp::nodes::RandomColorSource>();
+		auto source = std::make_unique<rsp::algorithms::RandomColorSource>();
 
-		nodes.push_back(std::move(source));
+		nodes.push_back(std::make_unique<rsp::Node>(std::move(source)));
 
 		rsp::gui::Stylesheet::addSheet(std::make_unique<rsp::gui::Stylesheet>());
 

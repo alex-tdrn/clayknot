@@ -1,6 +1,6 @@
-#include "rsp/nodes/DecomposeColor.h"
+#include "rsp/algorithms/DecomposeColor.h"
 
-namespace rsp::nodes
+namespace rsp::algorithms
 {
 DecomposeColor::DecomposeColor()
 {
@@ -10,7 +10,7 @@ DecomposeColor::DecomposeColor()
 	registerPort(blueComponent);
 }
 
-auto DecomposeColor::getName() const -> std::string const&
+auto DecomposeColor::getName() const noexcept -> std::string const&
 {
 	static std::string name = "Decompose Colors";
 	return name;
@@ -22,4 +22,4 @@ void DecomposeColor::update()
 	*greenComponent = color->g();
 	*blueComponent = color->b();
 }
-} // namespace rsp::nodes
+} // namespace rsp::algorithms

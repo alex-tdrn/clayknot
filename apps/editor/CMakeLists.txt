@@ -5,7 +5,7 @@ target_include_directories(rendershop-editor PRIVATE "include" "../../external/g
 target_link_libraries(
 	rendershop-editor
 	PRIVATE rendershop-base
-			rendershop-nodes
+			rendershop-algorithms
 			rendershop-gui
 			glad::glad
 			glfw::glfw

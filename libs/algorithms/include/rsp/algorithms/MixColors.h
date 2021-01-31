@@ -1,20 +1,19 @@
 #pragma once
 
-#include "rsp/base/Node.hpp"
-#include "rsp/base/Port.hpp"
+#include "rsp/base/Algorithm.hpp"
 #include "rsp/util/ColorRGB.hpp"
 
 #include <string>
 #include <unordered_set>
 
-namespace rsp::nodes
+namespace rsp::algorithms
 {
-class MixColors final : public Node
+class MixColors final : public Algorithm
 {
 public:
 	MixColors();
 
-	auto getName() const -> std::string const& override;
+	auto getName() const noexcept -> std::string const& override;
 
 private:
 	InputPortOf<float> factor{"Factor"};
@@ -25,4 +24,4 @@ private:
 	void update() override;
 };
 
-} // namespace rsp::nodes
+} // namespace rsp::algorithms

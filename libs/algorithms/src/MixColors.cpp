@@ -1,6 +1,6 @@
-#include "rsp/nodes/MixColors.h"
+#include "rsp/algorithms/MixColors.h"
 
-namespace rsp::nodes
+namespace rsp::algorithms
 {
 MixColors::MixColors()
 {
@@ -10,7 +10,7 @@ MixColors::MixColors()
 	registerPort(mixedColor);
 }
 
-auto MixColors::getName() const -> std::string const&
+auto MixColors::getName() const noexcept -> std::string const&
 {
 	static std::string name = "Mix Colors";
 	return name;
@@ -20,4 +20,4 @@ void MixColors::update()
 {
 	*mixedColor = factor.get() * colorA.get() + (1 - factor.get()) * colorB.get();
 }
-} // namespace rsp::nodes
+} // namespace rsp::algorithms
