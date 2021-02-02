@@ -17,34 +17,34 @@ class Node
 {
 public:
 	Node() = default;
-	explicit Node(std::unique_ptr<rsp::Algorithm>&& algorithm);
+	explicit Node(std::unique_ptr<Algorithm>&& algorithm);
 	Node(Node&&) = delete;
 	Node(Node const&) = delete;
 	auto operator=(Node const&) -> Node& = delete;
 	auto operator=(Node&&) -> Node& = delete;
 	~Node() = default;
 
-	void setAlgorithm(std::unique_ptr<rsp::Algorithm>&& algorithm);
-	auto getInputPorts() const -> std::vector<rsp::InputPort*> const&;
-	auto getOutputPorts() const -> std::vector<rsp::OutputPort*> const&;
-	void pull(std::weak_ptr<rsp::Sentinel> const& sentinel = {});
-	void push(std::weak_ptr<rsp::Sentinel> const& sentinel = {});
+	void setAlgorithm(std::unique_ptr<Algorithm>&& algorithm);
+	auto getInputPorts() const -> std::vector<InputPort*> const&;
+	auto getOutputPorts() const -> std::vector<OutputPort*> const&;
+	void pull(std::weak_ptr<Sentinel> const& sentinel = {});
+	void push(std::weak_ptr<Sentinel> const& sentinel = {});
 
 private:
-	std::unique_ptr<rsp::Algorithm> algorithm;
-	std::weak_ptr<rsp::Sentinel> sentinel;
+	std::unique_ptr<Algorithm> algorithm;
+	std::weak_ptr<Sentinel> sentinel;
 
 	auto sentinelPresent() const -> bool;
 	auto updatePossible() const -> bool;
 	auto updateNeeded() const -> bool;
 };
 
-inline Node::Node(std::unique_ptr<rsp::Algorithm>&& algorithm)
+inline Node::Node(std::unique_ptr<Algorithm>&& algorithm)
 {
 	setAlgorithm(std::move(algorithm));
 }
 
-inline void Node::setAlgorithm(std::unique_ptr<rsp::Algorithm>&& algorithm)
+inline void Node::setAlgorithm(std::unique_ptr<Algorithm>&& algorithm)
 {
 	this->algorithm = std::move(algorithm);
 	for(auto* port : this->algorithm->getInputPorts())
@@ -53,26 +53,26 @@ inline void Node::setAlgorithm(std::unique_ptr<rsp::Algorithm>&& algorithm)
 		port->setPullCallback([&](auto sentinel) { this->pull(sentinel); });
 }
 
-inline auto Node::getInputPorts() const -> std::vector<rsp::InputPort*> const&
+inline auto Node::getInputPorts() const -> std::vector<InputPort*> const&
 {
 	if(algorithm == nullptr)
 		throw std::exception("No algorithm set!");
 	return algorithm->getInputPorts();
 }
 
-inline auto Node::getOutputPorts() const -> std::vector<rsp::OutputPort*> const&
+inline auto Node::getOutputPorts() const -> std::vector<OutputPort*> const&
 {
 	if(algorithm == nullptr)
 		throw std::exception("No algorithm set!");
 	return algorithm->getOutputPorts();
 }
 
-inline void Node::pull(std::weak_ptr<rsp::Sentinel> const& sentinel)
+inline void Node::pull(std::weak_ptr<Sentinel> const& sentinel)
 {
 	if(sentinelPresent() || !updatePossible())
 		return;
 
-	std::shared_ptr<rsp::Sentinel> sentinelOrigin;
+	std::shared_ptr<Sentinel> sentinelOrigin;
 	if(sentinel.expired())
 	{
 		sentinelOrigin = std::make_shared<Sentinel>();
@@ -90,12 +90,12 @@ inline void Node::pull(std::weak_ptr<rsp::Sentinel> const& sentinel)
 		algorithm->update();
 }
 
-inline void Node::push(std::weak_ptr<rsp::Sentinel> const& sentinel)
+inline void Node::push(std::weak_ptr<Sentinel> const& sentinel)
 {
 	if(sentinelPresent() || !updatePossible())
 		return;
 
-	std::shared_ptr<rsp::Sentinel> sentinelOrigin;
+	std::shared_ptr<Sentinel> sentinelOrigin;
 	if(sentinel.expired())
 	{
 		sentinelOrigin = std::make_shared<Sentinel>();
@@ -125,7 +125,7 @@ inline auto Node::updatePossible() const -> bool
 {
 	if(algorithm == nullptr)
 		return false;
-	return std::all_of(getInputPorts().begin(), getInputPorts().end(), std::mem_fn(&rsp::Port::isConnected));
+	return std::all_of(getInputPorts().begin(), getInputPorts().end(), std::mem_fn(&Port::isConnected));
 }
 
 inline auto Node::updateNeeded() const -> bool

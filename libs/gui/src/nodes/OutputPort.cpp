@@ -13,7 +13,7 @@ namespace rsp::gui
 {
 OutputPort::OutputPort(rsp::Port* port) : AbstractPort(port)
 {
-	for(const auto* connection : port->getConnections())
+	for(const auto* connection : port->getConnectedPorts())
 		if(auto* pin = getPinForPort(connection); pin != nullptr)
 			connect(pin);
 }

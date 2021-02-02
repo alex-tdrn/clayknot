@@ -18,7 +18,7 @@ namespace rsp::gui
 {
 InputPort::InputPort(rsp::Port* port) : AbstractPort(port), linkID(uniqueID())
 {
-	auto connections = port->getConnections();
+	auto connections = port->getConnectedPorts();
 	assert(connections.size() <= 1);
 	for(const auto* connection : connections)
 		if(auto* pin = getPinForPort(connection); pin != nullptr)

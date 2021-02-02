@@ -34,9 +34,9 @@ public:
 	virtual void connectTo(Port&) = 0;
 	virtual void disconnectFrom(Port&) = 0;
 	virtual void disconnect() = 0;
-	virtual auto getConnections() const -> std::unordered_set<Port const*> = 0;
-	virtual void push(std::weak_ptr<rsp::Sentinel> const& sentinel = {}) noexcept = 0;
-	virtual void pull(std::weak_ptr<rsp::Sentinel> const& sentinel = {}) noexcept = 0;
+	virtual auto getConnectedPorts() const -> std::unordered_set<Port*> = 0;
+	virtual void push(std::weak_ptr<Sentinel> const& sentinel = {}) noexcept = 0;
+	virtual void pull(std::weak_ptr<Sentinel> const& sentinel = {}) noexcept = 0;
 
 protected:
 	Port() = default;
@@ -60,6 +60,8 @@ inline auto Port::getName() const noexcept -> std::string const&
 	return name;
 }
 
+class OutputPort;
+
 class InputPort : public Port
 {
 public:
@@ -71,28 +73,29 @@ public:
 
 	using Port::connectTo;
 	void connectTo(InputPort&) = delete;
-	void push(std::weak_ptr<rsp::Sentinel> const& sentinel = {}) noexcept final;
-	void setPushCallback(const std::function<void(std::weak_ptr<rsp::Sentinel> const&)>& callback);
-	void setPushCallback(std::function<void(std::weak_ptr<rsp::Sentinel> const&)>&& callback) noexcept;
+	virtual auto getConnectedOutputPort() const -> OutputPort* = 0;
+	void push(std::weak_ptr<Sentinel> const& sentinel = {}) noexcept final;
+	void setPushCallback(const std::function<void(std::weak_ptr<Sentinel> const&)>& callback);
+	void setPushCallback(std::function<void(std::weak_ptr<Sentinel> const&)>&& callback) noexcept;
 
 protected:
 	InputPort() = default;
 
 private:
-	std::function<void(std::weak_ptr<rsp::Sentinel> const&)> pushCallback;
+	std::function<void(std::weak_ptr<Sentinel> const&)> pushCallback;
 };
 
-inline void InputPort::setPushCallback(const std::function<void(std::weak_ptr<rsp::Sentinel> const&)>& callback)
+inline void InputPort::setPushCallback(const std::function<void(std::weak_ptr<Sentinel> const&)>& callback)
 {
 	pushCallback = callback;
 }
 
-inline void InputPort::setPushCallback(std::function<void(std::weak_ptr<rsp::Sentinel> const&)>&& callback) noexcept
+inline void InputPort::setPushCallback(std::function<void(std::weak_ptr<Sentinel> const&)>&& callback) noexcept
 {
 	pushCallback = std::move(callback);
 }
 
-inline void InputPort::push(std::weak_ptr<rsp::Sentinel> const& sentinel) noexcept
+inline void InputPort::push(std::weak_ptr<Sentinel> const& sentinel) noexcept
 {
 	if(pushCallback)
 		pushCallback(sentinel);
@@ -109,18 +112,19 @@ public:
 
 	using Port::connectTo;
 	void connectTo(OutputPort&) = delete;
+	virtual auto getConnectedInputPorts() const -> std::unordered_set<InputPort*> = 0;
 	auto getTimestamp() const noexcept -> Timestamp final;
 	void updateTimestamp() noexcept;
-	void setPullCallback(const std::function<void(std::weak_ptr<rsp::Sentinel> const&)>& callback);
-	void setPullCallback(std::function<void(std::weak_ptr<rsp::Sentinel> const&)>&& callback) noexcept;
-	void pull(std::weak_ptr<rsp::Sentinel> const& sentinel = {}) noexcept final;
+	void setPullCallback(const std::function<void(std::weak_ptr<Sentinel> const&)>& callback);
+	void setPullCallback(std::function<void(std::weak_ptr<Sentinel> const&)>&& callback) noexcept;
+	void pull(std::weak_ptr<Sentinel> const& sentinel = {}) noexcept final;
 
 protected:
 	OutputPort() = default;
 
 private:
 	Timestamp timestamp;
-	std::function<void(std::weak_ptr<rsp::Sentinel> const&)> pullCallback;
+	std::function<void(std::weak_ptr<Sentinel> const&)> pullCallback;
 };
 
 inline auto OutputPort::getTimestamp() const noexcept -> Timestamp
@@ -133,18 +137,18 @@ inline void OutputPort::updateTimestamp() noexcept
 	timestamp.update();
 }
 
-inline void OutputPort::pull(std::weak_ptr<rsp::Sentinel> const& sentinel) noexcept
+inline void OutputPort::pull(std::weak_ptr<Sentinel> const& sentinel) noexcept
 {
 	if(pullCallback)
 		pullCallback(sentinel);
 }
 
-inline void OutputPort::setPullCallback(const std::function<void(std::weak_ptr<rsp::Sentinel> const&)>& callback)
+inline void OutputPort::setPullCallback(const std::function<void(std::weak_ptr<Sentinel> const&)>& callback)
 {
 	pullCallback = callback;
 }
 
-inline void OutputPort::setPullCallback(std::function<void(std::weak_ptr<rsp::Sentinel> const&)>&& callback) noexcept
+inline void OutputPort::setPullCallback(std::function<void(std::weak_ptr<Sentinel> const&)>&& callback) noexcept
 {
 	pullCallback = std::move(callback);
 }
@@ -177,8 +181,9 @@ public:
 	void connectTo(Port& other) final;
 	void disconnect() final;
 	void disconnectFrom(Port& other) final;
-	auto getConnections() const -> std::unordered_set<Port const*> final;
-	void pull(std::weak_ptr<rsp::Sentinel> const& sentinel = {}) noexcept final;
+	auto getConnectedPorts() const -> std::unordered_set<Port*> final;
+	auto getConnectedOutputPort() const -> OutputPort* final;
+	void pull(std::weak_ptr<Sentinel> const& sentinel = {}) noexcept final;
 
 private:
 	CompatiblePort mutable* connection = nullptr;
@@ -265,15 +270,21 @@ void InputPortOf<T>::disconnectFrom(Port& other)
 }
 
 template <typename T>
-auto InputPortOf<T>::getConnections() const -> std::unordered_set<Port const*>
+auto InputPortOf<T>::getConnectedPorts() const -> std::unordered_set<Port*>
 {
-	std::unordered_set<Port const*> connections;
+	std::unordered_set<Port*> connections;
 	connections.insert(connection);
 	return connections;
 }
 
 template <typename T>
-void InputPortOf<T>::pull(std::weak_ptr<rsp::Sentinel> const& sentinel) noexcept
+auto InputPortOf<T>::getConnectedOutputPort() const -> OutputPort*
+{
+	return connection;
+}
+
+template <typename T>
+void InputPortOf<T>::pull(std::weak_ptr<Sentinel> const& sentinel) noexcept
 {
 	if(connection)
 		connection->pull(sentinel);
@@ -330,8 +341,9 @@ public:
 	void disconnectFrom(CompatiblePort& other);
 	void disconnectFrom(Port& other) final;
 	void disconnect() final;
-	auto getConnections() const -> std::unordered_set<Port const*> final;
-	void push(std::weak_ptr<rsp::Sentinel> const& sentinel = {}) noexcept final;
+	auto getConnectedPorts() const -> std::unordered_set<Port*> final;
+	auto getConnectedInputPorts() const -> std::unordered_set<InputPort*> final;
+	void push(std::weak_ptr<Sentinel> const& sentinel = {}) noexcept final;
 
 private:
 	T data = {};
@@ -418,16 +430,25 @@ void OutputPortOf<T>::disconnect()
 }
 
 template <typename T>
-auto OutputPortOf<T>::getConnections() const -> std::unordered_set<Port const*>
+auto OutputPortOf<T>::getConnectedPorts() const -> std::unordered_set<Port*>
 {
-	std::unordered_set<Port const*> connections;
+	std::unordered_set<Port*> connections;
 	for(auto connection : this->connections)
 		connections.insert(connection);
 	return connections;
 }
 
 template <typename T>
-void OutputPortOf<T>::push(std::weak_ptr<rsp::Sentinel> const& sentinel) noexcept
+auto OutputPortOf<T>::getConnectedInputPorts() const -> std::unordered_set<InputPort*>
+{
+	std::unordered_set<InputPort*> connections;
+	for(auto connection : this->connections)
+		connections.insert(connection);
+	return connections;
+}
+
+template <typename T>
+void OutputPortOf<T>::push(std::weak_ptr<Sentinel> const& sentinel) noexcept
 {
 	for(auto connection : connections)
 		connection->push(sentinel);
