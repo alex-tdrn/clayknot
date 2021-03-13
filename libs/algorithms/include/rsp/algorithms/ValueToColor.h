@@ -6,7 +6,7 @@
 #include <string>
 #include <unordered_set>
 
-namespace rsp::nodes
+namespace rsp::algorithms
 {
 class ValueToColor final : public Algorithm
 {
@@ -22,4 +22,4 @@ private:
 	void update() override;
 };
 
-} // namespace rsp::nodes
+} // namespace rsp::algorithms

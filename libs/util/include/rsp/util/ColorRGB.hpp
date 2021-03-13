@@ -54,6 +54,7 @@ public:
 	auto bu8() const -> std::uint8_t;
 	auto operator[](std::size_t i) const -> float;
 	auto vector() const -> glm::vec3;
+	auto packed() const -> std::uint32_t;
 
 private:
 	glm::vec3 values = {0.0f, 0.0f, 0.0f};
@@ -243,6 +244,11 @@ inline auto ColorRGB::operator[](std::size_t i) const -> float
 inline auto ColorRGB::vector() const -> glm::vec3
 {
 	return values;
+}
+
+inline auto ColorRGB::packed() const -> std::uint32_t
+{
+	return ColorRGB::pack(*this);
 }
 
 auto inline operator+(ColorRGB const& lhs, ColorRGB const& rhs) -> ColorRGB

@@ -10,5 +10,5 @@ target_link_libraries(
 			glad::glad
 			glfw::glfw
 			imgui
-			imgui-node-editor
+			imnodes
 )

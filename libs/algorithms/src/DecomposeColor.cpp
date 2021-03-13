@@ -18,8 +18,8 @@ auto DecomposeColor::getName() const noexcept -> std::string const&
 
 void DecomposeColor::update()
 {
-	*redComponent = color->r();
-	*greenComponent = color->g();
-	*blueComponent = color->b();
+	*redComponent = color->r() * 100;
+	*greenComponent = color->g() * 100;
+	*blueComponent = color->b() * 100;
 }
 } // namespace rsp::algorithms

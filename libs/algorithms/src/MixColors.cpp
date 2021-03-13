@@ -18,6 +18,7 @@ auto MixColors::getName() const noexcept -> std::string const&
 
 void MixColors::update()
 {
-	*mixedColor = factor.get() * colorA.get() + (1 - factor.get()) * colorB.get();
+	float f = factor.get() / 100.0f;
+	*mixedColor = f * colorA.get() + (1 - f) * colorB.get();
 }
 } // namespace rsp::algorithms

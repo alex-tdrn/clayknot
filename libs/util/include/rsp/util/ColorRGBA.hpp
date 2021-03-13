@@ -56,6 +56,7 @@ public:
 	auto operator[](std::size_t i) const -> float;
 	auto rgb() const -> ColorRGB;
 	auto vector() const -> glm::vec4;
+	auto packed() const -> std::uint32_t;
 
 private:
 	ColorRGB rgbValue;
@@ -280,6 +281,11 @@ inline auto ColorRGBA::rgb() const -> ColorRGB
 inline auto ColorRGBA::vector() const -> glm::vec4
 {
 	return {rgbValue.r(), rgbValue.g(), rgbValue.b(), alphaValue};
+}
+
+inline auto ColorRGBA::packed() const -> std::uint32_t
+{
+	return ColorRGBA::pack(*this);
 }
 
 auto inline operator+(ColorRGBA const& lhs, ColorRGBA const& rhs) -> ColorRGBA

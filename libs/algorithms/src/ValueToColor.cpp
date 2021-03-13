@@ -1,6 +1,6 @@
 #include "rsp/algorithms/ValueToColor.h"
 
-namespace rsp::nodes
+namespace rsp::algorithms
 {
 ValueToColor::ValueToColor()
 {
@@ -16,6 +16,6 @@ auto ValueToColor::getName() const noexcept -> std::string const&
 
 void ValueToColor::update()
 {
-	*color = rsp::ColorRGB{*value};
+	*color = rsp::ColorRGB{*value / 100.0f};
 }
-} // namespace rsp::nodes
+} // namespace rsp::algorithms

@@ -1,10 +1,18 @@
 ---
-Checks:          '*,-fuchsia*,-google*,-zircon*,-abseil*,-llvm*, 
-                  -*braces-around-statements, -modernize-use-nodiscard,
-                  -*uppercase-literal-suffix, -cppcoreguidelines-pro-type-vararg,
-                  -hicpp-vararg, -cppcoreguidelines-pro-type-union-access,
-                  -*magic-numbers, -*signed-bitwise, -misc-no-recursion,
-                  -cppcoreguidelines-pro-bounds-array-to-pointer-decay, -hicpp-no-array-decay'
+Checks:          '*,
+                  -fuchsia*,-google*,-zircon*,-abseil*,-llvm*, 
+                  -*braces-around-statements,
+                  -*uppercase-literal-suffix,
+                  -*magic-numbers,
+                  -*signed-bitwise,
+                  -hicpp-vararg,
+                  -hicpp-no-array-decay,
+                  -modernize-use-nodiscard,
+                  -misc-no-recursion,
+                  -cppcoreguidelines-pro-type-union-access,
+                  -cppcoreguidelines-pro-type-vararg,
+                  -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+                  -cppcoreguidelines-pro-type-static-cast-downcast'
 HeaderFilterRegex: ''
 FormatStyle:     none
 

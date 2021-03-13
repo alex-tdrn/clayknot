@@ -1,9 +1,15 @@
+#include "rsp/algorithms/DecomposeColor.h"
+#include "rsp/algorithms/GrayscaleColorNode.h"
+#include "rsp/algorithms/MixColors.h"
 #include "rsp/algorithms/RandomColorSource.h"
+#include "rsp/algorithms/ValueToColor.h"
+#include "rsp/base/Graph.hpp"
 #include "rsp/base/Node.hpp"
-#include "rsp/gui/Stylesheet.hpp"
-#include "rsp/gui/panels/NodeEditor.h"
-#include "rsp/gui/panels/RootPanel.h"
-#include "rsp/gui/panels/StyleEditor.h"
+#include "rsp/gui/Init.h"
+#include "rsp/gui/Panel.h"
+#include "rsp/gui/widgets/Editor.hpp"
+#include "rsp/gui/widgets/Viewer.hpp"
+#include "rsp/util/ColorRGBA.hpp"
 
 #include <glad/glad.h>
 
@@ -14,6 +20,7 @@
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
+#include <imnodes.h>
 #include <iostream>
 #include <memory>
 #include <utility>
@@ -66,19 +73,55 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init("#version 420");
 
-		using namespace std::chrono_literals;
-		std::vector<std::unique_ptr<rsp::Node>> nodes;
+		imnodes::Initialize();
+		auto& style = imnodes::GetStyle();
+		// TODO these colors need to come form a stylesheet
+		style.colors[imnodes::ColorStyle_LinkHovered] = rsp::ColorRGBA{1.0f}.packed();
+		style.colors[imnodes::ColorStyle_LinkSelected] = rsp::ColorRGBA{1.0f}.packed();
+		style.colors[imnodes::ColorStyle_Link] = rsp::ColorRGBA{0.0f}.packed();
+		style.colors[imnodes::ColorStyle_PinHovered] = rsp::ColorRGBA{1.0f}.packed();
 
-		auto source = std::make_unique<rsp::algorithms::RandomColorSource>();
+		style.colors[imnodes::ColorStyle_TitleBarHovered] = style.colors[imnodes::ColorStyle_TitleBar];
+		style.colors[imnodes::ColorStyle_TitleBarSelected] = style.colors[imnodes::ColorStyle_TitleBar];
+		style.colors[imnodes::ColorStyle_NodeBackgroundHovered] = style.colors[imnodes::ColorStyle_NodeBackground];
+		style.colors[imnodes::ColorStyle_NodeBackgroundSelected] = style.colors[imnodes::ColorStyle_NodeBackground];
 
-		nodes.push_back(std::make_unique<rsp::Node>(std::move(source)));
+		rsp::gui::init();
 
-		rsp::gui::Stylesheet::addSheet(std::make_unique<rsp::gui::Stylesheet>());
+		auto graph1 = []() -> rsp::Graph {
+			auto randomColor = std::make_unique<rsp::Node>(std::make_unique<rsp::algorithms::RandomColorSource>());
+			auto decomposeColor = std::make_unique<rsp::Node>(std::make_unique<rsp::algorithms::DecomposeColor>());
+			auto valueToColor = std::make_unique<rsp::Node>(std::make_unique<rsp::algorithms::ValueToColor>());
+			auto mixColors = std::make_unique<rsp::Node>(std::make_unique<rsp::algorithms::MixColors>());
 
-		rsp::gui::RootPanel rootWindow;
-		rsp::gui::NodeEditor* canvas = rootWindow.addChild(std::make_unique<rsp::gui::NodeEditor>());
-		canvas->setStore(&nodes);
-		rootWindow.addChild(std::make_unique<rsp::gui::StyleEditor>());
+			rsp::Graph ret;
+
+			ret.emplace_back(std::move(randomColor));
+			ret.emplace_back(std::move(decomposeColor));
+			ret.emplace_back(std::move(valueToColor));
+			ret.emplace_back(std::move(mixColors));
+			return ret;
+		}();
+
+		std::vector<rsp::gui::Panel> panels;
+		auto testPanel = rsp::gui::Panel("test");
+		auto graphViewer = rsp::gui::Panel("graph viewer");
+		auto graphEditor = rsp::gui::Panel("graph editor");
+		auto styleEditor = rsp::gui::Panel("style editor");
+
+		auto testColor = rsp::ColorRGB();
+
+		testPanel.addWidget(rsp::gui::Viewer::create(&testColor, "test color viewer"));
+		testPanel.addWidget(rsp::gui::Editor::create(&testColor, "test color editor"));
+
+		graphViewer.addWidget(rsp::gui::Viewer::create(&graph1, "graph1 viewer"));
+		graphEditor.addWidget(rsp::gui::Editor::create(&graph1, "graph1 editor"));
+
+		panels.emplace_back(rsp::gui::Panel(testPanel));
+		panels.push_back(std::move(testPanel));
+		panels.push_back(std::move(graphViewer));
+		panels.push_back(std::move(graphEditor));
+		panels.push_back(std::move(styleEditor));
 
 		while(glfwWindowShouldClose(window) == 0)
 		{
@@ -97,7 +140,43 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 			glClear(GL_COLOR_BUFFER_BIT);
 			glfwGetWindowPos(window, &wind_x, &wind_y);
 
-			rootWindow.draw();
+			ImGuiViewport* viewport = ImGui::GetMainViewport();
+			ImGui::SetNextWindowPos(viewport->Pos);
+			ImGui::SetNextWindowSize(viewport->Size);
+			ImGui::SetNextWindowViewport(viewport->ID);
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+			ImGuiWindowFlags flags = ImGuiWindowFlags_MenuBar;
+			flags |= ImGuiWindowFlags_NoDocking;
+			flags |= ImGuiWindowFlags_NoTitleBar;
+			flags |= ImGuiWindowFlags_NoCollapse;
+			flags |= ImGuiWindowFlags_NoResize;
+			flags |= ImGuiWindowFlags_NoMove;
+			flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
+			flags |= ImGuiWindowFlags_NoNavFocus;
+			ImGui::Begin("Main Window", nullptr, flags);
+			ImGui::PopStyleVar(3);
+
+			ImGuiID dockspace_id = ImGui::GetID("Main Window Dockspace");
+			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
+
+			if(ImGui::BeginMenuBar())
+			{
+				if(ImGui::BeginMenu("View"))
+				{
+					for(auto& panel : panels)
+						if(ImGui::MenuItem(panel.getTitle().c_str(), "", panel.isVisible()))
+							panel.toggleVisibility();
+					ImGui::EndMenu();
+				}
+				ImGui::EndMenuBar();
+			}
+
+			ImGui::End();
+			for(auto& panel : panels)
+				panel.draw();
 
 			ImGui::Render();
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -112,6 +191,8 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 
 			glfwSwapBuffers(window);
 		}
+
+		imnodes::Shutdown();
 
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
