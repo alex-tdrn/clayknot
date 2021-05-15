@@ -1,9 +1,17 @@
 #include "rsp/gui/widgets/GraphEditor.h"
+
+#include "NodeEditors.hpp"
+#include "PortEditors.hpp"
+#include "SelectionManager.hpp"
+#include "WidgetCache.hpp"
 #include "rsp/algorithms/DecomposeColor.h"
 #include "rsp/algorithms/GrayscaleColorNode.h"
 #include "rsp/algorithms/MixColors.h"
 #include "rsp/algorithms/RandomColorSource.h"
 #include "rsp/algorithms/ValueToColor.h"
+#include "rsp/base/AlgorithmNode.hpp"
+#include "rsp/base/ConstantNode.hpp"
+#include "rsp/base/Port.hpp"
 
 namespace rsp::gui
 {
@@ -11,6 +19,14 @@ GraphEditor::GraphEditor(
 	Graph* data, std::string const& dataName, std::optional<std::function<void()>> modifiedCallback)
 	: EditorOf<Graph>(data, dataName, std::move(modifiedCallback))
 {
+	portCache = std::make_unique<impl::WidgetCache<Port, impl::PortEditor>>(&impl::createPortEditor);
+
+	nodeCache = std::make_unique<impl::WidgetCache<Node, impl::NodeEditor>>([&](Node* node, int id) {
+		return impl::createNodeEditor(node, id, portCache.get(), modificationCallback);
+	});
+
+	selectionManager = std::make_unique<impl::SelectionManager<false>>(nodeCache.get(), portCache.get());
+
 	disableTitle();
 	context = imnodes::EditorContextCreate();
 	imnodes::EditorContextSet(context);
@@ -30,36 +46,74 @@ auto GraphEditor::clone() const -> std::unique_ptr<Widget>
 
 void GraphEditor::drawContents() const
 {
+	imnodes::EditorContextSet(context);
+
+	drawGraph();
+	drawMenus();
+	updateConnections();
+	selectionManager->update();
+	handleMouseInteractions();
+
+	if(modificationCallback.has_value())
+	{
+		if((*modificationCallback)())
+			modificationCallback = std::nullopt;
+	}
+
+	imnodes::EditorContextSet(nullptr);
+}
+
+void GraphEditor::drawGraph() const
+{
 	imnodes::PushAttributeFlag(imnodes::AttributeFlags_EnableLinkCreationOnSnap);
-	if(connectingPort != nullptr)
-		imnodes::PushColorStyle(imnodes::ColorStyle_Link, getPortDrawState(connectingPort).color);
+	if(newConnectionInProgress)
+		imnodes::PushColorStyle(
+			imnodes::ColorStyle_Link, portCache->getWidget(&newConnectionInProgress->startingPort).getColor());
 	else
 		imnodes::PushColorStyle(imnodes::ColorStyle_Link, ColorRGBA{1.0f}.packed());
 
 	connections.clear();
-	imnodes::EditorContextSet(context);
 
 	imnodes::BeginNodeEditor();
 
 	for(auto const& node : *getData())
-		drawNode(getNodeDrawState(node.get()));
+	{
+		nodeCache->getWidget(node.get()).draw();
+		for(auto* output : node->getOutputPorts())
+			for(auto* input : output->getConnectedInputPorts())
+				if(portCache->hasWidget(input))
+					connections.emplace_back(std::make_pair(input, output));
+	}
 
 	{
 		int linkID = 0;
+
 		for(auto& connection : connections)
 		{
+			if(newConnectionInProgress && newConnectionInProgress->endingPort != nullptr)
+			{
+				auto snapConnection =
+					std::pair(&newConnectionInProgress->startingPort, newConnectionInProgress->endingPort);
+
+				if((snapConnection.first == connection.first && snapConnection.second == connection.second) ||
+					(snapConnection.first == connection.second && snapConnection.second == connection.first))
+				{
+					linkID++;
+					continue;
+				}
+			}
 			auto color = ColorRGBA(ColorRGB::createRandom(connection.first->getDataTypeHash()), 1.0f).packed();
 			imnodes::PushColorStyle(imnodes::ColorStyle_Link, color);
-			if(connectingPort != nullptr)
+			if(newConnectionInProgress)
 			{
 				imnodes::PushColorStyle(imnodes::ColorStyle_LinkHovered, color);
 				imnodes::PushColorStyle(imnodes::ColorStyle_LinkSelected, color);
 			}
-
-			imnodes::Link(linkID++, getPortDrawState(connection.first).id, getPortDrawState(connection.second).id);
+			imnodes::Link(linkID++, portCache->getWidget(connection.first).getID(),
+				portCache->getWidget(connection.second).getID());
 
 			imnodes::PopColorStyle();
-			if(connectingPort != nullptr)
+			if(newConnectionInProgress)
 			{
 				imnodes::PopColorStyle();
 				imnodes::PopColorStyle();
@@ -67,119 +121,81 @@ void GraphEditor::drawContents() const
 		}
 	}
 
-	if(droppedConnection.first != nullptr && connectingPort != nullptr)
+	if(newConnectionInProgress && newConnectionInProgress->droppedConnection)
 	{
 		auto color = ColorRGBA(ColorRGB(0.0f), 1.0f).packed();
 		imnodes::PushColorStyle(imnodes::ColorStyle_Link, color);
 		imnodes::PushColorStyle(imnodes::ColorStyle_LinkHovered, color);
 		imnodes::PushColorStyle(imnodes::ColorStyle_LinkSelected, color);
 
-		imnodes::Link(-1, getPortDrawState(droppedConnection.first).id, getPortDrawState(droppedConnection.second).id);
+		imnodes::Link(-1, portCache->getWidget(newConnectionInProgress->droppedConnection->first).getID(),
+			portCache->getWidget(newConnectionInProgress->droppedConnection->second).getID());
 
 		imnodes::PopColorStyle();
 		imnodes::PopColorStyle();
 		imnodes::PopColorStyle();
 	}
 	imnodes::EndNodeEditor();
+	imnodes::PopAttributeFlag();
+	imnodes::PopColorStyle();
+}
 
+void GraphEditor::drawMenus() const
+{
 	bool deletThis = false;
 	if(ImGui::BeginPopupContextItem("Context menu"))
 	{
 		if(ImGui::BeginMenu("New node"))
 		{
 			auto* graph = getData();
+			if(ImGui::BeginMenu("Algorithm"))
+			{
+				if(ImGui::MenuItem("DecomposeColor"))
+					graph->push_back(
+						std::make_unique<rsp::AlgorithmNode>(std::make_unique<rsp::algorithms::DecomposeColor>()));
+				if(ImGui::MenuItem("GrayscaleColorNode"))
+					graph->push_back(
+						std::make_unique<rsp::AlgorithmNode>(std::make_unique<rsp::algorithms::GrayscaleColorNode>()));
+				if(ImGui::MenuItem("MixColors"))
+					graph->push_back(
+						std::make_unique<rsp::AlgorithmNode>(std::make_unique<rsp::algorithms::MixColors>()));
+				if(ImGui::MenuItem("RandomColorSource"))
+					graph->push_back(
+						std::make_unique<rsp::AlgorithmNode>(std::make_unique<rsp::algorithms::RandomColorSource>()));
+				ImGui::EndMenu();
+			}
 
-			if(ImGui::MenuItem("DecomposeColor"))
-				graph->push_back(std::make_unique<rsp::Node>(std::make_unique<rsp::algorithms::DecomposeColor>()));
-			if(ImGui::MenuItem("GrayscaleColorNode"))
-				graph->push_back(std::make_unique<rsp::Node>(std::make_unique<rsp::algorithms::GrayscaleColorNode>()));
-			if(ImGui::MenuItem("MixColors"))
-				graph->push_back(std::make_unique<rsp::Node>(std::make_unique<rsp::algorithms::MixColors>()));
-			if(ImGui::MenuItem("RandomColorSource"))
-				graph->push_back(std::make_unique<rsp::Node>(std::make_unique<rsp::algorithms::RandomColorSource>()));
-
+			if(ImGui::MenuItem("Constant"))
+				graph->push_back(std::make_unique<rsp::ConstantNode>());
 			ImGui::EndMenu();
 		}
+
 		if(imnodes::NumSelectedLinks() > 0 || imnodes::NumSelectedNodes() > 0)
-			deletThis = ImGui::MenuItem("Delete");
-		ImGui::EndPopup();
-	}
-
-	hoveredNode = nullptr;
-	if(int hoveredNodeID = -1; imnodes::IsNodeHovered(&hoveredNodeID))
-		hoveredNode = idToNode[hoveredNodeID];
-
-	if(int connectingPortID = -1; imnodes::IsLinkStarted(&connectingPortID))
-		connectingPort = idToPort[connectingPortID];
-
-	if(int linkID = -1; imnodes::IsLinkDestroyed(&linkID) && linkID >= 0)
-	{
-		auto* input = connections[linkID].first;
-		auto* output = connections[linkID].second;
-		input->disconnectFrom(*output);
-
-		if(input == droppedConnection.first)
 		{
-			droppedConnection.first->connectTo(*droppedConnection.second);
-
-			droppedConnection.first = nullptr;
-			droppedConnection.second = nullptr;
-		}
-	}
-
-	{
-		int outputPortID = -1;
-		int inputPortID = -1;
-		bool createdFromSnap = false;
-		if(imnodes::IsLinkCreated(&outputPortID, &inputPortID, &createdFromSnap))
-		{
-			auto* inputPort = dynamic_cast<rsp::InputPort*>(idToPort[inputPortID]);
-			auto* outputPort = dynamic_cast<rsp::OutputPort*>(idToPort[outputPortID]);
-			if(inputPort != nullptr && outputPort != nullptr)
+			ImGui::Separator();
+			if(!selectionManager->getSelectedNodes().empty())
 			{
-				if(inputPort->isConnected())
+				const auto& nodes = selectionManager->getSelectedNodes();
+
+				bool anyInputs = std::any_of(nodes.begin(), nodes.end(), [](auto node) {
+					return !node->getInputPorts().empty();
+				});
+				if(anyInputs && ImGui::MenuItem("Copy inputs to new constant node"))
 				{
-					droppedConnection.first = inputPort;
-					droppedConnection.second = inputPort->getConnectedOutputPort();
+					auto constantNode = std::make_unique<rsp::ConstantNode>();
+					for(auto* node : selectionManager->getSelectedNodes())
+					{
+						for(auto* inputPort : node->getInputPorts())
+							constantNode->addPort(std::unique_ptr<rsp::OutputPort>(
+								dynamic_cast<OutputPort*>(inputPort->createCompatiblePort().release())));
+					}
+
+					getData()->push_back(std::move(constantNode));
 				}
-
-				inputPort->connectTo(*outputPort);
 			}
+			deletThis = ImGui::MenuItem("Delete");
 		}
-	}
-
-	if(ImGui::IsMouseReleased(ImGuiMouseButton_Left))
-	{
-		connectingPort = nullptr;
-		droppedConnection.first = nullptr;
-		droppedConnection.second = nullptr;
-	}
-
-	if(ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && imnodes::NumSelectedLinks() > 0)
-	{
-		std::vector<int> selectedLinks(imnodes::NumSelectedLinks());
-		imnodes::GetSelectedLinks(selectedLinks.data());
-		for(auto linkID : selectedLinks)
-			connections[linkID].first->disconnectFrom(*connections[linkID].second);
-		imnodes::ClearLinkSelection();
-	}
-
-	if(imnodes::NumSelectedNodes() != static_cast<int>(selectedNodes.size()) || selectedNodes.size() == 1)
-	{
-		for(auto* node : selectedNodes)
-			getNodeDrawState(node).highlighted = false;
-
-		selectedNodes.clear();
-		if(imnodes::NumSelectedNodes() > 0)
-		{
-			std::vector<int> selectedNodeIDs(imnodes::NumSelectedNodes());
-			imnodes::GetSelectedNodes(selectedNodeIDs.data());
-			for(auto nodeID : selectedNodeIDs)
-				selectedNodes.insert(idToNode[nodeID]);
-		}
-
-		for(auto* node : selectedNodes)
-			getNodeDrawState(node).highlighted = true;
+		ImGui::EndPopup();
 	}
 
 	if(deletThis || (ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows) &&
@@ -196,7 +212,7 @@ void GraphEditor::drawContents() const
 
 		auto* graph = getData();
 
-		for(auto* selectedNode : selectedNodes)
+		for(auto* selectedNode : selectionManager->getSelectedNodes())
 		{
 			graph->erase(std::remove_if(graph->begin(), graph->end(),
 							 [&](auto const& node) {
@@ -205,187 +221,92 @@ void GraphEditor::drawContents() const
 				graph->end());
 		}
 
-		selectedNodes.clear();
 		imnodes::ClearNodeSelection();
 	}
-
-	imnodes::EditorContextSet(nullptr);
-	imnodes::PopAttributeFlag();
-	imnodes::PopColorStyle();
 }
 
-void GraphEditor::drawNode(NodeDrawState& drawState) const
+void GraphEditor::updateConnections() const
 {
-	if(drawState.highlighted || drawState.node == hoveredNode)
-		imnodes::PushColorStyle(imnodes::ColorStyle_NodeOutline, ColorRGBA{1.0f}.packed());
-
-	imnodes::BeginNode(drawState.id);
-
-	drawNodeTitleBar(drawState);
-
-	ImGui::BeginGroup();
-	for(auto& port : drawState.node->getInputPorts())
-		drawPort(getPortDrawState(port));
-	ImGui::EndGroup();
-
-	ImGui::SameLine();
-
-	ImGui::BeginGroup();
-	for(auto& port : drawState.node->getOutputPorts())
+	if(int connectingPortID = -1; imnodes::IsLinkStarted(&connectingPortID))
 	{
-		drawPort(getPortDrawState(port));
-		for(auto* connectedInput : port->getConnectedInputPorts())
-			if(portDrawStates.find(connectedInput) != portDrawStates.end())
-				connections.emplace_back(std::make_pair(connectedInput, port));
-	}
-	ImGui::EndGroup();
+		newConnectionInProgress.emplace(ConnectionChange{*portCache->getWidget(connectingPortID).getPort()});
 
-	imnodes::EndNode();
-	drawState.contentsWidth = ImGui::GetItemRectSize().x;
-
-	if(drawState.highlighted || drawState.node == hoveredNode)
-		imnodes::PopColorStyle();
-
-	drawState.firstDraw = false;
-}
-
-void GraphEditor::drawNodeTitleBar(NodeDrawState& drawState)
-{
-	imnodes::BeginNodeTitleBar();
-
-	ImGui::BeginGroup();
-
-	if(!drawState.firstDraw && drawState.titleWidth < drawState.contentsWidth)
-		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (drawState.contentsWidth - drawState.titleWidth) / 2);
-
-	if(!drawState.node->getInputPorts().empty())
-	{
-		if(ImGui::SmallButton("Pull"))
-			drawState.node->pull();
-		ImGui::SameLine();
-	}
-
-	ImGui::Text("%s", drawState.node->getName().data());
-
-	if(!drawState.node->getOutputPorts().empty())
-	{
-		ImGui::SameLine();
-		if(ImGui::SmallButton("Push"))
-			drawState.node->push();
-	}
-
-	ImGui::EndGroup();
-
-	if(drawState.firstDraw)
-		drawState.titleWidth = ImGui::GetItemRectSize().x;
-
-	imnodes::EndNodeTitleBar();
-}
-
-void GraphEditor::drawPort(PortDrawState& drawState) const
-{
-	bool disabled =
-		connectingPort != nullptr && drawState.port != connectingPort && !drawState.port->canConnectTo(*connectingPort);
-
-	imnodes::PushColorStyle(imnodes::ColorStyle_Pin, drawState.color);
-
-	if(auto* inputPort = dynamic_cast<InputPort*>(drawState.port); inputPort != nullptr)
-	{
-		float const beginY = ImGui::GetCursorPosY();
-
-		if(disabled)
-			imnodes::BeginStaticAttribute(drawState.id);
-		else if(drawState.port->isConnected() || drawState.port == connectingPort)
-			imnodes::BeginInputAttribute(drawState.id, imnodes::PinShape_QuadFilled);
-		else
-			imnodes::BeginInputAttribute(drawState.id, imnodes::PinShape_Quad);
-
-		auto* defaultEditor = getPortDrawState(&inputPort->getDefaultPort()).widget.get();
-		auto* viewer = static_cast<Viewer*>(drawState.widget.get());
-
-		if(!inputPort->isConnected())
+		for(const auto& it : portCache->getMap())
 		{
-			defaultEditor->draw();
-		}
-		else
-		{
-			viewer->updateDataPointer(drawState.port->getDataPointer());
-			viewer->draw();
-		}
+			const auto& portEditor = it.second;
 
-		if(connectingPort != nullptr && connectingPort != drawState.port)
-		{
-			float currentHeight = ImGui::GetCursorPosY() - beginY;
-			float maxHeight = std::max(viewer->getLastSize().y, defaultEditor->getLastSize().y);
-			if(currentHeight < maxHeight)
-				ImGui::Dummy(ImVec2(10, maxHeight - currentHeight));
-		}
-
-		if(disabled)
-			imnodes::EndStaticAttribute();
-		else
-			imnodes::EndInputAttribute();
-	}
-	else
-	{
-		if(disabled)
-			imnodes::BeginStaticAttribute(drawState.id);
-		else if(drawState.port->isConnected() || drawState.port == connectingPort)
-			imnodes::BeginOutputAttribute(drawState.id, imnodes::PinShape_TriangleFilled);
-		else
-			imnodes::BeginOutputAttribute(drawState.id, imnodes::PinShape_Triangle);
-
-		drawState.widget->draw();
-
-		if(disabled)
-			imnodes::EndStaticAttribute();
-		else
-			imnodes::EndOutputAttribute();
-	}
-	imnodes::PopColorStyle();
-}
-
-auto GraphEditor::getNodeDrawState(Node* node) const -> NodeDrawState&
-{
-	if(nodeDrawStates.find(node) == nodeDrawStates.end())
-	{
-		auto& drawState = nodeDrawStates[node];
-		drawState.node = node;
-		drawState.id = nextAvailableNodeID++;
-		idToNode[drawState.id] = node;
-	}
-	return nodeDrawStates[node];
-}
-
-auto GraphEditor::getPortDrawState(Port* port) const -> PortDrawState&
-{
-	if(portDrawStates.find(port) == portDrawStates.end())
-	{
-		auto& drawState = portDrawStates[port];
-		drawState.port = port;
-		drawState.id = nextAvailablePortID++;
-		drawState.widget = Viewer::create(port->getDataTypeHash(), port->getDataPointer(), port->getName());
-		drawState.widget->setMaximumWidth(maxPortContentsWidth);
-		drawState.color = ColorRGBA(ColorRGB::createRandom(port->getDataTypeHash()), 1.0f).packed();
-		idToPort[drawState.id] = port;
-
-		if(auto* inputPort = dynamic_cast<InputPort*>(port); inputPort != nullptr)
-		{
-			auto* defaultPort = &inputPort->getDefaultPort();
-			auto& defaultDrawState = portDrawStates[defaultPort];
-			defaultDrawState.port = defaultPort;
-			defaultDrawState.id = nextAvailablePortID++;
-			defaultDrawState.widget = Editor::create(
-				defaultPort->getDataTypeHash(), defaultPort->getDataPointer(), inputPort->getName(), [=]() {
-					defaultPort->updateTimestamp();
-					defaultPort->push();
-				});
-			defaultDrawState.widget->setMaximumWidth(maxPortContentsWidth);
-			defaultDrawState.color = ColorRGBA(ColorRGB::createRandom(port->getDataTypeHash()), 1.0f).packed();
-			idToPort[defaultDrawState.id] = defaultPort;
+			portEditor->setEnabled(false);
+			portEditor->setStableHeight(true);
+			if(portEditor->getPort()->canConnectTo(newConnectionInProgress->startingPort))
+			{
+				portEditor->setEnabled(true);
+			}
 		}
 	}
-	return portDrawStates[port];
+
+	if(int outputPortID = -1, inputPortID = -1; imnodes::IsLinkCreated(&outputPortID, &inputPortID))
+	{
+		auto* inputPort = dynamic_cast<rsp::InputPort*>(portCache->getWidget(inputPortID).getPort());
+		auto* outputPort = dynamic_cast<rsp::OutputPort*>(portCache->getWidget(outputPortID).getPort());
+
+		if(newConnectionInProgress->endingPort != nullptr)
+			newConnectionInProgress->startingPort.disconnectFrom(*newConnectionInProgress->endingPort);
+
+		if(inputPort == &newConnectionInProgress->startingPort)
+			newConnectionInProgress->endingPort = outputPort;
+		else
+			newConnectionInProgress->endingPort = inputPort;
+
+		restoreDroppedConnection();
+
+		if(inputPort->isConnected())
+			newConnectionInProgress->droppedConnection = std::pair(inputPort, inputPort->getConnectedOutputPort());
+
+		inputPort->connectTo(*outputPort);
+	}
+
+	if(int dummy = -1;
+		newConnectionInProgress && newConnectionInProgress->endingPort != nullptr && !imnodes::IsPinHovered(&dummy))
+	{
+		newConnectionInProgress->startingPort.disconnectFrom(*newConnectionInProgress->endingPort);
+		newConnectionInProgress->endingPort = nullptr;
+		restoreDroppedConnection();
+	}
+}
+
+void GraphEditor::handleMouseInteractions() const
+{
+	if(ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+	{
+		newConnectionInProgress = std::nullopt;
+
+		for(const auto& it : portCache->getMap())
+		{
+			const auto& portEditor = it.second;
+
+			portEditor->setEnabled(true);
+			portEditor->setStableHeight(false);
+		}
+	}
+
+	if(ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && imnodes::NumSelectedLinks() > 0)
+	{
+		std::vector<int> selectedLinks(imnodes::NumSelectedLinks());
+		imnodes::GetSelectedLinks(selectedLinks.data());
+		for(auto linkID : selectedLinks)
+			connections[linkID].first->disconnectFrom(*connections[linkID].second);
+		imnodes::ClearLinkSelection();
+	}
+}
+
+void GraphEditor::restoreDroppedConnection() const
+{
+	if(newConnectionInProgress && newConnectionInProgress->droppedConnection)
+	{
+		newConnectionInProgress->droppedConnection->first->connectTo(
+			*newConnectionInProgress->droppedConnection->second);
+		newConnectionInProgress->droppedConnection = std::nullopt;
+	}
 }
 
 } // namespace rsp::gui

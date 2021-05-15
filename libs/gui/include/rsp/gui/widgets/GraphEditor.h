@@ -5,7 +5,22 @@
 #include "rsp/gui/widgets/Viewer.hpp"
 #include "rsp/util/ColorRGBA.hpp"
 
+#include <functional>
 #include <imnodes.h>
+#include <optional>
+#include <unordered_map>
+#include <unordered_set>
+
+namespace rsp::gui::impl
+{
+template <typename Data, typename Widget>
+class WidgetCache;
+class NodeEditor;
+class PortEditor;
+
+template <bool Const>
+class SelectionManager;
+} // namespace rsp::gui::impl
 
 namespace rsp::gui
 {
@@ -25,42 +40,25 @@ public:
 	void drawContents() const final;
 
 private:
-	struct NodeDrawState
+	struct ConnectionChange
 	{
-		int id = -1;
-		Node* node = nullptr;
-		bool firstDraw = true;
-		bool highlighted = false;
-		float titleWidth = 0;
-		float contentsWidth = 0;
-	};
-
-	struct PortDrawState
-	{
-		int id = -1;
-		Port* port = nullptr;
-		std::uint32_t color = ColorRGBA{1.0f}.packed();
-		std::unique_ptr<Widget> widget = nullptr;
+		Port& startingPort;
+		Port* endingPort = nullptr;
+		std::optional<std::pair<Port*, Port*>> droppedConnection = std::nullopt;
 	};
 
 	imnodes::EditorContext* context;
-	float maxPortContentsWidth = 200.0f;
-	mutable std::unordered_map<Node*, NodeDrawState> nodeDrawStates;
-	mutable std::unordered_map<int, Node*> idToNode;
-	mutable std::unordered_map<Port*, PortDrawState> portDrawStates;
-	mutable std::unordered_map<int, Port*> idToPort;
-	mutable int nextAvailableNodeID = 0;
-	mutable int nextAvailablePortID = 0;
+	std::unique_ptr<impl::WidgetCache<Node, impl::NodeEditor>> nodeCache;
+	std::unique_ptr<impl::WidgetCache<Port, impl::PortEditor>> portCache;
 	mutable std::vector<std::pair<InputPort*, OutputPort*>> connections;
-	mutable std::unordered_set<Node*> selectedNodes;
-	mutable Node* hoveredNode = nullptr;
-	mutable Port* connectingPort = nullptr;
-	mutable std::pair<InputPort*, OutputPort*> droppedConnection;
+	std::unique_ptr<impl::SelectionManager<false>> selectionManager;
+	mutable std::optional<ConnectionChange> newConnectionInProgress = std::nullopt;
+	mutable std::optional<std::function<bool()>> modificationCallback = std::nullopt; // this is smelly af
 
-	void drawNode(NodeDrawState& drawState) const;
-	static void drawNodeTitleBar(NodeDrawState& drawState);
-	void drawPort(PortDrawState& drawState) const;
-	auto getNodeDrawState(Node* node) const -> NodeDrawState&;
-	auto getPortDrawState(Port* port) const -> PortDrawState&;
+	void drawGraph() const;
+	void drawMenus() const;
+	void updateConnections() const;
+	void handleMouseInteractions() const;
+	void restoreDroppedConnection() const;
 };
 } // namespace rsp::gui

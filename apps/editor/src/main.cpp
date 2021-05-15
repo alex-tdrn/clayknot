@@ -3,8 +3,8 @@
 #include "rsp/algorithms/MixColors.h"
 #include "rsp/algorithms/RandomColorSource.h"
 #include "rsp/algorithms/ValueToColor.h"
+#include "rsp/base/AlgorithmNode.hpp"
 #include "rsp/base/Graph.hpp"
-#include "rsp/base/Node.hpp"
 #include "rsp/gui/Init.h"
 #include "rsp/gui/Panel.h"
 #include "rsp/gui/widgets/Editor.hpp"
@@ -73,7 +73,7 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init("#version 420");
 
-		imnodes::Initialize();
+		imnodes::CreateContext();
 		auto& style = imnodes::GetStyle();
 		// TODO these colors need to come form a stylesheet
 		style.colors[imnodes::ColorStyle_LinkHovered] = rsp::ColorRGBA{1.0f}.packed();
@@ -89,10 +89,12 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 		rsp::gui::init();
 
 		auto graph1 = []() -> rsp::Graph {
-			auto randomColor = std::make_unique<rsp::Node>(std::make_unique<rsp::algorithms::RandomColorSource>());
-			auto decomposeColor = std::make_unique<rsp::Node>(std::make_unique<rsp::algorithms::DecomposeColor>());
-			auto valueToColor = std::make_unique<rsp::Node>(std::make_unique<rsp::algorithms::ValueToColor>());
-			auto mixColors = std::make_unique<rsp::Node>(std::make_unique<rsp::algorithms::MixColors>());
+			auto randomColor =
+				std::make_unique<rsp::AlgorithmNode>(std::make_unique<rsp::algorithms::RandomColorSource>());
+			auto decomposeColor =
+				std::make_unique<rsp::AlgorithmNode>(std::make_unique<rsp::algorithms::DecomposeColor>());
+			auto valueToColor = std::make_unique<rsp::AlgorithmNode>(std::make_unique<rsp::algorithms::ValueToColor>());
+			auto mixColors = std::make_unique<rsp::AlgorithmNode>(std::make_unique<rsp::algorithms::MixColors>());
 
 			rsp::Graph ret;
 
@@ -104,24 +106,14 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 		}();
 
 		std::vector<rsp::gui::Panel> panels;
-		auto testPanel = rsp::gui::Panel("test");
 		auto graphViewer = rsp::gui::Panel("graph viewer");
 		auto graphEditor = rsp::gui::Panel("graph editor");
-		auto styleEditor = rsp::gui::Panel("style editor");
-
-		auto testColor = rsp::ColorRGB();
-
-		testPanel.addWidget(rsp::gui::Viewer::create(&testColor, "test color viewer"));
-		testPanel.addWidget(rsp::gui::Editor::create(&testColor, "test color editor"));
 
 		graphViewer.addWidget(rsp::gui::Viewer::create(&graph1, "graph1 viewer"));
 		graphEditor.addWidget(rsp::gui::Editor::create(&graph1, "graph1 editor"));
 
-		panels.emplace_back(rsp::gui::Panel(testPanel));
-		panels.push_back(std::move(testPanel));
 		panels.push_back(std::move(graphViewer));
 		panels.push_back(std::move(graphEditor));
-		panels.push_back(std::move(styleEditor));
 
 		while(glfwWindowShouldClose(window) == 0)
 		{
@@ -192,7 +184,7 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 			glfwSwapBuffers(window);
 		}
 
-		imnodes::Shutdown();
+		imnodes::DestroyContext();
 
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();

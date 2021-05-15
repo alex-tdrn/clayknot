@@ -39,6 +39,7 @@ public:
 	virtual auto getConnectedPorts() const -> std::unordered_set<Port*> = 0;
 	virtual void push(std::weak_ptr<Sentinel> const& sentinel = {}) noexcept = 0;
 	virtual void pull(std::weak_ptr<Sentinel> const& sentinel = {}) noexcept = 0;
+	virtual auto createCompatiblePort() const -> std::unique_ptr<Port> = 0;
 
 protected:
 	Port() = default;
@@ -193,6 +194,7 @@ public:
 	auto getConnectedPorts() const -> std::unordered_set<Port*> final;
 	auto getConnectedInputPorts() const -> std::unordered_set<InputPort*> final;
 	void push(std::weak_ptr<Sentinel> const& sentinel = {}) noexcept final;
+	auto createCompatiblePort() const -> std::unique_ptr<Port> final;
 
 private:
 	T data = {};
@@ -305,6 +307,15 @@ void OutputPortOf<T>::push(std::weak_ptr<Sentinel> const& sentinel) noexcept
 }
 
 template <typename T>
+auto OutputPortOf<T>::createCompatiblePort() const -> std::unique_ptr<Port>
+{
+	auto port = std::make_unique<CompatiblePort>(getName());
+	if constexpr(std::is_copy_assignable_v<T>)
+		port->getDefaultPort().get() = this->get();
+	return port;
+}
+
+template <typename T>
 auto OutputPortOf<T>::getDataPointer() const noexcept -> void const*
 {
 	return &data;
@@ -386,6 +397,7 @@ public:
 	auto getConnectedOutputPort() const -> OutputPort* final;
 	auto getDefaultPort() const -> CompatiblePort& final;
 	void pull(std::weak_ptr<Sentinel> const& sentinel = {}) noexcept final;
+	auto createCompatiblePort() const -> std::unique_ptr<Port> final;
 
 private:
 	CompatiblePort mutable defaultPort = CompatiblePort("Default port");
@@ -516,6 +528,15 @@ void InputPortOf<T>::pull(std::weak_ptr<Sentinel> const& sentinel) noexcept
 		connection->pull(sentinel);
 	else
 		defaultPort.pull(sentinel);
+}
+
+template <typename T>
+auto InputPortOf<T>::createCompatiblePort() const -> std::unique_ptr<Port>
+{
+	auto port = std::make_unique<CompatiblePort>(getName());
+	if constexpr(std::is_copy_assignable_v<T>)
+		port->get() = this->get();
+	return port;
 }
 
 template <typename T>

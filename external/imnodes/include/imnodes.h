@@ -86,10 +86,12 @@ struct IO
     {
         EmulateThreeButtonMouse();
 
-        // Controls whether this feature is enabled or not.
-        bool enabled;
-        const bool* modifier; // The keyboard modifier to use with the mouse left click. Set to
-                              // &ImGuiIO::KeyAlt by default.
+        // The keyboard modifier to use in combination with mouse left click to pan the editor view.
+        // Set to NULL by default. To enable this feature, set the modifier to point to a boolean
+        // indicating the state of a modifier. For example,
+        //
+        // imnodes::GetIO().emulate_three_button_mouse.modifier = &ImGui::GetIO().KeyAlt;
+        const bool* modifier;
     } emulate_three_button_mouse;
 
     struct LinkDetachWithModifierClick
@@ -97,14 +99,20 @@ struct IO
         LinkDetachWithModifierClick();
 
         // Pointer to a boolean value indicating when the desired modifier is pressed. Set to NULL
-        // by default (i.e. this feature is disabled). To enable the feature, set the link to point
-        // to, for example, &ImGuiIO::KeyCtrl.
+        // by default. To enable the feature, set the modifier to point to a boolean indicating the
+        // state of a modifier. For example,
+        //
+        // imnodes::GetIO().link_detach_with_modifier_click.modifier = &ImGui::GetIO().KeyCtrl;
         //
         // Left-clicking a link with this modifier pressed will detach that link. NOTE: the user has
         // to actually delete the link for this to work. A deleted link can be detected by calling
         // IsLinkDestroyed() after EndNodeEditor().
         const bool* modifier;
     } link_detach_with_modifier_click;
+
+    // Holding alt mouse button pans the node area, by default middle mouse button will be used
+    // Set based on ImGuiMouseButton values
+    int alt_mouse_button;
 
     IO();
 };
@@ -149,6 +157,17 @@ struct Style
     Style();
 };
 
+struct Context;
+
+// Call this function if you are compiling imnodes in to a dll, separate from ImGui. Calling this
+// function sets the GImGui global variable, which is not shared across dll boundaries.
+void SetImGuiContext(ImGuiContext* ctx);
+
+Context* CreateContext();
+void DestroyContext(Context* ctx = NULL); // NULL = destroy current context
+Context* GetCurrentContext();
+void SetCurrentContext(Context* ctx);
+
 // An editor context corresponds to a set of nodes in a single workspace (created with a single
 // Begin/EndNodeEditor pair)
 //
@@ -162,14 +181,6 @@ void EditorContextSet(EditorContext*);
 ImVec2 EditorContextGetPanning();
 void EditorContextResetPanning(const ImVec2& pos);
 void EditorContextMoveToNode(const int node_id);
-
-// Initialize the node editor system.
-void Initialize();
-void Shutdown();
-
-// Call this function if you are compiling imnodes in to a dll, separate from ImGui. Calling this
-// function sets the GImGui global variable, which is not shared across dll boundaries.
-void SetImGuiContext(ImGuiContext* ctx);
 
 IO& GetIO();
 
