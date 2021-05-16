@@ -2,13 +2,13 @@ add_library(rendershop-base INTERFACE)
 
 target_sources(
 	rendershop-base
-	INTERFACE "include/rsp/base/Node.hpp"
-				"include/rsp/base/AlgorithmNode.hpp"
-				"include/rsp/base/ConstantNode.hpp"
-				"include/rsp/base/Algorithm.hpp"
-				"include/rsp/base/Port.hpp"
-				"include/rsp/base/Sentinel.hpp"
-				"include/rsp/base/Graph.hpp"
+	INTERFACE "include/rsp/base/node.hpp"
+				"include/rsp/base/algorithm_node.hpp"
+				"include/rsp/base/constant_node.hpp"
+				"include/rsp/base/algorithm.hpp"
+				"include/rsp/base/port.hpp"
+				"include/rsp/base/sentinel.hpp"
+				"include/rsp/base/graph.hpp"
 )
 
 target_include_directories(rendershop-base INTERFACE "include")

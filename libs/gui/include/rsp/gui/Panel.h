@@ -7,24 +7,24 @@
 
 namespace rsp::gui
 {
-class Widget;
-class Panel final
+class widget;
+class panel final
 {
 public:
-	Panel() = default;
-	explicit Panel(std::string title);
-	Panel(Panel const&);
-	Panel(Panel&&) noexcept = default;
-	auto operator=(Panel const&) -> Panel&;
-	auto operator=(Panel&&) noexcept -> Panel& = default;
-	~Panel() = default;
+	panel() = default;
+	explicit panel(std::string title);
+	panel(panel const&);
+	panel(panel&&) noexcept = default;
+	auto operator=(panel const&) -> panel&;
+	auto operator=(panel&&) noexcept -> panel& = default;
+	~panel() = default;
 
-	void addWidget(std::unique_ptr<Widget>&& widget);
+	void add_widget(std::unique_ptr<rsp::gui::widget>&& widget);
 	void draw();
-	void setTitle(std::string title);
-	auto getTitle() const -> std::string const&;
-	auto isVisible() const -> bool;
-	void toggleVisibility();
+	void set_title(std::string title);
+	auto get_title() const -> std::string const&;
+	auto is_visible() const -> bool;
+	void toggle_visibility();
 	void show();
 	void hide();
 
@@ -32,7 +32,7 @@ private:
 	std::string title;
 	bool visible = true;
 	ImGuiWindowFlags flags = ImGuiWindowFlags_None;
-	std::vector<std::unique_ptr<Widget>> widgets;
+	std::vector<std::unique_ptr<rsp::gui::widget>> widgets;
 };
 
 } // namespace rsp::gui

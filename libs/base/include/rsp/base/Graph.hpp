@@ -1,6 +1,6 @@
 #pragma once
 
-#include "rsp/base/Node.hpp"
+#include "rsp/base/node.hpp"
 
 #include <memory>
 #include <vector>
@@ -8,5 +8,5 @@
 namespace rsp
 {
 // TODO develop this into a useful class
-using Graph = std::vector<std::unique_ptr<Node>>;
+using graph = std::vector<std::unique_ptr<rsp::node>>;
 } // namespace rsp

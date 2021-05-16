@@ -1,15 +1,15 @@
 add_library(
 	rendershop-algorithms
-	"src/DecomposeColor.cpp"
-	"include/rsp/algorithms/DecomposeColor.h"
-	"src/GrayscaleColorNode.cpp"
-	"include/rsp/algorithms/GrayscaleColorNode.h"
-	"src/MixColors.cpp"
-	"include/rsp/algorithms/MixColors.h"
-	"src/RandomColorSource.cpp"
-	"include/rsp/algorithms/RandomColorSource.h"
-	"src/ValueToColor.cpp"
-	"include/rsp/algorithms/ValueToColor.h"
+	"src/decompose_color.cpp"
+	"include/rsp/algorithms/decompose_color.h"
+	"src/grayscale_color_node.cpp"
+	"include/rsp/algorithms/grayscale_color_node.h"
+	"src/mix_colors.cpp"
+	"include/rsp/algorithms/mix_colors.h"
+	"src/random_color_source.cpp"
+	"include/rsp/algorithms/random_color_source.h"
+	"src/value_to_color.cpp"
+	"include/rsp/algorithms/value_to_color.h"
 )
 
 target_include_directories(rendershop-algorithms PUBLIC "include")

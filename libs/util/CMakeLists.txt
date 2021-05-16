@@ -2,14 +2,13 @@ add_library(rendershop-util INTERFACE)
 
 target_sources(
 	rendershop-util
-	INTERFACE "include/rsp/util/Bounded.hpp"
-				"include/rsp/util/ColorRGB.hpp"
-				"include/rsp/util/ColorRGBA.hpp"
-				"include/rsp/util/DataTypeName.hpp"
-				"include/rsp/util/Meta.hpp"
-				"include/rsp/util/Timestamp.hpp"
-				"include/rsp/util/TimeUnit.hpp"
-				"include/rsp/util/TypeList.hpp"
+	INTERFACE "include/rsp/util/bounded.hpp"
+				"include/rsp/util/color_rgb.hpp"
+				"include/rsp/util/color_rgba.hpp"
+				"include/rsp/util/data_type_name.hpp"
+				"include/rsp/util/timestamp.hpp"
+				"include/rsp/util/time_unit.hpp"
+				"include/rsp/util/type_list.hpp"
 )
 
 target_include_directories(rendershop-util INTERFACE "include")

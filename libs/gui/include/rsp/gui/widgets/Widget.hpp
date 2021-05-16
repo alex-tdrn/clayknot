@@ -7,149 +7,149 @@
 
 namespace rsp::gui
 {
-class Widget
+class widget
 {
 public:
-	Widget() = delete;
-	explicit Widget(std::string dataName);
-	Widget(Widget const&) = delete;
-	Widget(Widget&&) = delete;
-	auto operator=(Widget const&) -> Widget& = delete;
-	auto operator=(Widget&&) -> Widget& = delete;
-	virtual ~Widget() = default;
+	widget() = delete;
+	explicit widget(std::string data_name);
+	widget(widget const&) = delete;
+	widget(widget&&) = delete;
+	auto operator=(widget const&) -> widget& = delete;
+	auto operator=(widget&&) -> widget& = delete;
+	virtual ~widget() = default;
 
-	virtual auto clone() const -> std::unique_ptr<Widget> = 0;
+	virtual auto clone() const -> std::unique_ptr<widget> = 0;
 	void draw() const;
-	void enableTitle();
-	void disableTitle();
-	void preferExtended();
-	void preferCompact();
-	void setMaximumWidth(float width);
-	void clearMaximumWidth();
-	auto getLastSize() const -> glm::vec2;
-	auto getDataName() const -> std::string const&;
+	void enable_title();
+	void disable_title();
+	void prefer_extended();
+	void prefer_compact();
+	void set_maximum_width(float width);
+	void clear_maximum_width();
+	auto get_last_size() const -> glm::vec2;
+	auto get_data_name() const -> std::string const&;
 
 protected:
-	auto getAvailableWidth() const -> float;
-	auto isExtendedPreferred() const -> bool;
-	virtual auto isDataAvailable() const noexcept -> bool = 0;
-	virtual void drawContents() const = 0;
+	auto get_available_width() const -> float;
+	auto is_extended_preferred() const -> bool;
+	virtual auto is_data_available() const noexcept -> bool = 0;
+	virtual void draw_contents() const = 0;
 
 private:
-	std::string const dataName;
-	bool drawTitle = true;
-	mutable std::optional<float> maximumWidth;
-	mutable glm::vec2 lastSize = {0.0f, 0.0f};
-	mutable bool extendedAvailable = false;
-	mutable bool extendedPreferred = false;
+	std::string const data_name;
+	bool draw_title = true;
+	mutable std::optional<float> maximum_width;
+	mutable glm::vec2 last_size = {0.0f, 0.0f};
+	mutable bool extended_available = false;
+	mutable bool extended_preferred = false;
 };
 
-inline Widget::Widget(std::string dataName) : dataName(std::move(dataName))
+inline widget::widget(std::string data_name) : data_name(std::move(data_name))
 {
 }
 
-inline void Widget::draw() const
+inline void widget::draw() const
 {
 	ImGui::PushID(this);
-	if(ImGui::BeginPopup(dataName.c_str()))
+	if(ImGui::BeginPopup(data_name.c_str()))
 	{
-		bool wasExtendedPreferred = extendedPreferred;
-		std::optional<float> oldMaximumWidth = maximumWidth;
+		bool was_extended_preferred = extended_preferred;
+		std::optional<float> old_maximum_width = maximum_width;
 
-		extendedPreferred = true;
-		maximumWidth = ImGui::GetIO().DisplaySize.y * 0.75;
+		extended_preferred = true;
+		maximum_width = ImGui::GetIO().DisplaySize.y * 0.75;
 
-		if(drawTitle)
-			ImGui::Text("%s", dataName.c_str());
-		if(isDataAvailable())
-			drawContents();
+		if(draw_title)
+			ImGui::Text("%s", data_name.c_str());
+		if(is_data_available())
+			draw_contents();
 		ImGui::EndPopup();
 
-		extendedPreferred = wasExtendedPreferred;
-		maximumWidth = oldMaximumWidth;
+		extended_preferred = was_extended_preferred;
+		maximum_width = old_maximum_width;
 	}
 	else
 	{
 		ImGui::BeginGroup();
-		if(drawTitle)
-			ImGui::Text("%s", dataName.c_str());
-		if(extendedAvailable)
+		if(draw_title)
+			ImGui::Text("%s", data_name.c_str());
+		if(extended_available)
 		{
-			if(drawTitle)
+			if(draw_title)
 				ImGui::SameLine();
-			if(ImGui::SmallButton((extendedPreferred ? "-" : "+")))
-				extendedPreferred = !extendedPreferred;
-			if(extendedPreferred)
+			if(ImGui::SmallButton((extended_preferred ? "-" : "+")))
+				extended_preferred = !extended_preferred;
+			if(extended_preferred)
 			{
 				ImGui::SameLine();
 				if(ImGui::SmallButton("+"))
-					ImGui::OpenPopup(dataName.c_str());
+					ImGui::OpenPopup(data_name.c_str());
 			}
 		}
-		if(isDataAvailable())
-			drawContents();
+		if(is_data_available())
+			draw_contents();
 		else
 			ImGui::Text("No data...");
 		ImGui::EndGroup();
-		lastSize = ImGui::GetItemRectSize();
+		last_size = ImGui::GetItemRectSize();
 	}
 	ImGui::PopID();
 }
 
-inline void Widget::enableTitle()
+inline void widget::enable_title()
 {
-	drawTitle = true;
+	draw_title = true;
 }
 
-inline void Widget::disableTitle()
+inline void widget::disable_title()
 {
-	drawTitle = false;
+	draw_title = false;
 }
 
-inline void Widget::preferExtended()
+inline void widget::prefer_extended()
 {
-	extendedAvailable = true;
-	extendedPreferred = true;
+	extended_available = true;
+	extended_preferred = true;
 }
 
-inline void Widget::preferCompact()
+inline void widget::prefer_compact()
 {
-	extendedAvailable = true;
-	extendedPreferred = false;
+	extended_available = true;
+	extended_preferred = false;
 }
 
-inline void Widget::setMaximumWidth(float width)
+inline void widget::set_maximum_width(float width)
 {
-	maximumWidth = width;
+	maximum_width = width;
 }
 
-inline void Widget::clearMaximumWidth()
+inline void widget::clear_maximum_width()
 {
-	maximumWidth.reset();
+	maximum_width.reset();
 }
 
-inline auto Widget::getLastSize() const -> glm::vec2
+inline auto widget::get_last_size() const -> glm::vec2
 {
-	return lastSize;
+	return last_size;
 }
 
-inline auto Widget::getDataName() const -> std::string const&
+inline auto widget::get_data_name() const -> std::string const&
 {
-	return dataName;
+	return data_name;
 }
 
-inline auto Widget::getAvailableWidth() const -> float
+inline auto widget::get_available_width() const -> float
 {
-	if(maximumWidth)
-		return maximumWidth.value();
+	if(maximum_width)
+		return maximum_width.value();
 	return ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ScrollbarSize - ImGui::GetStyle().WindowPadding.x -
 		   ImGui::GetStyle().FramePadding.x;
 }
 
-inline auto Widget::isExtendedPreferred() const -> bool
+inline auto widget::is_extended_preferred() const -> bool
 {
-	extendedAvailable = true;
-	return extendedPreferred;
+	extended_available = true;
+	return extended_preferred;
 }
 
 } // namespace rsp::gui

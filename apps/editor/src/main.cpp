@@ -1,15 +1,15 @@
-#include "rsp/algorithms/DecomposeColor.h"
-#include "rsp/algorithms/GrayscaleColorNode.h"
-#include "rsp/algorithms/MixColors.h"
-#include "rsp/algorithms/RandomColorSource.h"
-#include "rsp/algorithms/ValueToColor.h"
-#include "rsp/base/AlgorithmNode.hpp"
-#include "rsp/base/Graph.hpp"
-#include "rsp/gui/Init.h"
-#include "rsp/gui/Panel.h"
-#include "rsp/gui/widgets/Editor.hpp"
-#include "rsp/gui/widgets/Viewer.hpp"
-#include "rsp/util/ColorRGBA.hpp"
+#include "rsp/algorithms/decompose_color.h"
+#include "rsp/algorithms/grayscale_color_node.h"
+#include "rsp/algorithms/mix_colors.h"
+#include "rsp/algorithms/random_color_source.h"
+#include "rsp/algorithms/value_to_color.h"
+#include "rsp/base/algorithm_node.hpp"
+#include "rsp/base/graph.hpp"
+#include "rsp/gui/init.h"
+#include "rsp/gui/panel.h"
+#include "rsp/gui/widgets/editor.hpp"
+#include "rsp/gui/widgets/viewer.hpp"
+#include "rsp/util/color_rgba.hpp"
 
 #include <glad/glad.h>
 
@@ -76,10 +76,10 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 		imnodes::CreateContext();
 		auto& style = imnodes::GetStyle();
 		// TODO these colors need to come form a stylesheet
-		style.colors[imnodes::ColorStyle_LinkHovered] = rsp::ColorRGBA{1.0f}.packed();
-		style.colors[imnodes::ColorStyle_LinkSelected] = rsp::ColorRGBA{1.0f}.packed();
-		style.colors[imnodes::ColorStyle_Link] = rsp::ColorRGBA{0.0f}.packed();
-		style.colors[imnodes::ColorStyle_PinHovered] = rsp::ColorRGBA{1.0f}.packed();
+		style.colors[imnodes::ColorStyle_LinkHovered] = rsp::color_rgba{1.0f}.packed();
+		style.colors[imnodes::ColorStyle_LinkSelected] = rsp::color_rgba{1.0f}.packed();
+		style.colors[imnodes::ColorStyle_Link] = rsp::color_rgba{0.0f}.packed();
+		style.colors[imnodes::ColorStyle_PinHovered] = rsp::color_rgba{1.0f}.packed();
 
 		style.colors[imnodes::ColorStyle_TitleBarHovered] = style.colors[imnodes::ColorStyle_TitleBar];
 		style.colors[imnodes::ColorStyle_TitleBarSelected] = style.colors[imnodes::ColorStyle_TitleBar];
@@ -88,32 +88,33 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 
 		rsp::gui::init();
 
-		auto graph1 = []() -> rsp::Graph {
-			auto randomColor =
-				std::make_unique<rsp::AlgorithmNode>(std::make_unique<rsp::algorithms::RandomColorSource>());
-			auto decomposeColor =
-				std::make_unique<rsp::AlgorithmNode>(std::make_unique<rsp::algorithms::DecomposeColor>());
-			auto valueToColor = std::make_unique<rsp::AlgorithmNode>(std::make_unique<rsp::algorithms::ValueToColor>());
-			auto mixColors = std::make_unique<rsp::AlgorithmNode>(std::make_unique<rsp::algorithms::MixColors>());
+		auto graph1 = []() -> rsp::graph {
+			auto random_color =
+				std::make_unique<rsp::algorithm_node>(std::make_unique<rsp::algorithms::random_color_source>());
+			auto decompose_color =
+				std::make_unique<rsp::algorithm_node>(std::make_unique<rsp::algorithms::decompose_color>());
+			auto value_to_color =
+				std::make_unique<rsp::algorithm_node>(std::make_unique<rsp::algorithms::value_to_color>());
+			auto mix_colors = std::make_unique<rsp::algorithm_node>(std::make_unique<rsp::algorithms::mix_colors>());
 
-			rsp::Graph ret;
+			rsp::graph ret;
 
-			ret.emplace_back(std::move(randomColor));
-			ret.emplace_back(std::move(decomposeColor));
-			ret.emplace_back(std::move(valueToColor));
-			ret.emplace_back(std::move(mixColors));
+			ret.emplace_back(std::move(random_color));
+			ret.emplace_back(std::move(decompose_color));
+			ret.emplace_back(std::move(value_to_color));
+			ret.emplace_back(std::move(mix_colors));
 			return ret;
 		}();
 
-		std::vector<rsp::gui::Panel> panels;
-		auto graphViewer = rsp::gui::Panel("graph viewer");
-		auto graphEditor = rsp::gui::Panel("graph editor");
+		std::vector<rsp::gui::panel> panels;
+		auto graph_viewer = rsp::gui::panel("graph viewer");
+		auto graph_editor = rsp::gui::panel("graph editor");
 
-		graphViewer.addWidget(rsp::gui::Viewer::create(&graph1, "graph1 viewer"));
-		graphEditor.addWidget(rsp::gui::Editor::create(&graph1, "graph1 editor"));
+		graph_viewer.add_widget(rsp::gui::viewer::create(&graph1, "graph1 viewer"));
+		graph_editor.add_widget(rsp::gui::editor::create(&graph1, "graph1 editor"));
 
-		panels.push_back(std::move(graphViewer));
-		panels.push_back(std::move(graphEditor));
+		panels.push_back(std::move(graph_viewer));
+		panels.push_back(std::move(graph_editor));
 
 		while(glfwWindowShouldClose(window) == 0)
 		{
@@ -159,8 +160,8 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 				if(ImGui::BeginMenu("View"))
 				{
 					for(auto& panel : panels)
-						if(ImGui::MenuItem(panel.getTitle().c_str(), "", panel.isVisible()))
-							panel.toggleVisibility();
+						if(ImGui::MenuItem(panel.get_title().c_str(), "", panel.is_visible()))
+							panel.toggle_visibility();
 					ImGui::EndMenu();
 				}
 				ImGui::EndMenuBar();

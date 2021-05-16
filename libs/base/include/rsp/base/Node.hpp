@@ -1,6 +1,6 @@
 #pragma once
 
-#include "rsp/base/Port.hpp"
+#include "rsp/base/port.hpp"
 
 #include <memory>
 #include <string>
@@ -8,46 +8,46 @@
 
 namespace rsp
 {
-class Sentinel;
-class InputPort;
-class OutputPort;
+class sentinel;
+class input_port;
+class output_port;
 
-class Node
+class node
 {
 public:
-	Node() = default;
-	Node(Node const&) = delete;
-	Node(Node&&) noexcept = delete;
-	auto operator=(Node const&) -> Node& = delete;
-	auto operator=(Node&&) noexcept -> Node& = delete;
-	virtual ~Node() = default;
+	node() = default;
+	node(node const&) = delete;
+	node(node&&) noexcept = delete;
+	auto operator=(node const&) -> node& = delete;
+	auto operator=(node&&) noexcept -> node& = delete;
+	virtual ~node() = default;
 
-	virtual auto getName() const -> std::string const& = 0;
-	virtual auto getInputPorts() const -> std::vector<InputPort*>;
-	virtual auto getOutputPorts() const -> std::vector<OutputPort*>;
-	virtual void pull(std::weak_ptr<Sentinel> const& sentinel = {});
-	virtual void push(std::weak_ptr<Sentinel> const& sentinel = {});
+	virtual auto get_name() const -> std::string const& = 0;
+	virtual auto get_input_ports() const -> std::vector<rsp::input_port*>;
+	virtual auto get_output_ports() const -> std::vector<rsp::output_port*>;
+	virtual void pull(std::weak_ptr<rsp::sentinel> const& sentinel = {});
+	virtual void push(std::weak_ptr<rsp::sentinel> const& sentinel = {});
 };
 
-inline auto Node::getInputPorts() const -> std::vector<InputPort*>
+inline auto node::get_input_ports() const -> std::vector<rsp::input_port*>
 {
 	return {};
 }
 
-inline auto Node::getOutputPorts() const -> std::vector<OutputPort*>
+inline auto node::get_output_ports() const -> std::vector<rsp::output_port*>
 {
 	return {};
 }
 
-inline void Node::pull(std::weak_ptr<Sentinel> const& sentinel)
+inline void node::pull(std::weak_ptr<rsp::sentinel> const& sentinel)
 {
-	for(auto* port : getInputPorts())
+	for(auto* port : get_input_ports())
 		port->pull(sentinel);
 }
 
-inline void Node::push(std::weak_ptr<Sentinel> const& sentinel)
+inline void node::push(std::weak_ptr<rsp::sentinel> const& sentinel)
 {
-	for(auto* port : getOutputPorts())
+	for(auto* port : get_output_ports())
 		port->push(sentinel);
 }
 

@@ -1,58 +1,58 @@
 #pragma once
 
-#include "rsp/base/Port.hpp"
+#include "rsp/base/port.hpp"
 
 #include <string>
 #include <vector>
 
 namespace rsp
 {
-class Algorithm
+class algorithm
 {
 public:
-	Algorithm(const Algorithm&) = delete;
-	Algorithm(Algorithm&&) = delete;
-	auto operator=(const Algorithm&) = delete;
-	auto operator=(Algorithm&&) = delete;
-	virtual ~Algorithm() = default;
+	algorithm(const algorithm&) = delete;
+	algorithm(algorithm&&) = delete;
+	auto operator=(const algorithm&) = delete;
+	auto operator=(algorithm&&) = delete;
+	virtual ~algorithm() = default;
 
-	virtual auto getName() const noexcept -> std::string const& = 0;
+	virtual auto get_name() const noexcept -> std::string const& = 0;
 	virtual void update() = 0;
-	auto getInputPorts() const noexcept -> std::vector<InputPort*> const&;
-	auto getOutputPorts() const noexcept -> std::vector<OutputPort*> const&;
+	auto get_input_ports() const noexcept -> std::vector<rsp::input_port*> const&;
+	auto get_output_ports() const noexcept -> std::vector<rsp::output_port*> const&;
 
 protected:
-	Algorithm() = default;
+	algorithm() = default;
 
-	void registerPort(InputPort& port);
-	void registerPort(OutputPort& port);
+	void register_port(rsp::input_port& port);
+	void register_port(rsp::output_port& port);
 
 private:
-	std::vector<InputPort*> inputPorts;
-	std::vector<OutputPort*> outputPorts;
+	std::vector<rsp::input_port*> input_ports;
+	std::vector<rsp::output_port*> output_ports;
 };
 
-inline auto Algorithm::getInputPorts() const noexcept -> std::vector<InputPort*> const&
+inline auto algorithm::get_input_ports() const noexcept -> std::vector<rsp::input_port*> const&
 {
-	return inputPorts;
+	return input_ports;
 }
 
-inline auto Algorithm::getOutputPorts() const noexcept -> std::vector<OutputPort*> const&
+inline auto algorithm::get_output_ports() const noexcept -> std::vector<rsp::output_port*> const&
 {
-	return outputPorts;
+	return output_ports;
 }
 
-inline void Algorithm::registerPort(InputPort& port)
+inline void algorithm::register_port(rsp::input_port& port)
 {
-	if(std::find(inputPorts.begin(), inputPorts.end(), &port) != inputPorts.end())
+	if(std::find(input_ports.begin(), input_ports.end(), &port) != input_ports.end())
 		return;
-	inputPorts.emplace_back(&port);
+	input_ports.emplace_back(&port);
 }
 
-inline void Algorithm::registerPort(OutputPort& port)
+inline void algorithm::register_port(rsp::output_port& port)
 {
-	if(std::find(outputPorts.begin(), outputPorts.end(), &port) != outputPorts.end())
+	if(std::find(output_ports.begin(), output_ports.end(), &port) != output_ports.end())
 		return;
-	outputPorts.emplace_back(&port);
+	output_ports.emplace_back(&port);
 }
 } // namespace rsp

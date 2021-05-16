@@ -7,7 +7,7 @@
 namespace rsp
 {
 template <typename DataType>
-struct DataTypeName
+struct data_type_name
 {
 	static auto get() -> std::string
 	{
@@ -16,37 +16,37 @@ struct DataTypeName
 };
 
 template <>
-inline auto DataTypeName<int>::get() -> std::string
+inline auto data_type_name<int>::get() -> std::string
 {
 	return "Integer";
 }
 
 template <>
-inline auto DataTypeName<float>::get() -> std::string
+inline auto data_type_name<float>::get() -> std::string
 {
 	return "Float";
 }
 
 template <>
-inline auto DataTypeName<bool>::get() -> std::string
+inline auto data_type_name<bool>::get() -> std::string
 {
 	return "Boolean";
 }
 
 template <>
-inline auto DataTypeName<glm::vec2>::get() -> std::string
+inline auto data_type_name<glm::vec2>::get() -> std::string
 {
 	return "Vector2";
 }
 
 template <>
-inline auto DataTypeName<glm::vec3>::get() -> std::string
+inline auto data_type_name<glm::vec3>::get() -> std::string
 {
 	return "Vector3";
 }
 
 template <>
-inline auto DataTypeName<glm::vec4>::get() -> std::string
+inline auto data_type_name<glm::vec4>::get() -> std::string
 {
 	return "Vector4";
 }

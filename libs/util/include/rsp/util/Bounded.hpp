@@ -1,6 +1,6 @@
 #pragma once
 
-#include "rsp/util/DataTypeName.hpp"
+#include "rsp/util/data_type_name.hpp"
 
 #include <cassert>
 #include <glm/glm.hpp>
@@ -8,31 +8,31 @@
 namespace rsp
 {
 template <typename T>
-class Bounded
+class bounded
 {
 public:
-	Bounded() = default;
-	explicit Bounded(T val, T min, T max);
-	Bounded(Bounded const&) = default;
-	Bounded(Bounded&&) noexcept = default;
-	auto operator=(Bounded const& that) -> Bounded& = default;
-	auto operator=(Bounded&& that) noexcept -> Bounded& = default;
-	auto operator=(T const& that) -> Bounded&;
-	auto operator=(T&& that) -> Bounded&;
-	~Bounded() = default;
+	bounded() = default;
+	explicit bounded(T val, T min, T max);
+	bounded(bounded const&) = default;
+	bounded(bounded&&) noexcept = default;
+	auto operator=(bounded const& that) -> bounded& = default;
+	auto operator=(bounded&& that) noexcept -> bounded& = default;
+	auto operator=(T const& that) -> bounded&;
+	auto operator=(T&& that) -> bounded&;
+	~bounded() = default;
 
 	auto valid() -> bool;
-	void setMin(T min);
-	void setMax(T max);
-	auto getMin() const -> T;
-	auto getMax() const -> T;
-	auto getVal() const -> T;
+	void set_min(T min);
+	void set_max(T max);
+	auto get_min() const -> T;
+	auto get_max() const -> T;
+	auto get_val() const -> T;
 	auto data() -> T*;
 	explicit operator T() const;
-	auto operator+=(T const& that) -> Bounded&;
-	auto operator-=(T const& that) -> Bounded&;
-	auto operator*=(T const& that) -> Bounded&;
-	auto operator/=(T const& that) -> Bounded&;
+	auto operator+=(T const& that) -> bounded&;
+	auto operator-=(T const& that) -> bounded&;
+	auto operator*=(T const& that) -> bounded&;
+	auto operator/=(T const& that) -> bounded&;
 
 private:
 	T val;
@@ -41,33 +41,33 @@ private:
 };
 
 template <typename T>
-Bounded<T>::Bounded(T val, T min, T max) : val(val), min(min), max(max)
+bounded<T>::bounded(T val, T min, T max) : val(val), min(min), max(max)
 {
 	assert(valid());
 }
 
 template <typename T>
-auto Bounded<T>::operator=(T const& that) -> Bounded&
+auto bounded<T>::operator=(T const& that) -> bounded&
 {
 	val = that;
 	assert(valid());
 }
 
 template <typename T>
-auto Bounded<T>::operator=(T&& that) -> Bounded&
+auto bounded<T>::operator=(T&& that) -> bounded&
 {
 	val = std::move(that);
 	assert(valid());
 }
 
 template <typename T>
-auto Bounded<T>::valid() -> bool
+auto bounded<T>::valid() -> bool
 {
 	return min <= max && val >= min && val <= max;
 }
 
 template <>
-inline auto Bounded<glm::vec2>::valid() -> bool
+inline auto bounded<glm::vec2>::valid() -> bool
 {
 	for(int i = 0; i < 2; i++)
 	{
@@ -78,7 +78,7 @@ inline auto Bounded<glm::vec2>::valid() -> bool
 }
 
 template <>
-inline auto Bounded<glm::vec3>::valid() -> bool
+inline auto bounded<glm::vec3>::valid() -> bool
 {
 	for(int i = 0; i < 3; i++)
 	{
@@ -89,7 +89,7 @@ inline auto Bounded<glm::vec3>::valid() -> bool
 }
 
 template <>
-inline auto Bounded<glm::vec4>::valid() -> bool
+inline auto bounded<glm::vec4>::valid() -> bool
 {
 	for(int i = 0; i < 4; i++)
 	{
@@ -100,51 +100,51 @@ inline auto Bounded<glm::vec4>::valid() -> bool
 }
 
 template <typename T>
-void Bounded<T>::setMin(T min)
+void bounded<T>::set_min(T min)
 {
 	this->min = min;
 	assert(valid());
 }
 
 template <typename T>
-void Bounded<T>::setMax(T max)
+void bounded<T>::set_max(T max)
 {
 	this->max = max;
 	assert(valid());
 }
 
 template <typename T>
-auto Bounded<T>::getMin() const -> T
+auto bounded<T>::get_min() const -> T
 {
 	return min;
 }
 
 template <typename T>
-auto Bounded<T>::getMax() const -> T
+auto bounded<T>::get_max() const -> T
 {
 	return max;
 }
 
 template <typename T>
-auto Bounded<T>::getVal() const -> T
+auto bounded<T>::get_val() const -> T
 {
 	return val;
 }
 
 template <typename T>
-auto Bounded<T>::data() -> T*
+auto bounded<T>::data() -> T*
 {
 	return &val;
 }
 
 template <typename T>
-Bounded<T>::operator T() const
+bounded<T>::operator T() const
 {
 	return val;
 }
 
 template <typename T>
-auto Bounded<T>::operator+=(T const& that) -> Bounded&
+auto bounded<T>::operator+=(T const& that) -> bounded&
 {
 	this->value += that;
 	assert(valid());
@@ -152,7 +152,7 @@ auto Bounded<T>::operator+=(T const& that) -> Bounded&
 }
 
 template <typename T>
-auto Bounded<T>::operator-=(T const& that) -> Bounded&
+auto bounded<T>::operator-=(T const& that) -> bounded&
 {
 	this->value -= that;
 	assert(valid());
@@ -160,7 +160,7 @@ auto Bounded<T>::operator-=(T const& that) -> Bounded&
 }
 
 template <typename T>
-auto Bounded<T>::operator*=(T const& that) -> Bounded&
+auto bounded<T>::operator*=(T const& that) -> bounded&
 {
 	this->value *= that;
 	assert(valid());
@@ -168,7 +168,7 @@ auto Bounded<T>::operator*=(T const& that) -> Bounded&
 }
 
 template <typename T>
-auto Bounded<T>::operator/=(T const& that) -> Bounded&
+auto bounded<T>::operator/=(T const& that) -> bounded&
 {
 	this->value /= that;
 	assert(valid());
@@ -176,11 +176,11 @@ auto Bounded<T>::operator/=(T const& that) -> Bounded&
 }
 
 template <typename DataType>
-struct DataTypeName<Bounded<DataType>>
+struct data_type_name<bounded<DataType>>
 {
 	static auto get() -> std::string
 	{
-		return "Bounded " + DataTypeName<DataType>::get();
+		return "bounded " + data_type_name<DataType>::get();
 	}
 };
 

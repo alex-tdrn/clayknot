@@ -1,4 +1,4 @@
-#include "rsp/base/Node.hpp"
+#include "rsp/base/node.hpp"
 
 #include <catch2/catch.hpp>
 #include <chrono>

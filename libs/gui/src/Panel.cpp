@@ -1,21 +1,21 @@
-#include "rsp/gui/Panel.h"
-#include "rsp/gui/widgets/Widget.hpp"
+#include "rsp/gui/panel.h"
+#include "rsp/gui/widgets/widget.hpp"
 
 #include <algorithm>
 #include <iterator>
 
 namespace rsp::gui
 {
-Panel::Panel(std::string title) : title(std::move(title))
+panel::panel(std::string title) : title(std::move(title))
 {
 }
 
-Panel::Panel(Panel const& other)
+panel::panel(panel const& other)
 {
 	*this = other;
 }
 
-auto Panel::operator=(Panel const& other) -> Panel&
+auto panel::operator=(panel const& other) -> panel&
 {
 	if(this != &other)
 	{
@@ -32,12 +32,12 @@ auto Panel::operator=(Panel const& other) -> Panel&
 	return *this;
 }
 
-void Panel::addWidget(std::unique_ptr<Widget>&& widget)
+void panel::add_widget(std::unique_ptr<rsp::gui::widget>&& widget)
 {
 	widgets.push_back(std::move(widget));
 }
 
-void Panel::draw()
+void panel::draw()
 {
 	if(!visible)
 		return;
@@ -51,32 +51,32 @@ void Panel::draw()
 	ImGui::PopID();
 }
 
-void Panel::setTitle(std::string title)
+void panel::set_title(std::string title)
 {
 	this->title = std::move(title);
 }
 
-auto Panel::getTitle() const -> std::string const&
+auto panel::get_title() const -> std::string const&
 {
 	return title;
 }
 
-auto Panel::isVisible() const -> bool
+auto panel::is_visible() const -> bool
 {
 	return visible;
 }
 
-void Panel::toggleVisibility()
+void panel::toggle_visibility()
 {
 	visible = !visible;
 }
 
-void Panel::show()
+void panel::show()
 {
 	visible = true;
 }
 
-void Panel::hide()
+void panel::hide()
 {
 	visible = false;
 }

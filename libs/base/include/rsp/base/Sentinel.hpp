@@ -2,14 +2,14 @@
 
 namespace rsp
 {
-class Sentinel
+class sentinel
 {
 public:
-	Sentinel() = default;
-	Sentinel(Sentinel const&) = delete;
-	Sentinel(Sentinel&&) = delete;
-	auto operator=(Sentinel const&) -> Sentinel& = delete;
-	auto operator=(Sentinel&&) -> Sentinel& = delete;
-	virtual ~Sentinel() = default;
+	sentinel() = default;
+	sentinel(sentinel const&) = delete;
+	sentinel(sentinel&&) = delete;
+	auto operator=(sentinel const&) -> sentinel& = delete;
+	auto operator=(sentinel&&) -> sentinel& = delete;
+	virtual ~sentinel() = default;
 };
 } // namespace rsp

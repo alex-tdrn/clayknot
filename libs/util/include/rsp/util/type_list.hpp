@@ -5,7 +5,7 @@
 namespace rsp::meta
 {
 template <typename... Types>
-class TypeList
+class type_list
 {
 public:
 	template <std::size_t Index>

@@ -1,11 +1,11 @@
 #pragma once
 
-#include "rsp/gui/widgets/Widget.hpp"
-#include "rsp/util/Bounded.hpp"
-#include "rsp/util/ColorRGB.hpp"
-#include "rsp/util/ColorRGBA.hpp"
-#include "rsp/util/TimeUnit.hpp"
-#include "rsp/util/TypeList.hpp"
+#include "rsp/gui/widgets/widget.hpp"
+#include "rsp/util/bounded.hpp"
+#include "rsp/util/color_rgb.hpp"
+#include "rsp/util/color_rgba.hpp"
+#include "rsp/util/time_unit.hpp"
+#include "rsp/util/type_list.hpp"
 
 #include <imgui.h>
 #include <typeindex>
@@ -13,95 +13,96 @@
 
 namespace rsp::gui
 {
-class Viewer : public Widget
+class viewer : public widget
 {
 public:
-	using Factory = std::unique_ptr<Viewer> (*)(void const*, std::string const&);
+	using factory = std::unique_ptr<viewer> (*)(void const*, std::string const&);
 
-	Viewer() = delete;
-	explicit Viewer(std::string const& dataName);
-	Viewer(Viewer const&) = delete;
-	Viewer(Viewer&&) = delete;
-	auto operator=(Viewer const&) -> Viewer& = delete;
-	auto operator=(Viewer&&) -> Viewer& = delete;
-	~Viewer() override = default;
+	viewer() = delete;
+	explicit viewer(std::string const& data_name);
+	viewer(viewer const&) = delete;
+	viewer(viewer&&) = delete;
+	auto operator=(viewer const&) -> viewer& = delete;
+	auto operator=(viewer&&) -> viewer& = delete;
+	~viewer() override = default;
 
-	template <typename DataType, typename ViewerImplementation>
-	static void registerFactory();
-	template <typename DataType>
-	static auto create(DataType const* data, std::string const& dataName) -> std::unique_ptr<Viewer>;
-	static auto create(std::size_t typeHash, void const* data, std::string const& dataName) -> std::unique_ptr<Viewer>;
-	virtual void updateDataPointer(void const* data) = 0;
+	template <typename data_type, typename viewer_implementation>
+	static void register_factory();
+	template <typename data_type>
+	static auto create(data_type const* data, std::string const& data_name) -> std::unique_ptr<viewer>;
+	static auto create(std::size_t type_hash, void const* data, std::string const& data_name)
+		-> std::unique_ptr<viewer>;
+	virtual void update_data_pointer(void const* data) = 0;
 
 private:
-	static auto getFactories() -> std::unordered_map<std::uint64_t, Factory>&;
+	static auto get_factories() -> std::unordered_map<std::uint64_t, factory>&;
 };
 
-template <typename DataType>
-class ViewerOf : public Viewer
+template <typename data_type>
+class viewer_of : public viewer
 {
 public:
-	ViewerOf() = delete;
-	ViewerOf(DataType const* data, std::string const& dataName);
-	ViewerOf(ViewerOf const&) = delete;
-	ViewerOf(ViewerOf&&) = delete;
-	auto operator=(ViewerOf const&) -> ViewerOf& = delete;
-	auto operator=(ViewerOf&&) -> ViewerOf& = delete;
-	~ViewerOf() override = default;
+	viewer_of() = delete;
+	viewer_of(data_type const* data, std::string const& data_name);
+	viewer_of(viewer_of const&) = delete;
+	viewer_of(viewer_of&&) = delete;
+	auto operator=(viewer_of const&) -> viewer_of& = delete;
+	auto operator=(viewer_of&&) -> viewer_of& = delete;
+	~viewer_of() override = default;
 
-	auto clone() const -> std::unique_ptr<Widget> override;
-	void updateDataPointer(void const* data) final;
-	auto isDataAvailable() const noexcept -> bool final;
-	void drawContents() const override;
+	auto clone() const -> std::unique_ptr<widget> override;
+	void update_data_pointer(void const* data) final;
+	auto is_data_available() const noexcept -> bool final;
+	void draw_contents() const override;
 
 protected:
-	auto getData() const -> DataType const*;
+	auto get_data() const -> data_type const*;
 
 private:
-	DataType const* data;
+	data_type const* data;
 };
 
-template <typename DataType, typename ViewerImplementation>
-inline void Viewer::registerFactory()
+template <typename data_type, typename viewer_implementation>
+inline void viewer::register_factory()
 {
-	getFactories()[std::type_index(typeid(DataType)).hash_code()] =
-		[](void const* data, std::string const& dataName) -> std::unique_ptr<Viewer> {
-		return std::make_unique<ViewerImplementation>(static_cast<DataType const*>(data), dataName);
+	get_factories()[std::type_index(typeid(data_type)).hash_code()] =
+		[](void const* data, std::string const& data_name) -> std::unique_ptr<viewer> {
+		return std::make_unique<viewer_implementation>(static_cast<data_type const*>(data), data_name);
 	};
 }
 
-inline auto Viewer::create(std::size_t typeHash, void const* data, std::string const& dataName)
-	-> std::unique_ptr<Viewer>
+inline auto viewer::create(std::size_t type_hash, void const* data, std::string const& data_name)
+	-> std::unique_ptr<viewer>
 {
-	auto& factories = getFactories();
-	if(factories.count(typeHash) == 0)
-		return std::make_unique<ViewerOf<void>>(data, dataName);
-	return factories.at(typeHash)(data, dataName);
+	auto& factories = get_factories();
+	if(factories.count(type_hash) == 0)
+		return std::make_unique<viewer_of<void>>(data, data_name);
+	return factories.at(type_hash)(data, data_name);
 }
 
-template <typename DataType>
-auto Viewer::create(DataType const* data, std::string const& dataName) -> std::unique_ptr<Viewer>
+template <typename data_type>
+auto viewer::create(data_type const* data, std::string const& data_name) -> std::unique_ptr<viewer>
 {
-	return Viewer::create(std::type_index(typeid(DataType)).hash_code(), data, dataName);
+	return viewer::create(std::type_index(typeid(data_type)).hash_code(), data, data_name);
 }
 
-inline auto Viewer::getFactories() -> std::unordered_map<std::uint64_t, Factory>&
+inline auto viewer::get_factories() -> std::unordered_map<std::uint64_t, factory>&
 {
 	static auto factories = []() {
-		std::unordered_map<std::uint64_t, Factory> factories;
+		std::unordered_map<std::uint64_t, factory> factories;
 
-		using SupportedTypes = meta::TypeList<bool, int, float, glm::vec2, glm::vec3, glm::vec4, Bounded<int>,
-			Bounded<float>, Bounded<glm::vec2>, Bounded<glm::vec3>, Bounded<glm::vec4>, ColorRGB, ColorRGBA,
-			std::chrono::nanoseconds>;
+		using supported_types = meta::type_list<bool, int, float, glm::vec2, glm::vec3, glm::vec4, rsp::bounded<int>,
+			rsp::bounded<float>, rsp::bounded<glm::vec2>, rsp::bounded<glm::vec3>, rsp::bounded<glm::vec4>,
+			rsp::color_rgb, rsp::color_rgba, std::chrono::nanoseconds>;
 
-		SupportedTypes::for_each([&factories](auto* dummy) {
-			using CurrentType = std::remove_cv_t<std::remove_pointer_t<decltype(dummy)>>;
+		supported_types::for_each([&factories](auto* dummy) {
+			using current_type = std::remove_cv_t<std::remove_pointer_t<decltype(dummy)>>;
 
-			std::size_t hash = std::type_index(typeid(CurrentType)).hash_code();
+			std::size_t hash = std::type_index(typeid(current_type)).hash_code();
 			assert("Type hash function collision!" && factories.count(hash) == 0);
 
-			factories[hash] = [](void const* data, std::string const& dataName) -> std::unique_ptr<Viewer> {
-				return std::make_unique<ViewerOf<CurrentType>>(static_cast<CurrentType const*>(data), dataName);
+			factories[hash] = [](void const* data, std::string const& dataName) -> std::unique_ptr<viewer> {
+				return std::make_unique<viewer_of<current_type>>(static_cast<current_type const*>(data), dataName);
 			};
 		});
 		return factories;
@@ -109,48 +110,48 @@ inline auto Viewer::getFactories() -> std::unordered_map<std::uint64_t, Factory>
 	return factories;
 }
 
-inline Viewer::Viewer(std::string const& dataName) : Widget(dataName)
+inline viewer::viewer(std::string const& data_name) : widget(data_name)
 {
 }
 
-template <typename DataType>
-ViewerOf<DataType>::ViewerOf(DataType const* data, std::string const& dataName) : Viewer(dataName), data(data)
+template <typename data_type>
+viewer_of<data_type>::viewer_of(data_type const* data, std::string const& data_name) : viewer(data_name), data(data)
 {
 }
 
-template <typename DataType>
-auto ViewerOf<DataType>::clone() const -> std::unique_ptr<Widget>
+template <typename data_type>
+auto viewer_of<data_type>::clone() const -> std::unique_ptr<widget>
 {
-	auto clonedEditor = std::make_unique<ViewerOf<DataType>>(data, getDataName());
-	return clonedEditor;
+	auto cloned_editor = std::make_unique<viewer_of<data_type>>(data, get_data_name());
+	return cloned_editor;
 }
 
-template <typename DataType>
-void ViewerOf<DataType>::updateDataPointer(void const* data)
+template <typename data_type>
+void viewer_of<data_type>::update_data_pointer(void const* data)
 {
-	this->data = static_cast<DataType const*>(data);
+	this->data = static_cast<data_type const*>(data);
 }
 
-template <typename DataType>
-auto ViewerOf<DataType>::isDataAvailable() const noexcept -> bool
+template <typename data_type>
+auto viewer_of<data_type>::is_data_available() const noexcept -> bool
 {
 	return data != nullptr;
 }
 
-template <typename DataType>
-void ViewerOf<DataType>::drawContents() const
+template <typename data_type>
+void viewer_of<data_type>::draw_contents() const
 {
 	ImGui::Text("NO VIEWER IMPLEMENTATION");
 }
 
-template <typename DataType>
-auto ViewerOf<DataType>::getData() const -> DataType const*
+template <typename data_type>
+auto viewer_of<data_type>::get_data() const -> data_type const*
 {
 	return data;
 }
 
 template <>
-inline void ViewerOf<bool>::drawContents() const
+inline void viewer_of<bool>::draw_contents() const
 {
 	ImGui::SameLine();
 	if(*data)
@@ -160,92 +161,92 @@ inline void ViewerOf<bool>::drawContents() const
 }
 
 template <>
-inline void ViewerOf<int>::drawContents() const
+inline void viewer_of<int>::draw_contents() const
 {
 	ImGui::SameLine();
 	ImGui::Text("%i", *data);
 }
 
 template <>
-inline void ViewerOf<float>::drawContents() const
+inline void viewer_of<float>::draw_contents() const
 {
 	ImGui::SameLine();
 	ImGui::Text("%.3f", *data);
 }
 
 template <>
-inline void ViewerOf<glm::vec2>::drawContents() const
+inline void viewer_of<glm::vec2>::draw_contents() const
 {
 	ImGui::Text("%.3f, %.3f", data->x, data->y);
 }
 
 template <>
-inline void ViewerOf<glm::vec3>::drawContents() const
+inline void viewer_of<glm::vec3>::draw_contents() const
 {
 	ImGui::Text("%.3f, %.3f, %.3f", data->x, data->y, data->z);
 }
 
 template <>
-inline void ViewerOf<glm::vec4>::drawContents() const
+inline void viewer_of<glm::vec4>::draw_contents() const
 {
 	ImGui::Text("%.3f, %.3f, %.3f, %.3f", data->x, data->y, data->z, data->w);
 }
 
 template <>
-inline void ViewerOf<Bounded<int>>::drawContents() const
+inline void viewer_of<rsp::bounded<int>>::draw_contents() const
 {
-	ImGui::Text("%i (%i - %i)", data->getVal(), data->getMin(), data->getMax());
+	ImGui::Text("%i (%i - %i)", data->get_val(), data->get_min(), data->get_max());
 }
 
 template <>
-inline void ViewerOf<Bounded<float>>::drawContents() const
+inline void viewer_of<rsp::bounded<float>>::draw_contents() const
 {
-	ImGui::Text("%.3f (%.3f - %.3f)", data->getVal(), data->getMin(), data->getMax());
+	ImGui::Text("%.3f (%.3f - %.3f)", data->get_val(), data->get_min(), data->get_max());
 }
 
 template <>
-inline void ViewerOf<Bounded<glm::vec2>>::drawContents() const
+inline void viewer_of<rsp::bounded<glm::vec2>>::draw_contents() const
 {
-	ImGui::Text("%.3f, %.3f", data->getVal().x, data->getVal().y);
-	if(isExtendedPreferred())
+	ImGui::Text("%.3f, %.3f", data->get_val().x, data->get_val().y);
+	if(is_extended_preferred())
 	{
-		ImGui::Text("X (%.3f - %.3f)", data->getMin()[0], data->getMax()[0]);
-		ImGui::Text("Y (%.3f - %.3f)", data->getMin()[1], data->getMax()[1]);
+		ImGui::Text("X (%.3f - %.3f)", data->get_min()[0], data->get_max()[0]);
+		ImGui::Text("Y (%.3f - %.3f)", data->get_min()[1], data->get_max()[1]);
 	}
 }
 
 template <>
-inline void ViewerOf<Bounded<glm::vec3>>::drawContents() const
+inline void viewer_of<rsp::bounded<glm::vec3>>::draw_contents() const
 {
-	ImGui::Text("%.3f, %.3f, %.3f", data->getVal().x, data->getVal().y, data->getVal().z);
-	if(isExtendedPreferred())
+	ImGui::Text("%.3f, %.3f, %.3f", data->get_val().x, data->get_val().y, data->get_val().z);
+	if(is_extended_preferred())
 	{
-		ImGui::Text("X (%.3f - %.3f)", data->getMin()[0], data->getMax()[0]);
-		ImGui::Text("Y (%.3f - %.3f)", data->getMin()[1], data->getMax()[1]);
-		ImGui::Text("Z (%.3f - %.3f)", data->getMin()[2], data->getMax()[2]);
+		ImGui::Text("X (%.3f - %.3f)", data->get_min()[0], data->get_max()[0]);
+		ImGui::Text("Y (%.3f - %.3f)", data->get_min()[1], data->get_max()[1]);
+		ImGui::Text("Z (%.3f - %.3f)", data->get_min()[2], data->get_max()[2]);
 	}
 }
 
 template <>
-inline void ViewerOf<Bounded<glm::vec4>>::drawContents() const
+inline void viewer_of<rsp::bounded<glm::vec4>>::draw_contents() const
 {
-	ImGui::Text("%.3f, %.3f, %.3f, %.3f", data->getVal().x, data->getVal().y, data->getVal().z, data->getVal().w);
-	if(isExtendedPreferred())
+	ImGui::Text("%.3f, %.3f, %.3f, %.3f", data->get_val().x, data->get_val().y, data->get_val().z, data->get_val().w);
+	if(is_extended_preferred())
 	{
-		ImGui::Text("X (%.3f - %.3f)", data->getMin()[0], data->getMax()[0]);
-		ImGui::Text("Y (%.3f - %.3f)", data->getMin()[1], data->getMax()[1]);
-		ImGui::Text("Z (%.3f - %.3f)", data->getMin()[2], data->getMax()[2]);
-		ImGui::Text("W (%.3f - %.3f)", data->getMin()[3], data->getMax()[3]);
+		ImGui::Text("X (%.3f - %.3f)", data->get_min()[0], data->get_max()[0]);
+		ImGui::Text("Y (%.3f - %.3f)", data->get_min()[1], data->get_max()[1]);
+		ImGui::Text("Z (%.3f - %.3f)", data->get_min()[2], data->get_max()[2]);
+		ImGui::Text("W (%.3f - %.3f)", data->get_min()[3], data->get_max()[3]);
 	}
 }
 
 template <>
-inline void ViewerOf<ColorRGB>::drawContents() const
+inline void viewer_of<rsp::color_rgb>::draw_contents() const
 {
 	ImGui::Text("R:%.3f, G:%.3f, B:%.3f", data->r(), data->g(), data->b());
-	if(isExtendedPreferred())
+	if(is_extended_preferred())
 	{
-		auto s = getAvailableWidth();
+		auto s = get_available_width();
 
 		ImGui::ColorButton("##", ImVec4(data->r(), data->g(), data->b(), 1.0f),
 			ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoDragDrop, {s, s});
@@ -259,12 +260,12 @@ inline void ViewerOf<ColorRGB>::drawContents() const
 }
 
 template <>
-inline void ViewerOf<ColorRGBA>::drawContents() const
+inline void viewer_of<rsp::color_rgba>::draw_contents() const
 {
 	ImGui::Text("R:%.3f, G:%.3f, B:%.3f, A:%.3f", data->r(), data->g(), data->b(), data->a());
-	if(isExtendedPreferred())
+	if(is_extended_preferred())
 	{
-		auto s = getAvailableWidth();
+		auto s = get_available_width();
 
 		ImGui::ColorButton("##", *data, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoDragDrop, {s, s});
 	}
@@ -276,12 +277,12 @@ inline void ViewerOf<ColorRGBA>::drawContents() const
 }
 
 template <>
-inline void ViewerOf<std::chrono::nanoseconds>::drawContents() const
+inline void viewer_of<std::chrono::nanoseconds>::draw_contents() const
 {
-	auto timeUnits = TimeUnit::decompose(*data);
-	if(isExtendedPreferred())
+	auto time_units = time_unit::decompose(*data);
+	if(is_extended_preferred())
 	{
-		for(auto const& unit : timeUnits)
+		for(auto const& unit : time_units)
 		{
 			if(unit.value != 0)
 			{
@@ -292,14 +293,14 @@ inline void ViewerOf<std::chrono::nanoseconds>::drawContents() const
 	}
 	else
 	{
-		const int maxUnitsToDraw = 2;
-		for(int i = 0; i < timeUnits.size(); i++)
+		const int max_units_to_draw = 2;
+		for(int i = 0; i < time_units.size(); i++)
 		{
-			if(timeUnits[i].value)
+			if(time_units[i].value)
 			{
-				for(int j = i; j < timeUnits.size() && j - i < maxUnitsToDraw; j++)
+				for(int j = i; j < time_units.size() && j - i < max_units_to_draw; j++)
 				{
-					ImGui::Text(("%i" + timeUnits[j].suffix).c_str(), timeUnits[j].value);
+					ImGui::Text(("%i" + time_units[j].suffix).c_str(), time_units[j].value);
 					ImGui::SameLine();
 				}
 				break;

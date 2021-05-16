@@ -4,60 +4,60 @@
 
 namespace rsp
 {
-class Timestamp
+class timestamp
 {
 public:
-	Timestamp() = default;
-	Timestamp(Timestamp const&) = default;
-	Timestamp(Timestamp&&) = default;
-	auto operator=(Timestamp const&) -> Timestamp& = default;
-	auto operator=(Timestamp&&) -> Timestamp& = default;
-	~Timestamp() = default;
+	timestamp() = default;
+	timestamp(timestamp const&) = default;
+	timestamp(timestamp&&) = default;
+	auto operator=(timestamp const&) -> timestamp& = default;
+	auto operator=(timestamp&&) -> timestamp& = default;
+	~timestamp() = default;
 
 	void update();
 	void reset();
-	auto isReset() const -> bool;
-	auto operator>(Timestamp const& other) const -> bool;
-	auto operator<(Timestamp const& other) const -> bool;
-	auto isNewerThan(Timestamp const& other) const -> bool;
-	auto isOlderThan(Timestamp const& other) const -> bool;
+	auto is_reset() const -> bool;
+	auto operator>(timestamp const& other) const -> bool;
+	auto operator<(timestamp const& other) const -> bool;
+	auto is_newer_than(timestamp const& other) const -> bool;
+	auto is_older_than(timestamp const& other) const -> bool;
 
 private:
 	using chrono = std::chrono::steady_clock;
 	chrono::time_point timepoint = chrono::time_point::min();
 };
 
-inline void Timestamp::update()
+inline void timestamp::update()
 {
 	timepoint = chrono::now();
 }
 
-inline void Timestamp::reset()
+inline void timestamp::reset()
 {
 	timepoint = chrono::time_point::min();
 }
 
-inline auto Timestamp::isReset() const -> bool
+inline auto timestamp::is_reset() const -> bool
 {
 	return timepoint == chrono::time_point::min();
 }
 
-inline auto Timestamp::operator>(Timestamp const& other) const -> bool
+inline auto timestamp::operator>(timestamp const& other) const -> bool
 {
 	return this->timepoint > other.timepoint;
 }
 
-inline auto Timestamp::operator<(Timestamp const& other) const -> bool
+inline auto timestamp::operator<(timestamp const& other) const -> bool
 {
 	return this->timepoint < other.timepoint;
 }
 
-inline auto Timestamp::isNewerThan(Timestamp const& other) const -> bool
+inline auto timestamp::is_newer_than(timestamp const& other) const -> bool
 {
 	return *this > other;
 }
 
-inline auto Timestamp::isOlderThan(Timestamp const& other) const -> bool
+inline auto timestamp::is_older_than(timestamp const& other) const -> bool
 {
 	return *this < other;
 }
