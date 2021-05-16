@@ -49,31 +49,6 @@ private:
 	Timestamp timestamp;
 };
 
-inline void Port::setName(const std::string& name)
-{
-	this->name = name;
-}
-
-inline void Port::setName(std::string&& name) noexcept
-{
-	this->name = std::move(name);
-}
-
-inline auto Port::getName() const noexcept -> std::string const&
-{
-	return name;
-}
-
-inline void Port::updateTimestamp() noexcept
-{
-	timestamp.update();
-}
-
-inline auto Port::getTimestamp() const noexcept -> Timestamp
-{
-	return timestamp;
-}
-
 class OutputPort;
 
 class InputPort : public Port
@@ -100,22 +75,6 @@ private:
 	std::function<void(std::weak_ptr<Sentinel> const&)> pushCallback;
 };
 
-inline void InputPort::setPushCallback(const std::function<void(std::weak_ptr<Sentinel> const&)>& callback)
-{
-	pushCallback = callback;
-}
-
-inline void InputPort::setPushCallback(std::function<void(std::weak_ptr<Sentinel> const&)>&& callback) noexcept
-{
-	pushCallback = std::move(callback);
-}
-
-inline void InputPort::push(std::weak_ptr<Sentinel> const& sentinel) noexcept
-{
-	if(pushCallback)
-		pushCallback(sentinel);
-}
-
 class OutputPort : public Port
 {
 public:
@@ -140,22 +99,6 @@ protected:
 private:
 	std::function<void(std::weak_ptr<Sentinel> const&)> pullCallback;
 };
-
-inline void OutputPort::pull(std::weak_ptr<Sentinel> const& sentinel) noexcept
-{
-	if(pullCallback)
-		pullCallback(sentinel);
-}
-
-inline void OutputPort::setPullCallback(const std::function<void(std::weak_ptr<Sentinel> const&)>& callback)
-{
-	pullCallback = callback;
-}
-
-inline void OutputPort::setPullCallback(std::function<void(std::weak_ptr<Sentinel> const&)>&& callback) noexcept
-{
-	pullCallback = std::move(callback);
-}
 
 template <typename T>
 class InputPortOf;
@@ -200,6 +143,101 @@ private:
 	T data = {};
 	std::unordered_set<CompatiblePort*> connections;
 };
+
+template <typename T>
+class InputPortOf final : public InputPort
+{
+public:
+	using CompatiblePort = OutputPortOf<T>;
+
+	InputPortOf();
+	explicit InputPortOf(std::string name);
+	InputPortOf(InputPortOf const&) = delete;
+	InputPortOf(InputPortOf&&) = delete;
+	auto operator=(InputPortOf const&) -> InputPortOf& = delete;
+	auto operator=(InputPortOf&&) -> InputPortOf& = delete;
+	~InputPortOf() final;
+
+	auto getDataPointer() const noexcept -> void const* final;
+	auto get() const noexcept -> T const&;
+	auto operator*() const noexcept -> T const&;
+	auto operator->() const noexcept -> T const*;
+	auto getDataTypeHash() const noexcept -> std::size_t final;
+	auto getTimestamp() const noexcept -> Timestamp final;
+	auto isConnected() const noexcept -> bool final;
+	auto canConnectTo(Port const& other) const noexcept -> bool final;
+	auto isConnectedTo(Port const& other) const noexcept -> bool final;
+	void connectTo(CompatiblePort& other, bool notify = true);
+	void connectTo(Port& other, bool notify = true) final;
+	void disconnect(bool notify = true) final;
+	void disconnectFrom(Port& other, bool notify = true) final;
+	auto getConnectedPorts() const -> std::unordered_set<Port*> final;
+	auto getConnectedOutputPort() const -> OutputPort* final;
+	auto getDefaultPort() const -> CompatiblePort& final;
+	void pull(std::weak_ptr<Sentinel> const& sentinel = {}) noexcept final;
+	auto createCompatiblePort() const -> std::unique_ptr<Port> final;
+
+private:
+	CompatiblePort mutable defaultPort = CompatiblePort("Default port");
+	CompatiblePort mutable* connection = nullptr;
+};
+
+inline void Port::setName(const std::string& name)
+{
+	this->name = name;
+}
+
+inline void Port::setName(std::string&& name) noexcept
+{
+	this->name = std::move(name);
+}
+
+inline auto Port::getName() const noexcept -> std::string const&
+{
+	return name;
+}
+
+inline void Port::updateTimestamp() noexcept
+{
+	timestamp.update();
+}
+
+inline auto Port::getTimestamp() const noexcept -> Timestamp
+{
+	return timestamp;
+}
+
+inline void InputPort::setPushCallback(const std::function<void(std::weak_ptr<Sentinel> const&)>& callback)
+{
+	pushCallback = callback;
+}
+
+inline void InputPort::setPushCallback(std::function<void(std::weak_ptr<Sentinel> const&)>&& callback) noexcept
+{
+	pushCallback = std::move(callback);
+}
+
+inline void InputPort::push(std::weak_ptr<Sentinel> const& sentinel) noexcept
+{
+	if(pushCallback)
+		pushCallback(sentinel);
+}
+
+inline void OutputPort::pull(std::weak_ptr<Sentinel> const& sentinel) noexcept
+{
+	if(pullCallback)
+		pullCallback(sentinel);
+}
+
+inline void OutputPort::setPullCallback(const std::function<void(std::weak_ptr<Sentinel> const&)>& callback)
+{
+	pullCallback = callback;
+}
+
+inline void OutputPort::setPullCallback(std::function<void(std::weak_ptr<Sentinel> const&)>&& callback) noexcept
+{
+	pullCallback = std::move(callback);
+}
 
 template <typename T>
 OutputPortOf<T>::OutputPortOf(std::string name)
@@ -365,44 +403,6 @@ auto OutputPortOf<T>::operator->() const noexcept -> T const*
 {
 	return &data;
 }
-
-template <typename T>
-class InputPortOf final : public InputPort
-{
-public:
-	using CompatiblePort = OutputPortOf<T>;
-
-	InputPortOf();
-	explicit InputPortOf(std::string name);
-	InputPortOf(InputPortOf const&) = delete;
-	InputPortOf(InputPortOf&&) = delete;
-	auto operator=(InputPortOf const&) -> InputPortOf& = delete;
-	auto operator=(InputPortOf&&) -> InputPortOf& = delete;
-	~InputPortOf() final;
-
-	auto getDataPointer() const noexcept -> void const* final;
-	auto get() const noexcept -> T const&;
-	auto operator*() const noexcept -> T const&;
-	auto operator->() const noexcept -> T const*;
-	auto getDataTypeHash() const noexcept -> std::size_t final;
-	auto getTimestamp() const noexcept -> Timestamp final;
-	auto isConnected() const noexcept -> bool final;
-	auto canConnectTo(Port const& other) const noexcept -> bool final;
-	auto isConnectedTo(Port const& other) const noexcept -> bool final;
-	void connectTo(CompatiblePort& other, bool notify = true);
-	void connectTo(Port& other, bool notify = true) final;
-	void disconnect(bool notify = true) final;
-	void disconnectFrom(Port& other, bool notify = true) final;
-	auto getConnectedPorts() const -> std::unordered_set<Port*> final;
-	auto getConnectedOutputPort() const -> OutputPort* final;
-	auto getDefaultPort() const -> CompatiblePort& final;
-	void pull(std::weak_ptr<Sentinel> const& sentinel = {}) noexcept final;
-	auto createCompatiblePort() const -> std::unique_ptr<Port> final;
-
-private:
-	CompatiblePort mutable defaultPort = CompatiblePort("Default port");
-	CompatiblePort mutable* connection = nullptr;
-};
 
 template <typename T>
 InputPortOf<T>::InputPortOf()

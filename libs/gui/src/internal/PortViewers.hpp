@@ -29,18 +29,6 @@ protected:
 	std::unique_ptr<Viewer> dataViewer; // NOLINT
 };
 
-inline PortViewer::PortViewer(Port const* port, int id) : id(id)
-{
-	dataViewer = Viewer::create(port->getDataTypeHash(), port->getDataPointer(), port->getName());
-	dataViewer->setMaximumWidth(200);
-	color = ColorRGBA(ColorRGB::createRandom(port->getDataTypeHash()), 1.0f).packed();
-}
-
-inline auto PortViewer::getID() const -> int
-{
-	return id;
-}
-
 class InputPortViewer final : public PortViewer
 {
 public:
@@ -58,6 +46,36 @@ public:
 private:
 	InputPort const* port = nullptr;
 };
+
+class OutputPortViewer final : public PortViewer
+{
+public:
+	OutputPortViewer() = delete;
+	OutputPortViewer(OutputPort const* port, int id);
+	OutputPortViewer(OutputPortViewer const&) = delete;
+	OutputPortViewer(OutputPortViewer&&) noexcept = delete;
+	auto operator=(OutputPortViewer const&) -> OutputPortViewer& = delete;
+	auto operator=(OutputPortViewer&&) noexcept -> OutputPortViewer& = delete;
+	~OutputPortViewer() final = default;
+
+	auto getPort() const -> OutputPort const* final;
+	void draw() final;
+
+private:
+	OutputPort const* port = nullptr;
+};
+
+inline PortViewer::PortViewer(Port const* port, int id) : id(id)
+{
+	dataViewer = Viewer::create(port->getDataTypeHash(), port->getDataPointer(), port->getName());
+	dataViewer->setMaximumWidth(200);
+	color = ColorRGBA(ColorRGB::createRandom(port->getDataTypeHash()), 1.0f).packed();
+}
+
+inline auto PortViewer::getID() const -> int
+{
+	return id;
+}
 
 inline InputPortViewer::InputPortViewer(InputPort const* port, int id) : PortViewer(port, id), port(port)
 {
@@ -86,24 +104,6 @@ inline void InputPortViewer::draw()
 	imnodes::PopColorStyle();
 	imnodes::PopColorStyle();
 }
-
-class OutputPortViewer final : public PortViewer
-{
-public:
-	OutputPortViewer() = delete;
-	OutputPortViewer(OutputPort const* port, int id);
-	OutputPortViewer(OutputPortViewer const&) = delete;
-	OutputPortViewer(OutputPortViewer&&) noexcept = delete;
-	auto operator=(OutputPortViewer const&) -> OutputPortViewer& = delete;
-	auto operator=(OutputPortViewer&&) noexcept -> OutputPortViewer& = delete;
-	~OutputPortViewer() final = default;
-
-	auto getPort() const -> OutputPort const* final;
-	void draw() final;
-
-private:
-	OutputPort const* port = nullptr;
-};
 
 inline OutputPortViewer::OutputPortViewer(OutputPort const* port, int id) : PortViewer(port, id), port(port)
 {

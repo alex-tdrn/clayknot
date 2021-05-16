@@ -35,6 +35,43 @@ protected:
 	bool stableHeight = false; // NOLINT
 };
 
+class InputPortEditor final : public PortEditor
+{
+public:
+	InputPortEditor() = delete;
+	InputPortEditor(InputPort* port, int id);
+	InputPortEditor(InputPortEditor const&) = delete;
+	InputPortEditor(InputPortEditor&&) noexcept = delete;
+	auto operator=(InputPortEditor const&) -> InputPortEditor& = delete;
+	auto operator=(InputPortEditor&&) noexcept -> InputPortEditor& = delete;
+	~InputPortEditor() final = default;
+
+	auto getPort() const -> InputPort* final;
+	void draw(Widget* overrideWidget = nullptr) final;
+
+private:
+	InputPort* port = nullptr;
+	std::unique_ptr<Editor> defaultDataEditor;
+};
+
+class OutputPortEditor final : public PortEditor
+{
+public:
+	OutputPortEditor() = delete;
+	OutputPortEditor(OutputPort* port, int id);
+	OutputPortEditor(OutputPortEditor const&) = delete;
+	OutputPortEditor(OutputPortEditor&&) noexcept = delete;
+	auto operator=(OutputPortEditor const&) -> OutputPortEditor& = delete;
+	auto operator=(OutputPortEditor&&) noexcept -> OutputPortEditor& = delete;
+	~OutputPortEditor() final = default;
+
+	auto getPort() const -> OutputPort* final;
+	void draw(Widget* overrideWidget = nullptr) final;
+
+private:
+	OutputPort* port = nullptr;
+};
+
 inline PortEditor::PortEditor(Port* port, int id) : id(id)
 {
 	dataViewer = Viewer::create(port->getDataTypeHash(), port->getDataPointer(), port->getName());
@@ -61,25 +98,6 @@ inline void PortEditor::setStableHeight(bool stableHeight)
 {
 	this->stableHeight = stableHeight;
 }
-
-class InputPortEditor final : public PortEditor
-{
-public:
-	InputPortEditor() = delete;
-	InputPortEditor(InputPort* port, int id);
-	InputPortEditor(InputPortEditor const&) = delete;
-	InputPortEditor(InputPortEditor&&) noexcept = delete;
-	auto operator=(InputPortEditor const&) -> InputPortEditor& = delete;
-	auto operator=(InputPortEditor&&) noexcept -> InputPortEditor& = delete;
-	~InputPortEditor() final = default;
-
-	auto getPort() const -> InputPort* final;
-	void draw(Widget* overrideWidget = nullptr) final;
-
-private:
-	InputPort* port = nullptr;
-	std::unique_ptr<Editor> defaultDataEditor;
-};
 
 inline InputPortEditor::InputPortEditor(InputPort* port, int id) : PortEditor(port, id), port(port)
 {
@@ -143,24 +161,6 @@ inline void InputPortEditor::draw(Widget* overrideWidget)
 
 	imnodes::PopColorStyle();
 }
-
-class OutputPortEditor final : public PortEditor
-{
-public:
-	OutputPortEditor() = delete;
-	OutputPortEditor(OutputPort* port, int id);
-	OutputPortEditor(OutputPortEditor const&) = delete;
-	OutputPortEditor(OutputPortEditor&&) noexcept = delete;
-	auto operator=(OutputPortEditor const&) -> OutputPortEditor& = delete;
-	auto operator=(OutputPortEditor&&) noexcept -> OutputPortEditor& = delete;
-	~OutputPortEditor() final = default;
-
-	auto getPort() const -> OutputPort* final;
-	void draw(Widget* overrideWidget = nullptr) final;
-
-private:
-	OutputPort* port = nullptr;
-};
 
 inline OutputPortEditor::OutputPortEditor(OutputPort* port, int id) : PortEditor(port, id), port(port)
 {

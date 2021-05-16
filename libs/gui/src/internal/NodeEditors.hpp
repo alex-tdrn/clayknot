@@ -42,6 +42,25 @@ protected:
 	virtual void drawOutputPorts();
 };
 
+class ConstantNodeEditor final : public NodeEditor
+{
+public:
+	ConstantNodeEditor() = delete;
+	ConstantNodeEditor(ConstantNode* node, int id, WidgetCache<Port, PortEditor>* portCache,
+		std::optional<std::function<bool()>>& modificationCallback);
+	ConstantNodeEditor(ConstantNodeEditor const&) = delete;
+	ConstantNodeEditor(ConstantNodeEditor&&) noexcept = delete;
+	auto operator=(ConstantNodeEditor const&) -> ConstantNodeEditor& = delete;
+	auto operator=(ConstantNodeEditor&&) noexcept -> ConstantNodeEditor& = delete;
+	~ConstantNodeEditor() final = default;
+
+private:
+	ConstantNode* node;
+	std::unordered_map<OutputPort*, std::unique_ptr<Editor>> constantEditors;
+
+	void drawOutputPorts() final;
+};
+
 inline NodeEditor::NodeEditor(Node* node, int id, WidgetCache<Port, PortEditor>* portCache,
 	std::optional<std::function<bool()>>& modificationCallback)
 	: modificationCallback(modificationCallback), portCache(portCache), node(node), id(id)
@@ -129,25 +148,6 @@ inline void NodeEditor::drawOutputPorts()
 	for(auto& port : node->getOutputPorts())
 		portCache->getWidget(port).draw();
 }
-
-class ConstantNodeEditor final : public NodeEditor
-{
-public:
-	ConstantNodeEditor() = delete;
-	ConstantNodeEditor(ConstantNode* node, int id, WidgetCache<Port, PortEditor>* portCache,
-		std::optional<std::function<bool()>>& modificationCallback);
-	ConstantNodeEditor(ConstantNodeEditor const&) = delete;
-	ConstantNodeEditor(ConstantNodeEditor&&) noexcept = delete;
-	auto operator=(ConstantNodeEditor const&) -> ConstantNodeEditor& = delete;
-	auto operator=(ConstantNodeEditor&&) noexcept -> ConstantNodeEditor& = delete;
-	~ConstantNodeEditor() final = default;
-
-private:
-	ConstantNode* node;
-	std::unordered_map<OutputPort*, std::unique_ptr<Editor>> constantEditors;
-
-	void drawOutputPorts() final;
-};
 
 inline ConstantNodeEditor::ConstantNodeEditor(ConstantNode* node, int id, WidgetCache<Port, PortEditor>* portCache,
 	std::optional<std::function<bool()>>& modificationCallback)
