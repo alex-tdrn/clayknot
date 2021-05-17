@@ -4,7 +4,7 @@
 #include <memory>
 #include <unordered_map>
 
-namespace rsp::gui::impl
+namespace clk::gui::impl
 {
 template <typename data_type, typename widget>
 class widget_cache
@@ -78,4 +78,4 @@ inline auto widget_cache<data_type, widget>::get_map() const
 	return data_type_to_widget;
 }
 
-} // namespace rsp::gui::impl
+} // namespace clk::gui::impl

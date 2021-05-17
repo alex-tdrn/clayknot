@@ -1,6 +1,6 @@
-#include "rsp/algorithms/decompose_color.h"
+#include "clk/algorithms/decompose_color.h"
 
-namespace rsp::algorithms
+namespace clk::algorithms
 {
 decompose_color::decompose_color()
 {
@@ -22,4 +22,4 @@ void decompose_color::update()
 	*green_component = color->g() * 100;
 	*blue_component = color->b() * 100;
 }
-} // namespace rsp::algorithms
+} // namespace clk::algorithms

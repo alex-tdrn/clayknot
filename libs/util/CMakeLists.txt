@@ -1,15 +1,17 @@
-add_library(rendershop-util INTERFACE)
+add_library(util INTERFACE)
 
 target_sources(
-	rendershop-util
-	INTERFACE "include/rsp/util/bounded.hpp"
-				"include/rsp/util/color_rgb.hpp"
-				"include/rsp/util/color_rgba.hpp"
-				"include/rsp/util/data_type_name.hpp"
-				"include/rsp/util/timestamp.hpp"
-				"include/rsp/util/time_unit.hpp"
-				"include/rsp/util/type_list.hpp"
+	util
+	INTERFACE "include/clk/util/bounded.hpp"
+				"include/clk/util/color_rgb.hpp"
+				"include/clk/util/color_rgba.hpp"
+				"include/clk/util/data_type_name.hpp"
+				"include/clk/util/timestamp.hpp"
+				"include/clk/util/time_unit.hpp"
+				"include/clk/util/type_list.hpp"
 )
 
-target_include_directories(rendershop-util INTERFACE "include")
-target_link_libraries(rendershop-util INTERFACE glm::glm)
+target_include_directories(util INTERFACE "include")
+target_link_libraries(util INTERFACE glm::glm)
+
+add_library(clayknot::util ALIAS util)

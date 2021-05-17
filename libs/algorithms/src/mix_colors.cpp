@@ -1,6 +1,6 @@
-#include "rsp/algorithms/mix_colors.h"
+#include "clk/algorithms/mix_colors.h"
 
-namespace rsp::algorithms
+namespace clk::algorithms
 {
 mix_colors::mix_colors()
 {
@@ -21,4 +21,4 @@ void mix_colors::update()
 	float f = factor.get() / 100.0f;
 	*mixed_color = f * color_a.get() + (1 - f) * color_b.get();
 }
-} // namespace rsp::algorithms
+} // namespace clk::algorithms

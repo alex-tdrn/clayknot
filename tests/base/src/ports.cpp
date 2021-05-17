@@ -1,4 +1,4 @@
-#include "rsp/base/port.hpp"
+#include "clk/base/port.hpp"
 
 #include <array>
 #include <catch2/catch.hpp>
@@ -13,7 +13,7 @@
 // NOLINTNEXTLINE
 #define DATATYPES \
 	int, unsigned int, short, char*, (std::tuple<int, float>), (std::vector<int>), (std::array<int, 10>), \
-		std::unique_ptr<int>, std::shared_ptr<int>, (rsp::input_port_of<int>), (rsp::output_port_of<int>)
+		std::unique_ptr<int>, std::shared_ptr<int>, (clk::input_port_of<int>), (clk::output_port_of<int>)
 
 template <typename T, typename U>
 void require_connection_impossible(T& portA, U& portB);
@@ -26,7 +26,7 @@ void require_unconnected(T& portA, U& portB);
 
 // NOLINTNEXTLINE
 TEMPLATE_PRODUCT_TEST_CASE(
-	"Ports cannot connect to themselves", "[ports]", (rsp::input_port_of, rsp::output_port_of), (DATATYPES))
+	"Ports cannot connect to themselves", "[ports]", (clk::input_port_of, clk::output_port_of), (DATATYPES))
 {
 	GIVEN("a port")
 	{
@@ -45,7 +45,7 @@ TEMPLATE_PRODUCT_TEST_CASE(
 
 // NOLINTNEXTLINE
 TEMPLATE_PRODUCT_TEST_CASE(
-	"Ports of the same type cannot be connected", "[ports]", (rsp::input_port_of, rsp::output_port_of), (DATATYPES))
+	"Ports of the same type cannot be connected", "[ports]", (clk::input_port_of, clk::output_port_of), (DATATYPES))
 {
 	GIVEN("ports A and B of same type")
 	{
@@ -59,8 +59,8 @@ TEST_CASE("Ports holding differing datatypes cannot be connected", "[ports]")
 {
 	GIVEN("input port A of int and output port B of string")
 	{
-		rsp::input_port_of<int> A;
-		rsp::output_port_of<std::string> B;
+		clk::input_port_of<int> A;
+		clk::output_port_of<std::string> B;
 		require_connection_impossible(A, B);
 	}
 }
@@ -70,8 +70,8 @@ TEMPLATE_TEST_CASE("Ports holding the same datatype can be connected", "[ports]"
 {
 	GIVEN("input port A and output port B, both holding the same datatype")
 	{
-		rsp::input_port_of<TestType> A;
-		rsp::output_port_of<TestType> B;
+		clk::input_port_of<TestType> A;
+		clk::output_port_of<TestType> B;
 		THEN("they can be connected")
 		{
 			REQUIRE(A.can_connect_to(B));
@@ -96,8 +96,8 @@ TEMPLATE_TEST_CASE("Connected ports can be disconnected", "[ports]", DATATYPES)
 {
 	GIVEN("connected ports A, and B")
 	{
-		rsp::input_port_of<TestType> A;
-		rsp::output_port_of<TestType> B;
+		clk::input_port_of<TestType> A;
+		clk::output_port_of<TestType> B;
 		A.connect_to(B);
 		THEN("the connection can be severed")
 		{
@@ -129,9 +129,9 @@ TEST_CASE("Ports disconnect automatically when their lifetime ends", "[ports]")
 {
 	GIVEN("input port A connected to output port B")
 	{
-		rsp::input_port_of<int> A;
+		clk::input_port_of<int> A;
 		{
-			rsp::output_port_of<int> B;
+			clk::output_port_of<int> B;
 			A.connect_to(B);
 		}
 		THEN("when B's lifetime ends, A gets disconnected automatically")
@@ -142,10 +142,10 @@ TEST_CASE("Ports disconnect automatically when their lifetime ends", "[ports]")
 
 	GIVEN("output port B connected to input port A")
 	{
-		rsp::output_port_of<int> B;
+		clk::output_port_of<int> B;
 
 		{
-			rsp::input_port_of<int> A;
+			clk::input_port_of<int> A;
 			B.connect_to(A);
 		}
 		THEN("when A's lifetime ends, B gets disconnected automatically")
@@ -160,8 +160,8 @@ TEMPLATE_TEST_CASE("Ports holding the same datatype return the same hash", "[por
 {
 	GIVEN("input port A and output port B, both holding the same datatype")
 	{
-		rsp::input_port_of<TestType> A;
-		rsp::output_port_of<TestType> B;
+		clk::input_port_of<TestType> A;
+		clk::output_port_of<TestType> B;
 		THEN("they return the same datatype hash")
 		{
 			REQUIRE(A.get_data_type_hash() == B.get_data_type_hash());
@@ -173,7 +173,7 @@ TEST_CASE("Unconnected input ports cannot provide data", "[ports]")
 {
 	GIVEN("unconnected input port A")
 	{
-		rsp::input_port_of<int> A;
+		clk::input_port_of<int> A;
 		THEN("trying to get data from it, fails")
 		{
 			REQUIRE_THROWS(A.get());
@@ -187,7 +187,7 @@ TEST_CASE("Output ports can provide data", "[ports]")
 {
 	GIVEN("output port A")
 	{
-		rsp::output_port_of<std::string> A;
+		clk::output_port_of<std::string> A;
 		THEN("A can provide modifiable references to its data")
 		{
 			std::string const v1 = "1";
@@ -228,8 +228,8 @@ TEST_CASE("Connected input ports can provide the data from their connection", "[
 {
 	GIVEN("output port A connected to multiple input ports")
 	{
-		rsp::output_port_of<int> A;
-		std::array<rsp::input_port_of<int>, 3> input_ports;
+		clk::output_port_of<int> A;
+		std::array<clk::input_port_of<int>, 3> input_ports;
 		for(auto& port : input_ports)
 			port.connect_to(A);
 
@@ -264,7 +264,7 @@ TEST_CASE(
 {
 	GIVEN("input port A")
 	{
-		rsp::input_port_of<int> A;
+		clk::input_port_of<int> A;
 		AND_GIVEN("non-throwing callable F, set as the push callback for A")
 		{
 			bool called = false;
@@ -280,7 +280,7 @@ TEST_CASE(
 
 			AND_GIVEN("output port B")
 			{
-				rsp::output_port_of<int> B;
+				clk::output_port_of<int> B;
 				WHEN("A and B are connected")
 				{
 					B.connect_to(A);
@@ -301,7 +301,7 @@ TEST_CASE("A pull callback can be set on an output port in order to alert the po
 {
 	GIVEN("output port A")
 	{
-		rsp::output_port_of<int> A;
+		clk::output_port_of<int> A;
 		AND_GIVEN("non-throwing callable F, set as the pull callback for A")
 		{
 			bool called = false;
@@ -317,7 +317,7 @@ TEST_CASE("A pull callback can be set on an output port in order to alert the po
 
 			AND_GIVEN("output port B")
 			{
-				rsp::input_port_of<int> B;
+				clk::input_port_of<int> B;
 				WHEN("A and B are connected")
 				{
 					B.connect_to(A);

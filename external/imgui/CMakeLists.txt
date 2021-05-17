@@ -21,3 +21,5 @@ target_include_directories(imgui SYSTEM PUBLIC "include")
 target_link_libraries(imgui PUBLIC glfw::glfw glad::glad)
 
 target_compile_definitions(imgui PUBLIC "IMGUI_IMPL_OPENGL_LOADER_GLAD")
+
+add_library(clayknot::imgui ALIAS imgui)

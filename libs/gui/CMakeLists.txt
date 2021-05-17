@@ -1,12 +1,12 @@
 add_library(
-	rendershop-gui
-	"include/rsp/gui/init.h"
-	"include/rsp/gui/panel.h"
-	"include/rsp/gui/widgets/widget.hpp"
-	"include/rsp/gui/widgets/viewer.hpp"
-	"include/rsp/gui/widgets/editor.hpp"
-	"include/rsp/gui/widgets/graph_viewer.h"
-	"include/rsp/gui/widgets/graph_editor.h"
+	gui
+	"include/clk/gui/init.h"
+	"include/clk/gui/panel.h"
+	"include/clk/gui/widgets/widget.hpp"
+	"include/clk/gui/widgets/viewer.hpp"
+	"include/clk/gui/widgets/editor.hpp"
+	"include/clk/gui/widgets/graph_viewer.h"
+	"include/clk/gui/widgets/graph_editor.h"
 	"src/init.cpp"
 	"src/panel.cpp"
 	"src/widgets/graph_viewer.cpp"
@@ -20,11 +20,13 @@ add_library(
 )
 
 target_include_directories(
-	rendershop-gui
+	gui
 	PUBLIC "include"
 	PRIVATE "src/internal"
 )
 
-target_compile_definitions(rendershop-gui PUBLIC IMGUI_ADD_VECTOR_CONVERSIONS)
+target_compile_definitions(gui PUBLIC IMGUI_ADD_VECTOR_CONVERSIONS)
 
-target_link_libraries(rendershop-gui PUBLIC rendershop-base rendershop-algorithms imgui imnodes)
+target_link_libraries(gui PUBLIC clayknot::base clayknot::algorithms imgui imnodes)
+
+add_library(clayknot::gui ALIAS gui)

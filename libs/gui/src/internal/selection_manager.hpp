@@ -10,14 +10,14 @@
 #include <type_traits>
 #include <unordered_set>
 
-namespace rsp::gui::impl
+namespace clk::gui::impl
 {
 template <bool const_data>
 class selection_manager
 {
 public:
-	using node_type = std::conditional_t<const_data, rsp::node const, rsp::node>;
-	using port_type = std::conditional_t<const_data, rsp::port const, rsp::port>;
+	using node_type = std::conditional_t<const_data, clk::node const, clk::node>;
+	using port_type = std::conditional_t<const_data, clk::port const, clk::port>;
 	using node_widget = std::conditional_t<const_data, node_viewer, node_editor>;
 	using port_widget = std::conditional_t<const_data, port_viewer, port_editor>;
 
@@ -95,4 +95,4 @@ inline auto selection_manager<const_data>::get_selected_nodes() const -> std::un
 	return selected_nodes;
 }
 
-} // namespace rsp::gui::impl
+} // namespace clk::gui::impl

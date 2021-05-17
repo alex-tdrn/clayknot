@@ -1,15 +1,15 @@
-#include "rsp/algorithms/decompose_color.h"
-#include "rsp/algorithms/grayscale_color_node.h"
-#include "rsp/algorithms/mix_colors.h"
-#include "rsp/algorithms/random_color_source.h"
-#include "rsp/algorithms/value_to_color.h"
-#include "rsp/base/algorithm_node.hpp"
-#include "rsp/base/graph.hpp"
-#include "rsp/gui/init.h"
-#include "rsp/gui/panel.h"
-#include "rsp/gui/widgets/editor.hpp"
-#include "rsp/gui/widgets/viewer.hpp"
-#include "rsp/util/color_rgba.hpp"
+#include "clk/algorithms/decompose_color.h"
+#include "clk/algorithms/grayscale_color_node.h"
+#include "clk/algorithms/mix_colors.h"
+#include "clk/algorithms/random_color_source.h"
+#include "clk/algorithms/value_to_color.h"
+#include "clk/base/algorithm_node.hpp"
+#include "clk/base/graph.hpp"
+#include "clk/gui/init.h"
+#include "clk/gui/panel.h"
+#include "clk/gui/widgets/editor.hpp"
+#include "clk/gui/widgets/viewer.hpp"
+#include "clk/util/color_rgba.hpp"
 
 #include <glad/glad.h>
 
@@ -43,7 +43,7 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 #endif
 
-		GLFWwindow* window = glfwCreateWindow(1920, 1080, "rendershop", nullptr, nullptr);
+		GLFWwindow* window = glfwCreateWindow(1920, 1080, "clayknot", nullptr, nullptr);
 		if(window == nullptr)
 			return 1;
 
@@ -76,28 +76,28 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 		imnodes::CreateContext();
 		auto& style = imnodes::GetStyle();
 		// TODO these colors need to come form a stylesheet
-		style.colors[imnodes::ColorStyle_LinkHovered] = rsp::color_rgba{1.0f}.packed();
-		style.colors[imnodes::ColorStyle_LinkSelected] = rsp::color_rgba{1.0f}.packed();
-		style.colors[imnodes::ColorStyle_Link] = rsp::color_rgba{0.0f}.packed();
-		style.colors[imnodes::ColorStyle_PinHovered] = rsp::color_rgba{1.0f}.packed();
+		style.colors[imnodes::ColorStyle_LinkHovered] = clk::color_rgba{1.0f}.packed();
+		style.colors[imnodes::ColorStyle_LinkSelected] = clk::color_rgba{1.0f}.packed();
+		style.colors[imnodes::ColorStyle_Link] = clk::color_rgba{0.0f}.packed();
+		style.colors[imnodes::ColorStyle_PinHovered] = clk::color_rgba{1.0f}.packed();
 
 		style.colors[imnodes::ColorStyle_TitleBarHovered] = style.colors[imnodes::ColorStyle_TitleBar];
 		style.colors[imnodes::ColorStyle_TitleBarSelected] = style.colors[imnodes::ColorStyle_TitleBar];
 		style.colors[imnodes::ColorStyle_NodeBackgroundHovered] = style.colors[imnodes::ColorStyle_NodeBackground];
 		style.colors[imnodes::ColorStyle_NodeBackgroundSelected] = style.colors[imnodes::ColorStyle_NodeBackground];
 
-		rsp::gui::init();
+		clk::gui::init();
 
-		auto graph1 = []() -> rsp::graph {
+		auto graph1 = []() -> clk::graph {
 			auto random_color =
-				std::make_unique<rsp::algorithm_node>(std::make_unique<rsp::algorithms::random_color_source>());
+				std::make_unique<clk::algorithm_node>(std::make_unique<clk::algorithms::random_color_source>());
 			auto decompose_color =
-				std::make_unique<rsp::algorithm_node>(std::make_unique<rsp::algorithms::decompose_color>());
+				std::make_unique<clk::algorithm_node>(std::make_unique<clk::algorithms::decompose_color>());
 			auto value_to_color =
-				std::make_unique<rsp::algorithm_node>(std::make_unique<rsp::algorithms::value_to_color>());
-			auto mix_colors = std::make_unique<rsp::algorithm_node>(std::make_unique<rsp::algorithms::mix_colors>());
+				std::make_unique<clk::algorithm_node>(std::make_unique<clk::algorithms::value_to_color>());
+			auto mix_colors = std::make_unique<clk::algorithm_node>(std::make_unique<clk::algorithms::mix_colors>());
 
-			rsp::graph ret;
+			clk::graph ret;
 
 			ret.emplace_back(std::move(random_color));
 			ret.emplace_back(std::move(decompose_color));
@@ -106,12 +106,12 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 			return ret;
 		}();
 
-		std::vector<rsp::gui::panel> panels;
-		auto graph_viewer = rsp::gui::panel("graph viewer");
-		auto graph_editor = rsp::gui::panel("graph editor");
+		std::vector<clk::gui::panel> panels;
+		auto graph_viewer = clk::gui::panel("graph viewer");
+		auto graph_editor = clk::gui::panel("graph editor");
 
-		graph_viewer.add_widget(rsp::gui::viewer::create(&graph1, "graph1 viewer"));
-		graph_editor.add_widget(rsp::gui::editor::create(&graph1, "graph1 editor"));
+		graph_viewer.add_widget(clk::gui::viewer::create(&graph1, "graph1 viewer"));
+		graph_editor.add_widget(clk::gui::editor::create(&graph1, "graph1 editor"));
 
 		panels.push_back(std::move(graph_viewer));
 		panels.push_back(std::move(graph_editor));

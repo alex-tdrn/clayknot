@@ -1,4 +1,4 @@
-#include "rsp/base/node.hpp"
+#include "clk/base/node.hpp"
 
 #include <catch2/catch.hpp>
 #include <chrono>
@@ -9,13 +9,13 @@ using namespace std::literals;
 
 // FIXME rethink this whole test suite before merging to dev
 
-// TEST_CASE("New node types can be implemented by inheriting from rsp::Node", "[nodes], [ports]")
+// TEST_CASE("New node types can be implemented by inheriting from clk::Node", "[nodes], [ports]")
 // {
-// 	class TestNode final : public rsp::Node
+// 	class TestNode final : public clk::Node
 // 	{
 // 	private:
-// 		rsp::InputPortOf<int> input0{"I_0"};
-// 		rsp::OutputPortOf<int> output0{"O_0"};
+// 		clk::InputPortOf<int> input0{"I_0"};
+// 		clk::OutputPortOf<int> output0{"O_0"};
 // 		unsigned int ctUpdateCalled = 0;
 
 // 	public:
@@ -78,7 +78,7 @@ using namespace std::literals;
 
 // 		// AND_GIVEN("output port O_0, compatible with AI_0")
 // 		// {
-// 		// 	rsp::OutputPort<int> O_0{"O_0"};
+// 		// 	clk::OutputPort<int> O_0{"O_0"};
 // 		// 	WHEN("AI_0 and O_0 are connected")
 // 		// 	{
 // 		// 		AI_0.connectTo(O_0);

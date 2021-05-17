@@ -1,21 +1,22 @@
-#include "rsp/gui/widgets/graph_viewer.h"
+#include "clk/gui/widgets/graph_viewer.h"
 
+#include "clk/base/node.hpp"
+#include "clk/base/port.hpp"
 #include "node_viewers.hpp"
 #include "port_viewers.hpp"
-#include "rsp/base/node.hpp"
-#include "rsp/base/port.hpp"
 #include "selection_manager.hpp"
 #include "widget_cache.hpp"
 
-namespace rsp::gui
+
+namespace clk::gui
 {
-graph_viewer::graph_viewer(rsp::graph const* data, std::string const& data_name)
-	: viewer_of<rsp::graph>(data, data_name)
+graph_viewer::graph_viewer(clk::graph const* data, std::string const& data_name)
+	: viewer_of<clk::graph>(data, data_name)
 {
-	port_cache = std::make_unique<impl::widget_cache<rsp::port const, impl::port_viewer>>(&impl::create_port_viewer);
+	port_cache = std::make_unique<impl::widget_cache<clk::port const, impl::port_viewer>>(&impl::create_port_viewer);
 
 	node_cache =
-		std::make_unique<impl::widget_cache<rsp::node const, impl::node_viewer>>([&](node const* node, int id) {
+		std::make_unique<impl::widget_cache<clk::node const, impl::node_viewer>>([&](node const* node, int id) {
 			return impl::create_node_viewer(node, id, port_cache.get());
 		});
 
@@ -78,4 +79,4 @@ void graph_viewer::draw_graph() const
 	imnodes::EndNodeEditor();
 }
 
-} // namespace rsp::gui
+} // namespace clk::gui

@@ -1,19 +1,20 @@
 #pragma once
+#include "clk/base/node.hpp"
+#include "clk/util/color_rgba.hpp"
 #include "port_viewers.hpp"
-#include "rsp/base/node.hpp"
-#include "rsp/util/color_rgba.hpp"
 #include "widget_cache.hpp"
+
 
 #include <imgui.h>
 #include <imnodes.h>
 
-namespace rsp::gui::impl
+namespace clk::gui::impl
 {
 class node_viewer
 {
 public:
 	node_viewer() = delete;
-	node_viewer(rsp::node const* node, int id, widget_cache<rsp::port const, port_viewer>* port_cache);
+	node_viewer(clk::node const* node, int id, widget_cache<clk::port const, port_viewer>* port_cache);
 	node_viewer(node_viewer const&) = delete;
 	node_viewer(node_viewer&&) noexcept = delete;
 	auto operator=(node_viewer const&) -> node_viewer& = delete;
@@ -21,13 +22,13 @@ public:
 	~node_viewer() = default;
 
 	auto get_id() const -> int;
-	auto get_node() const -> rsp::node const*;
+	auto get_node() const -> clk::node const*;
 	void set_highlighted(bool highlighted);
 	void draw();
 
 private:
-	widget_cache<rsp::port const, port_viewer>* port_cache = nullptr;
-	rsp::node const* node = nullptr;
+	widget_cache<clk::port const, port_viewer>* port_cache = nullptr;
+	clk::node const* node = nullptr;
 	int id = -1;
 	bool first_draw = true;
 	float title_width = 0;
@@ -37,7 +38,7 @@ private:
 	void draw_title_bar();
 };
 
-inline node_viewer::node_viewer(rsp::node const* node, int id, widget_cache<rsp::port const, port_viewer>* port_cache)
+inline node_viewer::node_viewer(clk::node const* node, int id, widget_cache<clk::port const, port_viewer>* port_cache)
 	: port_cache(port_cache), node(node), id(id)
 {
 }
@@ -47,7 +48,7 @@ inline auto node_viewer::get_id() const -> int
 	return id;
 }
 
-inline auto node_viewer::get_node() const -> rsp::node const*
+inline auto node_viewer::get_node() const -> clk::node const*
 {
 	return node;
 }
@@ -106,10 +107,10 @@ inline void node_viewer::draw_title_bar()
 	imnodes::EndNodeTitleBar();
 }
 
-inline auto create_node_viewer(rsp::node const* node, int id, widget_cache<rsp::port const, port_viewer>* portCache)
+inline auto create_node_viewer(clk::node const* node, int id, widget_cache<clk::port const, port_viewer>* portCache)
 	-> std::unique_ptr<node_viewer>
 {
 	return std::make_unique<node_viewer>(node, id, portCache);
 }
 
-} // namespace rsp::gui::impl
+} // namespace clk::gui::impl

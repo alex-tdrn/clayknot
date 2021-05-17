@@ -77,8 +77,8 @@
 
 #ifdef IMGUI_ADD_VECTOR_CONVERSIONS
 
-#include "rsp/util/bounded.hpp"
-#include "rsp/util/color_rgba.hpp"
+#include "clk/util/bounded.hpp"
+#include "clk/util/color_rgba.hpp"
 #include <glm/glm.hpp>
 
 
@@ -92,7 +92,7 @@
 	{ \
 		return glm::vec2(x, y); \
 	} \
-	ImVec2(const rsp::bounded<glm::vec2>& f) \
+	ImVec2(const clk::bounded<glm::vec2>& f) \
 	{ \
 		glm::vec2 v = f.get_val(); \
 		x = v.x; \
@@ -111,18 +111,18 @@
 	{ \
 		return glm::vec4(x, y, z, w); \
 	} \
-	ImVec4(const rsp::color_rgba& f) \
+	ImVec4(const clk::color_rgba& f) \
 	{ \
 		x = f.r(); \
 		y = f.g(); \
 		z = f.b(); \
 		w = f.a(); \
 	} \
-	operator rsp::color_rgba() const \
+	operator clk::color_rgba() const \
 	{ \
-		return rsp::color_rgba(x, y, z, w); \
+		return clk::color_rgba(x, y, z, w); \
 	} \
-	ImVec4(const rsp::bounded<glm::vec4>& f) \
+	ImVec4(const clk::bounded<glm::vec4>& f) \
 	{ \
 		glm::vec4 v = f.get_val(); \
 		x = v.x; \

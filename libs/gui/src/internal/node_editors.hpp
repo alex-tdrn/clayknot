@@ -1,20 +1,21 @@
 #pragma once
+#include "clk/base/constant_node.hpp"
+#include "clk/base/node.hpp"
+#include "clk/util/color_rgba.hpp"
 #include "port_editors.hpp"
-#include "rsp/base/constant_node.hpp"
-#include "rsp/base/node.hpp"
-#include "rsp/util/color_rgba.hpp"
 #include "widget_cache.hpp"
+
 
 #include <imgui.h>
 #include <imnodes.h>
 
-namespace rsp::gui::impl
+namespace clk::gui::impl
 {
 class node_editor
 {
 public:
 	node_editor() = delete;
-	node_editor(rsp::node* node, int id, widget_cache<rsp::port, port_editor>* portCache,
+	node_editor(clk::node* node, int id, widget_cache<clk::port, port_editor>* portCache,
 		std::optional<std::function<bool()>>& modification_callback);
 	node_editor(node_editor const&) = delete;
 	node_editor(node_editor&&) noexcept = delete;
@@ -23,14 +24,14 @@ public:
 	virtual ~node_editor() = default;
 
 	auto get_id() const -> int;
-	auto get_node() const -> rsp::node*;
+	auto get_node() const -> clk::node*;
 	void set_highlighted(bool highlighted);
 	void draw();
 
 protected:
 	std::optional<std::function<bool()>>& modification_callback;
-	widget_cache<rsp::port, port_editor>* port_cache = nullptr; // NOLINT
-	rsp::node* node = nullptr; // NOLINT
+	widget_cache<clk::port, port_editor>* port_cache = nullptr; // NOLINT
+	clk::node* node = nullptr; // NOLINT
 	int id = -1; // NOLINT
 	bool first_draw = true; // NOLINT
 	float title_width = 0; // NOLINT
@@ -46,7 +47,7 @@ class constant_node_editor final : public node_editor
 {
 public:
 	constant_node_editor() = delete;
-	constant_node_editor(rsp::constant_node* node, int id, widget_cache<rsp::port, port_editor>* port_cache,
+	constant_node_editor(clk::constant_node* node, int id, widget_cache<clk::port, port_editor>* port_cache,
 		std::optional<std::function<bool()>>& modification_callback);
 	constant_node_editor(constant_node_editor const&) = delete;
 	constant_node_editor(constant_node_editor&&) noexcept = delete;
@@ -55,13 +56,13 @@ public:
 	~constant_node_editor() final = default;
 
 private:
-	rsp::constant_node* node;
-	std::unordered_map<rsp::output_port*, std::unique_ptr<rsp::gui::editor>> constant_editors;
+	clk::constant_node* node;
+	std::unordered_map<clk::output_port*, std::unique_ptr<clk::gui::editor>> constant_editors;
 
 	void draw_output_ports() final;
 };
 
-inline node_editor::node_editor(rsp::node* node, int id, widget_cache<rsp::port, port_editor>* port_cache,
+inline node_editor::node_editor(clk::node* node, int id, widget_cache<clk::port, port_editor>* port_cache,
 	std::optional<std::function<bool()>>& modification_callback)
 	: modification_callback(modification_callback), port_cache(port_cache), node(node), id(id)
 {
@@ -72,7 +73,7 @@ inline auto node_editor::get_id() const -> int
 	return id;
 }
 
-inline auto node_editor::get_node() const -> rsp::node*
+inline auto node_editor::get_node() const -> clk::node*
 {
 	return node;
 }
@@ -149,8 +150,8 @@ inline void node_editor::draw_output_ports()
 		port_cache->get_widget(port).draw();
 }
 
-inline constant_node_editor::constant_node_editor(rsp::constant_node* node, int id,
-	widget_cache<rsp::port, port_editor>* portCache, std::optional<std::function<bool()>>& modificationCallback)
+inline constant_node_editor::constant_node_editor(clk::constant_node* node, int id,
+	widget_cache<clk::port, port_editor>* portCache, std::optional<std::function<bool()>>& modificationCallback)
 	: node_editor(node, id, portCache, modificationCallback), node(node)
 {
 }
@@ -176,7 +177,7 @@ inline void constant_node_editor::draw_output_ports()
 		if(constant_editors.find(port) == constant_editors.end())
 		{
 			constant_editors[port] =
-				rsp::gui::editor::create(port->get_data_type_hash(), port->get_data_pointer(), port->get_name(), [=]() {
+				clk::gui::editor::create(port->get_data_type_hash(), port->get_data_pointer(), port->get_name(), [=]() {
 					port->update_timestamp();
 					port->push();
 				});
@@ -222,13 +223,13 @@ inline void constant_node_editor::draw_output_ports()
 	}
 }
 
-inline auto create_node_editor(rsp::node* node, int id, widget_cache<rsp::port, port_editor>* portCache,
+inline auto create_node_editor(clk::node* node, int id, widget_cache<clk::port, port_editor>* portCache,
 	std::optional<std::function<bool()>>& modificationCallback) -> std::unique_ptr<node_editor>
 {
-	if(auto* constantNode = dynamic_cast<rsp::constant_node*>(node))
+	if(auto* constantNode = dynamic_cast<clk::constant_node*>(node))
 		return std::make_unique<constant_node_editor>(constantNode, id, portCache, modificationCallback);
 	else
 		return std::make_unique<node_editor>(node, id, portCache, modificationCallback);
 }
 
-} // namespace rsp::gui::impl
+} // namespace clk::gui::impl

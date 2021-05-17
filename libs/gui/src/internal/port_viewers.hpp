@@ -1,18 +1,18 @@
 #pragma once
-#include "rsp/base/port.hpp"
-#include "rsp/gui/widgets/viewer.hpp"
-#include "rsp/util/color_rgba.hpp"
+#include "clk/base/port.hpp"
+#include "clk/gui/widgets/viewer.hpp"
+#include "clk/util/color_rgba.hpp"
 
 #include <imnodes.h>
 #include <memory>
 
-namespace rsp::gui::impl
+namespace clk::gui::impl
 {
 class port_viewer
 {
 public:
 	port_viewer() = delete;
-	port_viewer(rsp::port const* port, int id);
+	port_viewer(clk::port const* port, int id);
 	port_viewer(port_viewer const&) = delete;
 	port_viewer(port_viewer&&) noexcept = delete;
 	auto operator=(port_viewer const&) -> port_viewer& = delete;
@@ -20,54 +20,54 @@ public:
 	virtual ~port_viewer() = default;
 
 	auto get_id() const -> int;
-	virtual auto get_port() const -> rsp::port const* = 0;
+	virtual auto get_port() const -> clk::port const* = 0;
 	virtual void draw() = 0;
 
 protected:
 	int id = -1; // NOLINT
 	std::uint32_t color; // NOLINT
-	std::unique_ptr<rsp::gui::viewer> data_viewer; // NOLINT
+	std::unique_ptr<clk::gui::viewer> data_viewer; // NOLINT
 };
 
 class input_port_viewer final : public port_viewer
 {
 public:
 	input_port_viewer() = delete;
-	input_port_viewer(rsp::input_port const* port, int id);
+	input_port_viewer(clk::input_port const* port, int id);
 	input_port_viewer(input_port_viewer const&) = delete;
 	input_port_viewer(input_port_viewer&&) noexcept = delete;
 	auto operator=(input_port_viewer const&) -> input_port_viewer& = delete;
 	auto operator=(input_port_viewer&&) noexcept -> input_port_viewer& = delete;
 	~input_port_viewer() final = default;
 
-	auto get_port() const -> rsp::input_port const* final;
+	auto get_port() const -> clk::input_port const* final;
 	void draw() final;
 
 private:
-	rsp::input_port const* port = nullptr;
+	clk::input_port const* port = nullptr;
 };
 
 class output_port_viewer final : public port_viewer
 {
 public:
 	output_port_viewer() = delete;
-	output_port_viewer(rsp::output_port const* port, int id);
+	output_port_viewer(clk::output_port const* port, int id);
 	output_port_viewer(output_port_viewer const&) = delete;
 	output_port_viewer(output_port_viewer&&) noexcept = delete;
 	auto operator=(output_port_viewer const&) -> output_port_viewer& = delete;
 	auto operator=(output_port_viewer&&) noexcept -> output_port_viewer& = delete;
 	~output_port_viewer() final = default;
 
-	auto get_port() const -> rsp::output_port const* final;
+	auto get_port() const -> clk::output_port const* final;
 	void draw() final;
 
 private:
-	rsp::output_port const* port = nullptr;
+	clk::output_port const* port = nullptr;
 };
 
-inline port_viewer::port_viewer(rsp::port const* port, int id) : id(id)
+inline port_viewer::port_viewer(clk::port const* port, int id) : id(id)
 {
-	data_viewer = rsp::gui::viewer::create(port->get_data_type_hash(), port->get_data_pointer(), port->get_name());
+	data_viewer = clk::gui::viewer::create(port->get_data_type_hash(), port->get_data_pointer(), port->get_name());
 	data_viewer->set_maximum_width(200);
 	color = color_rgba(color_rgb::create_random(port->get_data_type_hash()), 1.0f).packed();
 }
@@ -77,11 +77,11 @@ inline auto port_viewer::get_id() const -> int
 	return id;
 }
 
-inline input_port_viewer::input_port_viewer(rsp::input_port const* port, int id) : port_viewer(port, id), port(port)
+inline input_port_viewer::input_port_viewer(clk::input_port const* port, int id) : port_viewer(port, id), port(port)
 {
 }
 
-inline auto input_port_viewer::get_port() const -> rsp::input_port const*
+inline auto input_port_viewer::get_port() const -> clk::input_port const*
 {
 	return port;
 }
@@ -105,7 +105,7 @@ inline void input_port_viewer::draw()
 	imnodes::PopColorStyle();
 }
 
-inline output_port_viewer::output_port_viewer(rsp::output_port const* port, int id) : port_viewer(port, id), port(port)
+inline output_port_viewer::output_port_viewer(clk::output_port const* port, int id) : port_viewer(port, id), port(port)
 {
 }
 
@@ -132,13 +132,13 @@ inline void output_port_viewer::draw()
 	imnodes::PopColorStyle();
 }
 
-inline auto create_port_viewer(rsp::port const* port, int id) -> std::unique_ptr<port_viewer>
+inline auto create_port_viewer(clk::port const* port, int id) -> std::unique_ptr<port_viewer>
 {
-	if(auto const* inputPort = dynamic_cast<rsp::input_port const*>(port); inputPort != nullptr)
+	if(auto const* inputPort = dynamic_cast<clk::input_port const*>(port); inputPort != nullptr)
 		return std::make_unique<input_port_viewer>(inputPort, id);
-	else if(auto const* outputPort = dynamic_cast<rsp::output_port const*>(port); outputPort != nullptr)
+	else if(auto const* outputPort = dynamic_cast<clk::output_port const*>(port); outputPort != nullptr)
 		return std::make_unique<output_port_viewer>(outputPort, id);
 	return nullptr;
 }
 
-} // namespace rsp::gui::impl
+} // namespace clk::gui::impl

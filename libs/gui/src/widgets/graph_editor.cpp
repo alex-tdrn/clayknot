@@ -1,23 +1,24 @@
-#include "rsp/gui/widgets/graph_editor.h"
+#include "clk/gui/widgets/graph_editor.h"
 
+#include "clk/algorithms/decompose_color.h"
+#include "clk/algorithms/grayscale_color_node.h"
+#include "clk/algorithms/mix_colors.h"
+#include "clk/algorithms/random_color_source.h"
+#include "clk/algorithms/value_to_color.h"
+#include "clk/base/algorithm_node.hpp"
+#include "clk/base/constant_node.hpp"
+#include "clk/base/port.hpp"
 #include "node_editors.hpp"
 #include "port_editors.hpp"
-#include "rsp/algorithms/decompose_color.h"
-#include "rsp/algorithms/grayscale_color_node.h"
-#include "rsp/algorithms/mix_colors.h"
-#include "rsp/algorithms/random_color_source.h"
-#include "rsp/algorithms/value_to_color.h"
-#include "rsp/base/algorithm_node.hpp"
-#include "rsp/base/constant_node.hpp"
-#include "rsp/base/port.hpp"
 #include "selection_manager.hpp"
 #include "widget_cache.hpp"
 
-namespace rsp::gui
+
+namespace clk::gui
 {
 graph_editor::graph_editor(
-	rsp::graph* data, std::string const& data_name, std::optional<std::function<void()>> modified_callback)
-	: editor_of<rsp::graph>(data, data_name, std::move(modified_callback))
+	clk::graph* data, std::string const& data_name, std::optional<std::function<void()>> modified_callback)
+	: editor_of<clk::graph>(data, data_name, std::move(modified_callback))
 {
 	port_cache = std::make_unique<impl::widget_cache<port, impl::port_editor>>(&impl::create_port_editor);
 
@@ -70,7 +71,7 @@ void graph_editor::draw_graph() const
 		imnodes::PushColorStyle(
 			imnodes::ColorStyle_Link, port_cache->get_widget(&new_connection_in_progress->starting_port).get_color());
 	else
-		imnodes::PushColorStyle(imnodes::ColorStyle_Link, rsp::color_rgba{1.0f}.packed());
+		imnodes::PushColorStyle(imnodes::ColorStyle_Link, clk::color_rgba{1.0f}.packed());
 
 	connections.clear();
 
@@ -103,7 +104,7 @@ void graph_editor::draw_graph() const
 				}
 			}
 			auto color =
-				rsp::color_rgba(rsp::color_rgb::create_random(connection.first->get_data_type_hash()), 1.0f).packed();
+				clk::color_rgba(clk::color_rgb::create_random(connection.first->get_data_type_hash()), 1.0f).packed();
 			imnodes::PushColorStyle(imnodes::ColorStyle_Link, color);
 			if(new_connection_in_progress)
 			{
@@ -124,7 +125,7 @@ void graph_editor::draw_graph() const
 
 	if(new_connection_in_progress && new_connection_in_progress->dropped_connection)
 	{
-		auto color = rsp::color_rgba(rsp::color_rgb(0.0f), 1.0f).packed();
+		auto color = clk::color_rgba(clk::color_rgb(0.0f), 1.0f).packed();
 		imnodes::PushColorStyle(imnodes::ColorStyle_Link, color);
 		imnodes::PushColorStyle(imnodes::ColorStyle_LinkHovered, color);
 		imnodes::PushColorStyle(imnodes::ColorStyle_LinkSelected, color);
@@ -153,21 +154,21 @@ void graph_editor::draw_menus() const
 			{
 				if(ImGui::MenuItem("DecomposeColor"))
 					graph->push_back(
-						std::make_unique<rsp::algorithm_node>(std::make_unique<rsp::algorithms::decompose_color>()));
+						std::make_unique<clk::algorithm_node>(std::make_unique<clk::algorithms::decompose_color>()));
 				if(ImGui::MenuItem("GrayscaleColorNode"))
-					graph->push_back(std::make_unique<rsp::algorithm_node>(
-						std::make_unique<rsp::algorithms::grayscale_color_node>()));
+					graph->push_back(std::make_unique<clk::algorithm_node>(
+						std::make_unique<clk::algorithms::grayscale_color_node>()));
 				if(ImGui::MenuItem("MixColors"))
 					graph->push_back(
-						std::make_unique<rsp::algorithm_node>(std::make_unique<rsp::algorithms::mix_colors>()));
+						std::make_unique<clk::algorithm_node>(std::make_unique<clk::algorithms::mix_colors>()));
 				if(ImGui::MenuItem("RandomColorSource"))
-					graph->push_back(std::make_unique<rsp::algorithm_node>(
-						std::make_unique<rsp::algorithms::random_color_source>()));
+					graph->push_back(std::make_unique<clk::algorithm_node>(
+						std::make_unique<clk::algorithms::random_color_source>()));
 				ImGui::EndMenu();
 			}
 
 			if(ImGui::MenuItem("Constant"))
-				graph->push_back(std::make_unique<rsp::constant_node>());
+				graph->push_back(std::make_unique<clk::constant_node>());
 			ImGui::EndMenu();
 		}
 
@@ -183,11 +184,11 @@ void graph_editor::draw_menus() const
 				});
 				if(any_inputs && ImGui::MenuItem("Copy inputs to new constant node"))
 				{
-					auto constant_node = std::make_unique<rsp::constant_node>();
+					auto constant_node = std::make_unique<clk::constant_node>();
 					for(auto* node : selection_manager->get_selected_nodes())
 					{
 						for(auto* input_port : node->get_input_ports())
-							constant_node->add_port(std::unique_ptr<rsp::output_port>(
+							constant_node->add_port(std::unique_ptr<clk::output_port>(
 								dynamic_cast<output_port*>(input_port->create_compatible_port().release())));
 					}
 
@@ -247,8 +248,8 @@ void graph_editor::update_connections() const
 
 	if(int output_port_id = -1, input_port_id = -1; imnodes::IsLinkCreated(&output_port_id, &input_port_id))
 	{
-		auto* input_port = dynamic_cast<rsp::input_port*>(port_cache->get_widget(input_port_id).get_port());
-		auto* output_port = dynamic_cast<rsp::output_port*>(port_cache->get_widget(output_port_id).get_port());
+		auto* input_port = dynamic_cast<clk::input_port*>(port_cache->get_widget(input_port_id).get_port());
+		auto* output_port = dynamic_cast<clk::output_port*>(port_cache->get_widget(output_port_id).get_port());
 
 		if(new_connection_in_progress->ending_port != nullptr)
 			new_connection_in_progress->starting_port.disconnect_from(*new_connection_in_progress->ending_port);
@@ -311,4 +312,4 @@ void graph_editor::restore_dropped_connection() const
 	}
 }
 
-} // namespace rsp::gui
+} // namespace clk::gui

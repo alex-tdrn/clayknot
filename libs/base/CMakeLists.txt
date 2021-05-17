@@ -1,16 +1,18 @@
-add_library(rendershop-base INTERFACE)
+add_library(base INTERFACE)
 
 target_sources(
-	rendershop-base
-	INTERFACE "include/rsp/base/node.hpp"
-				"include/rsp/base/algorithm_node.hpp"
-				"include/rsp/base/constant_node.hpp"
-				"include/rsp/base/algorithm.hpp"
-				"include/rsp/base/port.hpp"
-				"include/rsp/base/sentinel.hpp"
-				"include/rsp/base/graph.hpp"
+	base
+	INTERFACE "include/clk/base/node.hpp"
+				"include/clk/base/algorithm_node.hpp"
+				"include/clk/base/constant_node.hpp"
+				"include/clk/base/algorithm.hpp"
+				"include/clk/base/port.hpp"
+				"include/clk/base/sentinel.hpp"
+				"include/clk/base/graph.hpp"
 )
 
-target_include_directories(rendershop-base INTERFACE "include")
+target_include_directories(base INTERFACE "include")
 
-target_link_libraries(rendershop-base INTERFACE rendershop-util)
+target_link_libraries(base INTERFACE clayknot::util)
+
+add_library(clayknot::base ALIAS base)

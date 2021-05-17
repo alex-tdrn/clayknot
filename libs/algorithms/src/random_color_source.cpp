@@ -1,9 +1,9 @@
-#include "rsp/algorithms/random_color_source.h"
+#include "clk/algorithms/random_color_source.h"
 
 #include <chrono>
 #include <random>
 
-namespace rsp::algorithms
+namespace clk::algorithms
 {
 random_color_source::random_color_source()
 {
@@ -21,6 +21,6 @@ void random_color_source::update()
 	std::mt19937 generator(std::chrono::system_clock::now().time_since_epoch().count());
 	std::uniform_real_distribution<float> dis(0, 1);
 
-	*color = rsp::color_rgb{dis(generator), dis(generator), dis(generator)};
+	*color = clk::color_rgb{dis(generator), dis(generator), dis(generator)};
 }
-} // namespace rsp::algorithms
+} // namespace clk::algorithms

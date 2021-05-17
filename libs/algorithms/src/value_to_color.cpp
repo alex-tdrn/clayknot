@@ -1,6 +1,6 @@
-#include "rsp/algorithms/value_to_color.h"
+#include "clk/algorithms/value_to_color.h"
 
-namespace rsp::algorithms
+namespace clk::algorithms
 {
 value_to_color::value_to_color()
 {
@@ -16,6 +16,6 @@ auto value_to_color::get_name() const noexcept -> std::string const&
 
 void value_to_color::update()
 {
-	*color = rsp::color_rgb{*value / 100.0f};
+	*color = clk::color_rgb{*value / 100.0f};
 }
-} // namespace rsp::algorithms
+} // namespace clk::algorithms

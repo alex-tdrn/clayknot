@@ -1,12 +1,10 @@
-add_executable(rendershop-editor "src/main.cpp")
-
-target_include_directories(rendershop-editor PRIVATE "include" "../../external/glm/include")
+add_executable(editor "src/main.cpp")
 
 target_link_libraries(
-	rendershop-editor
-	PRIVATE rendershop-base
-			rendershop-algorithms
-			rendershop-gui
+	editor
+	PRIVATE clayknot::base
+			clayknot::algorithms
+			clayknot::gui
 			glad::glad
 			glfw::glfw
 			imgui
