@@ -29,4 +29,7 @@ target_compile_definitions(gui PUBLIC IMGUI_ADD_VECTOR_CONVERSIONS)
 
 target_link_libraries(gui PUBLIC clayknot::base clayknot::algorithms imgui imnodes)
 
+install(TARGETS gui)
+install(DIRECTORY include/ DESTINATION include)
+
 add_library(clayknot::gui ALIAS gui)

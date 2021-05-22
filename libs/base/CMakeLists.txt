@@ -13,6 +13,9 @@ target_sources(
 
 target_include_directories(base INTERFACE "include")
 
-target_link_libraries(base INTERFACE clayknot::util)
+target_link_libraries(base INTERFACE clayknot::util range-v3::range-v3)
+
+install(TARGETS base)
+install(DIRECTORY include/ DESTINATION include)
 
 add_library(clayknot::base ALIAS base)

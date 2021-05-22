@@ -121,32 +121,32 @@ inline void node_editor::draw()
 
 inline void node_editor::draw_title_bar()
 {
-	if(!node->get_input_ports().empty())
+	if(!this->node->get_input_ports().empty())
 	{
 		if(ImGui::SmallButton("Pull"))
-			node->pull();
+			this->node->pull();
 		ImGui::SameLine();
 	}
 
-	ImGui::Text("%s", node->get_name().data());
+	ImGui::Text("%s", this->node->get_name().data());
 
-	if(!node->get_output_ports().empty())
+	if(!this->node->get_output_ports().empty())
 	{
 		ImGui::SameLine();
 		if(ImGui::SmallButton("Push"))
-			node->push();
+			this->node->push();
 	}
 }
 
 inline void node_editor::draw_input_ports()
 {
-	for(auto& port : node->get_input_ports())
+	for(auto& port : this->node->get_input_ports())
 		port_cache->get_widget(port).draw();
 }
 
 inline void node_editor::draw_output_ports()
 {
-	for(auto& port : node->get_output_ports())
+	for(auto& port : this->node->get_output_ports())
 		port_cache->get_widget(port).draw();
 }
 
@@ -158,7 +158,7 @@ inline constant_node_editor::constant_node_editor(clk::constant_node* node, int 
 
 inline void constant_node_editor::draw_output_ports()
 {
-	for(auto* port : node->get_output_ports())
+	for(auto* port : this->node->get_output_ports())
 	{
 		ImGui::PushID(port);
 		if(ImGui::SmallButton("-"))
@@ -167,7 +167,7 @@ inline void constant_node_editor::draw_output_ports()
 			{
 				modification_callback = [&]() {
 					constant_editors.erase(port);
-					node->remove_port(port);
+					this->node->remove_port(port);
 					return true;
 				};
 			}
@@ -208,7 +208,7 @@ inline void constant_node_editor::draw_output_ports()
 
 					if(constantPort != nullptr)
 					{
-						node->add_port(std::move(constantPort));
+						this->node->add_port(std::move(constantPort));
 						done = true;
 					}
 					ImGui::EndPopup();

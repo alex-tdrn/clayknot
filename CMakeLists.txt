@@ -1,7 +1,4 @@
-cmake_minimum_required(VERSION 3.18)
-
-include(cmake/BuildTypesConfig.cmake)
-include(cmake/StaticAnalyzers.cmake)
+cmake_minimum_required(VERSION 3.20)
 
 project(clayknot VERSION 0.1.0)
 
@@ -9,19 +6,10 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(CMAKE_CXX_EXTENSIONS NO)
 
-find_program(CONAN_FOUND conan)
-if(CONAN_FOUND)
-	set(CONAN_BUILD_TYPE "Debug")
-	if(CMAKE_BUILD_TYPE STREQUAL "Release")
-		set(CONAN_BUILD_TYPE "Release")
-	endif()
-
-	execute_process(
-		COMMAND conan install ${CMAKE_SOURCE_DIR} -if ${CMAKE_BINARY_DIR} --build missing -s
-				build_type=${CONAN_BUILD_TYPE}
-	)
-endif()
-
+include(cmake/CopyCompileCommands.cmake)
+include(cmake/Sanitizers.cmake)
+include(cmake/StaticAnalyzers.cmake)
+include(cmake/ConanAutoInstall.cmake)
 include(${CMAKE_BINARY_DIR}/conan_paths.cmake OPTIONAL)
 
 include(CheckIPOSupported)

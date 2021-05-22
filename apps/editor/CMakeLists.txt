@@ -10,3 +10,5 @@ target_link_libraries(
 			imgui
 			imnodes
 )
+
+install(TARGETS editor)

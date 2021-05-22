@@ -14,4 +14,7 @@ target_sources(
 target_include_directories(util INTERFACE "include")
 target_link_libraries(util INTERFACE glm::glm)
 
+install(TARGETS util)
+install(DIRECTORY include/ DESTINATION include)
+
 add_library(clayknot::util ALIAS util)

@@ -1,6 +1,6 @@
 project(external)
 suppress_static_analysis()
-find_package(glfw REQUIRED)
+find_package(glfw3 REQUIRED)
 find_package(glad REQUIRED)
 add_subdirectory("imgui")
 add_subdirectory("imnodes")

@@ -1,0 +1,173 @@
+{
+    "version": 2,
+    "configurePresets": [
+        {
+            "hidden": true,
+            "name": "base",
+            "displayName": "base",
+            "description": "base",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/install/${presetName}",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CONAN_AUTO_INSTALL": "ON"
+            }
+        },
+        {
+            "hidden": true,
+            "inherits": [
+                "base"
+            ],
+            "name": "msvc_ninja",
+            "displayName": "MSVC Ninja",
+            "description": "MSVC with Ninja",
+            "generator": "Ninja",
+            "architecture": {
+                "value": "x64",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "cl",
+                "CMAKE_CXX_COMPILER": "cl"
+            }
+        },
+        {
+            "inherits": [
+                "msvc_ninja"
+            ],
+            "name": "msvc_ninja_debug",
+            "displayName": "MSVC Ninja Debug",
+            "description": "MSVC debug mode with Ninja",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "inherits": [
+                "msvc_ninja"
+            ],
+            "name": "msvc_ninja_release",
+            "displayName": "MSVC Ninja Release",
+            "description": "MSVC release mode with Ninja",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "inherits": [
+                "base"
+            ],
+            "name": "msvc_vs_2019",
+            "displayName": "MSVC VS 2019",
+            "description": "MSVC Visual Studio 2019 solution",
+            "generator": "Visual Studio 16 2019",
+            "toolset": "host=x64",
+            "architecture": "x64",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "hidden": true,
+            "inherits": [
+                "base"
+            ],
+            "name": "clang",
+            "displayName": "Clang",
+            "description": "Clang base",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_CXX_COMPILER": "clang++"
+            }
+        },
+        {
+            "inherits": [
+                "clang"
+            ],
+            "name": "clang_debug",
+            "displayName": "Clang Debug",
+            "description": "Clang debug mode with Ninja",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "inherits": [
+                "clang"
+            ],
+            "name": "clang_release",
+            "displayName": "Clang Release",
+            "description": "Clang release mode with Ninja",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "inherits": [
+                "clang_debug"
+            ],
+            "name": "static_analysis_run",
+            "displayName": "Static Analysis Run",
+            "description": "Run static analyzers",
+            "cacheVariables": {
+                "STATIC_ANALYSIS_ENABLED": "ON"
+            }
+        },
+        {
+            "inherits": [
+                "clang_debug"
+            ],
+            "name": "asan",
+            "displayName": "ASan",
+            "description": "Build with address sanitizer on",
+            "cacheVariables": {
+                "USE_SANITIZER": "ASAN"
+            }
+        },
+        {
+            "inherits": [
+                "clang_debug"
+            ],
+            "name": "msan",
+            "displayName": "MSan",
+            "description": "Build with memory sanitizer on",
+            "cacheVariables": {
+                "USE_SANITIZER": "MSAN"
+            }
+        },
+        {
+            "inherits": [
+                "clang_debug"
+            ],
+            "name": "ubsan",
+            "displayName": "UBSan",
+            "description": "Build with undefined behavior sanitizer on",
+            "cacheVariables": {
+                "USE_SANITIZER": "UBSAN"
+            }
+        },
+        {
+            "inherits": [
+                "clang_debug"
+            ],
+            "name": "tsan",
+            "displayName": "TSan",
+            "description": "Build with thread sanitizer on",
+            "cacheVariables": {
+                "USE_SANITIZER": "TSAN"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "configurePreset": "base",
+            "name": "debug_build_issues",
+            "displayName": "Debug build issues",
+            "description": "Change this to the configure preset you're debugging. build presets seem pretty limited...",
+            "jobs": 1,
+            "cleanFirst": true,
+            "verbose": true
+        }
+    ]
+}
