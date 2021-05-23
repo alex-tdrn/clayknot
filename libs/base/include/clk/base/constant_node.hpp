@@ -2,9 +2,12 @@
 
 #include "clk/base/node.hpp"
 #include "clk/base/port.hpp"
+#include "clk/util/predicates.hpp"
+#include "clk/util/projections.hpp"
 
-#include <algorithm>
 #include <memory>
+#include <range/v3/algorithm.hpp>
+#include <range/v3/view.hpp>
 #include <string>
 #include <vector>
 
@@ -37,19 +40,12 @@ inline auto constant_node::get_name() const -> std::string const&
 
 inline auto constant_node::get_output_ports() const -> std::vector<clk::output_port*>
 {
-	std::vector<clk::output_port*> ret;
-	for(auto const& output : _outputs)
-		ret.push_back(output.get());
-	return ret;
+	return _outputs | ranges::views::transform(clk::underlying()) | ranges::to<std::vector>();
 }
 
 inline void constant_node::remove_port(clk::output_port* port)
 {
-	_outputs.erase(std::remove_if(_outputs.begin(), _outputs.end(),
-					   [&](auto& output) {
-						   return output.get() == port;
-					   }),
-		_outputs.end());
+	_outputs.erase(ranges::remove_if(_outputs, clk::is_equal_to(port), clk::underlying()), _outputs.end());
 }
 
 inline void constant_node::add_port(std::unique_ptr<clk::output_port>&& port)

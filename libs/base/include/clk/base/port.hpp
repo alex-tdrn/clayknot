@@ -1,11 +1,12 @@
 #pragma once
 
 #include "clk/base/sentinel.hpp"
+#include "clk/util/predicates.hpp"
 #include "clk/util/timestamp.hpp"
 
-#include <algorithm>
 #include <functional>
 #include <memory>
+#include <range/v3/algorithm.hpp>
 #include <stdexcept>
 #include <string>
 #include <typeindex>
@@ -277,9 +278,7 @@ auto output_port_of<T>::is_connected_to(port const& other_port) const noexcept -
 	if(concrete == nullptr)
 		return false;
 
-	return std::any_of(_connections.begin(), _connections.end(), [&concrete](auto const* port) {
-		return port == concrete;
-	});
+	return ranges::any_of(_connections, clk::is_equal_to(concrete));
 }
 
 template <typename T>

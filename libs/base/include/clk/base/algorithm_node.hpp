@@ -5,10 +5,10 @@
 #include "clk/base/port.hpp"
 #include "clk/base/sentinel.hpp"
 
-#include <algorithm>
 #include <cassert>
 #include <functional>
 #include <memory>
+#include <range/v3/algorithm.hpp>
 #include <string>
 #include <vector>
 
@@ -147,8 +147,8 @@ inline auto algorithm_node::update_needed() const -> bool
 	auto outputs = get_output_ports();
 	auto inputs = get_input_ports();
 
-	return std::any_of(outputs.begin(), outputs.end(), [&](auto const* output_port) {
-		return std::any_of(inputs.begin(), inputs.end(), [&output_port](auto const* input_port) {
+	return ranges::any_of(outputs, [&](auto const* output_port) {
+		return ranges::any_of(inputs, [&output_port](auto const* input_port) {
 			return input_port->get_timestamp() > output_port->get_timestamp();
 		});
 	});
