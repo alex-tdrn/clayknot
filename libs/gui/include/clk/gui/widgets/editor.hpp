@@ -62,8 +62,8 @@ protected:
 	auto get_modified_callback() const -> std::optional<std::function<void()>> const&;
 
 private:
-	data_type* data;
-	std::optional<std::function<void()>> modified_callback;
+	data_type* _data;
+	std::optional<std::function<void()>> _modified_callback;
 
 	void data_modified() const;
 };
@@ -129,27 +129,27 @@ inline editor::editor(std::string const& data_name) : widget(data_name)
 template <typename data_type>
 editor_of<data_type>::editor_of(
 	data_type* data, std::string const& data_name, std::optional<std::function<void()>> modified_callback)
-	: editor(data_name), data(data), modified_callback(std::move(modified_callback))
+	: editor(data_name), _data(data), _modified_callback(std::move(modified_callback))
 {
 }
 
 template <typename data_type>
 auto editor_of<data_type>::clone() const -> std::unique_ptr<widget>
 {
-	auto clonededitor = std::make_unique<editor_of<data_type>>(data, get_data_name(), modified_callback);
+	auto clonededitor = std::make_unique<editor_of<data_type>>(_data, get_data_name(), _modified_callback);
 	return clonededitor;
 }
 
 template <typename data_type>
 void editor_of<data_type>::update_data_pointer(void* data)
 {
-	this->data = static_cast<data_type*>(data);
+	_data = static_cast<data_type*>(data);
 }
 
 template <typename data_type>
 auto editor_of<data_type>::is_data_available() const noexcept -> bool
 {
-	return data != nullptr;
+	return _data != nullptr;
 }
 
 template <typename data_type>
@@ -161,27 +161,27 @@ void editor_of<data_type>::draw_contents() const
 template <typename data_type>
 void editor_of<data_type>::data_modified() const
 {
-	if(modified_callback)
-		(*modified_callback)();
+	if(_modified_callback)
+		(*_modified_callback)();
 }
 
 template <typename data_type>
 auto editor_of<data_type>::get_data() const -> data_type*
 {
-	return data;
+	return _data;
 }
 
 template <typename data_type>
 auto editor_of<data_type>::get_modified_callback() const -> std::optional<std::function<void()>> const&
 {
-	return modified_callback;
+	return _modified_callback;
 }
 
 template <>
 inline void editor_of<bool>::draw_contents() const
 {
 	ImGui::SameLine();
-	if(ImGui::Checkbox("##", data))
+	if(ImGui::Checkbox("##", _data))
 		data_modified();
 }
 
@@ -189,7 +189,7 @@ template <>
 inline void editor_of<int>::draw_contents() const
 {
 	ImGui::SetNextItemWidth(get_available_width());
-	if(ImGui::DragInt("##", data))
+	if(ImGui::DragInt("##", _data))
 		data_modified();
 }
 
@@ -197,7 +197,7 @@ template <>
 inline void editor_of<float>::draw_contents() const
 {
 	ImGui::SetNextItemWidth(get_available_width());
-	if(ImGui::DragFloat("##", data))
+	if(ImGui::DragFloat("##", _data))
 		data_modified();
 }
 
@@ -210,7 +210,7 @@ inline void editor_of<glm::vec2>::draw_contents() const
 		for(int i = 0; i < 2; i++)
 		{
 			ImGui::PushID(i);
-			if(ImGui::DragFloat("##", &(*data)[i]))
+			if(ImGui::DragFloat("##", &(*_data)[i]))
 				data_modified();
 			ImGui::PopID();
 		}
@@ -222,7 +222,7 @@ inline void editor_of<glm::vec2>::draw_contents() const
 		for(int i = 0; i < 2; i++)
 		{
 			ImGui::PushID(i);
-			if(ImGui::DragFloat("##", &(*data)[i]))
+			if(ImGui::DragFloat("##", &(*_data)[i]))
 				data_modified();
 			ImGui::PopID();
 			ImGui::SameLine();
@@ -241,7 +241,7 @@ inline void editor_of<glm::vec3>::draw_contents() const
 		for(int i = 0; i < 3; i++)
 		{
 			ImGui::PushID(i);
-			if(ImGui::DragFloat("##", &(*data)[i]))
+			if(ImGui::DragFloat("##", &(*_data)[i]))
 				data_modified();
 			ImGui::PopID();
 		}
@@ -253,7 +253,7 @@ inline void editor_of<glm::vec3>::draw_contents() const
 		for(int i = 0; i < 3; i++)
 		{
 			ImGui::PushID(i);
-			if(ImGui::DragFloat("##", &(*data)[i]))
+			if(ImGui::DragFloat("##", &(*_data)[i]))
 				data_modified();
 			ImGui::PopID();
 			ImGui::SameLine();
@@ -272,7 +272,7 @@ inline void editor_of<glm::vec4>::draw_contents() const
 		for(int i = 0; i < 4; i++)
 		{
 			ImGui::PushID(i);
-			if(ImGui::DragFloat("##", &(*data)[i]))
+			if(ImGui::DragFloat("##", &(*_data)[i]))
 				data_modified();
 			ImGui::PopID();
 		}
@@ -284,7 +284,7 @@ inline void editor_of<glm::vec4>::draw_contents() const
 		for(int i = 0; i < 4; i++)
 		{
 			ImGui::PushID(i);
-			if(ImGui::DragFloat("##", &(*data)[i]))
+			if(ImGui::DragFloat("##", &(*_data)[i]))
 				data_modified();
 			ImGui::PopID();
 			ImGui::SameLine();
@@ -298,7 +298,7 @@ template <>
 inline void editor_of<clk::bounded<int>>::draw_contents() const
 {
 	ImGui::SetNextItemWidth(get_available_width());
-	if(ImGui::SliderInt("##", data->data(), data->get_min(), data->get_max()))
+	if(ImGui::SliderInt("##", _data->data(), _data->get_min(), _data->get_max()))
 		data_modified();
 }
 
@@ -306,7 +306,7 @@ template <>
 inline void editor_of<clk::bounded<float>>::draw_contents() const
 {
 	ImGui::SetNextItemWidth(get_available_width());
-	if(ImGui::SliderFloat("##", data->data(), data->get_min(), data->get_max()))
+	if(ImGui::SliderFloat("##", _data->data(), _data->get_min(), _data->get_max()))
 		data_modified();
 }
 
@@ -319,7 +319,7 @@ inline void editor_of<clk::bounded<glm::vec2>>::draw_contents() const
 		for(int i = 0; i < 2; i++)
 		{
 			ImGui::PushID(i);
-			if(ImGui::SliderFloat("##", &(data->data()->operator[](i)), data->get_min()[i], data->get_max()[i]))
+			if(ImGui::SliderFloat("##", &(_data->data()->operator[](i)), _data->get_min()[i], _data->get_max()[i]))
 				data_modified();
 			ImGui::PopID();
 		}
@@ -331,7 +331,7 @@ inline void editor_of<clk::bounded<glm::vec2>>::draw_contents() const
 		for(int i = 0; i < 2; i++)
 		{
 			ImGui::PushID(i);
-			if(ImGui::SliderFloat("##", &(data->data()->operator[](i)), data->get_min()[i], data->get_max()[i]))
+			if(ImGui::SliderFloat("##", &(_data->data()->operator[](i)), _data->get_min()[i], _data->get_max()[i]))
 				data_modified();
 			ImGui::PopID();
 			ImGui::SameLine();
@@ -350,7 +350,7 @@ inline void editor_of<clk::bounded<glm::vec3>>::draw_contents() const
 		for(int i = 0; i < 3; i++)
 		{
 			ImGui::PushID(i);
-			if(ImGui::SliderFloat("##", &(data->data()->operator[](i)), data->get_min()[i], data->get_max()[i]))
+			if(ImGui::SliderFloat("##", &(_data->data()->operator[](i)), _data->get_min()[i], _data->get_max()[i]))
 				data_modified();
 			ImGui::PopID();
 		}
@@ -362,7 +362,7 @@ inline void editor_of<clk::bounded<glm::vec3>>::draw_contents() const
 		for(int i = 0; i < 3; i++)
 		{
 			ImGui::PushID(i);
-			if(ImGui::SliderFloat("##", &(data->data()->operator[](i)), data->get_min()[i], data->get_max()[i]))
+			if(ImGui::SliderFloat("##", &(_data->data()->operator[](i)), _data->get_min()[i], _data->get_max()[i]))
 				data_modified();
 			ImGui::PopID();
 			ImGui::SameLine();
@@ -381,7 +381,7 @@ inline void editor_of<clk::bounded<glm::vec4>>::draw_contents() const
 		for(int i = 0; i < 4; i++)
 		{
 			ImGui::PushID(i);
-			if(ImGui::SliderFloat("##", &(data->data()->operator[](i)), data->get_min()[i], data->get_max()[i]))
+			if(ImGui::SliderFloat("##", &(_data->data()->operator[](i)), _data->get_min()[i], _data->get_max()[i]))
 				data_modified();
 			ImGui::PopID();
 		}
@@ -393,7 +393,7 @@ inline void editor_of<clk::bounded<glm::vec4>>::draw_contents() const
 		for(int i = 0; i < 4; i++)
 		{
 			ImGui::PushID(i);
-			if(ImGui::SliderFloat("##", &(data->data()->operator[](i)), data->get_min()[i], data->get_max()[i]))
+			if(ImGui::SliderFloat("##", &(_data->data()->operator[](i)), _data->get_min()[i], _data->get_max()[i]))
 				data_modified();
 			ImGui::PopID();
 			ImGui::SameLine();
@@ -411,28 +411,28 @@ inline void editor_of<clk::color_rgb>::draw_contents() const
 	if(is_extended_preferred())
 	{
 		ImGui::PushID(0);
-		if(ImGui::ColorEdit3("##", data->data(),
+		if(ImGui::ColorEdit3("##", _data->data(),
 			   ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoSmallPreview | ImGuiColorEditFlags_Float |
 				   ImGuiColorEditFlags_NoDragDrop))
 			data_modified();
 		ImGui::PopID();
 
 		ImGui::PushID(1);
-		if(ImGui::ColorEdit3("##", data->data(),
+		if(ImGui::ColorEdit3("##", _data->data(),
 			   ImGuiColorEditFlags_DisplayHSV | ImGuiColorEditFlags_NoSmallPreview | ImGuiColorEditFlags_Float |
 				   ImGuiColorEditFlags_NoDragDrop))
 			data_modified();
 		ImGui::PopID();
 
 		ImGui::PushID(2);
-		if(ImGui::ColorEdit3("##", data->data(),
+		if(ImGui::ColorEdit3("##", _data->data(),
 			   ImGuiColorEditFlags_DisplayHex | ImGuiColorEditFlags_NoPicker | ImGuiColorEditFlags_NoTooltip |
 				   ImGuiColorEditFlags_Float | ImGuiColorEditFlags_NoDragDrop))
 			data_modified();
 		ImGui::PopID();
 
 		ImGui::PushID(3);
-		if(ImGui::ColorPicker3("##", data->data(),
+		if(ImGui::ColorPicker3("##", _data->data(),
 			   ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoSmallPreview | ImGuiColorEditFlags_NoSidePreview |
 				   ImGuiColorEditFlags_Float | ImGuiColorEditFlags_NoDragDrop))
 			data_modified();
@@ -440,7 +440,7 @@ inline void editor_of<clk::color_rgb>::draw_contents() const
 	}
 	else
 	{
-		if(ImGui::ColorEdit3("##", data->data(),
+		if(ImGui::ColorEdit3("##", _data->data(),
 			   ImGuiColorEditFlags_Float | ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoDragDrop))
 			data_modified();
 	}
@@ -454,28 +454,28 @@ inline void editor_of<clk::color_rgba>::draw_contents() const
 	if(is_extended_preferred())
 	{
 		ImGui::PushID(0);
-		if(ImGui::ColorEdit4("##", data->data(),
+		if(ImGui::ColorEdit4("##", _data->data(),
 			   ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoSmallPreview | ImGuiColorEditFlags_Float |
 				   ImGuiColorEditFlags_NoDragDrop))
 			data_modified();
 		ImGui::PopID();
 
 		ImGui::PushID(1);
-		if(ImGui::ColorEdit4("##", data->data(),
+		if(ImGui::ColorEdit4("##", _data->data(),
 			   ImGuiColorEditFlags_DisplayHSV | ImGuiColorEditFlags_NoSmallPreview | ImGuiColorEditFlags_Float |
 				   ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_NoDragDrop))
 			data_modified();
 		ImGui::PopID();
 
 		ImGui::PushID(2);
-		if(ImGui::ColorEdit4("##", data->data(),
+		if(ImGui::ColorEdit4("##", _data->data(),
 			   ImGuiColorEditFlags_DisplayHex | ImGuiColorEditFlags_NoPicker | ImGuiColorEditFlags_NoTooltip |
 				   ImGuiColorEditFlags_Float | ImGuiColorEditFlags_NoDragDrop))
 			data_modified();
 		ImGui::PopID();
 
 		ImGui::PushID(3);
-		if(ImGui::ColorPicker4("##", data->data(),
+		if(ImGui::ColorPicker4("##", _data->data(),
 			   ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoSmallPreview | ImGuiColorEditFlags_NoSidePreview |
 				   ImGuiColorEditFlags_Float | ImGuiColorEditFlags_NoDragDrop))
 			data_modified();
@@ -483,7 +483,7 @@ inline void editor_of<clk::color_rgba>::draw_contents() const
 	}
 	else
 	{
-		if(ImGui::ColorEdit4("##", data->data(),
+		if(ImGui::ColorEdit4("##", _data->data(),
 			   ImGuiColorEditFlags_Float | ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoDragDrop))
 			data_modified();
 	}
@@ -493,7 +493,7 @@ inline void editor_of<clk::color_rgba>::draw_contents() const
 template <>
 inline void editor_of<std::chrono::nanoseconds>::draw_contents() const
 {
-	auto time_units = time_unit::decompose(*data);
+	auto time_units = time_unit::decompose(*_data);
 	if(is_extended_preferred())
 	{
 		ImGui::PushItemWidth(get_available_width() / 2.0f);
@@ -536,7 +536,7 @@ inline void editor_of<std::chrono::nanoseconds>::draw_contents() const
 		ImGui::PopItemWidth();
 		ImGui::NewLine();
 	}
-	*data = time_unit::compose(time_units);
+	*_data = time_unit::compose(time_units);
 }
 
 } // namespace clk::gui

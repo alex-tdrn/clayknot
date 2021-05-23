@@ -26,7 +26,7 @@ public:
 	void add_port(std::unique_ptr<clk::output_port>&& port);
 
 private:
-	std::vector<std::unique_ptr<clk::output_port>> outputs;
+	std::vector<std::unique_ptr<clk::output_port>> _outputs;
 };
 
 inline auto constant_node::get_name() const -> std::string const&
@@ -38,23 +38,23 @@ inline auto constant_node::get_name() const -> std::string const&
 inline auto constant_node::get_output_ports() const -> std::vector<clk::output_port*>
 {
 	std::vector<clk::output_port*> ret;
-	for(auto const& output : outputs)
+	for(auto const& output : _outputs)
 		ret.push_back(output.get());
 	return ret;
 }
 
 inline void constant_node::remove_port(clk::output_port* port)
 {
-	outputs.erase(std::remove_if(outputs.begin(), outputs.end(),
-					  [&](auto& output) {
-						  return output.get() == port;
-					  }),
-		outputs.end());
+	_outputs.erase(std::remove_if(_outputs.begin(), _outputs.end(),
+					   [&](auto& output) {
+						   return output.get() == port;
+					   }),
+		_outputs.end());
 }
 
 inline void constant_node::add_port(std::unique_ptr<clk::output_port>&& port)
 {
-	outputs.push_back(std::move(port));
+	_outputs.push_back(std::move(port));
 }
 
 } // namespace clk

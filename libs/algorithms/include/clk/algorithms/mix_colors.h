@@ -16,10 +16,10 @@ public:
 	auto get_name() const noexcept -> std::string const& override;
 
 private:
-	clk::input_port_of<float> factor{"Factor"};
-	clk::input_port_of<clk::color_rgb> color_a{"Color A"};
-	clk::input_port_of<clk::color_rgb> color_b{"Color B"};
-	clk::output_port_of<clk::color_rgb> mixed_color{"Mixed Color"};
+	clk::input_port_of<float> _factor{"Factor"};
+	clk::input_port_of<clk::color_rgb> _color_a{"Color A"};
+	clk::input_port_of<clk::color_rgb> _color_b{"Color B"};
+	clk::output_port_of<clk::color_rgb> _mixed_color{"Mixed Color"};
 
 	void update() override;
 };

@@ -28,11 +28,11 @@ public:
 	virtual void draw(clk::gui::widget* override_widget = nullptr) = 0;
 
 protected:
-	int id = -1; // NOLINT
-	std::uint32_t color; // NOLINT
-	std::unique_ptr<clk::gui::viewer> data_viewer; // NOLINT
-	bool enabled = true; // NOLINT
-	bool stable_height = false; // NOLINT
+	int _id = -1; // NOLINT
+	std::uint32_t _color; // NOLINT
+	std::unique_ptr<clk::gui::viewer> _data_viewer; // NOLINT
+	bool _enabled = true; // NOLINT
+	bool _stable_height = false; // NOLINT
 };
 
 class input_port_editor final : public port_editor
@@ -50,8 +50,8 @@ public:
 	void draw(clk::gui::widget* override_widget = nullptr) final;
 
 private:
-	clk::input_port* port = nullptr;
-	std::unique_ptr<clk::gui::editor> default_data_editor;
+	clk::input_port* _port = nullptr;
+	std::unique_ptr<clk::gui::editor> _default_data_editor;
 };
 
 class output_port_editor final : public port_editor
@@ -69,65 +69,65 @@ public:
 	void draw(clk::gui::widget* override_widget = nullptr) final;
 
 private:
-	clk::output_port* port = nullptr;
+	clk::output_port* _port = nullptr;
 };
 
-inline port_editor::port_editor(clk::port* port, int id) : id(id)
+inline port_editor::port_editor(clk::port* port, int id) : _id(id)
 {
-	data_viewer = clk::gui::viewer::create(port->get_data_type_hash(), port->get_data_pointer(), port->get_name());
-	data_viewer->set_maximum_width(200);
-	color = color_rgba(color_rgb::create_random(port->get_data_type_hash()), 1.0f).packed();
+	_data_viewer = clk::gui::viewer::create(port->get_data_type_hash(), port->get_data_pointer(), port->get_name());
+	_data_viewer->set_maximum_width(200);
+	_color = color_rgba(color_rgb::create_random(port->get_data_type_hash()), 1.0f).packed();
 }
 
 inline auto port_editor::get_id() const -> int
 {
-	return id;
+	return _id;
 }
 
 inline auto port_editor::get_color() const -> std::uint32_t
 {
-	return color;
+	return _color;
 }
 
 inline void port_editor::set_enabled(bool enabled)
 {
-	this->enabled = enabled;
+	_enabled = enabled;
 }
 
 inline void port_editor::set_stable_height(bool stableHeight)
 {
-	this->stable_height = stableHeight;
+	_stable_height = stableHeight;
 }
 
-inline input_port_editor::input_port_editor(clk::input_port* port, int id) : port_editor(port, id), port(port)
+inline input_port_editor::input_port_editor(clk::input_port* port, int id) : port_editor(port, id), _port(port)
 {
 	auto* default_port = &port->get_default_port();
 
-	default_data_editor = clk::gui::editor::create(
+	_default_data_editor = clk::gui::editor::create(
 		default_port->get_data_type_hash(), default_port->get_data_pointer(), port->get_name(), [=]() {
 			default_port->update_timestamp();
 			default_port->push();
 		});
-	default_data_editor->set_maximum_width(200);
+	_default_data_editor->set_maximum_width(200);
 }
 
 inline auto input_port_editor::get_port() const -> input_port*
 {
-	return port;
+	return _port;
 }
 
 inline void input_port_editor::draw(clk::gui::widget* override_widget)
 {
-	imnodes::PushColorStyle(imnodes::ColorStyle_Pin, color);
+	imnodes::PushColorStyle(imnodes::ColorStyle_Pin, _color);
 
 	float const begin_y = ImGui::GetCursorPosY();
 
-	if(!enabled)
-		imnodes::BeginStaticAttribute(id);
-	else if(port->is_connected())
-		imnodes::BeginInputAttribute(id, imnodes::PinShape_QuadFilled);
+	if(!_enabled)
+		imnodes::BeginStaticAttribute(_id);
+	else if(_port->is_connected())
+		imnodes::BeginInputAttribute(_id, imnodes::PinShape_QuadFilled);
 	else
-		imnodes::BeginInputAttribute(id, imnodes::PinShape_Quad);
+		imnodes::BeginInputAttribute(_id, imnodes::PinShape_Quad);
 
 	if(override_widget != nullptr)
 	{
@@ -135,26 +135,26 @@ inline void input_port_editor::draw(clk::gui::widget* override_widget)
 	}
 	else
 	{
-		if(!port->is_connected())
+		if(!_port->is_connected())
 		{
-			default_data_editor->draw();
+			_default_data_editor->draw();
 		}
 		else
 		{
-			data_viewer->update_data_pointer(port->get_data_pointer());
-			data_viewer->draw();
+			_data_viewer->update_data_pointer(_port->get_data_pointer());
+			_data_viewer->draw();
 		}
 
-		if(stable_height)
+		if(_stable_height)
 		{
 			float current_height = ImGui::GetCursorPosY() - begin_y;
-			float max_height = std::max(data_viewer->get_last_size().y, default_data_editor->get_last_size().y);
+			float max_height = std::max(_data_viewer->get_last_size().y, _default_data_editor->get_last_size().y);
 			if(current_height < max_height)
 				ImGui::Dummy(ImVec2(10, max_height - current_height));
 		}
 	}
 
-	if(!enabled)
+	if(!_enabled)
 		imnodes::EndStaticAttribute();
 	else
 		imnodes::EndInputAttribute();
@@ -162,32 +162,32 @@ inline void input_port_editor::draw(clk::gui::widget* override_widget)
 	imnodes::PopColorStyle();
 }
 
-inline output_port_editor::output_port_editor(clk::output_port* port, int id) : port_editor(port, id), port(port)
+inline output_port_editor::output_port_editor(clk::output_port* port, int id) : port_editor(port, id), _port(port)
 {
 }
 
 inline auto output_port_editor::get_port() const -> output_port*
 {
-	return port;
+	return _port;
 }
 
 inline void output_port_editor::draw(clk::gui::widget* override_widget)
 {
-	imnodes::PushColorStyle(imnodes::ColorStyle_Pin, color);
+	imnodes::PushColorStyle(imnodes::ColorStyle_Pin, _color);
 
-	if(!enabled)
-		imnodes::BeginStaticAttribute(id);
-	else if(port->is_connected())
-		imnodes::BeginOutputAttribute(id, imnodes::PinShape_TriangleFilled);
+	if(!_enabled)
+		imnodes::BeginStaticAttribute(_id);
+	else if(_port->is_connected())
+		imnodes::BeginOutputAttribute(_id, imnodes::PinShape_TriangleFilled);
 	else
-		imnodes::BeginOutputAttribute(id, imnodes::PinShape_Triangle);
+		imnodes::BeginOutputAttribute(_id, imnodes::PinShape_Triangle);
 
 	if(override_widget != nullptr)
 		override_widget->draw();
 	else
-		data_viewer->draw();
+		_data_viewer->draw();
 
-	if(!enabled)
+	if(!_enabled)
 		imnodes::EndStaticAttribute();
 	else
 		imnodes::EndOutputAttribute();

@@ -29,10 +29,10 @@ public:
 	void hide();
 
 private:
-	std::string title;
-	bool visible = true;
-	ImGuiWindowFlags flags = ImGuiWindowFlags_None;
-	std::vector<std::unique_ptr<clk::gui::widget>> widgets;
+	std::string _title;
+	bool _visible = true;
+	ImGuiWindowFlags _flags = ImGuiWindowFlags_None;
+	std::vector<std::unique_ptr<clk::gui::widget>> _widgets;
 };
 
 } // namespace clk::gui

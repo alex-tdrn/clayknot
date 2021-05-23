@@ -34,28 +34,28 @@ public:
 	auto get_selected_nodes() const -> std::unordered_set<node*> const&;
 
 private:
-	widget_cache<node_type, node_widget>* node_cache;
-	widget_cache<port_type, port_widget>* port_cache;
-	std::unordered_set<node_type*> selected_nodes;
-	node_type* hovered_node = nullptr; // TODO add hovered pins and connection as well (why not?)
+	widget_cache<node_type, node_widget>* _node_cache;
+	widget_cache<port_type, port_widget>* _port_cache;
+	std::unordered_set<node_type*> _selected_nodes;
+	node_type* _hovered_node = nullptr; // TODO add hovered pins and connection as well (why not?)
 };
 
 template <bool const_data>
 selection_manager<const_data>::selection_manager(
 	widget_cache<node_type, node_widget>* node_cache, widget_cache<port_type, port_widget>* port_cache)
-	: node_cache(node_cache), port_cache(port_cache)
+	: _node_cache(node_cache), _port_cache(port_cache)
 {
 }
 
 template <bool const_data>
 inline void selection_manager<const_data>::update()
 {
-	if(imnodes::NumSelectedNodes() != static_cast<int>(selected_nodes.size()) || selected_nodes.size() == 1)
+	if(imnodes::NumSelectedNodes() != static_cast<int>(_selected_nodes.size()) || _selected_nodes.size() == 1)
 	{
-		for(auto* node : selected_nodes)
-			node_cache->get_widget(node).set_highlighted(false);
+		for(auto* node : _selected_nodes)
+			_node_cache->get_widget(node).set_highlighted(false);
 
-		selected_nodes.clear();
+		_selected_nodes.clear();
 		if(imnodes::NumSelectedNodes() > 0)
 		{
 			std::vector<int> selected_node_ids(imnodes::NumSelectedNodes());
@@ -63,12 +63,12 @@ inline void selection_manager<const_data>::update()
 
 			for(auto node_id : selected_node_ids)
 			{
-				selected_nodes.insert(node_cache->get_widget(node_id).get_node());
+				_selected_nodes.insert(_node_cache->get_widget(node_id).get_node());
 			}
 		}
 
-		for(auto* node : selected_nodes)
-			node_cache->get_widget(node).set_highlighted(true);
+		for(auto* node : _selected_nodes)
+			_node_cache->get_widget(node).set_highlighted(true);
 	}
 
 	{
@@ -76,23 +76,23 @@ inline void selection_manager<const_data>::update()
 		int hovered_node_id = -1;
 		if(imnodes::IsNodeHovered(&hovered_node_id))
 		{
-			auto& new_hovered_node_viewer = node_cache->get_widget(hovered_node_id);
+			auto& new_hovered_node_viewer = _node_cache->get_widget(hovered_node_id);
 			new_hovered_node_viewer.set_highlighted(true);
 			new_hovered_node = new_hovered_node_viewer.get_node();
 		}
 
-		if(hovered_node != nullptr && new_hovered_node != hovered_node &&
-			selected_nodes.find(hovered_node) == selected_nodes.end())
-			node_cache->get_widget(hovered_node).set_highlighted(false);
+		if(_hovered_node != nullptr && new_hovered_node != _hovered_node &&
+			_selected_nodes.find(_hovered_node) == _selected_nodes.end())
+			_node_cache->get_widget(_hovered_node).set_highlighted(false);
 
-		hovered_node = new_hovered_node;
+		_hovered_node = new_hovered_node;
 	}
 }
 
 template <bool const_data>
 inline auto selection_manager<const_data>::get_selected_nodes() const -> std::unordered_set<node*> const&
 {
-	return selected_nodes;
+	return _selected_nodes;
 }
 
 } // namespace clk::gui::impl

@@ -59,56 +59,56 @@ public:
 	auto packed() const -> std::uint32_t;
 
 private:
-	color_rgb rgb_value;
-	float alpha_value = 1.0f;
+	color_rgb _rgb_value;
+	float _alpha_value = 1.0f;
 };
 
-inline color_rgba::color_rgba(glm::vec4 v) : rgb_value(v.r, v.g, v.b), alpha_value(v.a)
+inline color_rgba::color_rgba(glm::vec4 v) : _rgb_value(v.r, v.g, v.b), _alpha_value(v.a)
 {
 }
 
-inline color_rgba::color_rgba(color_rgb v) : rgb_value(v)
+inline color_rgba::color_rgba(color_rgb v) : _rgb_value(v)
 {
 }
 
-inline color_rgba::color_rgba(color_rgb v, float a) : rgb_value(v), alpha_value(a)
+inline color_rgba::color_rgba(color_rgb v, float a) : _rgb_value(v), _alpha_value(a)
 {
 }
 
-inline color_rgba::color_rgba(color_rgb v, int a) : rgb_value(v), alpha_value(static_cast<float>(a) / 255.0f)
+inline color_rgba::color_rgba(color_rgb v, int a) : _rgb_value(v), _alpha_value(static_cast<float>(a) / 255.0f)
 {
 }
-inline color_rgba::color_rgba(float v) : rgb_value(v), alpha_value(v)
+inline color_rgba::color_rgba(float v) : _rgb_value(v), _alpha_value(v)
 {
 }
 
 inline color_rgba::color_rgba(int v)
-	: rgb_value(static_cast<float>(v) / 255.0f), alpha_value(static_cast<float>(v) / 255.0f)
+	: _rgb_value(static_cast<float>(v) / 255.0f), _alpha_value(static_cast<float>(v) / 255.0f)
 {
 }
 
-inline color_rgba::color_rgba(float r, float g, float b, float a) : rgb_value(r, g, b), alpha_value(a)
+inline color_rgba::color_rgba(float r, float g, float b, float a) : _rgb_value(r, g, b), _alpha_value(a)
 {
 }
 inline color_rgba::color_rgba(int r, int g, int b, int a)
-	: rgb_value(static_cast<float>(r) / 255.0f, static_cast<float>(g) / 255.0f, static_cast<float>(b) / 255.0f)
-	, alpha_value(static_cast<float>(a) / 255.0f)
+	: _rgb_value(static_cast<float>(r) / 255.0f, static_cast<float>(g) / 255.0f, static_cast<float>(b) / 255.0f)
+	, _alpha_value(static_cast<float>(a) / 255.0f)
 {
 }
 
 inline auto color_rgba::operator==(color_rgba const& that) const -> bool
 {
-	return rgb_value == that.rgb_value && alpha_value == that.alpha_value;
+	return _rgb_value == that._rgb_value && _alpha_value == that._alpha_value;
 }
 
 inline auto color_rgba::operator!=(color_rgba const& that) const -> bool
 {
-	return rgb_value != that.rgb_value && alpha_value != that.alpha_value;
+	return _rgb_value != that._rgb_value && _alpha_value != that._alpha_value;
 }
 
 inline auto color_rgba::compare_equal_low_precision(color_rgba const& lhs, color_rgba const& rhs) -> bool
 {
-	return color_rgb::compare_equal_low_precision(lhs.rgb_value, rhs.rgb_value) && lhs.au8() == rhs.au8();
+	return color_rgb::compare_equal_low_precision(lhs._rgb_value, rhs._rgb_value) && lhs.au8() == rhs.au8();
 }
 
 inline auto color_rgba::create_random(std::uint64_t seed) -> color_rgba
@@ -131,7 +131,7 @@ inline auto color_rgba::create_random() -> color_rgba
 
 inline auto color_rgba::pack(color_rgba color) -> std::uint32_t
 {
-	std::uint32_t ret = color_rgb::pack(color.rgb_value);
+	std::uint32_t ret = color_rgb::pack(color._rgb_value);
 	ret |= color.au8() << 24;
 	return ret;
 }
@@ -145,9 +145,9 @@ inline auto color_rgba::unpack(std::uint32_t packedColor) -> color_rgba
 
 inline auto color_rgba::valid() const -> bool
 {
-	if(!rgb_value.valid())
+	if(!_rgb_value.valid())
 		return false;
-	if(alpha_value < 0.0f || alpha_value > 1.0f)
+	if(_alpha_value < 0.0f || _alpha_value > 1.0f)
 		return false;
 	return true;
 }
@@ -155,16 +155,16 @@ inline auto color_rgba::valid() const -> bool
 template <typename T>
 auto color_rgba::operator+=(T const& that) -> color_rgba&
 {
-	this->rgb_value += that;
-	this->alpha_value += that;
+	_rgb_value += that;
+	_alpha_value += that;
 	assert(valid());
 	return *this;
 }
 
 inline auto color_rgba::operator+=(color_rgba const& that) -> color_rgba&
 {
-	this->rgb_value += that.rgb_value;
-	this->alpha_value += that.alpha_value;
+	_rgb_value += that._rgb_value;
+	_alpha_value += that._alpha_value;
 	assert(valid());
 	return *this;
 }
@@ -172,16 +172,16 @@ inline auto color_rgba::operator+=(color_rgba const& that) -> color_rgba&
 template <typename T>
 auto color_rgba::operator-=(T const& that) -> color_rgba&
 {
-	this->rgb_value -= that;
-	this->alpha_value -= that;
+	_rgb_value -= that;
+	_alpha_value -= that;
 	assert(valid());
 	return *this;
 }
 
 inline auto color_rgba::operator-=(color_rgba const& that) -> color_rgba&
 {
-	this->rgb_value -= that.rgb_value;
-	this->alpha_value -= that.alpha_value;
+	_rgb_value -= that._rgb_value;
+	_alpha_value -= that._alpha_value;
 	assert(valid());
 	return *this;
 }
@@ -189,16 +189,16 @@ inline auto color_rgba::operator-=(color_rgba const& that) -> color_rgba&
 template <typename T>
 auto color_rgba::operator*=(T const& that) -> color_rgba&
 {
-	this->rgb_value *= that;
-	this->alpha_value *= that;
+	_rgb_value *= that;
+	_alpha_value *= that;
 	assert(valid());
 	return *this;
 }
 
 inline auto color_rgba::operator*=(color_rgba const& that) -> color_rgba&
 {
-	this->rgb_value *= that.rgb_value;
-	this->alpha_value *= that.alpha_value;
+	_rgb_value *= that._rgb_value;
+	_alpha_value *= that._alpha_value;
 	assert(valid());
 	return *this;
 }
@@ -206,81 +206,81 @@ inline auto color_rgba::operator*=(color_rgba const& that) -> color_rgba&
 template <typename T>
 auto color_rgba::operator/=(T const& that) -> color_rgba&
 {
-	this->rgb_value /= that;
-	this->alpha_value /= that;
+	_rgb_value /= that;
+	_alpha_value /= that;
 	assert(valid());
 	return *this;
 }
 
 inline auto color_rgba::operator/=(color_rgba const& that) -> color_rgba&
 {
-	this->rgb_value /= that.rgb_value;
-	this->alpha_value /= that.alpha_value;
+	_rgb_value /= that._rgb_value;
+	_alpha_value /= that._alpha_value;
 	assert(valid());
 	return *this;
 }
 
 inline auto color_rgba::data() -> float*
 {
-	return rgb_value.data();
+	return _rgb_value.data();
 }
 
 inline auto color_rgba::r() const -> float
 {
-	return rgb_value.r();
+	return _rgb_value.r();
 }
 
 inline auto color_rgba::g() const -> float
 {
-	return rgb_value.g();
+	return _rgb_value.g();
 }
 
 inline auto color_rgba::b() const -> float
 {
-	return rgb_value.b();
+	return _rgb_value.b();
 }
 
 inline auto color_rgba::a() const -> float
 {
-	return alpha_value;
+	return _alpha_value;
 }
 
 inline auto color_rgba::ru8() const -> std::uint8_t
 {
-	return rgb_value.ru8();
+	return _rgb_value.ru8();
 }
 
 inline auto color_rgba::gu8() const -> std::uint8_t
 {
-	return rgb_value.gu8();
+	return _rgb_value.gu8();
 }
 
 inline auto color_rgba::bu8() const -> std::uint8_t
 {
-	return rgb_value.bu8();
+	return _rgb_value.bu8();
 }
 
 inline auto color_rgba::au8() const -> std::uint8_t
 {
-	return static_cast<std::uint8_t>(alpha_value * 255);
+	return static_cast<std::uint8_t>(_alpha_value * 255);
 }
 
 inline auto color_rgba::operator[](std::size_t i) const -> float
 {
 	assert(i <= 3);
 	if(i <= 2)
-		return rgb_value[i];
-	return alpha_value;
+		return _rgb_value[i];
+	return _alpha_value;
 }
 
 inline auto color_rgba::rgb() const -> color_rgb
 {
-	return rgb_value;
+	return _rgb_value;
 }
 
 inline auto color_rgba::vector() const -> glm::vec4
 {
-	return {rgb_value.r(), rgb_value.g(), rgb_value.b(), alpha_value};
+	return {_rgb_value.r(), _rgb_value.g(), _rgb_value.b(), _alpha_value};
 }
 
 inline auto color_rgba::packed() const -> std::uint32_t

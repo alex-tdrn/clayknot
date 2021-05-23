@@ -28,31 +28,31 @@ protected:
 	void register_port(clk::output_port& port);
 
 private:
-	std::vector<clk::input_port*> input_ports;
-	std::vector<clk::output_port*> output_ports;
+	std::vector<clk::input_port*> _input_ports;
+	std::vector<clk::output_port*> _output_ports;
 };
 
 inline auto algorithm::get_input_ports() const noexcept -> std::vector<clk::input_port*> const&
 {
-	return input_ports;
+	return _input_ports;
 }
 
 inline auto algorithm::get_output_ports() const noexcept -> std::vector<clk::output_port*> const&
 {
-	return output_ports;
+	return _output_ports;
 }
 
 inline void algorithm::register_port(clk::input_port& port)
 {
-	if(std::find(input_ports.begin(), input_ports.end(), &port) != input_ports.end())
+	if(std::find(_input_ports.begin(), _input_ports.end(), &port) != _input_ports.end())
 		return;
-	input_ports.emplace_back(&port);
+	_input_ports.emplace_back(&port);
 }
 
 inline void algorithm::register_port(clk::output_port& port)
 {
-	if(std::find(output_ports.begin(), output_ports.end(), &port) != output_ports.end())
+	if(std::find(_output_ports.begin(), _output_ports.end(), &port) != _output_ports.end())
 		return;
-	output_ports.emplace_back(&port);
+	_output_ports.emplace_back(&port);
 }
 } // namespace clk

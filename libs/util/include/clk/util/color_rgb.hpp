@@ -57,38 +57,38 @@ public:
 	auto packed() const -> std::uint32_t;
 
 private:
-	glm::vec3 values = {0.0f, 0.0f, 0.0f};
+	glm::vec3 _values = {0.0f, 0.0f, 0.0f};
 };
 
-inline color_rgb::color_rgb(glm::vec3 v) : values(v)
+inline color_rgb::color_rgb(glm::vec3 v) : _values(v)
 {
 }
 
-inline color_rgb::color_rgb(float v) : values(v)
+inline color_rgb::color_rgb(float v) : _values(v)
 {
 }
 
-inline color_rgb::color_rgb(int v) : values(static_cast<float>(v) / 255.0f)
+inline color_rgb::color_rgb(int v) : _values(static_cast<float>(v) / 255.0f)
 {
 }
 
-inline color_rgb::color_rgb(float r, float g, float b) : values(r, g, b)
+inline color_rgb::color_rgb(float r, float g, float b) : _values(r, g, b)
 {
 }
 
 inline color_rgb::color_rgb(int r, int g, int b)
-	: values(static_cast<float>(r) / 255.0f, static_cast<float>(g) / 255.0f, static_cast<float>(b) / 255.0f)
+	: _values(static_cast<float>(r) / 255.0f, static_cast<float>(g) / 255.0f, static_cast<float>(b) / 255.0f)
 {
 }
 
 inline auto color_rgb::operator==(color_rgb const& that) const -> bool
 {
-	return values == that.values;
+	return _values == that._values;
 }
 
 inline auto color_rgb::operator!=(color_rgb const& that) const -> bool
 {
-	return values != that.values;
+	return _values != that._values;
 }
 
 inline auto color_rgb::compare_equal_low_precision(color_rgb const& lhs, color_rgb const& rhs) -> bool
@@ -135,7 +135,7 @@ inline auto color_rgb::unpack(std::uint32_t packed_color) -> color_rgb
 inline auto color_rgb::valid() const -> bool
 {
 	for(int i = 0; i <= 2; i++)
-		if(values[i] < 0)
+		if(_values[i] < 0)
 			return false;
 	return true;
 }
@@ -143,14 +143,14 @@ inline auto color_rgb::valid() const -> bool
 template <typename T>
 auto color_rgb::operator+=(T const& that) -> color_rgb&
 {
-	this->values += that;
+	_values += that;
 	assert(valid());
 	return *this;
 }
 
 inline auto color_rgb::operator+=(color_rgb const& that) -> color_rgb&
 {
-	this->values += that.values;
+	_values += that._values;
 	assert(valid());
 	return *this;
 }
@@ -158,14 +158,14 @@ inline auto color_rgb::operator+=(color_rgb const& that) -> color_rgb&
 template <typename T>
 auto color_rgb::operator-=(T const& that) -> color_rgb&
 {
-	this->values -= that;
+	_values -= that;
 	assert(valid());
 	return *this;
 }
 
 inline auto color_rgb::operator-=(color_rgb const& that) -> color_rgb&
 {
-	this->values -= that.values;
+	_values -= that._values;
 	assert(valid());
 	return *this;
 }
@@ -173,14 +173,14 @@ inline auto color_rgb::operator-=(color_rgb const& that) -> color_rgb&
 template <typename T>
 auto color_rgb::operator*=(T const& that) -> color_rgb&
 {
-	this->values *= that;
+	_values *= that;
 	assert(valid());
 	return *this;
 }
 
 inline auto color_rgb::operator*=(color_rgb const& that) -> color_rgb&
 {
-	this->values *= that.values;
+	_values *= that._values;
 	assert(valid());
 	return *this;
 }
@@ -188,62 +188,62 @@ inline auto color_rgb::operator*=(color_rgb const& that) -> color_rgb&
 template <typename T>
 auto color_rgb::operator/=(T const& that) -> color_rgb&
 {
-	this->values /= that;
+	_values /= that;
 	assert(valid());
 	return *this;
 }
 
 inline auto color_rgb::operator/=(color_rgb const& that) -> color_rgb&
 {
-	this->values /= that.values;
+	_values /= that._values;
 	assert(valid());
 	return *this;
 }
 
 inline auto color_rgb::data() -> float*
 {
-	return &values.r;
+	return &_values.r;
 }
 
 inline auto color_rgb::r() const -> float
 {
-	return values.r;
+	return _values.r;
 }
 
 inline auto color_rgb::g() const -> float
 {
-	return values.g;
+	return _values.g;
 }
 
 inline auto color_rgb::b() const -> float
 {
-	return values.b;
+	return _values.b;
 }
 
 inline auto color_rgb::ru8() const -> std::uint8_t
 {
-	return static_cast<std::uint8_t>(values.r * 255);
+	return static_cast<std::uint8_t>(_values.r * 255);
 }
 
 inline auto color_rgb::gu8() const -> std::uint8_t
 {
-	return static_cast<std::uint8_t>(values.g * 255);
+	return static_cast<std::uint8_t>(_values.g * 255);
 }
 
 inline auto color_rgb::bu8() const -> std::uint8_t
 {
-	return static_cast<std::uint8_t>(values.b * 255);
+	return static_cast<std::uint8_t>(_values.b * 255);
 }
 
 inline auto color_rgb::operator[](std::size_t i) const -> float
 {
 	assert(i <= 2);
-	return values[i];
+	return _values[i];
 }
 
 inline auto color_rgb::vector() const -> glm::vec3
 {
-	return values;
+	return _values;
 }
 
 inline auto color_rgb::packed() const -> std::uint32_t

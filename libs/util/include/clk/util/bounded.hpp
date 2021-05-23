@@ -35,13 +35,13 @@ public:
 	auto operator/=(T const& that) -> bounded&;
 
 private:
-	T val;
-	T min;
-	T max;
+	T _val;
+	T _min;
+	T _max;
 };
 
 template <typename T>
-bounded<T>::bounded(T val, T min, T max) : val(val), min(min), max(max)
+bounded<T>::bounded(T val, T min, T max) : _val(val), _min(min), _max(max)
 {
 	assert(valid());
 }
@@ -49,21 +49,21 @@ bounded<T>::bounded(T val, T min, T max) : val(val), min(min), max(max)
 template <typename T>
 auto bounded<T>::operator=(T const& that) -> bounded&
 {
-	val = that;
+	_val = that;
 	assert(valid());
 }
 
 template <typename T>
 auto bounded<T>::operator=(T&& that) -> bounded&
 {
-	val = std::move(that);
+	_val = std::move(that);
 	assert(valid());
 }
 
 template <typename T>
 auto bounded<T>::valid() -> bool
 {
-	return min <= max && val >= min && val <= max;
+	return _min <= _max && _val >= _min && _val <= _max;
 }
 
 template <>
@@ -71,7 +71,7 @@ inline auto bounded<glm::vec2>::valid() -> bool
 {
 	for(int i = 0; i < 2; i++)
 	{
-		if(min[i] > max[i] || val[i] < min[i] || val[i] > max[i])
+		if(_min[i] > _max[i] || _val[i] < _min[i] || _val[i] > _max[i])
 			return false;
 	}
 	return true;
@@ -82,7 +82,7 @@ inline auto bounded<glm::vec3>::valid() -> bool
 {
 	for(int i = 0; i < 3; i++)
 	{
-		if(min[i] > max[i] || val[i] < min[i] || val[i] > max[i])
+		if(_min[i] > _max[i] || _val[i] < _min[i] || _val[i] > _max[i])
 			return false;
 	}
 	return true;
@@ -93,7 +93,7 @@ inline auto bounded<glm::vec4>::valid() -> bool
 {
 	for(int i = 0; i < 4; i++)
 	{
-		if(min[i] > max[i] || val[i] < min[i] || val[i] > max[i])
+		if(_min[i] > _max[i] || _val[i] < _min[i] || _val[i] > _max[i])
 			return false;
 	}
 	return true;
@@ -102,51 +102,51 @@ inline auto bounded<glm::vec4>::valid() -> bool
 template <typename T>
 void bounded<T>::set_min(T min)
 {
-	this->min = min;
+	_min = min;
 	assert(valid());
 }
 
 template <typename T>
 void bounded<T>::set_max(T max)
 {
-	this->max = max;
+	_max = max;
 	assert(valid());
 }
 
 template <typename T>
 auto bounded<T>::get_min() const -> T
 {
-	return min;
+	return _min;
 }
 
 template <typename T>
 auto bounded<T>::get_max() const -> T
 {
-	return max;
+	return _max;
 }
 
 template <typename T>
 auto bounded<T>::get_val() const -> T
 {
-	return val;
+	return _val;
 }
 
 template <typename T>
 auto bounded<T>::data() -> T*
 {
-	return &val;
+	return &_val;
 }
 
 template <typename T>
 bounded<T>::operator T() const
 {
-	return val;
+	return _val;
 }
 
 template <typename T>
 auto bounded<T>::operator+=(T const& that) -> bounded&
 {
-	this->value += that;
+	_val += that;
 	assert(valid());
 	return *this;
 }
@@ -154,7 +154,7 @@ auto bounded<T>::operator+=(T const& that) -> bounded&
 template <typename T>
 auto bounded<T>::operator-=(T const& that) -> bounded&
 {
-	this->value -= that;
+	_val -= that;
 	assert(valid());
 	return *this;
 }
@@ -162,7 +162,7 @@ auto bounded<T>::operator-=(T const& that) -> bounded&
 template <typename T>
 auto bounded<T>::operator*=(T const& that) -> bounded&
 {
-	this->value *= that;
+	_val *= that;
 	assert(valid());
 	return *this;
 }
@@ -170,7 +170,7 @@ auto bounded<T>::operator*=(T const& that) -> bounded&
 template <typename T>
 auto bounded<T>::operator/=(T const& that) -> bounded&
 {
-	this->value /= that;
+	_val /= that;
 	assert(valid());
 	return *this;
 }

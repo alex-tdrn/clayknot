@@ -4,7 +4,6 @@
 #include "port_viewers.hpp"
 #include "widget_cache.hpp"
 
-
 #include <imgui.h>
 #include <imnodes.h>
 
@@ -27,65 +26,65 @@ public:
 	void draw();
 
 private:
-	widget_cache<clk::port const, port_viewer>* port_cache = nullptr;
-	clk::node const* node = nullptr;
-	int id = -1;
-	bool first_draw = true;
-	float title_width = 0;
-	float contents_width = 0;
-	bool highlighted = false;
+	widget_cache<clk::port const, port_viewer>* _port_cache = nullptr;
+	clk::node const* _node = nullptr;
+	int _id = -1;
+	bool _first_draw = true;
+	float _title_width = 0;
+	float _contents_width = 0;
+	bool _highlighted = false;
 
 	void draw_title_bar();
 };
 
 inline node_viewer::node_viewer(clk::node const* node, int id, widget_cache<clk::port const, port_viewer>* port_cache)
-	: port_cache(port_cache), node(node), id(id)
+	: _port_cache(port_cache), _node(node), _id(id)
 {
 }
 
 inline auto node_viewer::get_id() const -> int
 {
-	return id;
+	return _id;
 }
 
 inline auto node_viewer::get_node() const -> clk::node const*
 {
-	return node;
+	return _node;
 }
 
 inline void node_viewer::set_highlighted(bool highlighted)
 {
-	this->highlighted = highlighted;
+	_highlighted = highlighted;
 }
 
 inline void node_viewer::draw()
 {
-	if(highlighted)
+	if(_highlighted)
 		imnodes::PushColorStyle(imnodes::ColorStyle_NodeOutline, color_rgba{1.0f}.packed());
 
-	imnodes::BeginNode(id);
+	imnodes::BeginNode(_id);
 
 	draw_title_bar();
 
 	ImGui::BeginGroup();
-	for(auto& port : node->get_input_ports())
-		port_cache->get_widget(port).draw();
+	for(auto& port : _node->get_input_ports())
+		_port_cache->get_widget(port).draw();
 	ImGui::EndGroup();
 
 	ImGui::SameLine();
 
 	ImGui::BeginGroup();
-	for(auto& port : node->get_output_ports())
-		port_cache->get_widget(port).draw();
+	for(auto& port : _node->get_output_ports())
+		_port_cache->get_widget(port).draw();
 	ImGui::EndGroup();
 
 	imnodes::EndNode();
-	contents_width = ImGui::GetItemRectSize().x;
+	_contents_width = ImGui::GetItemRectSize().x;
 
-	if(highlighted)
+	if(_highlighted)
 		imnodes::PopColorStyle();
 
-	first_draw = false;
+	_first_draw = false;
 }
 
 inline void node_viewer::draw_title_bar()
@@ -94,15 +93,15 @@ inline void node_viewer::draw_title_bar()
 
 	ImGui::BeginGroup();
 
-	if(!first_draw && title_width < contents_width)
-		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (contents_width - title_width) / 2);
+	if(!_first_draw && _title_width < _contents_width)
+		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (_contents_width - _title_width) / 2);
 
-	ImGui::Text("%s", node->get_name().data());
+	ImGui::Text("%s", _node->get_name().data());
 
 	ImGui::EndGroup();
 
-	if(first_draw)
-		title_width = ImGui::GetItemRectSize().x;
+	if(_first_draw)
+		_title_width = ImGui::GetItemRectSize().x;
 
 	imnodes::EndNodeTitleBar();
 }

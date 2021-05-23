@@ -59,7 +59,7 @@ protected:
 	auto get_data() const -> data_type const*;
 
 private:
-	data_type const* data;
+	data_type const* _data;
 };
 
 template <typename data_type, typename viewer_implementation>
@@ -115,27 +115,27 @@ inline viewer::viewer(std::string const& data_name) : widget(data_name)
 }
 
 template <typename data_type>
-viewer_of<data_type>::viewer_of(data_type const* data, std::string const& data_name) : viewer(data_name), data(data)
+viewer_of<data_type>::viewer_of(data_type const* data, std::string const& data_name) : viewer(data_name), _data(data)
 {
 }
 
 template <typename data_type>
 auto viewer_of<data_type>::clone() const -> std::unique_ptr<widget>
 {
-	auto cloned_editor = std::make_unique<viewer_of<data_type>>(data, get_data_name());
+	auto cloned_editor = std::make_unique<viewer_of<data_type>>(_data, get_data_name());
 	return cloned_editor;
 }
 
 template <typename data_type>
 void viewer_of<data_type>::update_data_pointer(void const* data)
 {
-	this->data = static_cast<data_type const*>(data);
+	_data = static_cast<data_type const*>(data);
 }
 
 template <typename data_type>
 auto viewer_of<data_type>::is_data_available() const noexcept -> bool
 {
-	return data != nullptr;
+	return _data != nullptr;
 }
 
 template <typename data_type>
@@ -147,14 +147,14 @@ void viewer_of<data_type>::draw_contents() const
 template <typename data_type>
 auto viewer_of<data_type>::get_data() const -> data_type const*
 {
-	return data;
+	return _data;
 }
 
 template <>
 inline void viewer_of<bool>::draw_contents() const
 {
 	ImGui::SameLine();
-	if(*data)
+	if(*_data)
 		ImGui::Text("On");
 	else
 		ImGui::Text("Off");
@@ -164,97 +164,98 @@ template <>
 inline void viewer_of<int>::draw_contents() const
 {
 	ImGui::SameLine();
-	ImGui::Text("%i", *data);
+	ImGui::Text("%i", *_data);
 }
 
 template <>
 inline void viewer_of<float>::draw_contents() const
 {
 	ImGui::SameLine();
-	ImGui::Text("%.3f", *data);
+	ImGui::Text("%.3f", *_data);
 }
 
 template <>
 inline void viewer_of<glm::vec2>::draw_contents() const
 {
-	ImGui::Text("%.3f, %.3f", data->x, data->y);
+	ImGui::Text("%.3f, %.3f", _data->x, _data->y);
 }
 
 template <>
 inline void viewer_of<glm::vec3>::draw_contents() const
 {
-	ImGui::Text("%.3f, %.3f, %.3f", data->x, data->y, data->z);
+	ImGui::Text("%.3f, %.3f, %.3f", _data->x, _data->y, _data->z);
 }
 
 template <>
 inline void viewer_of<glm::vec4>::draw_contents() const
 {
-	ImGui::Text("%.3f, %.3f, %.3f, %.3f", data->x, data->y, data->z, data->w);
+	ImGui::Text("%.3f, %.3f, %.3f, %.3f", _data->x, _data->y, _data->z, _data->w);
 }
 
 template <>
 inline void viewer_of<clk::bounded<int>>::draw_contents() const
 {
-	ImGui::Text("%i (%i - %i)", data->get_val(), data->get_min(), data->get_max());
+	ImGui::Text("%i (%i - %i)", _data->get_val(), _data->get_min(), _data->get_max());
 }
 
 template <>
 inline void viewer_of<clk::bounded<float>>::draw_contents() const
 {
-	ImGui::Text("%.3f (%.3f - %.3f)", data->get_val(), data->get_min(), data->get_max());
+	ImGui::Text("%.3f (%.3f - %.3f)", _data->get_val(), _data->get_min(), _data->get_max());
 }
 
 template <>
 inline void viewer_of<clk::bounded<glm::vec2>>::draw_contents() const
 {
-	ImGui::Text("%.3f, %.3f", data->get_val().x, data->get_val().y);
+	ImGui::Text("%.3f, %.3f", _data->get_val().x, _data->get_val().y);
 	if(is_extended_preferred())
 	{
-		ImGui::Text("X (%.3f - %.3f)", data->get_min()[0], data->get_max()[0]);
-		ImGui::Text("Y (%.3f - %.3f)", data->get_min()[1], data->get_max()[1]);
+		ImGui::Text("X (%.3f - %.3f)", _data->get_min()[0], _data->get_max()[0]);
+		ImGui::Text("Y (%.3f - %.3f)", _data->get_min()[1], _data->get_max()[1]);
 	}
 }
 
 template <>
 inline void viewer_of<clk::bounded<glm::vec3>>::draw_contents() const
 {
-	ImGui::Text("%.3f, %.3f, %.3f", data->get_val().x, data->get_val().y, data->get_val().z);
+	ImGui::Text("%.3f, %.3f, %.3f", _data->get_val().x, _data->get_val().y, _data->get_val().z);
 	if(is_extended_preferred())
 	{
-		ImGui::Text("X (%.3f - %.3f)", data->get_min()[0], data->get_max()[0]);
-		ImGui::Text("Y (%.3f - %.3f)", data->get_min()[1], data->get_max()[1]);
-		ImGui::Text("Z (%.3f - %.3f)", data->get_min()[2], data->get_max()[2]);
+		ImGui::Text("X (%.3f - %.3f)", _data->get_min()[0], _data->get_max()[0]);
+		ImGui::Text("Y (%.3f - %.3f)", _data->get_min()[1], _data->get_max()[1]);
+		ImGui::Text("Z (%.3f - %.3f)", _data->get_min()[2], _data->get_max()[2]);
 	}
 }
 
 template <>
 inline void viewer_of<clk::bounded<glm::vec4>>::draw_contents() const
 {
-	ImGui::Text("%.3f, %.3f, %.3f, %.3f", data->get_val().x, data->get_val().y, data->get_val().z, data->get_val().w);
+	ImGui::Text(
+		"%.3f, %.3f, %.3f, %.3f", _data->get_val().x, _data->get_val().y, _data->get_val().z, _data->get_val().w);
 	if(is_extended_preferred())
 	{
-		ImGui::Text("X (%.3f - %.3f)", data->get_min()[0], data->get_max()[0]);
-		ImGui::Text("Y (%.3f - %.3f)", data->get_min()[1], data->get_max()[1]);
-		ImGui::Text("Z (%.3f - %.3f)", data->get_min()[2], data->get_max()[2]);
-		ImGui::Text("W (%.3f - %.3f)", data->get_min()[3], data->get_max()[3]);
+		ImGui::Text("X (%.3f - %.3f)", _data->get_min()[0], _data->get_max()[0]);
+		ImGui::Text("Y (%.3f - %.3f)", _data->get_min()[1], _data->get_max()[1]);
+		ImGui::Text("Z (%.3f - %.3f)", _data->get_min()[2], _data->get_max()[2]);
+		ImGui::Text("W (%.3f - %.3f)", _data->get_min()[3], _data->get_max()[3]);
 	}
 }
 
 template <>
 inline void viewer_of<clk::color_rgb>::draw_contents() const
 {
-	ImGui::Text("R:%.3f, G:%.3f, B:%.3f", data->r(), data->g(), data->b());
+	ImGui::Text("R:%.3f, G:%.3f, B:%.3f", _data->r(), _data->g(), _data->b());
 	if(is_extended_preferred())
 	{
 		auto s = get_available_width();
 
-		ImGui::ColorButton("##", ImVec4(data->r(), data->g(), data->b(), 1.0f),
+		ImGui::ColorButton("##", ImVec4(_data->r(), _data->g(), _data->b(), 1.0f),
 			ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoDragDrop, {s, s});
 	}
 	else
 	{
 		ImGui::SameLine();
-		ImGui::ColorButton("##", ImVec4(data->r(), data->g(), data->b(), 1.0f),
+		ImGui::ColorButton("##", ImVec4(_data->r(), _data->g(), _data->b(), 1.0f),
 			ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoDragDrop);
 	}
 }
@@ -262,24 +263,24 @@ inline void viewer_of<clk::color_rgb>::draw_contents() const
 template <>
 inline void viewer_of<clk::color_rgba>::draw_contents() const
 {
-	ImGui::Text("R:%.3f, G:%.3f, B:%.3f, A:%.3f", data->r(), data->g(), data->b(), data->a());
+	ImGui::Text("R:%.3f, G:%.3f, B:%.3f, A:%.3f", _data->r(), _data->g(), _data->b(), _data->a());
 	if(is_extended_preferred())
 	{
 		auto s = get_available_width();
 
-		ImGui::ColorButton("##", *data, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoDragDrop, {s, s});
+		ImGui::ColorButton("##", *_data, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoDragDrop, {s, s});
 	}
 	else
 	{
 		ImGui::SameLine();
-		ImGui::ColorButton("##", *data, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoDragDrop);
+		ImGui::ColorButton("##", *_data, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoDragDrop);
 	}
 }
 
 template <>
 inline void viewer_of<std::chrono::nanoseconds>::draw_contents() const
 {
-	auto time_units = time_unit::decompose(*data);
+	auto time_units = time_unit::decompose(*_data);
 	if(is_extended_preferred())
 	{
 		for(auto const& unit : time_units)

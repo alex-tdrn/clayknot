@@ -16,7 +16,7 @@ public:
 	auto get_name() const noexcept -> std::string const& override;
 
 private:
-	clk::output_port_of<clk::color_rgb> color{"Color"};
+	clk::output_port_of<clk::color_rgb> _color{"Color"};
 
 	void update() override;
 };

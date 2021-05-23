@@ -24,32 +24,32 @@ public:
 
 private:
 	using chrono = std::chrono::steady_clock;
-	chrono::time_point timepoint = chrono::time_point::min();
+	chrono::time_point _timepoint = chrono::time_point::min();
 };
 
 inline void timestamp::update()
 {
-	timepoint = chrono::now();
+	_timepoint = chrono::now();
 }
 
 inline void timestamp::reset()
 {
-	timepoint = chrono::time_point::min();
+	_timepoint = chrono::time_point::min();
 }
 
 inline auto timestamp::is_reset() const -> bool
 {
-	return timepoint == chrono::time_point::min();
+	return _timepoint == chrono::time_point::min();
 }
 
 inline auto timestamp::operator>(timestamp const& other) const -> bool
 {
-	return this->timepoint > other.timepoint;
+	return this->_timepoint > other._timepoint;
 }
 
 inline auto timestamp::operator<(timestamp const& other) const -> bool
 {
-	return this->timepoint < other.timepoint;
+	return this->_timepoint < other._timepoint;
 }
 
 inline auto timestamp::is_newer_than(timestamp const& other) const -> bool

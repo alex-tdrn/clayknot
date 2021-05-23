@@ -5,7 +5,6 @@
 #include "port_editors.hpp"
 #include "widget_cache.hpp"
 
-
 #include <imgui.h>
 #include <imnodes.h>
 
@@ -15,7 +14,7 @@ class node_editor
 {
 public:
 	node_editor() = delete;
-	node_editor(clk::node* node, int id, widget_cache<clk::port, port_editor>* portCache,
+	node_editor(clk::node* node, int id, widget_cache<clk::port, port_editor>* port_cache,
 		std::optional<std::function<bool()>>& modification_callback);
 	node_editor(node_editor const&) = delete;
 	node_editor(node_editor&&) noexcept = delete;
@@ -29,14 +28,14 @@ public:
 	void draw();
 
 protected:
-	std::optional<std::function<bool()>>& modification_callback;
-	widget_cache<clk::port, port_editor>* port_cache = nullptr; // NOLINT
-	clk::node* node = nullptr; // NOLINT
-	int id = -1; // NOLINT
-	bool first_draw = true; // NOLINT
-	float title_width = 0; // NOLINT
-	float contents_width = 0; // NOLINT
-	bool highlighted = false; // NOLINT
+	std::optional<std::function<bool()>>& _modification_callback; // NOLINT
+	widget_cache<clk::port, port_editor>* _port_cache = nullptr; // NOLINT
+	clk::node* _node = nullptr; // NOLINT
+	int _id = -1; // NOLINT
+	bool _first_draw = true; // NOLINT
+	float _title_width = 0; // NOLINT
+	float _contents_width = 0; // NOLINT
+	bool _highlighted = false; // NOLINT
 
 	virtual void draw_title_bar();
 	virtual void draw_input_ports();
@@ -56,48 +55,48 @@ public:
 	~constant_node_editor() final = default;
 
 private:
-	clk::constant_node* node;
-	std::unordered_map<clk::output_port*, std::unique_ptr<clk::gui::editor>> constant_editors;
+	clk::constant_node* _node;
+	std::unordered_map<clk::output_port*, std::unique_ptr<clk::gui::editor>> _constant_editors;
 
 	void draw_output_ports() final;
 };
 
 inline node_editor::node_editor(clk::node* node, int id, widget_cache<clk::port, port_editor>* port_cache,
 	std::optional<std::function<bool()>>& modification_callback)
-	: modification_callback(modification_callback), port_cache(port_cache), node(node), id(id)
+	: _modification_callback(modification_callback), _port_cache(port_cache), _node(node), _id(id)
 {
 }
 
 inline auto node_editor::get_id() const -> int
 {
-	return id;
+	return _id;
 }
 
 inline auto node_editor::get_node() const -> clk::node*
 {
-	return node;
+	return _node;
 }
 
 inline void node_editor::set_highlighted(bool highlighted)
 {
-	this->highlighted = highlighted;
+	_highlighted = highlighted;
 }
 
 inline void node_editor::draw()
 {
-	if(highlighted)
+	if(_highlighted)
 		imnodes::PushColorStyle(imnodes::ColorStyle_NodeOutline, color_rgba{1.0f}.packed());
 
-	imnodes::BeginNode(id);
+	imnodes::BeginNode(_id);
 
 	imnodes::BeginNodeTitleBar();
 	ImGui::BeginGroup();
-	if(!first_draw && title_width < contents_width)
-		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (contents_width - title_width) / 2);
+	if(!_first_draw && _title_width < _contents_width)
+		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (_contents_width - _title_width) / 2);
 	draw_title_bar();
 	ImGui::EndGroup();
-	if(first_draw)
-		title_width = ImGui::GetItemRectSize().x;
+	if(_first_draw)
+		_title_width = ImGui::GetItemRectSize().x;
 	imnodes::EndNodeTitleBar();
 
 	ImGui::BeginGroup();
@@ -111,87 +110,87 @@ inline void node_editor::draw()
 	ImGui::EndGroup();
 
 	imnodes::EndNode();
-	contents_width = ImGui::GetItemRectSize().x;
+	_contents_width = ImGui::GetItemRectSize().x;
 
-	if(highlighted)
+	if(_highlighted)
 		imnodes::PopColorStyle();
 
-	first_draw = false;
+	_first_draw = false;
 }
 
 inline void node_editor::draw_title_bar()
 {
-	if(!this->node->get_input_ports().empty())
+	if(!_node->get_input_ports().empty())
 	{
 		if(ImGui::SmallButton("Pull"))
-			this->node->pull();
+			_node->pull();
 		ImGui::SameLine();
 	}
 
-	ImGui::Text("%s", this->node->get_name().data());
+	ImGui::Text("%s", _node->get_name().data());
 
-	if(!this->node->get_output_ports().empty())
+	if(!_node->get_output_ports().empty())
 	{
 		ImGui::SameLine();
 		if(ImGui::SmallButton("Push"))
-			this->node->push();
+			_node->push();
 	}
 }
 
 inline void node_editor::draw_input_ports()
 {
-	for(auto& port : this->node->get_input_ports())
-		port_cache->get_widget(port).draw();
+	for(auto& port : _node->get_input_ports())
+		_port_cache->get_widget(port).draw();
 }
 
 inline void node_editor::draw_output_ports()
 {
-	for(auto& port : this->node->get_output_ports())
-		port_cache->get_widget(port).draw();
+	for(auto& port : _node->get_output_ports())
+		_port_cache->get_widget(port).draw();
 }
 
 inline constant_node_editor::constant_node_editor(clk::constant_node* node, int id,
 	widget_cache<clk::port, port_editor>* portCache, std::optional<std::function<bool()>>& modificationCallback)
-	: node_editor(node, id, portCache, modificationCallback), node(node)
+	: node_editor(node, id, portCache, modificationCallback), _node(node)
 {
 }
 
 inline void constant_node_editor::draw_output_ports()
 {
-	for(auto* port : this->node->get_output_ports())
+	for(auto* port : _node->get_output_ports())
 	{
 		ImGui::PushID(port);
 		if(ImGui::SmallButton("-"))
 		{
-			if(!modification_callback.has_value())
+			if(!_modification_callback.has_value())
 			{
-				modification_callback = [&]() {
-					constant_editors.erase(port);
-					this->node->remove_port(port);
+				_modification_callback = [&]() {
+					_constant_editors.erase(port);
+					_node->remove_port(port);
 					return true;
 				};
 			}
 		}
 		ImGui::PopID();
 		ImGui::SameLine();
-		if(constant_editors.find(port) == constant_editors.end())
+		if(_constant_editors.find(port) == _constant_editors.end())
 		{
-			constant_editors[port] =
+			_constant_editors[port] =
 				clk::gui::editor::create(port->get_data_type_hash(), port->get_data_pointer(), port->get_name(), [=]() {
 					port->update_timestamp();
 					port->push();
 				});
-			constant_editors[port]->set_maximum_width(200);
+			_constant_editors[port]->set_maximum_width(200);
 		}
 
-		port_cache->get_widget(port).draw(constant_editors[port].get());
+		_port_cache->get_widget(port).draw(_constant_editors[port].get());
 	}
 
 	if(ImGui::SmallButton("+"))
 	{
-		if(!modification_callback.has_value())
+		if(!_modification_callback.has_value())
 		{
-			modification_callback = [&]() {
+			_modification_callback = [&]() {
 				bool done = false;
 
 				ImGui::OpenPopup("Add Constant Port Menu");
@@ -208,7 +207,7 @@ inline void constant_node_editor::draw_output_ports()
 
 					if(constantPort != nullptr)
 					{
-						this->node->add_port(std::move(constantPort));
+						_node->add_port(std::move(constantPort));
 						done = true;
 					}
 					ImGui::EndPopup();

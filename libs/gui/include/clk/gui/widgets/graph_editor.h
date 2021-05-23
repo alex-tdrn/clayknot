@@ -47,13 +47,13 @@ private:
 		std::optional<std::pair<clk::port*, clk::port*>> dropped_connection = std::nullopt;
 	};
 
-	imnodes::EditorContext* context;
-	std::unique_ptr<impl::widget_cache<clk::node, impl::node_editor>> node_cache;
-	std::unique_ptr<impl::widget_cache<clk::port, impl::port_editor>> port_cache;
-	mutable std::vector<std::pair<clk::input_port*, clk::output_port*>> connections;
-	std::unique_ptr<impl::selection_manager<false>> selection_manager;
-	mutable std::optional<connection_change> new_connection_in_progress = std::nullopt;
-	mutable std::optional<std::function<bool()>> modification_callback = std::nullopt; // this is smelly af
+	imnodes::EditorContext* _context;
+	std::unique_ptr<impl::widget_cache<clk::node, impl::node_editor>> _node_cache;
+	std::unique_ptr<impl::widget_cache<clk::port, impl::port_editor>> _port_cache;
+	mutable std::vector<std::pair<clk::input_port*, clk::output_port*>> _connections;
+	std::unique_ptr<impl::selection_manager<false>> _selection_manager;
+	mutable std::optional<connection_change> _new_connection_in_progress = std::nullopt;
+	mutable std::optional<std::function<bool()>> _modification_callback = std::nullopt; // this is smelly af
 
 	void draw_graph() const;
 	void draw_menus() const;

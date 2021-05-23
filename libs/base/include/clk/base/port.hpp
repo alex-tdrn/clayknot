@@ -45,8 +45,8 @@ protected:
 	port() = default;
 
 private:
-	std::string name = "Unnamed";
-	clk::timestamp timestamp;
+	std::string _name = "Unnamed";
+	clk::timestamp _timestamp;
 };
 
 class output_port;
@@ -72,7 +72,7 @@ protected:
 	input_port() = default;
 
 private:
-	std::function<void(std::weak_ptr<clk::sentinel> const&)> push_callback;
+	std::function<void(std::weak_ptr<clk::sentinel> const&)> _push_callback;
 };
 
 class output_port : public port
@@ -97,7 +97,7 @@ protected:
 	output_port() = default;
 
 private:
-	std::function<void(std::weak_ptr<sentinel> const&)> pull_callback;
+	std::function<void(std::weak_ptr<sentinel> const&)> _pull_callback;
 };
 
 template <typename T>
@@ -140,8 +140,8 @@ public:
 	auto create_compatible_port() const -> std::unique_ptr<port> final;
 
 private:
-	T data = {};
-	std::unordered_set<compatible_port*> connections;
+	T _data = {};
+	std::unordered_set<compatible_port*> _connections;
 };
 
 template <typename T>
@@ -178,65 +178,65 @@ public:
 	auto create_compatible_port() const -> std::unique_ptr<port> final;
 
 private:
-	compatible_port mutable default_port = compatible_port("Default port");
-	compatible_port mutable* connection = nullptr;
+	compatible_port mutable _default_port = compatible_port("Default port");
+	compatible_port mutable* _connection = nullptr;
 };
 
 inline void port::set_name(const std::string& name)
 {
-	this->name = name;
+	_name = name;
 }
 
 inline void port::set_name(std::string&& name) noexcept
 {
-	this->name = std::move(name);
+	_name = std::move(name);
 }
 
 inline auto port::get_name() const noexcept -> std::string const&
 {
-	return name;
+	return _name;
 }
 
 inline void port::update_timestamp() noexcept
 {
-	timestamp.update();
+	_timestamp.update();
 }
 
 inline auto port::get_timestamp() const noexcept -> clk::timestamp
 {
-	return timestamp;
+	return _timestamp;
 }
 
 inline void input_port::set_push_callback(const std::function<void(std::weak_ptr<clk::sentinel> const&)>& callback)
 {
-	push_callback = callback;
+	_push_callback = callback;
 }
 
 inline void input_port::set_push_callback(std::function<void(std::weak_ptr<clk::sentinel> const&)>&& callback) noexcept
 {
-	push_callback = std::move(callback);
+	_push_callback = std::move(callback);
 }
 
 inline void input_port::push(std::weak_ptr<clk::sentinel> const& sentinel) noexcept
 {
-	if(push_callback)
-		push_callback(sentinel);
+	if(_push_callback)
+		_push_callback(sentinel);
 }
 
 inline void output_port::pull(std::weak_ptr<clk::sentinel> const& sentinel) noexcept
 {
-	if(pull_callback)
-		pull_callback(sentinel);
+	if(_pull_callback)
+		_pull_callback(sentinel);
 }
 
 inline void output_port::set_pull_callback(const std::function<void(std::weak_ptr<clk::sentinel> const&)>& callback)
 {
-	pull_callback = callback;
+	_pull_callback = callback;
 }
 
 inline void output_port::set_pull_callback(std::function<void(std::weak_ptr<clk::sentinel> const&)>&& callback) noexcept
 {
-	pull_callback = std::move(callback);
+	_pull_callback = std::move(callback);
 }
 
 template <typename T>
@@ -261,7 +261,7 @@ auto output_port_of<T>::get_data_type_hash() const noexcept -> std::size_t
 template <typename T>
 auto output_port_of<T>::is_connected() const noexcept -> bool
 {
-	return !connections.empty();
+	return !_connections.empty();
 }
 
 template <typename T>
@@ -277,7 +277,7 @@ auto output_port_of<T>::is_connected_to(port const& other_port) const noexcept -
 	if(concrete == nullptr)
 		return false;
 
-	return std::any_of(connections.begin(), connections.end(), [&concrete](auto const* port) {
+	return std::any_of(_connections.begin(), _connections.end(), [&concrete](auto const* port) {
 		return port == concrete;
 	});
 }
@@ -285,7 +285,7 @@ auto output_port_of<T>::is_connected_to(port const& other_port) const noexcept -
 template <typename T>
 void output_port_of<T>::connect_to(compatible_port& other_port, bool notify)
 {
-	connections.insert(&other_port);
+	_connections.insert(&other_port);
 	if(!other_port.is_connected_to(*this))
 		other_port.connect_to(*this, notify);
 }
@@ -299,7 +299,7 @@ void output_port_of<T>::connect_to(port& other_port, bool notify)
 template <typename T>
 void output_port_of<T>::disconnect_from(compatible_port& other_port, bool notify)
 {
-	connections.erase(&other_port);
+	_connections.erase(&other_port);
 	if(other_port.is_connected_to(*this))
 		other_port.disconnect(notify);
 }
@@ -315,15 +315,15 @@ void output_port_of<T>::disconnect_from(port& other_port, bool notify)
 template <typename T>
 void output_port_of<T>::disconnect(bool notify)
 {
-	while(!connections.empty())
-		disconnect_from(**connections.begin(), notify);
+	while(!_connections.empty())
+		disconnect_from(**_connections.begin(), notify);
 }
 
 template <typename T>
 auto output_port_of<T>::get_connected_ports() const -> std::unordered_set<port*>
 {
 	std::unordered_set<port*> connections;
-	for(auto connection : this->connections)
+	for(auto connection : _connections)
 		connections.insert(connection);
 	return connections;
 }
@@ -332,7 +332,7 @@ template <typename T>
 auto output_port_of<T>::get_connected_input_ports() const -> std::unordered_set<input_port*>
 {
 	std::unordered_set<input_port*> connections;
-	for(auto connection : this->connections)
+	for(auto connection : _connections)
 		connections.insert(connection);
 	return connections;
 }
@@ -340,7 +340,7 @@ auto output_port_of<T>::get_connected_input_ports() const -> std::unordered_set<
 template <typename T>
 void output_port_of<T>::push(std::weak_ptr<clk::sentinel> const& sentinel) noexcept
 {
-	for(auto connection : connections)
+	for(auto connection : _connections)
 		connection->push(sentinel);
 }
 
@@ -356,26 +356,26 @@ auto output_port_of<T>::create_compatible_port() const -> std::unique_ptr<port>
 template <typename T>
 auto output_port_of<T>::get_data_pointer() const noexcept -> void const*
 {
-	return &data;
+	return &_data;
 }
 
 template <typename T>
 auto output_port_of<T>::get_data_pointer() noexcept -> void*
 {
-	return &data;
+	return &_data;
 }
 
 template <typename T>
 auto output_port_of<T>::get() noexcept -> T&
 {
 	update_timestamp();
-	return data;
+	return _data;
 }
 
 template <typename T>
 auto output_port_of<T>::get() const noexcept -> T const&
 {
-	return data;
+	return _data;
 }
 
 template <typename T>
@@ -395,26 +395,26 @@ template <typename T>
 auto output_port_of<T>::operator->() noexcept -> T*
 {
 	update_timestamp();
-	return &data;
+	return &_data;
 }
 
 template <typename T>
 auto output_port_of<T>::operator->() const noexcept -> T const*
 {
-	return &data;
+	return &_data;
 }
 
 template <typename T>
 input_port_of<T>::input_port_of()
 {
-	default_port.connect_to(*this, false);
+	_default_port.connect_to(*this, false);
 }
 
 template <typename T>
 input_port_of<T>::input_port_of(std::string name)
 {
 	set_name(std::move(name));
-	default_port.connect_to(*this, false);
+	_default_port.connect_to(*this, false);
 }
 
 template <typename T>
@@ -433,15 +433,15 @@ auto input_port_of<T>::get_data_type_hash() const noexcept -> std::size_t
 template <typename T>
 auto input_port_of<T>::get_timestamp() const noexcept -> clk::timestamp
 {
-	if(!connection)
-		return std::max(default_port.get_timestamp(), port::get_timestamp());
-	return std::max(connection->get_timestamp(), port::get_timestamp());
+	if(!_connection)
+		return std::max(_default_port.get_timestamp(), port::get_timestamp());
+	return std::max(_connection->get_timestamp(), port::get_timestamp());
 }
 
 template <typename T>
 auto input_port_of<T>::is_connected() const noexcept -> bool
 {
-	return connection != nullptr;
+	return _connection != nullptr;
 }
 
 template <typename T>
@@ -453,18 +453,18 @@ auto input_port_of<T>::can_connect_to(port const& other_port) const noexcept -> 
 template <typename T>
 auto input_port_of<T>::is_connected_to(port const& other_port) const noexcept -> bool
 {
-	if(!connection)
+	if(!_connection)
 		return false;
-	return connection == dynamic_cast<compatible_port const*>(&other_port);
+	return _connection == dynamic_cast<compatible_port const*>(&other_port);
 }
 
 template <typename T>
 void input_port_of<T>::connect_to(compatible_port& other_port, bool notify)
 {
-	if(&other_port == &default_port)
+	if(&other_port == &_default_port)
 		return;
 	disconnect(false);
-	connection = &other_port;
+	_connection = &other_port;
 	if(!other_port.is_connected_to(*this))
 		other_port.connect_to(*this, false);
 	update_timestamp();
@@ -475,17 +475,17 @@ void input_port_of<T>::connect_to(compatible_port& other_port, bool notify)
 template <typename T>
 void input_port_of<T>::connect_to(port& other_port, bool notify)
 {
-	if(&other_port != &default_port)
+	if(&other_port != &_default_port)
 		connect_to(dynamic_cast<compatible_port&>(other_port), notify);
 }
 
 template <typename T>
 void input_port_of<T>::disconnect(bool notify)
 {
-	if(connection)
+	if(_connection)
 	{
-		auto old_connection = connection;
-		connection = nullptr;
+		auto old_connection = _connection;
+		_connection = nullptr;
 		old_connection->disconnect_from(*this, false);
 		update_timestamp();
 		if(notify)
@@ -504,30 +504,30 @@ template <typename T>
 auto input_port_of<T>::get_connected_ports() const -> std::unordered_set<port*>
 {
 	std::unordered_set<port*> connections;
-	if(connection != nullptr)
-		connections.insert(connection);
+	if(_connection != nullptr)
+		connections.insert(_connection);
 	return connections;
 }
 
 template <typename T>
 auto input_port_of<T>::get_connected_output_port() const -> output_port*
 {
-	return connection;
+	return _connection;
 }
 
 template <typename T>
 auto input_port_of<T>::get_default_port() const -> compatible_port&
 {
-	return default_port;
+	return _default_port;
 }
 
 template <typename T>
 void input_port_of<T>::pull(std::weak_ptr<clk::sentinel> const& sentinel) noexcept
 {
-	if(connection)
-		connection->pull(sentinel);
+	if(_connection)
+		_connection->pull(sentinel);
 	else
-		default_port.pull(sentinel);
+		_default_port.pull(sentinel);
 }
 
 template <typename T>
@@ -548,9 +548,9 @@ auto input_port_of<T>::get_data_pointer() const noexcept -> void const*
 template <typename T>
 auto input_port_of<T>::get() const noexcept -> T const&
 {
-	if(connection)
-		return connection->get();
-	return default_port.get();
+	if(_connection)
+		return _connection->get();
+	return _default_port.get();
 }
 
 template <typename T>
@@ -562,9 +562,9 @@ auto input_port_of<T>::operator*() const noexcept -> T const&
 template <typename T>
 auto input_port_of<T>::operator->() const noexcept -> T const*
 {
-	if(connection)
-		return connection->operator->();
-	return default_port.operator->();
+	if(_connection)
+		return _connection->operator->();
+	return _default_port.operator->();
 }
 
 } // namespace clk

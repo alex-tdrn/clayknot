@@ -4,10 +4,10 @@ namespace clk::algorithms
 {
 decompose_color::decompose_color()
 {
-	register_port(color);
-	register_port(red_component);
-	register_port(green_component);
-	register_port(blue_component);
+	register_port(_color);
+	register_port(_red_component);
+	register_port(_green_component);
+	register_port(_blue_component);
 }
 
 auto decompose_color::get_name() const noexcept -> std::string const&
@@ -18,8 +18,8 @@ auto decompose_color::get_name() const noexcept -> std::string const&
 
 void decompose_color::update()
 {
-	*red_component = color->r() * 100;
-	*green_component = color->g() * 100;
-	*blue_component = color->b() * 100;
+	*_red_component = _color->r() * 100;
+	*_green_component = _color->g() * 100;
+	*_blue_component = _color->b() * 100;
 }
 } // namespace clk::algorithms

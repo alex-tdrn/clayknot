@@ -33,8 +33,8 @@ public:
 	void push(std::weak_ptr<clk::sentinel> const& sentinel = {}) final;
 
 private:
-	std::unique_ptr<clk::algorithm> algorithm;
-	std::weak_ptr<clk::sentinel> sentinel;
+	std::unique_ptr<clk::algorithm> _algorithm;
+	std::weak_ptr<clk::sentinel> _sentinel;
 
 	auto sentinel_present() const -> bool;
 	auto update_possible() const -> bool;
@@ -49,36 +49,36 @@ inline algorithm_node::algorithm_node(std::unique_ptr<clk::algorithm>&& algorith
 inline auto algorithm_node::get_name() const -> std::string const&
 {
 	static std::string const empty_name = "Empty algorithm node";
-	if(algorithm == nullptr)
+	if(_algorithm == nullptr)
 		return empty_name;
-	return algorithm->get_name();
+	return _algorithm->get_name();
 }
 
 inline void algorithm_node::set_algorithm(std::unique_ptr<clk::algorithm>&& algorithm)
 {
-	this->algorithm = std::move(algorithm);
-	for(auto* port : this->algorithm->get_input_ports())
+	_algorithm = std::move(algorithm);
+	for(auto* port : _algorithm->get_input_ports())
 		port->set_push_callback([&](auto sentinel) {
-			this->push(sentinel);
+			push(sentinel);
 		});
-	for(auto* port : this->algorithm->get_output_ports())
+	for(auto* port : _algorithm->get_output_ports())
 		port->set_pull_callback([&](auto sentinel) {
-			this->pull(sentinel);
+			pull(sentinel);
 		});
 }
 
 inline auto algorithm_node::get_input_ports() const -> std::vector<clk::input_port*>
 {
-	if(algorithm == nullptr)
+	if(_algorithm == nullptr)
 		return {};
-	return algorithm->get_input_ports();
+	return _algorithm->get_input_ports();
 }
 
 inline auto algorithm_node::get_output_ports() const -> std::vector<clk::output_port*>
 {
-	if(algorithm == nullptr)
+	if(_algorithm == nullptr)
 		return {};
-	return algorithm->get_output_ports();
+	return _algorithm->get_output_ports();
 }
 
 inline void algorithm_node::pull(std::weak_ptr<clk::sentinel> const& sentinel)
@@ -90,17 +90,17 @@ inline void algorithm_node::pull(std::weak_ptr<clk::sentinel> const& sentinel)
 	if(sentinel.expired())
 	{
 		sentinel_origin = std::make_shared<clk::sentinel>();
-		this->sentinel = sentinel_origin;
+		_sentinel = sentinel_origin;
 	}
 	else
 	{
-		this->sentinel = sentinel;
+		_sentinel = sentinel;
 	}
 
-	node::pull(sentinel);
+	node::pull(_sentinel);
 
 	if(update_needed())
-		algorithm->update();
+		_algorithm->update();
 }
 
 inline void algorithm_node::push(std::weak_ptr<clk::sentinel> const& sentinel)
@@ -112,29 +112,29 @@ inline void algorithm_node::push(std::weak_ptr<clk::sentinel> const& sentinel)
 	if(sentinel.expired())
 	{
 		sentinel_origin = std::make_shared<clk::sentinel>();
-		this->sentinel = sentinel_origin;
+		_sentinel = sentinel_origin;
 	}
 	else
 	{
-		this->sentinel = sentinel;
+		_sentinel = sentinel;
 	}
 
-	node::pull(sentinel);
+	node::pull(_sentinel);
 
 	if(update_needed())
-		algorithm->update();
+		_algorithm->update();
 
-	node::push(sentinel);
+	node::push(_sentinel);
 }
 
 inline auto algorithm_node::sentinel_present() const -> bool
 {
-	return !sentinel.expired();
+	return !_sentinel.expired();
 }
 
 inline auto algorithm_node::update_possible() const -> bool
 {
-	return algorithm != nullptr;
+	return _algorithm != nullptr;
 }
 
 inline auto algorithm_node::update_needed() const -> bool
