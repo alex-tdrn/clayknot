@@ -79,8 +79,8 @@ void graph_editor::draw_graph() const
 	for(auto const& node : *get_data())
 	{
 		_node_cache->get_widget(node.get()).draw();
-		for(auto* output : node->get_output_ports())
-			for(auto* input : output->get_connected_input_ports())
+		for(auto* output : node->get_outputs())
+			for(auto* input : output->get_connected_inputs())
 				if(_port_cache->has_widget(input))
 					_connections.emplace_back(std::make_pair(input, output));
 	}
@@ -179,16 +179,16 @@ void graph_editor::draw_menus() const
 				const auto& nodes = _selection_manager->get_selected_nodes();
 
 				bool any_inputs = std::any_of(nodes.begin(), nodes.end(), [](auto node) {
-					return !node->get_input_ports().empty();
+					return !node->get_inputs().empty();
 				});
 				if(any_inputs && ImGui::MenuItem("Copy inputs to new constant node"))
 				{
 					auto constant_node = std::make_unique<clk::constant_node>();
 					for(auto* node : _selection_manager->get_selected_nodes())
 					{
-						for(auto* input_port : node->get_input_ports())
-							constant_node->add_port(std::unique_ptr<clk::output_port>(
-								dynamic_cast<output_port*>(input_port->create_compatible_port().release())));
+						for(auto* input : node->get_inputs())
+							constant_node->add_output(std::unique_ptr<clk::output>(
+								dynamic_cast<output*>(input->create_compatible_port().release())));
 					}
 
 					get_data()->push_back(std::move(constant_node));
@@ -245,26 +245,25 @@ void graph_editor::update_connections() const
 		}
 	}
 
-	if(int output_port_id = -1, input_port_id = -1; imnodes::IsLinkCreated(&output_port_id, &input_port_id))
+	if(int output_id = -1, input_id = -1; imnodes::IsLinkCreated(&output_id, &input_id))
 	{
-		auto* input_port = dynamic_cast<clk::input_port*>(_port_cache->get_widget(input_port_id).get_port());
-		auto* output_port = dynamic_cast<clk::output_port*>(_port_cache->get_widget(output_port_id).get_port());
+		auto* input = dynamic_cast<clk::input*>(_port_cache->get_widget(input_id).get_port());
+		auto* output = dynamic_cast<clk::output*>(_port_cache->get_widget(output_id).get_port());
 
 		if(_new_connection_in_progress->ending_port != nullptr)
 			_new_connection_in_progress->starting_port.disconnect_from(*_new_connection_in_progress->ending_port);
 
-		if(input_port == &_new_connection_in_progress->starting_port)
-			_new_connection_in_progress->ending_port = output_port;
+		if(input == &_new_connection_in_progress->starting_port)
+			_new_connection_in_progress->ending_port = output;
 		else
-			_new_connection_in_progress->ending_port = input_port;
+			_new_connection_in_progress->ending_port = input;
 
 		restore_dropped_connection();
 
-		if(input_port->is_connected())
-			_new_connection_in_progress->dropped_connection =
-				std::pair(input_port, input_port->get_connected_output_port());
+		if(input->is_connected())
+			_new_connection_in_progress->dropped_connection = std::pair(input, input->get_connected_output());
 
-		input_port->connect_to(*output_port);
+		input->connect_to(*output);
 	}
 
 	if(int dummy = -1; _new_connection_in_progress && _new_connection_in_progress->ending_port != nullptr &&

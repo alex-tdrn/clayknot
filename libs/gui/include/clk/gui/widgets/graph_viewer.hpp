@@ -36,7 +36,7 @@ private:
 	imnodes::EditorContext* _context;
 	std::unique_ptr<impl::widget_cache<clk::node const, impl::node_viewer>> _node_cache;
 	std::unique_ptr<impl::widget_cache<clk::port const, impl::port_viewer>> _port_cache;
-	mutable std::vector<std::pair<clk::input_port const*, clk::output_port const*>> _connections;
+	mutable std::vector<std::pair<clk::input const*, clk::output const*>> _connections;
 	std::unique_ptr<impl::selection_manager<true>> _selection_manager;
 
 	void draw_graph() const;

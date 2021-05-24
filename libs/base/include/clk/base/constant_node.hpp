@@ -24,12 +24,12 @@ public:
 	~constant_node() final = default;
 
 	auto get_name() const -> std::string const& final;
-	auto get_output_ports() const -> port_range<clk::output_port*> final;
-	void remove_port(clk::output_port* port);
-	void add_port(std::unique_ptr<clk::output_port>&& port);
+	auto get_outputs() const -> port_range<clk::output*> final;
+	void remove_output(clk::output* output);
+	void add_output(std::unique_ptr<clk::output>&& output);
 
 private:
-	std::vector<std::unique_ptr<clk::output_port>> _outputs;
+	std::vector<std::unique_ptr<clk::output>> _outputs;
 };
 
 inline auto constant_node::get_name() const -> std::string const&
@@ -38,20 +38,20 @@ inline auto constant_node::get_name() const -> std::string const&
 	return name;
 }
 
-inline auto constant_node::get_output_ports() const -> port_range<clk::output_port*>
+inline auto constant_node::get_outputs() const -> port_range<clk::output*>
 {
 	return _outputs | ranges::views::transform(clk::projections::underlying());
 }
 
-inline void constant_node::remove_port(clk::output_port* port)
+inline void constant_node::remove_output(clk::output* output)
 {
-	_outputs.erase(ranges::remove_if(_outputs, clk::predicates::is_equal_to(port), clk::projections::underlying()),
+	_outputs.erase(ranges::remove_if(_outputs, clk::predicates::is_equal_to(output), clk::projections::underlying()),
 		_outputs.end());
 }
 
-inline void constant_node::add_port(std::unique_ptr<clk::output_port>&& port)
+inline void constant_node::add_output(std::unique_ptr<clk::output>&& output)
 {
-	_outputs.push_back(std::move(port));
+	_outputs.push_back(std::move(output));
 }
 
 } // namespace clk

@@ -7,6 +7,8 @@ target_sources(
 				"include/clk/base/constant_node.hpp"
 				"include/clk/base/algorithm.hpp"
 				"include/clk/base/port.hpp"
+				"include/clk/base/input.hpp"
+				"include/clk/base/output.hpp"
 				"include/clk/base/sentinel.hpp"
 				"include/clk/base/graph.hpp"
 )

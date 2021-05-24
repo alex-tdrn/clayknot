@@ -29,40 +29,40 @@ protected:
 	std::unique_ptr<clk::gui::viewer> data_viewer; // NOLINT
 };
 
-class input_port_viewer final : public port_viewer
+class input_viewer final : public port_viewer
 {
 public:
-	input_port_viewer() = delete;
-	input_port_viewer(clk::input_port const* port, int id);
-	input_port_viewer(input_port_viewer const&) = delete;
-	input_port_viewer(input_port_viewer&&) noexcept = delete;
-	auto operator=(input_port_viewer const&) -> input_port_viewer& = delete;
-	auto operator=(input_port_viewer&&) noexcept -> input_port_viewer& = delete;
-	~input_port_viewer() final = default;
+	input_viewer() = delete;
+	input_viewer(clk::input const* port, int id);
+	input_viewer(input_viewer const&) = delete;
+	input_viewer(input_viewer&&) noexcept = delete;
+	auto operator=(input_viewer const&) -> input_viewer& = delete;
+	auto operator=(input_viewer&&) noexcept -> input_viewer& = delete;
+	~input_viewer() final = default;
 
-	auto get_port() const -> clk::input_port const* final;
+	auto get_port() const -> clk::input const* final;
 	void draw() final;
 
 private:
-	clk::input_port const* port = nullptr;
+	clk::input const* port = nullptr;
 };
 
-class output_port_viewer final : public port_viewer
+class output_viewer final : public port_viewer
 {
 public:
-	output_port_viewer() = delete;
-	output_port_viewer(clk::output_port const* port, int id);
-	output_port_viewer(output_port_viewer const&) = delete;
-	output_port_viewer(output_port_viewer&&) noexcept = delete;
-	auto operator=(output_port_viewer const&) -> output_port_viewer& = delete;
-	auto operator=(output_port_viewer&&) noexcept -> output_port_viewer& = delete;
-	~output_port_viewer() final = default;
+	output_viewer() = delete;
+	output_viewer(clk::output const* port, int id);
+	output_viewer(output_viewer const&) = delete;
+	output_viewer(output_viewer&&) noexcept = delete;
+	auto operator=(output_viewer const&) -> output_viewer& = delete;
+	auto operator=(output_viewer&&) noexcept -> output_viewer& = delete;
+	~output_viewer() final = default;
 
-	auto get_port() const -> clk::output_port const* final;
+	auto get_port() const -> clk::output const* final;
 	void draw() final;
 
 private:
-	clk::output_port const* port = nullptr;
+	clk::output const* port = nullptr;
 };
 
 inline port_viewer::port_viewer(clk::port const* port, int id) : id(id)
@@ -77,16 +77,16 @@ inline auto port_viewer::get_id() const -> int
 	return id;
 }
 
-inline input_port_viewer::input_port_viewer(clk::input_port const* port, int id) : port_viewer(port, id), port(port)
+inline input_viewer::input_viewer(clk::input const* port, int id) : port_viewer(port, id), port(port)
 {
 }
 
-inline auto input_port_viewer::get_port() const -> clk::input_port const*
+inline auto input_viewer::get_port() const -> clk::input const*
 {
 	return port;
 }
 
-inline void input_port_viewer::draw()
+inline void input_viewer::draw()
 {
 	imnodes::PushColorStyle(imnodes::ColorStyle_Pin, color);
 	imnodes::PushColorStyle(imnodes::ColorStyle_PinHovered, color);
@@ -105,16 +105,16 @@ inline void input_port_viewer::draw()
 	imnodes::PopColorStyle();
 }
 
-inline output_port_viewer::output_port_viewer(clk::output_port const* port, int id) : port_viewer(port, id), port(port)
+inline output_viewer::output_viewer(clk::output const* port, int id) : port_viewer(port, id), port(port)
 {
 }
 
-inline auto output_port_viewer::get_port() const -> output_port const*
+inline auto output_viewer::get_port() const -> output const*
 {
 	return port;
 }
 
-inline void output_port_viewer::draw()
+inline void output_viewer::draw()
 {
 	imnodes::PushColorStyle(imnodes::ColorStyle_Pin, color);
 	imnodes::PushColorStyle(imnodes::ColorStyle_PinHovered, color);
@@ -134,10 +134,10 @@ inline void output_port_viewer::draw()
 
 inline auto create_port_viewer(clk::port const* port, int id) -> std::unique_ptr<port_viewer>
 {
-	if(auto const* inputPort = dynamic_cast<clk::input_port const*>(port); inputPort != nullptr)
-		return std::make_unique<input_port_viewer>(inputPort, id);
-	else if(auto const* outputPort = dynamic_cast<clk::output_port const*>(port); outputPort != nullptr)
-		return std::make_unique<output_port_viewer>(outputPort, id);
+	if(auto const* inputPort = dynamic_cast<clk::input const*>(port); inputPort != nullptr)
+		return std::make_unique<input_viewer>(inputPort, id);
+	else if(auto const* outputPort = dynamic_cast<clk::output const*>(port); outputPort != nullptr)
+		return std::make_unique<output_viewer>(outputPort, id);
 	return nullptr;
 }
 

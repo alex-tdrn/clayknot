@@ -27,8 +27,8 @@ public:
 
 	auto get_name() const -> std::string const& final;
 	void set_algorithm(std::unique_ptr<clk::algorithm>&& algorithm);
-	auto get_input_ports() const -> port_range<clk::input_port*> final;
-	auto get_output_ports() const -> port_range<clk::output_port*> final;
+	auto get_inputs() const -> port_range<clk::input*> final;
+	auto get_outputs() const -> port_range<clk::output*> final;
 	void pull(std::weak_ptr<clk::sentinel> const& sentinel = {}) final;
 	void push(std::weak_ptr<clk::sentinel> const& sentinel = {}) final;
 
@@ -57,28 +57,28 @@ inline auto algorithm_node::get_name() const -> std::string const&
 inline void algorithm_node::set_algorithm(std::unique_ptr<clk::algorithm>&& algorithm)
 {
 	_algorithm = std::move(algorithm);
-	for(auto* port : _algorithm->get_input_ports())
+	for(auto* port : _algorithm->get_inputs())
 		port->set_push_callback([&](auto sentinel) {
 			push(sentinel);
 		});
-	for(auto* port : _algorithm->get_output_ports())
+	for(auto* port : _algorithm->get_outputs())
 		port->set_pull_callback([&](auto sentinel) {
 			pull(sentinel);
 		});
 }
 
-inline auto algorithm_node::get_input_ports() const -> port_range<clk::input_port*>
+inline auto algorithm_node::get_inputs() const -> port_range<clk::input*>
 {
 	if(_algorithm == nullptr)
 		return {};
-	return _algorithm->get_input_ports();
+	return _algorithm->get_inputs();
 }
 
-inline auto algorithm_node::get_output_ports() const -> port_range<clk::output_port*>
+inline auto algorithm_node::get_outputs() const -> port_range<clk::output*>
 {
 	if(_algorithm == nullptr)
 		return {};
-	return _algorithm->get_output_ports();
+	return _algorithm->get_outputs();
 }
 
 inline void algorithm_node::pull(std::weak_ptr<clk::sentinel> const& sentinel)
@@ -142,9 +142,9 @@ inline auto algorithm_node::update_needed() const -> bool
 	if(is_sink() || is_source())
 		return true;
 
-	return ranges::any_of(get_output_ports(), [&](auto const* output_port) {
-		return ranges::any_of(get_input_ports(), [&output_port](auto const* input_port) {
-			return input_port->get_timestamp() > output_port->get_timestamp();
+	return ranges::any_of(get_outputs(), [&](auto const* output) {
+		return ranges::any_of(get_inputs(), [&output](auto const* input) {
+			return input->get_timestamp() > output->get_timestamp();
 		});
 	});
 }

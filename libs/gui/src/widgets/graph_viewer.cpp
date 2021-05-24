@@ -57,8 +57,8 @@ void graph_viewer::draw_graph() const
 	for(auto const& node : *get_data())
 	{
 		_node_cache->get_widget(node.get()).draw();
-		for(auto* output : node->get_output_ports())
-			for(auto* input : output->get_connected_input_ports())
+		for(auto* output : node->get_outputs())
+			for(auto* input : output->get_connected_inputs())
 				if(_port_cache->has_widget(input))
 					_connections.emplace_back(std::make_pair(input, output));
 	}

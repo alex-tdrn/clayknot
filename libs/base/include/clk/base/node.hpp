@@ -1,6 +1,7 @@
 #pragma once
 
-#include "clk/base/port.hpp"
+#include "clk/base/input.hpp"
+#include "clk/base/output.hpp"
 
 #include <memory>
 #include <range/v3/view.hpp>
@@ -10,15 +11,12 @@
 namespace clk
 {
 class sentinel;
-class input_port;
-class output_port;
+class input;
+class output;
 
 class node
 {
 public:
-	template <typename T>
-	using port_range = ranges::any_view<T, ranges::category::bidirectional | ranges::category::sized>;
-
 	node() = default;
 	node(node const&) = delete;
 	node(node&&) noexcept = delete;
@@ -28,8 +26,8 @@ public:
 
 	virtual auto get_name() const -> std::string const& = 0;
 	auto get_ports() const -> port_range<clk::port*>;
-	virtual auto get_input_ports() const -> port_range<clk::input_port*>;
-	virtual auto get_output_ports() const -> port_range<clk::output_port*>;
+	virtual auto get_inputs() const -> port_range<clk::input*>;
+	virtual auto get_outputs() const -> port_range<clk::output*>;
 	virtual void pull(std::weak_ptr<clk::sentinel> const& sentinel = {});
 	virtual void push(std::weak_ptr<clk::sentinel> const& sentinel = {});
 
@@ -39,40 +37,40 @@ public:
 
 inline auto node::get_ports() const -> port_range<clk::port*>
 {
-	return ranges::views::concat(get_input_ports() | ranges::views::transform(clk::projections::cast<clk::port*>()),
-		get_output_ports() | ranges::views::transform(clk::projections::cast<clk::port*>()));
+	return ranges::views::concat(get_inputs() | ranges::views::transform(clk::projections::cast<clk::port*>()),
+		get_outputs() | ranges::views::transform(clk::projections::cast<clk::port*>()));
 }
 
-inline auto node::get_input_ports() const -> port_range<clk::input_port*>
+inline auto node::get_inputs() const -> port_range<clk::input*>
 {
 	return {};
 }
 
-inline auto node::get_output_ports() const -> port_range<clk::output_port*>
+inline auto node::get_outputs() const -> port_range<clk::output*>
 {
 	return {};
 }
 
 inline void node::pull(std::weak_ptr<clk::sentinel> const& sentinel)
 {
-	for(auto* port : get_input_ports())
+	for(auto* port : get_inputs())
 		port->pull(sentinel);
 }
 
 inline void node::push(std::weak_ptr<clk::sentinel> const& sentinel)
 {
-	for(auto* port : get_output_ports())
+	for(auto* port : get_outputs())
 		port->push(sentinel);
 }
 
 inline auto node::is_source() const -> bool
 {
-	return get_input_ports().size() == 0;
+	return get_inputs().size() == 0;
 }
 
 inline auto node::is_sink() const -> bool
 {
-	return get_output_ports().size() == 0;
+	return get_outputs().size() == 0;
 }
 
 } // namespace clk

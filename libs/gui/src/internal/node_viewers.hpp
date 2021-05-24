@@ -67,14 +67,14 @@ inline void node_viewer::draw()
 	draw_title_bar();
 
 	ImGui::BeginGroup();
-	for(auto* port : _node->get_input_ports())
+	for(auto* port : _node->get_inputs())
 		_port_cache->get_widget(port).draw();
 	ImGui::EndGroup();
 
 	ImGui::SameLine();
 
 	ImGui::BeginGroup();
-	for(auto* port : _node->get_output_ports())
+	for(auto* port : _node->get_outputs())
 		_port_cache->get_widget(port).draw();
 	ImGui::EndGroup();
 

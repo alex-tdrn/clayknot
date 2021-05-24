@@ -35,41 +35,41 @@ protected:
 	bool _stable_height = false; // NOLINT
 };
 
-class input_port_editor final : public port_editor
+class input_editor final : public port_editor
 {
 public:
-	input_port_editor() = delete;
-	input_port_editor(clk::input_port* port, int id);
-	input_port_editor(input_port_editor const&) = delete;
-	input_port_editor(input_port_editor&&) noexcept = delete;
-	auto operator=(input_port_editor const&) -> input_port_editor& = delete;
-	auto operator=(input_port_editor&&) noexcept -> input_port_editor& = delete;
-	~input_port_editor() final = default;
+	input_editor() = delete;
+	input_editor(clk::input* port, int id);
+	input_editor(input_editor const&) = delete;
+	input_editor(input_editor&&) noexcept = delete;
+	auto operator=(input_editor const&) -> input_editor& = delete;
+	auto operator=(input_editor&&) noexcept -> input_editor& = delete;
+	~input_editor() final = default;
 
-	auto get_port() const -> input_port* final;
+	auto get_port() const -> input* final;
 	void draw(clk::gui::widget* override_widget = nullptr) final;
 
 private:
-	clk::input_port* _port = nullptr;
+	clk::input* _port = nullptr;
 	std::unique_ptr<clk::gui::editor> _default_data_editor;
 };
 
-class output_port_editor final : public port_editor
+class output_editor final : public port_editor
 {
 public:
-	output_port_editor() = delete;
-	output_port_editor(clk::output_port* port, int id);
-	output_port_editor(output_port_editor const&) = delete;
-	output_port_editor(output_port_editor&&) noexcept = delete;
-	auto operator=(output_port_editor const&) -> output_port_editor& = delete;
-	auto operator=(output_port_editor&&) noexcept -> output_port_editor& = delete;
-	~output_port_editor() final = default;
+	output_editor() = delete;
+	output_editor(clk::output* port, int id);
+	output_editor(output_editor const&) = delete;
+	output_editor(output_editor&&) noexcept = delete;
+	auto operator=(output_editor const&) -> output_editor& = delete;
+	auto operator=(output_editor&&) noexcept -> output_editor& = delete;
+	~output_editor() final = default;
 
-	auto get_port() const -> output_port* final;
+	auto get_port() const -> output* final;
 	void draw(clk::gui::widget* override_widget = nullptr) final;
 
 private:
-	clk::output_port* _port = nullptr;
+	clk::output* _port = nullptr;
 };
 
 inline port_editor::port_editor(clk::port* port, int id) : _id(id)
@@ -99,7 +99,7 @@ inline void port_editor::set_stable_height(bool stableHeight)
 	_stable_height = stableHeight;
 }
 
-inline input_port_editor::input_port_editor(clk::input_port* port, int id) : port_editor(port, id), _port(port)
+inline input_editor::input_editor(clk::input* port, int id) : port_editor(port, id), _port(port)
 {
 	auto* default_port = &port->get_default_port();
 
@@ -111,12 +111,12 @@ inline input_port_editor::input_port_editor(clk::input_port* port, int id) : por
 	_default_data_editor->set_maximum_width(200);
 }
 
-inline auto input_port_editor::get_port() const -> input_port*
+inline auto input_editor::get_port() const -> input*
 {
 	return _port;
 }
 
-inline void input_port_editor::draw(clk::gui::widget* override_widget)
+inline void input_editor::draw(clk::gui::widget* override_widget)
 {
 	imnodes::PushColorStyle(imnodes::ColorStyle_Pin, _color);
 
@@ -162,16 +162,16 @@ inline void input_port_editor::draw(clk::gui::widget* override_widget)
 	imnodes::PopColorStyle();
 }
 
-inline output_port_editor::output_port_editor(clk::output_port* port, int id) : port_editor(port, id), _port(port)
+inline output_editor::output_editor(clk::output* port, int id) : port_editor(port, id), _port(port)
 {
 }
 
-inline auto output_port_editor::get_port() const -> output_port*
+inline auto output_editor::get_port() const -> output*
 {
 	return _port;
 }
 
-inline void output_port_editor::draw(clk::gui::widget* override_widget)
+inline void output_editor::draw(clk::gui::widget* override_widget)
 {
 	imnodes::PushColorStyle(imnodes::ColorStyle_Pin, _color);
 
@@ -197,10 +197,10 @@ inline void output_port_editor::draw(clk::gui::widget* override_widget)
 
 inline auto create_port_editor(clk::port* port, int id) -> std::unique_ptr<port_editor>
 {
-	if(auto* input_port = dynamic_cast<clk::input_port*>(port); input_port != nullptr)
-		return std::make_unique<input_port_editor>(input_port, id);
-	else if(auto* output_port = dynamic_cast<clk::output_port*>(port); output_port != nullptr)
-		return std::make_unique<output_port_editor>(output_port, id);
+	if(auto* input = dynamic_cast<clk::input*>(port); input != nullptr)
+		return std::make_unique<input_editor>(input, id);
+	else if(auto* output = dynamic_cast<clk::output*>(port); output != nullptr)
+		return std::make_unique<output_editor>(output, id);
 	return nullptr;
 }
 

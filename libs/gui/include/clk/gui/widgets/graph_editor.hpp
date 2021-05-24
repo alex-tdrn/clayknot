@@ -50,7 +50,7 @@ private:
 	imnodes::EditorContext* _context;
 	std::unique_ptr<impl::widget_cache<clk::node, impl::node_editor>> _node_cache;
 	std::unique_ptr<impl::widget_cache<clk::port, impl::port_editor>> _port_cache;
-	mutable std::vector<std::pair<clk::input_port*, clk::output_port*>> _connections;
+	mutable std::vector<std::pair<clk::input*, clk::output*>> _connections;
 	std::unique_ptr<impl::selection_manager<false>> _selection_manager;
 	mutable std::optional<connection_change> _new_connection_in_progress = std::nullopt;
 	mutable std::optional<std::function<bool()>> _modification_callback = std::nullopt; // this is smelly af

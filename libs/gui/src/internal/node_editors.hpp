@@ -38,8 +38,8 @@ protected:
 	bool _highlighted = false; // NOLINT
 
 	virtual void draw_title_bar();
-	virtual void draw_input_ports();
-	virtual void draw_output_ports();
+	virtual void draw_inputs();
+	virtual void draw_outputs();
 };
 
 class constant_node_editor final : public node_editor
@@ -56,9 +56,9 @@ public:
 
 private:
 	clk::constant_node* _node;
-	std::unordered_map<clk::output_port*, std::unique_ptr<clk::gui::editor>> _constant_editors;
+	std::unordered_map<clk::output*, std::unique_ptr<clk::gui::editor>> _constant_editors;
 
-	void draw_output_ports() final;
+	void draw_outputs() final;
 };
 
 inline node_editor::node_editor(clk::node* node, int id, widget_cache<clk::port, port_editor>* port_cache,
@@ -100,13 +100,13 @@ inline void node_editor::draw()
 	imnodes::EndNodeTitleBar();
 
 	ImGui::BeginGroup();
-	draw_input_ports();
+	draw_inputs();
 	ImGui::EndGroup();
 
 	ImGui::SameLine();
 
 	ImGui::BeginGroup();
-	draw_output_ports();
+	draw_outputs();
 	ImGui::EndGroup();
 
 	imnodes::EndNode();
@@ -120,7 +120,7 @@ inline void node_editor::draw()
 
 inline void node_editor::draw_title_bar()
 {
-	if(!_node->get_input_ports().empty())
+	if(!_node->get_inputs().empty())
 	{
 		if(ImGui::SmallButton("Pull"))
 			_node->pull();
@@ -129,7 +129,7 @@ inline void node_editor::draw_title_bar()
 
 	ImGui::Text("%s", _node->get_name().data());
 
-	if(!_node->get_output_ports().empty())
+	if(!_node->get_outputs().empty())
 	{
 		ImGui::SameLine();
 		if(ImGui::SmallButton("Push"))
@@ -137,15 +137,15 @@ inline void node_editor::draw_title_bar()
 	}
 }
 
-inline void node_editor::draw_input_ports()
+inline void node_editor::draw_inputs()
 {
-	for(auto* port : _node->get_input_ports())
+	for(auto* port : _node->get_inputs())
 		_port_cache->get_widget(port).draw();
 }
 
-inline void node_editor::draw_output_ports()
+inline void node_editor::draw_outputs()
 {
-	for(auto* port : _node->get_output_ports())
+	for(auto* port : _node->get_outputs())
 		_port_cache->get_widget(port).draw();
 }
 
@@ -155,9 +155,9 @@ inline constant_node_editor::constant_node_editor(clk::constant_node* node, int 
 {
 }
 
-inline void constant_node_editor::draw_output_ports()
+inline void constant_node_editor::draw_outputs()
 {
-	for(auto* port : _node->get_output_ports())
+	for(auto* port : _node->get_outputs())
 	{
 		ImGui::PushID(port);
 		if(ImGui::SmallButton("-"))
@@ -166,7 +166,7 @@ inline void constant_node_editor::draw_output_ports()
 			{
 				_modification_callback = [&]() {
 					_constant_editors.erase(port);
-					_node->remove_port(port);
+					_node->remove_output(port);
 					return true;
 				};
 			}
@@ -196,18 +196,18 @@ inline void constant_node_editor::draw_output_ports()
 				ImGui::OpenPopup("Add Constant Port Menu");
 				if(ImGui::BeginPopup("Add Constant Port Menu"))
 				{
-					std::unique_ptr<output_port> constantPort = nullptr;
+					std::unique_ptr<output> constantPort = nullptr;
 
 					if(ImGui::MenuItem("int"))
-						constantPort = std::make_unique<output_port_of<int>>("Constant");
+						constantPort = std::make_unique<output_of<int>>("Constant");
 					else if(ImGui::MenuItem("float"))
-						constantPort = std::make_unique<output_port_of<float>>("Constant");
+						constantPort = std::make_unique<output_of<float>>("Constant");
 					else if(ImGui::MenuItem("color"))
-						constantPort = std::make_unique<output_port_of<color_rgb>>("Constant");
+						constantPort = std::make_unique<output_of<color_rgb>>("Constant");
 
 					if(constantPort != nullptr)
 					{
-						_node->add_port(std::move(constantPort));
+						_node->add_output(std::move(constantPort));
 						done = true;
 					}
 					ImGui::EndPopup();
