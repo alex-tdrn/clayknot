@@ -1,5 +1,5 @@
 #pragma once
-namespace clk
+namespace clk::projections
 {
 static constexpr auto underlying()
 {
@@ -7,4 +7,13 @@ static constexpr auto underlying()
 		return wrapper.get();
 	};
 }
-} // namespace clk
+
+template <typename T>
+static constexpr auto cast()
+{
+	return [](auto object) {
+		return dynamic_cast<T>(object);
+	};
+}
+
+} // namespace clk::projections

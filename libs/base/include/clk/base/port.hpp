@@ -2,11 +2,13 @@
 
 #include "clk/base/sentinel.hpp"
 #include "clk/util/predicates.hpp"
+#include "clk/util/projections.hpp"
 #include "clk/util/timestamp.hpp"
 
 #include <functional>
 #include <memory>
 #include <range/v3/algorithm.hpp>
+#include <range/v3/view.hpp>
 #include <stdexcept>
 #include <string>
 #include <typeindex>
@@ -37,7 +39,8 @@ public:
 	virtual void connect_to(port& other_port, bool notify = true) = 0;
 	virtual void disconnect_from(port& other_port, bool notify = true) = 0;
 	virtual void disconnect(bool notify = true) = 0;
-	virtual auto get_connected_ports() const -> std::unordered_set<port*> = 0;
+	virtual auto get_connected_ports() const
+		-> ranges::any_view<port*, ranges::category::bidirectional | ranges::category::sized> = 0;
 	virtual void push(std::weak_ptr<clk::sentinel> const& sentinel = {}) noexcept = 0;
 	virtual void pull(std::weak_ptr<clk::sentinel> const& sentinel = {}) noexcept = 0;
 	virtual auto create_compatible_port() const -> std::unique_ptr<port> = 0;
@@ -89,7 +92,8 @@ public:
 	virtual auto get_data_pointer() noexcept -> void* = 0;
 	using port::connect_to;
 	void connect_to(output_port& other_port) = delete;
-	virtual auto get_connected_input_ports() const -> std::unordered_set<input_port*> = 0;
+	virtual auto get_connected_input_ports() const
+		-> ranges::any_view<input_port*, ranges::category::bidirectional | ranges::category::sized> = 0;
 	void set_pull_callback(const std::function<void(std::weak_ptr<clk::sentinel> const&)>& callback);
 	void set_pull_callback(std::function<void(std::weak_ptr<clk::sentinel> const&)>&& callback) noexcept;
 	void pull(std::weak_ptr<clk::sentinel> const& sentinel = {}) noexcept final;
@@ -135,8 +139,10 @@ public:
 	void disconnect_from(compatible_port& other_port, bool notify = true);
 	void disconnect_from(port& other_port, bool notify = true) final;
 	void disconnect(bool notify = true) final;
-	auto get_connected_ports() const -> std::unordered_set<port*> final;
-	auto get_connected_input_ports() const -> std::unordered_set<input_port*> final;
+	auto get_connected_ports() const
+		-> ranges::any_view<port*, ranges::category::bidirectional | ranges::category::sized> final;
+	auto get_connected_input_ports() const
+		-> ranges::any_view<input_port*, ranges::category::bidirectional | ranges::category::sized> final;
 	void push(std::weak_ptr<clk::sentinel> const& sentinel = {}) noexcept final;
 	auto create_compatible_port() const -> std::unique_ptr<port> final;
 
@@ -172,7 +178,8 @@ public:
 	void connect_to(port& other_port, bool notify = true) final;
 	void disconnect(bool notify = true) final;
 	void disconnect_from(port& other_port, bool notify = true) final;
-	auto get_connected_ports() const -> std::unordered_set<port*> final;
+	auto get_connected_ports() const
+		-> ranges::any_view<port*, ranges::category::bidirectional | ranges::category::sized> final;
 	auto get_connected_output_port() const -> output_port* final;
 	auto get_default_port() const -> compatible_port& final;
 	void pull(std::weak_ptr<clk::sentinel> const& sentinel = {}) noexcept final;
@@ -278,7 +285,7 @@ auto output_port_of<T>::is_connected_to(port const& other_port) const noexcept -
 	if(concrete == nullptr)
 		return false;
 
-	return ranges::any_of(_connections, clk::is_equal_to(concrete));
+	return ranges::any_of(_connections, clk::predicates::is_equal_to(concrete));
 }
 
 template <typename T>
@@ -319,21 +326,17 @@ void output_port_of<T>::disconnect(bool notify)
 }
 
 template <typename T>
-auto output_port_of<T>::get_connected_ports() const -> std::unordered_set<port*>
+auto output_port_of<T>::get_connected_ports() const
+	-> ranges::any_view<port*, ranges::category::bidirectional | ranges::category::sized>
 {
-	std::unordered_set<port*> connections;
-	for(auto connection : _connections)
-		connections.insert(connection);
-	return connections;
+	return _connections;
 }
 
 template <typename T>
-auto output_port_of<T>::get_connected_input_ports() const -> std::unordered_set<input_port*>
+auto output_port_of<T>::get_connected_input_ports() const
+	-> ranges::any_view<input_port*, ranges::category::bidirectional | ranges::category::sized>
 {
-	std::unordered_set<input_port*> connections;
-	for(auto connection : _connections)
-		connections.insert(connection);
-	return connections;
+	return _connections | ranges::views::transform(clk::projections::cast<input_port*>());
 }
 
 template <typename T>
@@ -500,12 +503,10 @@ void input_port_of<T>::disconnect_from(port& other_port, bool notify)
 }
 
 template <typename T>
-auto input_port_of<T>::get_connected_ports() const -> std::unordered_set<port*>
+auto input_port_of<T>::get_connected_ports() const
+	-> ranges::any_view<port*, ranges::category::bidirectional | ranges::category::sized>
 {
-	std::unordered_set<port*> connections;
-	if(_connection != nullptr)
-		connections.insert(_connection);
-	return connections;
+	return ranges::views::single(_connection);
 }
 
 template <typename T>

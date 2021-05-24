@@ -27,8 +27,8 @@ public:
 
 	auto get_name() const -> std::string const& final;
 	void set_algorithm(std::unique_ptr<clk::algorithm>&& algorithm);
-	auto get_input_ports() const -> std::vector<clk::input_port*> final;
-	auto get_output_ports() const -> std::vector<clk::output_port*> final;
+	auto get_input_ports() const -> port_range<clk::input_port*> final;
+	auto get_output_ports() const -> port_range<clk::output_port*> final;
 	void pull(std::weak_ptr<clk::sentinel> const& sentinel = {}) final;
 	void push(std::weak_ptr<clk::sentinel> const& sentinel = {}) final;
 
@@ -67,14 +67,14 @@ inline void algorithm_node::set_algorithm(std::unique_ptr<clk::algorithm>&& algo
 		});
 }
 
-inline auto algorithm_node::get_input_ports() const -> std::vector<clk::input_port*>
+inline auto algorithm_node::get_input_ports() const -> port_range<clk::input_port*>
 {
 	if(_algorithm == nullptr)
 		return {};
 	return _algorithm->get_input_ports();
 }
 
-inline auto algorithm_node::get_output_ports() const -> std::vector<clk::output_port*>
+inline auto algorithm_node::get_output_ports() const -> port_range<clk::output_port*>
 {
 	if(_algorithm == nullptr)
 		return {};
@@ -139,16 +139,11 @@ inline auto algorithm_node::update_possible() const -> bool
 
 inline auto algorithm_node::update_needed() const -> bool
 {
-	if(get_input_ports().empty())
-		return true;
-	if(get_output_ports().empty())
+	if(is_sink() || is_source())
 		return true;
 
-	auto outputs = get_output_ports();
-	auto inputs = get_input_ports();
-
-	return ranges::any_of(outputs, [&](auto const* output_port) {
-		return ranges::any_of(inputs, [&output_port](auto const* input_port) {
+	return ranges::any_of(get_output_ports(), [&](auto const* output_port) {
+		return ranges::any_of(get_input_ports(), [&output_port](auto const* input_port) {
 			return input_port->get_timestamp() > output_port->get_timestamp();
 		});
 	});

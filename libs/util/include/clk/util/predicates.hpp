@@ -3,7 +3,7 @@
 #include <memory>
 #include <type_traits>
 
-namespace clk
+namespace clk::predicates
 {
 template <typename T>
 static constexpr auto is_equal_to(T&& value)
@@ -21,4 +21,4 @@ static constexpr auto is_not_equal_to(T&& value)
 	};
 }
 
-} // namespace clk
+} // namespace clk::predicates

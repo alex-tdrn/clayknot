@@ -139,13 +139,13 @@ inline void node_editor::draw_title_bar()
 
 inline void node_editor::draw_input_ports()
 {
-	for(auto& port : _node->get_input_ports())
+	for(auto* port : _node->get_input_ports())
 		_port_cache->get_widget(port).draw();
 }
 
 inline void node_editor::draw_output_ports()
 {
-	for(auto& port : _node->get_output_ports())
+	for(auto* port : _node->get_output_ports())
 		_port_cache->get_widget(port).draw();
 }
 
