@@ -46,7 +46,7 @@ class constant_node_editor final : public node_editor
 {
 public:
 	constant_node_editor() = delete;
-	constant_node_editor(clk::constant_node* node, int id, widget_cache<clk::port, port_editor>* port_cache,
+	constant_node_editor(clk::constant_node* constant_node, int id, widget_cache<clk::port, port_editor>* port_cache,
 		std::optional<std::function<bool()>>& modification_callback);
 	constant_node_editor(constant_node_editor const&) = delete;
 	constant_node_editor(constant_node_editor&&) noexcept = delete;
@@ -55,7 +55,7 @@ public:
 	~constant_node_editor() final = default;
 
 private:
-	clk::constant_node* _node;
+	clk::constant_node* _constant_node;
 	std::unordered_map<clk::output*, std::unique_ptr<clk::gui::editor>> _constant_editors;
 
 	void draw_outputs() final;
@@ -149,15 +149,15 @@ inline void node_editor::draw_outputs()
 		_port_cache->widget_for(port).draw();
 }
 
-inline constant_node_editor::constant_node_editor(clk::constant_node* node, int id,
+inline constant_node_editor::constant_node_editor(clk::constant_node* constant_node, int id,
 	widget_cache<clk::port, port_editor>* port_cache, std::optional<std::function<bool()>>& modification_callback)
-	: node_editor(node, id, port_cache, modification_callback), _node(node)
+	: node_editor(constant_node, id, port_cache, modification_callback), _constant_node(constant_node)
 {
 }
 
 inline void constant_node_editor::draw_outputs()
 {
-	for(auto* port : _node->outputs())
+	for(auto* port : _constant_node->outputs())
 	{
 		ImGui::PushID(port);
 		if(ImGui::SmallButton("-"))
@@ -166,14 +166,14 @@ inline void constant_node_editor::draw_outputs()
 			{
 				_modification_callback = [&]() {
 					_constant_editors.erase(port);
-					_node->remove_output(port);
+					_constant_node->remove_output(port);
 					return true;
 				};
 			}
 		}
 		ImGui::PopID();
 		ImGui::SameLine();
-		if(_constant_editors.find(port) == _constant_editors.end())
+		if(_constant_editors.count(port) == 0)
 		{
 			_constant_editors[port] =
 				clk::gui::editor::create(port->data_type_hash(), port->data_pointer(), port->name(), [=]() {
@@ -207,7 +207,7 @@ inline void constant_node_editor::draw_outputs()
 
 					if(constantPort != nullptr)
 					{
-						_node->add_output(std::move(constantPort));
+						_constant_node->add_output(std::move(constantPort));
 						done = true;
 					}
 					ImGui::EndPopup();
@@ -225,8 +225,8 @@ inline void constant_node_editor::draw_outputs()
 inline auto create_node_editor(clk::node* node, int id, widget_cache<clk::port, port_editor>* portCache,
 	std::optional<std::function<bool()>>& modificationCallback) -> std::unique_ptr<node_editor>
 {
-	if(auto* constantNode = dynamic_cast<clk::constant_node*>(node))
-		return std::make_unique<constant_node_editor>(constantNode, id, portCache, modificationCallback);
+	if(auto* constant_node = dynamic_cast<clk::constant_node*>(node))
+		return std::make_unique<constant_node_editor>(constant_node, id, portCache, modificationCallback);
 	else
 		return std::make_unique<node_editor>(node, id, portCache, modificationCallback);
 }

@@ -37,13 +37,13 @@ private:
 	widget_cache<node_type, node_widget>* _node_cache;
 	widget_cache<port_type, port_widget>* _port_cache;
 	std::unordered_set<node_type*> _selected_nodes;
-	node_type* _hovered_node = nullptr; // TODO add hovered pins and connection as well (why not?)
+	node_type* _hovered_node; // TODO add hovered pins and connection as well (why not?)
 };
 
 template <bool const_data>
 selection_manager<const_data>::selection_manager(
 	widget_cache<node_type, node_widget>* node_cache, widget_cache<port_type, port_widget>* port_cache)
-	: _node_cache(node_cache), _port_cache(port_cache)
+	: _node_cache(node_cache), _port_cache(port_cache), _hovered_node(nullptr)
 {
 }
 

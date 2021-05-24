@@ -73,11 +73,12 @@ private:
 	clk::output* _port = nullptr;
 };
 
-inline port_editor::port_editor(clk::port* port, int id) : _id(id)
+inline port_editor::port_editor(clk::port* port, int id)
+	: _id(id)
+	, _color(color_rgba(color_rgb::create_random(port->data_type_hash()), 1.0f).packed())
+	, _data_viewer(clk::gui::viewer::create(port->data_type_hash(), port->data_pointer(), port->name()))
 {
-	_data_viewer = clk::gui::viewer::create(port->data_type_hash(), port->data_pointer(), port->name());
 	_data_viewer->set_maximum_width(200);
-	_color = color_rgba(color_rgb::create_random(port->data_type_hash()), 1.0f).packed();
 }
 
 inline auto port_editor::id() const -> int

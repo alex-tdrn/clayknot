@@ -101,7 +101,7 @@ inline auto color_rgb::create_random(std::uint64_t seed) -> color_rgb
 	static std::unordered_map<std::uint64_t, glm::vec3> cache;
 	if(cache.find(seed) == cache.end())
 	{
-		std::mt19937 generator(seed);
+		std::mt19937_64 generator(seed);
 		std::uniform_real_distribution<float> dis(0, 1);
 
 		cache[seed] = {dis(generator), dis(generator), dis(generator)};
@@ -238,7 +238,7 @@ inline auto color_rgb::bu8() const -> std::uint8_t
 inline auto color_rgb::operator[](std::size_t i) const -> float
 {
 	assert(i <= 2);
-	return _values[i];
+	return _values[static_cast<int>(i)];
 }
 
 inline auto color_rgb::vector() const -> glm::vec3

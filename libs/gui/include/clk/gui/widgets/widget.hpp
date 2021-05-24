@@ -57,7 +57,7 @@ inline void widget::draw() const
 		std::optional<float> old_maximum_width = _maximum_width;
 
 		_extended_preferred = true;
-		_maximum_width = ImGui::GetIO().DisplaySize.y * 0.75;
+		_maximum_width = ImGui::GetIO().DisplaySize.y * 0.75f;
 
 		if(_draw_title)
 			ImGui::Text("%s", _data_name.c_str());

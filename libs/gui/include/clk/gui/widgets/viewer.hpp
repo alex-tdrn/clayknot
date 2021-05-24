@@ -8,6 +8,7 @@
 #include "clk/util/type_list.hpp"
 
 #include <imgui.h>
+#include <range/v3/view.hpp>
 #include <typeindex>
 #include <unordered_map>
 
@@ -89,23 +90,23 @@ auto viewer::create(data_type const* data, std::string const& data_name) -> std:
 inline auto viewer::factories_map() -> std::unordered_map<std::uint64_t, factory>&
 {
 	static auto factories = []() {
-		std::unordered_map<std::uint64_t, factory> factories;
+		std::unordered_map<std::uint64_t, factory> map;
 
 		using supported_types = meta::type_list<bool, int, float, glm::vec2, glm::vec3, glm::vec4, clk::bounded<int>,
 			clk::bounded<float>, clk::bounded<glm::vec2>, clk::bounded<glm::vec3>, clk::bounded<glm::vec4>,
 			clk::color_rgb, clk::color_rgba, std::chrono::nanoseconds>;
 
-		supported_types::for_each([&factories](auto* dummy) {
+		supported_types::for_each([&map](auto* dummy) {
 			using current_type = std::remove_cv_t<std::remove_pointer_t<decltype(dummy)>>;
 
 			std::size_t hash = std::type_index(typeid(current_type)).hash_code();
-			assert("Type hash function collision!" && factories.count(hash) == 0);
+			assert("Type hash function collision!" && map.count(hash) == 0);
 
-			factories[hash] = [](void const* data, std::string const& dataName) -> std::unique_ptr<viewer> {
+			map[hash] = [](void const* data, std::string const& dataName) -> std::unique_ptr<viewer> {
 				return std::make_unique<viewer_of<current_type>>(static_cast<current_type const*>(data), dataName);
 			};
 		});
-		return factories;
+		return map;
 	}();
 	return factories;
 }
@@ -293,18 +294,15 @@ inline void viewer_of<std::chrono::nanoseconds>::draw_contents() const
 	}
 	else
 	{
-		const int max_units_to_draw = 2;
-		for(int i = 0; i < time_units.size(); i++)
+		const std::size_t max_units_to_draw = 2;
+		auto non_empty_units = time_units | ranges::views::drop_while([](auto unit) {
+			return unit.value <= 0;
+		});
+
+		for(auto const& unit : non_empty_units | ranges::views::take(max_units_to_draw))
 		{
-			if(time_units[i].value)
-			{
-				for(int j = i; j < time_units.size() && j - i < max_units_to_draw; j++)
-				{
-					ImGui::Text(("%i" + time_units[j].suffix).c_str(), time_units[j].value);
-					ImGui::SameLine();
-				}
-				break;
-			}
+			ImGui::Text(("%i" + unit.suffix).c_str(), unit.value);
+			ImGui::SameLine();
 		}
 		ImGui::NewLine();
 	}

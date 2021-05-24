@@ -18,7 +18,7 @@ auto random_color_source::name() const noexcept -> std::string const&
 
 void random_color_source::update()
 {
-	std::mt19937 generator(std::chrono::system_clock::now().time_since_epoch().count());
+	std::mt19937 generator(static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count()));
 	std::uniform_real_distribution<float> dis(0, 1);
 
 	*_color = clk::color_rgb{dis(generator), dis(generator), dis(generator)};

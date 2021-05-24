@@ -9,7 +9,7 @@ TEST_CASE("Colors can be randomly generated")
 {
 	GIVEN("A random seed S")
 	{
-		std::mt19937 generator(std::chrono::system_clock::now().time_since_epoch().count());
+		std::mt19937_64 generator(std::chrono::system_clock::now().time_since_epoch().count());
 		std::uniform_int_distribution<std::uint64_t> distribution;
 		std::uint64_t seed = distribution(generator);
 		WHEN("generating a random color from S")

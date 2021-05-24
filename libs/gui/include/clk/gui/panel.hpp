@@ -13,9 +13,9 @@ class panel final
 public:
 	panel() = default;
 	explicit panel(std::string title);
-	panel(panel const&);
+	panel(panel const& other);
 	panel(panel&&) noexcept = default;
-	auto operator=(panel const&) -> panel&;
+	auto operator=(panel const& other) -> panel&;
 	auto operator=(panel&&) noexcept -> panel& = default;
 	~panel() = default;
 

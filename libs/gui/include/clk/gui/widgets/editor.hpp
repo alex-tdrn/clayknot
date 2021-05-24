@@ -10,6 +10,7 @@
 #include <functional>
 #include <imgui.h>
 #include <optional>
+#include <range/v3/view.hpp>
 #include <typeindex>
 
 namespace clk::gui
@@ -98,26 +99,26 @@ auto editor::create(data_type* data, std::string const& data_name,
 inline auto editor::factories_map() -> std::unordered_map<std::uint64_t, factory>&
 {
 	static auto factories = []() {
-		std::unordered_map<std::uint64_t, factory> factories;
+		std::unordered_map<std::uint64_t, factory> map;
 
 		using supported_types = meta::type_list<bool, int, float, glm::vec2, glm::vec3, glm::vec4, clk::bounded<int>,
 			clk::bounded<float>, clk::bounded<glm::vec2>, clk::bounded<glm::vec3>, clk::bounded<glm::vec4>,
 			clk::color_rgb, clk::color_rgba, std::chrono::nanoseconds>;
 
-		supported_types::for_each([&factories](auto* dummy) {
+		supported_types::for_each([&map](auto* dummy) {
 			using current_type = std::remove_cv_t<std::remove_pointer_t<decltype(dummy)>>;
 
 			auto hash = std::type_index(typeid(current_type)).hash_code();
-			assert("Type hash function collision!" && factories.count(hash) == 0);
+			assert("Type hash function collision!" && map.count(hash) == 0);
 
-			factories[hash] = [](void* data, const std::string& data_name,
-								  std::optional<std::function<void()>> modified_callback) -> std::unique_ptr<editor> {
+			map[hash] = [](void* data, const std::string& data_name,
+							std::optional<std::function<void()>> modified_callback) -> std::unique_ptr<editor> {
 				return std::make_unique<editor_of<current_type>>(
 					static_cast<current_type*>(data), data_name, std::move(modified_callback));
 			};
 		});
 
-		return factories;
+		return map;
 	}();
 	return factories;
 }
@@ -514,25 +515,25 @@ inline void editor_of<std::chrono::nanoseconds>::draw_contents() const
 	}
 	else
 	{
-		const std::size_t max_units_to_draw = 2;
 		ImGui::PushItemWidth(available_width() / 2.0f);
-		for(std::size_t i = 0; i < time_units.size(); i++)
+		const std::size_t max_units_to_draw = 2;
+
+		auto non_empty_units = time_units | ranges::views::drop_while([&, dropped = std::size_t(0)](auto unit) mutable {
+			dropped++;
+			return unit.value <= 0 && time_units.size() - dropped < max_units_to_draw;
+		});
+
+		for(auto [index, unit] : ranges::views::enumerate(non_empty_units | ranges::views::take(max_units_to_draw)))
 		{
-			if((time_units[i].value != 0) || time_units.size() - i == max_units_to_draw)
-			{
-				for(int j = i; j < time_units.size() && j - i < max_units_to_draw; j++)
-				{
-					int v = time_units[j].value;
-					ImGui::PushID(j);
-					if(ImGui::DragInt("##", &v, 0.1f, 0, 0, ("%i " + time_units[j].suffix).c_str()))
-						data_modified();
-					ImGui::PopID();
-					time_units[j].value = static_cast<short>(v);
-					ImGui::SameLine();
-				}
-				break;
-			}
+			int v = unit.value;
+			ImGui::PushID(static_cast<int>(index));
+			if(ImGui::DragInt("##", &v, 0.1f, 0, 0, ("%i " + unit.suffix).c_str()))
+				data_modified();
+			ImGui::PopID();
+			unit.value = static_cast<short>(v);
+			ImGui::SameLine();
 		}
+
 		ImGui::PopItemWidth();
 		ImGui::NewLine();
 	}

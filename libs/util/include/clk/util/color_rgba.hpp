@@ -116,7 +116,7 @@ inline auto color_rgba::create_random(std::uint64_t seed) -> color_rgba
 	static std::unordered_map<std::uint64_t, glm::vec4> cache;
 	if(cache.find(seed) == cache.end())
 	{
-		std::mt19937 generator(seed);
+		std::mt19937_64 generator(seed);
 		std::uniform_real_distribution<float> dis(0, 1);
 
 		cache[seed] = {dis(generator), dis(generator), dis(generator), dis(generator)};

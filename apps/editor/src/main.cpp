@@ -52,9 +52,9 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 		if(gladLoadGL() == 0)
 			return 1;
 #ifdef _DEBUG
-		GLint flags = 0;
-		glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-		if((flags & GL_CONTEXT_FLAG_DEBUG_BIT) != 0)
+		GLint context_flags = 0;
+		glGetIntegerv(GL_CONTEXT_FLAGS, &context_flags);
+		if((context_flags & GL_CONTEXT_FLAG_DEBUG_BIT) != 0)
 		{
 			glEnable(GL_DEBUG_OUTPUT);
 			glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
@@ -141,15 +141,15 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-			ImGuiWindowFlags flags = ImGuiWindowFlags_MenuBar;
-			flags |= ImGuiWindowFlags_NoDocking;
-			flags |= ImGuiWindowFlags_NoTitleBar;
-			flags |= ImGuiWindowFlags_NoCollapse;
-			flags |= ImGuiWindowFlags_NoResize;
-			flags |= ImGuiWindowFlags_NoMove;
-			flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
-			flags |= ImGuiWindowFlags_NoNavFocus;
-			ImGui::Begin("Main Window", nullptr, flags);
+			ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar;
+			window_flags |= ImGuiWindowFlags_NoDocking;
+			window_flags |= ImGuiWindowFlags_NoTitleBar;
+			window_flags |= ImGuiWindowFlags_NoCollapse;
+			window_flags |= ImGuiWindowFlags_NoResize;
+			window_flags |= ImGuiWindowFlags_NoMove;
+			window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
+			window_flags |= ImGuiWindowFlags_NoNavFocus;
+			ImGui::Begin("Main Window", nullptr, window_flags);
 			ImGui::PopStyleVar(3);
 
 			ImGuiID dockspace_id = ImGui::GetID("Main Window Dockspace");

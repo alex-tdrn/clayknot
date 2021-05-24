@@ -13,7 +13,7 @@ public:
 	using factory = std::function<std::unique_ptr<widget>(data_type*, int)>;
 
 	widget_cache() = delete;
-	widget_cache(factory make_widget);
+	explicit widget_cache(factory make_widget);
 	widget_cache(widget_cache const&) = delete;
 	widget_cache(widget_cache&&) = delete;
 	auto operator=(widget_cache const&) -> widget_cache& = delete;
@@ -34,7 +34,7 @@ private:
 };
 
 template <typename data_type, typename Widget>
-inline widget_cache<data_type, Widget>::widget_cache(factory make_widget) : _make_widget(make_widget)
+inline widget_cache<data_type, Widget>::widget_cache(factory make_widget) : _make_widget(std::move(make_widget))
 {
 }
 

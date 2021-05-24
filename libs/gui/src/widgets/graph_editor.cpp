@@ -22,15 +22,12 @@ namespace clk::gui
 graph_editor::graph_editor(
 	clk::graph* data, std::string const& data_name, std::optional<std::function<void()>> modified_callback)
 	: editor_of<clk::graph>(data, data_name, std::move(modified_callback))
-{
-	_port_cache = std::make_unique<impl::widget_cache<port, impl::port_editor>>(&impl::create_port_editor);
-
-	_node_cache = std::make_unique<impl::widget_cache<node, impl::node_editor>>([&](node* node, int id) {
+	, _node_cache(std::make_unique<impl::widget_cache<node, impl::node_editor>>([&](node* node, int id) {
 		return impl::create_node_editor(node, id, _port_cache.get(), _modification_callback);
-	});
-
-	_selection_manager = std::make_unique<impl::selection_manager<false>>(_node_cache.get(), _port_cache.get());
-
+	}))
+	, _port_cache(std::make_unique<impl::widget_cache<port, impl::port_editor>>(&impl::create_port_editor))
+	, _selection_manager(std::make_unique<impl::selection_manager<false>>(_node_cache.get(), _port_cache.get()))
+{
 	disable_title();
 	_context = imnodes::EditorContextCreate();
 	imnodes::EditorContextSet(_context);
