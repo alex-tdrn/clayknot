@@ -1,4 +1,4 @@
-#include "clk/algorithms/grayscale_color_node.h"
+#include "clk/algorithms/grayscale_color_node.hpp"
 
 #include <glm/glm.hpp>
 

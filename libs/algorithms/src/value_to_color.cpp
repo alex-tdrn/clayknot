@@ -1,4 +1,4 @@
-#include "clk/algorithms/value_to_color.h"
+#include "clk/algorithms/value_to_color.hpp"
 
 namespace clk::algorithms
 {

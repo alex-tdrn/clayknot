@@ -1,7 +1,7 @@
-#include "clk/gui/init.h"
+#include "clk/gui/init.hpp"
 
-#include "clk/gui/widgets/graph_editor.h"
-#include "clk/gui/widgets/graph_viewer.h"
+#include "clk/gui/widgets/graph_editor.hpp"
+#include "clk/gui/widgets/graph_viewer.hpp"
 
 namespace clk::gui
 {

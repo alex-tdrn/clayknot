@@ -1,4 +1,4 @@
-#include "clk/gui/panel.h"
+#include "clk/gui/panel.hpp"
 #include "clk/gui/widgets/widget.hpp"
 
 #include <algorithm>

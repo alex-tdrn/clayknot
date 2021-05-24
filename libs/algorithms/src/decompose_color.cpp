@@ -1,4 +1,4 @@
-#include "clk/algorithms/decompose_color.h"
+#include "clk/algorithms/decompose_color.hpp"
 
 namespace clk::algorithms
 {

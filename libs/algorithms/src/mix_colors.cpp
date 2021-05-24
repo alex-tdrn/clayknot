@@ -1,4 +1,4 @@
-#include "clk/algorithms/mix_colors.h"
+#include "clk/algorithms/mix_colors.hpp"
 
 namespace clk::algorithms
 {

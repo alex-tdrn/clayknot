@@ -1,4 +1,4 @@
-#include "clk/gui/widgets/graph_viewer.h"
+#include "clk/gui/widgets/graph_viewer.hpp"
 
 #include "clk/base/node.hpp"
 #include "clk/base/port.hpp"

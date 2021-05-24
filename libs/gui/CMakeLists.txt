@@ -1,12 +1,12 @@
 add_library(
 	gui
-	"include/clk/gui/init.h"
-	"include/clk/gui/panel.h"
+	"include/clk/gui/init.hpp"
+	"include/clk/gui/panel.hpp"
 	"include/clk/gui/widgets/widget.hpp"
 	"include/clk/gui/widgets/viewer.hpp"
 	"include/clk/gui/widgets/editor.hpp"
-	"include/clk/gui/widgets/graph_viewer.h"
-	"include/clk/gui/widgets/graph_editor.h"
+	"include/clk/gui/widgets/graph_viewer.hpp"
+	"include/clk/gui/widgets/graph_editor.hpp"
 	"src/init.cpp"
 	"src/panel.cpp"
 	"src/widgets/graph_viewer.cpp"

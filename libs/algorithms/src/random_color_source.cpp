@@ -1,4 +1,4 @@
-#include "clk/algorithms/random_color_source.h"
+#include "clk/algorithms/random_color_source.hpp"
 
 #include <chrono>
 #include <random>
