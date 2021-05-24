@@ -165,7 +165,7 @@ TEMPLATE_TEST_CASE("Ports holding the same datatype return the same hash", "[por
 		clk::output_of<TestType> B;
 		THEN("they return the same datatype hash")
 		{
-			REQUIRE(A.get_data_type_hash() == B.get_data_type_hash());
+			REQUIRE(A.data_type_hash() == B.data_type_hash());
 		}
 	}
 }
@@ -177,7 +177,7 @@ TEST_CASE("Unconnected input ports cannot provide data", "[ports]")
 		clk::input_of<int> A;
 		THEN("trying to get data from it, fails")
 		{
-			REQUIRE_THROWS(A.get());
+			REQUIRE_THROWS(A.data());
 			REQUIRE_THROWS(*A);
 			REQUIRE_THROWS(A.operator->());
 		}
@@ -192,17 +192,17 @@ TEST_CASE("Output ports can provide data", "[ports]")
 		THEN("A can provide modifiable references to its data")
 		{
 			std::string const v1 = "1";
-			A.get() = v1;
-			REQUIRE(A.get() == v1);
+			A.data() = v1;
+			REQUIRE(A.data() == v1);
 			REQUIRE(*A == v1);
 
 			std::string const v2 = "2";
 			*A = v2;
-			REQUIRE(A.get() == v2);
+			REQUIRE(A.data() == v2);
 			REQUIRE(*A == v2);
 
 			A->clear();
-			REQUIRE(A.get().empty());
+			REQUIRE(A.data().empty());
 			REQUIRE((*A).empty());
 			REQUIRE(A->empty());
 		}
@@ -211,7 +211,7 @@ TEST_CASE("Output ports can provide data", "[ports]")
 			auto const& B = A;
 			THEN("B can provide read-only references to its data")
 			{
-				const auto* v1 = &(B.get());
+				const auto* v1 = &(B.data());
 				const auto* v2 = &(*B);
 				const auto* v3 = B.operator->();
 
@@ -236,15 +236,15 @@ TEST_CASE("Connected input ports can provide the data from their connection", "[
 
 		THEN("all connected input ports can provide read-only references to A's data")
 		{
-			auto* original_value = &(A.get());
+			auto* original_value = &(A.data());
 
 			for(auto& port : inputs)
 			{
-				REQUIRE_NOTHROW(port.get());
+				REQUIRE_NOTHROW(port.data());
 				REQUIRE_NOTHROW(*port);
 				REQUIRE_NOTHROW(port.operator->());
 
-				const auto* v1 = &(port.get());
+				const auto* v1 = &(port.data());
 				const auto* v2 = &(*port);
 				const auto* v3 = port.operator->();
 

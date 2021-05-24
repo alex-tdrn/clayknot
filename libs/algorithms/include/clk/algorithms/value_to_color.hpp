@@ -13,7 +13,7 @@ class value_to_color final : public clk::algorithm
 public:
 	value_to_color();
 
-	auto get_name() const noexcept -> std::string const& override;
+	auto name() const noexcept -> std::string const& override;
 
 private:
 	clk::input_of<float> _value{"Value"};

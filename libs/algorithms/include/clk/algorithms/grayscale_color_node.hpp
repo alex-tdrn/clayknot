@@ -12,7 +12,7 @@ class grayscale_color_node final : public clk::algorithm
 {
 public:
 	grayscale_color_node();
-	auto get_name() const noexcept -> std::string const& override;
+	auto name() const noexcept -> std::string const& override;
 
 private:
 	clk::input_of<clk::color_rgb> _input_color{"Color"};

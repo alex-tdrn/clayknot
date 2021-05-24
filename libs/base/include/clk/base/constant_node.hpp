@@ -23,8 +23,8 @@ public:
 	auto operator=(constant_node&&) noexcept -> constant_node& = delete;
 	~constant_node() final = default;
 
-	auto get_name() const -> std::string const& final;
-	auto get_outputs() const -> port_range<clk::output*> final;
+	auto name() const -> std::string const& final;
+	auto outputs() const -> port_range<clk::output*> final;
 	void remove_output(clk::output* output);
 	void add_output(std::unique_ptr<clk::output>&& output);
 
@@ -32,13 +32,13 @@ private:
 	std::vector<std::unique_ptr<clk::output>> _outputs;
 };
 
-inline auto constant_node::get_name() const -> std::string const&
+inline auto constant_node::name() const -> std::string const&
 {
 	static std::string const name = "Constant";
 	return name;
 }
 
-inline auto constant_node::get_outputs() const -> port_range<clk::output*>
+inline auto constant_node::outputs() const -> port_range<clk::output*>
 {
 	return _outputs | ranges::views::transform(clk::projections::underlying());
 }

@@ -10,7 +10,7 @@ random_color_source::random_color_source()
 	register_port(_color);
 }
 
-auto random_color_source::get_name() const noexcept -> std::string const&
+auto random_color_source::name() const noexcept -> std::string const&
 {
 	static std::string name = "Random Color Source";
 	return name;

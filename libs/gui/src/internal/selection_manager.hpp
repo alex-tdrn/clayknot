@@ -31,7 +31,7 @@ public:
 	~selection_manager() = default;
 
 	void update();
-	auto get_selected_nodes() const -> std::unordered_set<node*> const&;
+	auto selected_nodes() const -> std::unordered_set<node_type*> const&;
 
 private:
 	widget_cache<node_type, node_widget>* _node_cache;
@@ -53,7 +53,7 @@ inline void selection_manager<const_data>::update()
 	if(imnodes::NumSelectedNodes() != static_cast<int>(_selected_nodes.size()) || _selected_nodes.size() == 1)
 	{
 		for(auto* node : _selected_nodes)
-			_node_cache->get_widget(node).set_highlighted(false);
+			_node_cache->widget_for(node).set_highlighted(false);
 
 		_selected_nodes.clear();
 		if(imnodes::NumSelectedNodes() > 0)
@@ -63,12 +63,12 @@ inline void selection_manager<const_data>::update()
 
 			for(auto node_id : selected_node_ids)
 			{
-				_selected_nodes.insert(_node_cache->get_widget(node_id).get_node());
+				_selected_nodes.insert(_node_cache->widget_for(node_id).node());
 			}
 		}
 
 		for(auto* node : _selected_nodes)
-			_node_cache->get_widget(node).set_highlighted(true);
+			_node_cache->widget_for(node).set_highlighted(true);
 	}
 
 	{
@@ -76,21 +76,21 @@ inline void selection_manager<const_data>::update()
 		int hovered_node_id = -1;
 		if(imnodes::IsNodeHovered(&hovered_node_id))
 		{
-			auto& new_hovered_node_viewer = _node_cache->get_widget(hovered_node_id);
+			auto& new_hovered_node_viewer = _node_cache->widget_for(hovered_node_id);
 			new_hovered_node_viewer.set_highlighted(true);
-			new_hovered_node = new_hovered_node_viewer.get_node();
+			new_hovered_node = new_hovered_node_viewer.node();
 		}
 
 		if(_hovered_node != nullptr && new_hovered_node != _hovered_node &&
 			_selected_nodes.find(_hovered_node) == _selected_nodes.end())
-			_node_cache->get_widget(_hovered_node).set_highlighted(false);
+			_node_cache->widget_for(_hovered_node).set_highlighted(false);
 
 		_hovered_node = new_hovered_node;
 	}
 }
 
 template <bool const_data>
-inline auto selection_manager<const_data>::get_selected_nodes() const -> std::unordered_set<node*> const&
+inline auto selection_manager<const_data>::selected_nodes() const -> std::unordered_set<node_type*> const&
 {
 	return _selected_nodes;
 }

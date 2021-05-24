@@ -27,7 +27,7 @@ target_include_directories(
 
 target_compile_definitions(gui PUBLIC IMGUI_ADD_VECTOR_CONVERSIONS)
 
-target_link_libraries(gui PUBLIC clayknot::base clayknot::algorithms imgui imnodes)
+target_link_libraries(gui PUBLIC clayknot::base clayknot::algorithms range-v3::range-v3 imgui imnodes)
 
 install(TARGETS gui)
 install(DIRECTORY include/ DESTINATION include)

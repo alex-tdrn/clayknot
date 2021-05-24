@@ -160,7 +160,7 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 				if(ImGui::BeginMenu("View"))
 				{
 					for(auto& panel : panels)
-						if(ImGui::MenuItem(panel.get_title().c_str(), "", panel.is_visible()))
+						if(ImGui::MenuItem(panel.title().c_str(), "", panel.visible()))
 							panel.toggle_visibility();
 					ImGui::EndMenu();
 				}

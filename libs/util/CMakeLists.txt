@@ -14,7 +14,7 @@ target_sources(
 )
 
 target_include_directories(util INTERFACE "include")
-target_link_libraries(util INTERFACE glm::glm)
+target_link_libraries(util INTERFACE glm::glm range-v3::range-v3)
 
 install(TARGETS util)
 install(DIRECTORY include/ DESTINATION include)

@@ -56,12 +56,12 @@ void panel::set_title(std::string title)
 	_title = std::move(title);
 }
 
-auto panel::get_title() const -> std::string const&
+auto panel::title() const -> std::string const&
 {
 	return _title;
 }
 
-auto panel::is_visible() const -> bool
+auto panel::visible() const -> bool
 {
 	return _visible;
 }

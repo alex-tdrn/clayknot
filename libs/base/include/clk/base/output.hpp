@@ -22,11 +22,11 @@ public:
 	auto operator=(output&&) -> output& = delete;
 	~output() override = default;
 
-	using port::get_data_pointer;
-	virtual auto get_data_pointer() noexcept -> void* = 0;
+	using port::data_pointer;
+	virtual auto data_pointer() noexcept -> void* = 0;
 	using port::connect_to;
 	void connect_to(output& other_port) = delete;
-	virtual auto get_connected_inputs() const -> port_range<input*> = 0;
+	virtual auto connected_inputs() const -> port_range<input*> = 0;
 	void set_pull_callback(const std::function<void(std::weak_ptr<clk::sentinel> const&)>& callback);
 	void set_pull_callback(std::function<void(std::weak_ptr<clk::sentinel> const&)>&& callback) noexcept;
 	void pull(std::weak_ptr<clk::sentinel> const& sentinel = {}) noexcept final;
@@ -55,15 +55,15 @@ public:
 	auto operator=(output_of&&) -> output_of& = delete;
 	~output_of() final;
 
-	auto get_data_pointer() const noexcept -> void const* final;
-	auto get_data_pointer() noexcept -> void* final;
-	auto get() noexcept -> T&;
-	auto get() const noexcept -> T const&;
+	auto data_pointer() const noexcept -> void const* final;
+	auto data_pointer() noexcept -> void* final;
+	auto data() noexcept -> T&;
+	auto data() const noexcept -> T const&;
 	auto operator*() noexcept -> T&;
 	auto operator*() const noexcept -> T const&;
 	auto operator->() noexcept -> T*;
 	auto operator->() const noexcept -> T const*;
-	auto get_data_type_hash() const noexcept -> std::size_t final;
+	auto data_type_hash() const noexcept -> std::size_t final;
 	auto is_connected() const noexcept -> bool final;
 	auto can_connect_to(port const& other_port) const noexcept -> bool final;
 	auto is_connected_to(port const& other_port) const noexcept -> bool final;
@@ -72,8 +72,8 @@ public:
 	void disconnect_from(compatible_port& other_port, bool notify = true);
 	void disconnect_from(port& other_port, bool notify = true) final;
 	void disconnect(bool notify = true) final;
-	auto get_connected_ports() const -> port_range<port*> final;
-	auto get_connected_inputs() const -> port_range<input*> final;
+	auto connected_ports() const -> port_range<port*> final;
+	auto connected_inputs() const -> port_range<input*> final;
 	void push(std::weak_ptr<clk::sentinel> const& sentinel = {}) noexcept final;
 	auto create_compatible_port() const -> std::unique_ptr<port> final;
 
@@ -111,7 +111,7 @@ output_of<T>::~output_of()
 }
 
 template <typename T>
-auto output_of<T>::get_data_type_hash() const noexcept -> std::size_t
+auto output_of<T>::data_type_hash() const noexcept -> std::size_t
 {
 	static std::size_t hash = std::type_index(typeid(T)).hash_code();
 	return hash;
@@ -177,13 +177,13 @@ void output_of<T>::disconnect(bool notify)
 }
 
 template <typename T>
-auto output_of<T>::get_connected_ports() const -> port_range<port*>
+auto output_of<T>::connected_ports() const -> port_range<port*>
 {
 	return _connections;
 }
 
 template <typename T>
-auto output_of<T>::get_connected_inputs() const -> port_range<input*>
+auto output_of<T>::connected_inputs() const -> port_range<input*>
 {
 	return _connections | ranges::views::transform(clk::projections::cast<input*>());
 }
@@ -198,33 +198,33 @@ void output_of<T>::push(std::weak_ptr<clk::sentinel> const& sentinel) noexcept
 template <typename T>
 auto output_of<T>::create_compatible_port() const -> std::unique_ptr<port>
 {
-	auto port = std::make_unique<compatible_port>(get_name());
+	auto port = std::make_unique<compatible_port>(name());
 	if constexpr(std::is_copy_assignable_v<T>)
-		port->get_default_port().get() = this->get();
+		port->default_port().data() = this->data();
 	return port;
 }
 
 template <typename T>
-auto output_of<T>::get_data_pointer() const noexcept -> void const*
+auto output_of<T>::data_pointer() const noexcept -> void const*
 {
 	return &_data;
 }
 
 template <typename T>
-auto output_of<T>::get_data_pointer() noexcept -> void*
+auto output_of<T>::data_pointer() noexcept -> void*
 {
 	return &_data;
 }
 
 template <typename T>
-auto output_of<T>::get() noexcept -> T&
+auto output_of<T>::data() noexcept -> T&
 {
 	update_timestamp();
 	return _data;
 }
 
 template <typename T>
-auto output_of<T>::get() const noexcept -> T const&
+auto output_of<T>::data() const noexcept -> T const&
 {
 	return _data;
 }
@@ -233,13 +233,13 @@ template <typename T>
 auto output_of<T>::operator*() noexcept -> T&
 {
 	update_timestamp();
-	return get();
+	return data();
 }
 
 template <typename T>
 auto output_of<T>::operator*() const noexcept -> T const&
 {
-	return get();
+	return data();
 }
 
 template <typename T>

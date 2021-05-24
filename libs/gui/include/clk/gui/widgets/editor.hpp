@@ -37,7 +37,7 @@ public:
 	virtual void update_data_pointer(void* data) = 0;
 
 private:
-	static auto get_factories() -> std::unordered_map<std::uint64_t, factory>&;
+	static auto factories_map() -> std::unordered_map<std::uint64_t, factory>&;
 };
 
 template <typename data_type>
@@ -54,12 +54,12 @@ public:
 
 	auto clone() const -> std::unique_ptr<widget> override;
 	void update_data_pointer(void* data) final;
-	auto is_data_available() const noexcept -> bool final;
+	auto data_available() const noexcept -> bool final;
 	void draw_contents() const override;
 
 protected:
-	auto get_data() const -> data_type*;
-	auto get_modified_callback() const -> std::optional<std::function<void()>> const&;
+	auto data() const -> data_type*;
+	auto modified_callback() const -> std::optional<std::function<void()>> const&;
 
 private:
 	data_type* _data;
@@ -71,7 +71,7 @@ private:
 template <typename data_type, typename editorImplementation>
 inline void editor::register_factory()
 {
-	get_factories()[std::type_index(typeid(data_type)).hash_code()] =
+	factories_map()[std::type_index(typeid(data_type)).hash_code()] =
 		[](void* data, const std::string& data_name,
 			std::optional<std::function<void()>> modified_callback) -> std::unique_ptr<editor> {
 		return std::make_unique<editorImplementation>(
@@ -82,7 +82,7 @@ inline void editor::register_factory()
 inline auto editor::create(std::size_t type_hash, void* data, std::string const& data_name,
 	std::optional<std::function<void()>> modified_callback) -> std::unique_ptr<editor>
 {
-	auto& factories = get_factories();
+	auto& factories = factories_map();
 	if(factories.count(type_hash) == 0)
 		return std::make_unique<editor_of<void>>(data, data_name, std::nullopt);
 	return factories.at(type_hash)(data, data_name, std::move(modified_callback));
@@ -95,7 +95,7 @@ auto editor::create(data_type* data, std::string const& data_name,
 	return editor::create(std::type_index(typeid(data_type)).hash_code(), data, data_name, modified_callback);
 }
 
-inline auto editor::get_factories() -> std::unordered_map<std::uint64_t, factory>&
+inline auto editor::factories_map() -> std::unordered_map<std::uint64_t, factory>&
 {
 	static auto factories = []() {
 		std::unordered_map<std::uint64_t, factory> factories;
@@ -136,7 +136,7 @@ editor_of<data_type>::editor_of(
 template <typename data_type>
 auto editor_of<data_type>::clone() const -> std::unique_ptr<widget>
 {
-	auto clonededitor = std::make_unique<editor_of<data_type>>(_data, get_data_name(), _modified_callback);
+	auto clonededitor = std::make_unique<editor_of<data_type>>(_data, data_name(), _modified_callback);
 	return clonededitor;
 }
 
@@ -147,7 +147,7 @@ void editor_of<data_type>::update_data_pointer(void* data)
 }
 
 template <typename data_type>
-auto editor_of<data_type>::is_data_available() const noexcept -> bool
+auto editor_of<data_type>::data_available() const noexcept -> bool
 {
 	return _data != nullptr;
 }
@@ -166,13 +166,13 @@ void editor_of<data_type>::data_modified() const
 }
 
 template <typename data_type>
-auto editor_of<data_type>::get_data() const -> data_type*
+auto editor_of<data_type>::data() const -> data_type*
 {
 	return _data;
 }
 
 template <typename data_type>
-auto editor_of<data_type>::get_modified_callback() const -> std::optional<std::function<void()>> const&
+auto editor_of<data_type>::modified_callback() const -> std::optional<std::function<void()>> const&
 {
 	return _modified_callback;
 }
@@ -188,7 +188,7 @@ inline void editor_of<bool>::draw_contents() const
 template <>
 inline void editor_of<int>::draw_contents() const
 {
-	ImGui::SetNextItemWidth(get_available_width());
+	ImGui::SetNextItemWidth(available_width());
 	if(ImGui::DragInt("##", _data))
 		data_modified();
 }
@@ -196,7 +196,7 @@ inline void editor_of<int>::draw_contents() const
 template <>
 inline void editor_of<float>::draw_contents() const
 {
-	ImGui::SetNextItemWidth(get_available_width());
+	ImGui::SetNextItemWidth(available_width());
 	if(ImGui::DragFloat("##", _data))
 		data_modified();
 }
@@ -204,9 +204,9 @@ inline void editor_of<float>::draw_contents() const
 template <>
 inline void editor_of<glm::vec2>::draw_contents() const
 {
-	if(is_extended_preferred())
+	if(extended_preferred())
 	{
-		ImGui::PushItemWidth(get_available_width());
+		ImGui::PushItemWidth(available_width());
 		for(int i = 0; i < 2; i++)
 		{
 			ImGui::PushID(i);
@@ -218,7 +218,7 @@ inline void editor_of<glm::vec2>::draw_contents() const
 	}
 	else
 	{
-		ImGui::PushItemWidth(get_available_width() / 2.0f);
+		ImGui::PushItemWidth(available_width() / 2.0f);
 		for(int i = 0; i < 2; i++)
 		{
 			ImGui::PushID(i);
@@ -235,9 +235,9 @@ inline void editor_of<glm::vec2>::draw_contents() const
 template <>
 inline void editor_of<glm::vec3>::draw_contents() const
 {
-	if(is_extended_preferred())
+	if(extended_preferred())
 	{
-		ImGui::PushItemWidth(get_available_width());
+		ImGui::PushItemWidth(available_width());
 		for(int i = 0; i < 3; i++)
 		{
 			ImGui::PushID(i);
@@ -249,7 +249,7 @@ inline void editor_of<glm::vec3>::draw_contents() const
 	}
 	else
 	{
-		ImGui::PushItemWidth(get_available_width() / 3.0f);
+		ImGui::PushItemWidth(available_width() / 3.0f);
 		for(int i = 0; i < 3; i++)
 		{
 			ImGui::PushID(i);
@@ -266,9 +266,9 @@ inline void editor_of<glm::vec3>::draw_contents() const
 template <>
 inline void editor_of<glm::vec4>::draw_contents() const
 {
-	if(is_extended_preferred())
+	if(extended_preferred())
 	{
-		ImGui::PushItemWidth(get_available_width());
+		ImGui::PushItemWidth(available_width());
 		for(int i = 0; i < 4; i++)
 		{
 			ImGui::PushID(i);
@@ -280,7 +280,7 @@ inline void editor_of<glm::vec4>::draw_contents() const
 	}
 	else
 	{
-		ImGui::PushItemWidth(get_available_width() / 4.0f);
+		ImGui::PushItemWidth(available_width() / 4.0f);
 		for(int i = 0; i < 4; i++)
 		{
 			ImGui::PushID(i);
@@ -297,29 +297,29 @@ inline void editor_of<glm::vec4>::draw_contents() const
 template <>
 inline void editor_of<clk::bounded<int>>::draw_contents() const
 {
-	ImGui::SetNextItemWidth(get_available_width());
-	if(ImGui::SliderInt("##", _data->data(), _data->get_min(), _data->get_max()))
+	ImGui::SetNextItemWidth(available_width());
+	if(ImGui::SliderInt("##", _data->data(), _data->min(), _data->max()))
 		data_modified();
 }
 
 template <>
 inline void editor_of<clk::bounded<float>>::draw_contents() const
 {
-	ImGui::SetNextItemWidth(get_available_width());
-	if(ImGui::SliderFloat("##", _data->data(), _data->get_min(), _data->get_max()))
+	ImGui::SetNextItemWidth(available_width());
+	if(ImGui::SliderFloat("##", _data->data(), _data->min(), _data->max()))
 		data_modified();
 }
 
 template <>
 inline void editor_of<clk::bounded<glm::vec2>>::draw_contents() const
 {
-	if(is_extended_preferred())
+	if(extended_preferred())
 	{
-		ImGui::PushItemWidth(get_available_width());
+		ImGui::PushItemWidth(available_width());
 		for(int i = 0; i < 2; i++)
 		{
 			ImGui::PushID(i);
-			if(ImGui::SliderFloat("##", &(_data->data()->operator[](i)), _data->get_min()[i], _data->get_max()[i]))
+			if(ImGui::SliderFloat("##", &(_data->data()->operator[](i)), _data->min()[i], _data->max()[i]))
 				data_modified();
 			ImGui::PopID();
 		}
@@ -327,11 +327,11 @@ inline void editor_of<clk::bounded<glm::vec2>>::draw_contents() const
 	}
 	else
 	{
-		ImGui::PushItemWidth(get_available_width() / 2.0f);
+		ImGui::PushItemWidth(available_width() / 2.0f);
 		for(int i = 0; i < 2; i++)
 		{
 			ImGui::PushID(i);
-			if(ImGui::SliderFloat("##", &(_data->data()->operator[](i)), _data->get_min()[i], _data->get_max()[i]))
+			if(ImGui::SliderFloat("##", &(_data->data()->operator[](i)), _data->min()[i], _data->max()[i]))
 				data_modified();
 			ImGui::PopID();
 			ImGui::SameLine();
@@ -344,13 +344,13 @@ inline void editor_of<clk::bounded<glm::vec2>>::draw_contents() const
 template <>
 inline void editor_of<clk::bounded<glm::vec3>>::draw_contents() const
 {
-	if(is_extended_preferred())
+	if(extended_preferred())
 	{
-		ImGui::PushItemWidth(get_available_width());
+		ImGui::PushItemWidth(available_width());
 		for(int i = 0; i < 3; i++)
 		{
 			ImGui::PushID(i);
-			if(ImGui::SliderFloat("##", &(_data->data()->operator[](i)), _data->get_min()[i], _data->get_max()[i]))
+			if(ImGui::SliderFloat("##", &(_data->data()->operator[](i)), _data->min()[i], _data->max()[i]))
 				data_modified();
 			ImGui::PopID();
 		}
@@ -358,11 +358,11 @@ inline void editor_of<clk::bounded<glm::vec3>>::draw_contents() const
 	}
 	else
 	{
-		ImGui::PushItemWidth(get_available_width() / 3.0f);
+		ImGui::PushItemWidth(available_width() / 3.0f);
 		for(int i = 0; i < 3; i++)
 		{
 			ImGui::PushID(i);
-			if(ImGui::SliderFloat("##", &(_data->data()->operator[](i)), _data->get_min()[i], _data->get_max()[i]))
+			if(ImGui::SliderFloat("##", &(_data->data()->operator[](i)), _data->min()[i], _data->max()[i]))
 				data_modified();
 			ImGui::PopID();
 			ImGui::SameLine();
@@ -375,13 +375,13 @@ inline void editor_of<clk::bounded<glm::vec3>>::draw_contents() const
 template <>
 inline void editor_of<clk::bounded<glm::vec4>>::draw_contents() const
 {
-	if(is_extended_preferred())
+	if(extended_preferred())
 	{
-		ImGui::PushItemWidth(get_available_width());
+		ImGui::PushItemWidth(available_width());
 		for(int i = 0; i < 4; i++)
 		{
 			ImGui::PushID(i);
-			if(ImGui::SliderFloat("##", &(_data->data()->operator[](i)), _data->get_min()[i], _data->get_max()[i]))
+			if(ImGui::SliderFloat("##", &(_data->data()->operator[](i)), _data->min()[i], _data->max()[i]))
 				data_modified();
 			ImGui::PopID();
 		}
@@ -389,11 +389,11 @@ inline void editor_of<clk::bounded<glm::vec4>>::draw_contents() const
 	}
 	else
 	{
-		ImGui::PushItemWidth(get_available_width() / 4.0f);
+		ImGui::PushItemWidth(available_width() / 4.0f);
 		for(int i = 0; i < 4; i++)
 		{
 			ImGui::PushID(i);
-			if(ImGui::SliderFloat("##", &(_data->data()->operator[](i)), _data->get_min()[i], _data->get_max()[i]))
+			if(ImGui::SliderFloat("##", &(_data->data()->operator[](i)), _data->min()[i], _data->max()[i]))
 				data_modified();
 			ImGui::PopID();
 			ImGui::SameLine();
@@ -406,9 +406,9 @@ inline void editor_of<clk::bounded<glm::vec4>>::draw_contents() const
 template <>
 inline void editor_of<clk::color_rgb>::draw_contents() const
 {
-	ImGui::PushItemWidth(get_available_width());
+	ImGui::PushItemWidth(available_width());
 
-	if(is_extended_preferred())
+	if(extended_preferred())
 	{
 		ImGui::PushID(0);
 		if(ImGui::ColorEdit3("##", _data->data(),
@@ -450,8 +450,8 @@ inline void editor_of<clk::color_rgb>::draw_contents() const
 template <>
 inline void editor_of<clk::color_rgba>::draw_contents() const
 {
-	ImGui::PushItemWidth(get_available_width());
-	if(is_extended_preferred())
+	ImGui::PushItemWidth(available_width());
+	if(extended_preferred())
 	{
 		ImGui::PushID(0);
 		if(ImGui::ColorEdit4("##", _data->data(),
@@ -494,9 +494,9 @@ template <>
 inline void editor_of<std::chrono::nanoseconds>::draw_contents() const
 {
 	auto time_units = time_unit::decompose(*_data);
-	if(is_extended_preferred())
+	if(extended_preferred())
 	{
-		ImGui::PushItemWidth(get_available_width() / 2.0f);
+		ImGui::PushItemWidth(available_width() / 2.0f);
 		int ct = 0;
 		for(auto& unit : time_units)
 		{
@@ -515,7 +515,7 @@ inline void editor_of<std::chrono::nanoseconds>::draw_contents() const
 	else
 	{
 		const std::size_t max_units_to_draw = 2;
-		ImGui::PushItemWidth(get_available_width() / 2.0f);
+		ImGui::PushItemWidth(available_width() / 2.0f);
 		for(std::size_t i = 0; i < time_units.size(); i++)
 		{
 			if((time_units[i].value != 0) || time_units.size() - i == max_units_to_draw)

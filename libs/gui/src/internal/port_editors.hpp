@@ -1,5 +1,6 @@
 #pragma once
-#include "clk/base/port.hpp"
+#include "clk/base/input.hpp"
+#include "clk/base/output.hpp"
 #include "clk/gui/widgets/editor.hpp"
 #include "clk/gui/widgets/viewer.hpp"
 #include "clk/util/color_rgba.hpp"
@@ -20,11 +21,11 @@ public:
 	auto operator=(port_editor&&) noexcept -> port_editor& = delete;
 	virtual ~port_editor() = default;
 
-	auto get_id() const -> int;
-	auto get_color() const -> std::uint32_t;
+	auto id() const -> int;
+	auto color() const -> std::uint32_t;
 	void set_enabled(bool enabled);
 	void set_stable_height(bool stable_height);
-	virtual auto get_port() const -> port* = 0;
+	virtual auto port() const -> port* = 0;
 	virtual void draw(clk::gui::widget* override_widget = nullptr) = 0;
 
 protected:
@@ -46,7 +47,7 @@ public:
 	auto operator=(input_editor&&) noexcept -> input_editor& = delete;
 	~input_editor() final = default;
 
-	auto get_port() const -> input* final;
+	auto port() const -> input* final;
 	void draw(clk::gui::widget* override_widget = nullptr) final;
 
 private:
@@ -65,7 +66,7 @@ public:
 	auto operator=(output_editor&&) noexcept -> output_editor& = delete;
 	~output_editor() final = default;
 
-	auto get_port() const -> output* final;
+	auto port() const -> output* final;
 	void draw(clk::gui::widget* override_widget = nullptr) final;
 
 private:
@@ -74,17 +75,17 @@ private:
 
 inline port_editor::port_editor(clk::port* port, int id) : _id(id)
 {
-	_data_viewer = clk::gui::viewer::create(port->get_data_type_hash(), port->get_data_pointer(), port->get_name());
+	_data_viewer = clk::gui::viewer::create(port->data_type_hash(), port->data_pointer(), port->name());
 	_data_viewer->set_maximum_width(200);
-	_color = color_rgba(color_rgb::create_random(port->get_data_type_hash()), 1.0f).packed();
+	_color = color_rgba(color_rgb::create_random(port->data_type_hash()), 1.0f).packed();
 }
 
-inline auto port_editor::get_id() const -> int
+inline auto port_editor::id() const -> int
 {
 	return _id;
 }
 
-inline auto port_editor::get_color() const -> std::uint32_t
+inline auto port_editor::color() const -> std::uint32_t
 {
 	return _color;
 }
@@ -94,24 +95,24 @@ inline void port_editor::set_enabled(bool enabled)
 	_enabled = enabled;
 }
 
-inline void port_editor::set_stable_height(bool stableHeight)
+inline void port_editor::set_stable_height(bool stable_height)
 {
-	_stable_height = stableHeight;
+	_stable_height = stable_height;
 }
 
 inline input_editor::input_editor(clk::input* port, int id) : port_editor(port, id), _port(port)
 {
-	auto* default_port = &port->get_default_port();
+	auto* default_port = &port->default_port();
 
-	_default_data_editor = clk::gui::editor::create(
-		default_port->get_data_type_hash(), default_port->get_data_pointer(), port->get_name(), [=]() {
+	_default_data_editor =
+		clk::gui::editor::create(default_port->data_type_hash(), default_port->data_pointer(), port->name(), [=]() {
 			default_port->update_timestamp();
 			default_port->push();
 		});
 	_default_data_editor->set_maximum_width(200);
 }
 
-inline auto input_editor::get_port() const -> input*
+inline auto input_editor::port() const -> input*
 {
 	return _port;
 }
@@ -141,14 +142,14 @@ inline void input_editor::draw(clk::gui::widget* override_widget)
 		}
 		else
 		{
-			_data_viewer->update_data_pointer(_port->get_data_pointer());
+			_data_viewer->update_data_pointer(_port->data_pointer());
 			_data_viewer->draw();
 		}
 
 		if(_stable_height)
 		{
 			float current_height = ImGui::GetCursorPosY() - begin_y;
-			float max_height = std::max(_data_viewer->get_last_size().y, _default_data_editor->get_last_size().y);
+			float max_height = std::max(_data_viewer->last_size().y, _default_data_editor->last_size().y);
 			if(current_height < max_height)
 				ImGui::Dummy(ImVec2(10, max_height - current_height));
 		}
@@ -166,7 +167,7 @@ inline output_editor::output_editor(clk::output* port, int id) : port_editor(por
 {
 }
 
-inline auto output_editor::get_port() const -> output*
+inline auto output_editor::port() const -> output*
 {
 	return _port;
 }

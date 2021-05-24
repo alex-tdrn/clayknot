@@ -20,8 +20,8 @@ public:
 	auto operator=(node_viewer&&) noexcept -> node_viewer& = delete;
 	~node_viewer() = default;
 
-	auto get_id() const -> int;
-	auto get_node() const -> clk::node const*;
+	auto id() const -> int;
+	auto node() const -> clk::node const*;
 	void set_highlighted(bool highlighted);
 	void draw();
 
@@ -42,12 +42,12 @@ inline node_viewer::node_viewer(clk::node const* node, int id, widget_cache<clk:
 {
 }
 
-inline auto node_viewer::get_id() const -> int
+inline auto node_viewer::id() const -> int
 {
 	return _id;
 }
 
-inline auto node_viewer::get_node() const -> clk::node const*
+inline auto node_viewer::node() const -> clk::node const*
 {
 	return _node;
 }
@@ -67,15 +67,15 @@ inline void node_viewer::draw()
 	draw_title_bar();
 
 	ImGui::BeginGroup();
-	for(auto* port : _node->get_inputs())
-		_port_cache->get_widget(port).draw();
+	for(auto* port : _node->inputs())
+		_port_cache->widget_for(port).draw();
 	ImGui::EndGroup();
 
 	ImGui::SameLine();
 
 	ImGui::BeginGroup();
-	for(auto* port : _node->get_outputs())
-		_port_cache->get_widget(port).draw();
+	for(auto* port : _node->outputs())
+		_port_cache->widget_for(port).draw();
 	ImGui::EndGroup();
 
 	imnodes::EndNode();
@@ -96,7 +96,7 @@ inline void node_viewer::draw_title_bar()
 	if(!_first_draw && _title_width < _contents_width)
 		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (_contents_width - _title_width) / 2);
 
-	ImGui::Text("%s", _node->get_name().data());
+	ImGui::Text("%s", _node->name().data());
 
 	ImGui::EndGroup();
 

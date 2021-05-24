@@ -22,8 +22,8 @@ public:
 	auto operator=(node_editor&&) noexcept -> node_editor& = delete;
 	virtual ~node_editor() = default;
 
-	auto get_id() const -> int;
-	auto get_node() const -> clk::node*;
+	auto id() const -> int;
+	auto node() const -> clk::node*;
 	void set_highlighted(bool highlighted);
 	void draw();
 
@@ -67,12 +67,12 @@ inline node_editor::node_editor(clk::node* node, int id, widget_cache<clk::port,
 {
 }
 
-inline auto node_editor::get_id() const -> int
+inline auto node_editor::id() const -> int
 {
 	return _id;
 }
 
-inline auto node_editor::get_node() const -> clk::node*
+inline auto node_editor::node() const -> clk::node*
 {
 	return _node;
 }
@@ -120,16 +120,16 @@ inline void node_editor::draw()
 
 inline void node_editor::draw_title_bar()
 {
-	if(!_node->get_inputs().empty())
+	if(!_node->inputs().empty())
 	{
 		if(ImGui::SmallButton("Pull"))
 			_node->pull();
 		ImGui::SameLine();
 	}
 
-	ImGui::Text("%s", _node->get_name().data());
+	ImGui::Text("%s", _node->name().data());
 
-	if(!_node->get_outputs().empty())
+	if(!_node->outputs().empty())
 	{
 		ImGui::SameLine();
 		if(ImGui::SmallButton("Push"))
@@ -139,25 +139,25 @@ inline void node_editor::draw_title_bar()
 
 inline void node_editor::draw_inputs()
 {
-	for(auto* port : _node->get_inputs())
-		_port_cache->get_widget(port).draw();
+	for(auto* port : _node->inputs())
+		_port_cache->widget_for(port).draw();
 }
 
 inline void node_editor::draw_outputs()
 {
-	for(auto* port : _node->get_outputs())
-		_port_cache->get_widget(port).draw();
+	for(auto* port : _node->outputs())
+		_port_cache->widget_for(port).draw();
 }
 
 inline constant_node_editor::constant_node_editor(clk::constant_node* node, int id,
-	widget_cache<clk::port, port_editor>* portCache, std::optional<std::function<bool()>>& modificationCallback)
-	: node_editor(node, id, portCache, modificationCallback), _node(node)
+	widget_cache<clk::port, port_editor>* port_cache, std::optional<std::function<bool()>>& modification_callback)
+	: node_editor(node, id, port_cache, modification_callback), _node(node)
 {
 }
 
 inline void constant_node_editor::draw_outputs()
 {
-	for(auto* port : _node->get_outputs())
+	for(auto* port : _node->outputs())
 	{
 		ImGui::PushID(port);
 		if(ImGui::SmallButton("-"))
@@ -176,14 +176,14 @@ inline void constant_node_editor::draw_outputs()
 		if(_constant_editors.find(port) == _constant_editors.end())
 		{
 			_constant_editors[port] =
-				clk::gui::editor::create(port->get_data_type_hash(), port->get_data_pointer(), port->get_name(), [=]() {
+				clk::gui::editor::create(port->data_type_hash(), port->data_pointer(), port->name(), [=]() {
 					port->update_timestamp();
 					port->push();
 				});
 			_constant_editors[port]->set_maximum_width(200);
 		}
 
-		_port_cache->get_widget(port).draw(_constant_editors[port].get());
+		_port_cache->widget_for(port).draw(_constant_editors[port].get());
 	}
 
 	if(ImGui::SmallButton("+"))

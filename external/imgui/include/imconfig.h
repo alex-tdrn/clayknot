@@ -94,7 +94,7 @@
 	} \
 	ImVec2(const clk::bounded<glm::vec2>& f) \
 	{ \
-		glm::vec2 v = f.get_val(); \
+		glm::vec2 v = f.val(); \
 		x = v.x; \
 		y = v.y; \
 	}
@@ -124,7 +124,7 @@
 	} \
 	ImVec4(const clk::bounded<glm::vec4>& f) \
 	{ \
-		glm::vec4 v = f.get_val(); \
+		glm::vec4 v = f.val(); \
 		x = v.x; \
 		y = v.y; \
 		z = v.z; \

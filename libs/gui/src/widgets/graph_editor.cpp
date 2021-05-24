@@ -8,10 +8,14 @@
 #include "clk/base/algorithm_node.hpp"
 #include "clk/base/constant_node.hpp"
 #include "clk/base/port.hpp"
+#include "clk/util/predicates.hpp"
+#include "clk/util/projections.hpp"
 #include "node_editors.hpp"
 #include "port_editors.hpp"
 #include "selection_manager.hpp"
 #include "widget_cache.hpp"
+
+#include <range/v3/algorithm.hpp>
 
 namespace clk::gui
 {
@@ -41,7 +45,7 @@ graph_editor::~graph_editor()
 
 auto graph_editor::clone() const -> std::unique_ptr<widget>
 {
-	return std::make_unique<graph_editor>(get_data(), get_data_name(), get_modified_callback());
+	return std::make_unique<graph_editor>(data(), data_name(), modified_callback());
 }
 
 void graph_editor::draw_contents() const
@@ -68,7 +72,7 @@ void graph_editor::draw_graph() const
 	imnodes::PushAttributeFlag(imnodes::AttributeFlags_EnableLinkCreationOnSnap);
 	if(_new_connection_in_progress)
 		imnodes::PushColorStyle(
-			imnodes::ColorStyle_Link, _port_cache->get_widget(&_new_connection_in_progress->starting_port).get_color());
+			imnodes::ColorStyle_Link, _port_cache->widget_for(&_new_connection_in_progress->starting_port).color());
 	else
 		imnodes::PushColorStyle(imnodes::ColorStyle_Link, clk::color_rgba{1.0f}.packed());
 
@@ -76,12 +80,12 @@ void graph_editor::draw_graph() const
 
 	imnodes::BeginNodeEditor();
 
-	for(auto const& node : *get_data())
+	for(auto const& node : *data())
 	{
-		_node_cache->get_widget(node.get()).draw();
-		for(auto* output : node->get_outputs())
-			for(auto* input : output->get_connected_inputs())
-				if(_port_cache->has_widget(input))
+		_node_cache->widget_for(node.get()).draw();
+		for(auto* output : node->outputs())
+			for(auto* input : output->connected_inputs())
+				if(_port_cache->has_widget_for(input))
 					_connections.emplace_back(std::make_pair(input, output));
 	}
 
@@ -103,15 +107,15 @@ void graph_editor::draw_graph() const
 				}
 			}
 			auto color =
-				clk::color_rgba(clk::color_rgb::create_random(connection.first->get_data_type_hash()), 1.0f).packed();
+				clk::color_rgba(clk::color_rgb::create_random(connection.first->data_type_hash()), 1.0f).packed();
 			imnodes::PushColorStyle(imnodes::ColorStyle_Link, color);
 			if(_new_connection_in_progress)
 			{
 				imnodes::PushColorStyle(imnodes::ColorStyle_LinkHovered, color);
 				imnodes::PushColorStyle(imnodes::ColorStyle_LinkSelected, color);
 			}
-			imnodes::Link(link_id++, _port_cache->get_widget(connection.first).get_id(),
-				_port_cache->get_widget(connection.second).get_id());
+			imnodes::Link(link_id++, _port_cache->widget_for(connection.first).id(),
+				_port_cache->widget_for(connection.second).id());
 
 			imnodes::PopColorStyle();
 			if(_new_connection_in_progress)
@@ -129,8 +133,8 @@ void graph_editor::draw_graph() const
 		imnodes::PushColorStyle(imnodes::ColorStyle_LinkHovered, color);
 		imnodes::PushColorStyle(imnodes::ColorStyle_LinkSelected, color);
 
-		imnodes::Link(-1, _port_cache->get_widget(_new_connection_in_progress->dropped_connection->first).get_id(),
-			_port_cache->get_widget(_new_connection_in_progress->dropped_connection->second).get_id());
+		imnodes::Link(-1, _port_cache->widget_for(_new_connection_in_progress->dropped_connection->first).id(),
+			_port_cache->widget_for(_new_connection_in_progress->dropped_connection->second).id());
 
 		imnodes::PopColorStyle();
 		imnodes::PopColorStyle();
@@ -148,7 +152,7 @@ void graph_editor::draw_menus() const
 	{
 		if(ImGui::BeginMenu("New node"))
 		{
-			auto* graph = get_data();
+			auto* graph = data();
 			if(ImGui::BeginMenu("Algorithm"))
 			{
 				if(ImGui::MenuItem("DecomposeColor"))
@@ -174,24 +178,24 @@ void graph_editor::draw_menus() const
 		if(imnodes::NumSelectedLinks() > 0 || imnodes::NumSelectedNodes() > 0)
 		{
 			ImGui::Separator();
-			if(!_selection_manager->get_selected_nodes().empty())
+			if(!_selection_manager->selected_nodes().empty())
 			{
-				const auto& nodes = _selection_manager->get_selected_nodes();
+				const auto& nodes = _selection_manager->selected_nodes();
 
-				bool any_inputs = std::any_of(nodes.begin(), nodes.end(), [](auto node) {
-					return !node->get_inputs().empty();
+				bool any_inputs = ranges::any_of(nodes, [](auto node) {
+					return node->has_inputs();
 				});
 				if(any_inputs && ImGui::MenuItem("Copy inputs to new constant node"))
 				{
 					auto constant_node = std::make_unique<clk::constant_node>();
-					for(auto* node : _selection_manager->get_selected_nodes())
+					for(auto* node : _selection_manager->selected_nodes())
 					{
-						for(auto* input : node->get_inputs())
+						for(auto* input : node->inputs())
 							constant_node->add_output(std::unique_ptr<clk::output>(
 								dynamic_cast<output*>(input->create_compatible_port().release())));
 					}
 
-					get_data()->push_back(std::move(constant_node));
+					data()->push_back(std::move(constant_node));
 				}
 			}
 			delet_this = ImGui::MenuItem("Delete");
@@ -211,14 +215,12 @@ void graph_editor::draw_menus() const
 			imnodes::ClearLinkSelection();
 		}
 
-		auto* graph = get_data();
+		auto* graph = data();
 
-		for(auto* selectedNode : _selection_manager->get_selected_nodes())
+		for(auto* selectedNode : _selection_manager->selected_nodes())
 		{
-			graph->erase(std::remove_if(graph->begin(), graph->end(),
-							 [&](auto const& node) {
-								 return node.get() == selectedNode;
-							 }),
+			graph->erase(
+				ranges::remove_if(*graph, clk::predicates::is_equal_to(selectedNode), clk::projections::underlying()),
 				graph->end());
 		}
 
@@ -230,15 +232,15 @@ void graph_editor::update_connections() const
 {
 	if(int connecting_port_id = -1; imnodes::IsLinkStarted(&connecting_port_id))
 	{
-		_new_connection_in_progress.emplace(connection_change{*_port_cache->get_widget(connecting_port_id).get_port()});
+		_new_connection_in_progress.emplace(connection_change{*_port_cache->widget_for(connecting_port_id).port()});
 
-		for(const auto& it : _port_cache->get_map())
+		for(const auto& it : _port_cache->map())
 		{
 			const auto& port_editor = it.second;
 
 			port_editor->set_enabled(false);
 			port_editor->set_stable_height(true);
-			if(port_editor->get_port()->can_connect_to(_new_connection_in_progress->starting_port))
+			if(port_editor->port()->can_connect_to(_new_connection_in_progress->starting_port))
 			{
 				port_editor->set_enabled(true);
 			}
@@ -247,8 +249,8 @@ void graph_editor::update_connections() const
 
 	if(int output_id = -1, input_id = -1; imnodes::IsLinkCreated(&output_id, &input_id))
 	{
-		auto* input = dynamic_cast<clk::input*>(_port_cache->get_widget(input_id).get_port());
-		auto* output = dynamic_cast<clk::output*>(_port_cache->get_widget(output_id).get_port());
+		auto* input = dynamic_cast<clk::input*>(_port_cache->widget_for(input_id).port());
+		auto* output = dynamic_cast<clk::output*>(_port_cache->widget_for(output_id).port());
 
 		if(_new_connection_in_progress->ending_port != nullptr)
 			_new_connection_in_progress->starting_port.disconnect_from(*_new_connection_in_progress->ending_port);
@@ -261,7 +263,7 @@ void graph_editor::update_connections() const
 		restore_dropped_connection();
 
 		if(input->is_connected())
-			_new_connection_in_progress->dropped_connection = std::pair(input, input->get_connected_output());
+			_new_connection_in_progress->dropped_connection = std::pair(input, input->connected_output());
 
 		input->connect_to(*output);
 	}
@@ -281,7 +283,7 @@ void graph_editor::handle_mouse_interactions() const
 	{
 		_new_connection_in_progress = std::nullopt;
 
-		for(const auto& it : _port_cache->get_map())
+		for(const auto& it : _port_cache->map())
 		{
 			const auto& portEditor = it.second;
 

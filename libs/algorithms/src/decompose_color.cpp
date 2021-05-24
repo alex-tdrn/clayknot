@@ -10,7 +10,7 @@ decompose_color::decompose_color()
 	register_port(_blue_component);
 }
 
-auto decompose_color::get_name() const noexcept -> std::string const&
+auto decompose_color::name() const noexcept -> std::string const&
 {
 	static std::string name = "Decompose Colors";
 	return name;

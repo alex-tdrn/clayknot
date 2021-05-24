@@ -13,7 +13,7 @@ class mix_colors final : public clk::algorithm
 public:
 	mix_colors();
 
-	auto get_name() const noexcept -> std::string const& override;
+	auto name() const noexcept -> std::string const& override;
 
 private:
 	clk::input_of<float> _factor{"Factor"};

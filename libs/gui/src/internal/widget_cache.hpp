@@ -20,11 +20,11 @@ public:
 	auto operator=(widget_cache&&) -> widget_cache& = delete;
 	~widget_cache() = default;
 
-	auto has_widget(data_type* data) const -> bool;
-	auto has_widget(int id) const -> bool;
-	auto get_widget(data_type* data) -> widget&;
-	auto get_widget(int id) -> widget&;
-	auto get_map() const -> std::unordered_map<data_type*, std::unique_ptr<widget>> const&;
+	auto has_widget_for(data_type* data) const -> bool;
+	auto has_widget_for(int id) const -> bool;
+	auto widget_for(data_type* data) -> widget&;
+	auto widget_for(int id) -> widget&;
+	auto map() const -> std::unordered_map<data_type*, std::unique_ptr<widget>> const&;
 
 private:
 	factory _make_widget;
@@ -39,21 +39,21 @@ inline widget_cache<data_type, Widget>::widget_cache(factory make_widget) : _mak
 }
 
 template <typename data_type, typename widget>
-inline auto widget_cache<data_type, widget>::has_widget(data_type* data) const -> bool
+inline auto widget_cache<data_type, widget>::has_widget_for(data_type* data) const -> bool
 {
 	return _data_type_to_widget.find(data) != _data_type_to_widget.end();
 }
 
 template <typename data_type, typename widget>
-inline auto widget_cache<data_type, widget>::has_widget(int id) const -> bool
+inline auto widget_cache<data_type, widget>::has_widget_for(int id) const -> bool
 {
 	return _id_to_widget.find(id) != _id_to_widget.end();
 }
 
 template <typename data_type, typename widget>
-inline auto widget_cache<data_type, widget>::get_widget(data_type* data) -> widget&
+inline auto widget_cache<data_type, widget>::widget_for(data_type* data) -> widget&
 {
-	if(!has_widget(data))
+	if(!has_widget_for(data))
 	{
 		_data_type_to_widget.insert({data, _make_widget(data, _next_available_id)});
 		_id_to_widget[_next_available_id] = _data_type_to_widget[data].get();
@@ -63,16 +63,16 @@ inline auto widget_cache<data_type, widget>::get_widget(data_type* data) -> widg
 }
 
 template <typename data_type, typename widget>
-inline auto widget_cache<data_type, widget>::get_widget(int id) -> widget&
+inline auto widget_cache<data_type, widget>::widget_for(int id) -> widget&
 {
-	if(!has_widget(id))
+	if(!has_widget_for(id))
 		throw std::exception("No widget with this id found");
 
 	return *_id_to_widget[id];
 }
 
 template <typename data_type, typename widget>
-inline auto widget_cache<data_type, widget>::get_map() const
+inline auto widget_cache<data_type, widget>::map() const
 	-> std::unordered_map<data_type*, std::unique_ptr<widget>> const&
 {
 	return _data_type_to_widget;

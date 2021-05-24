@@ -10,7 +10,7 @@ grayscale_color_node::grayscale_color_node()
 	register_port(_output_color);
 }
 
-auto grayscale_color_node::get_name() const noexcept -> std::string const&
+auto grayscale_color_node::name() const noexcept -> std::string const&
 {
 	static std::string name = "Grayscale Color Node";
 	return name;

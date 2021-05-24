@@ -13,7 +13,7 @@ class random_color_source final : public clk::algorithm
 public:
 	random_color_source();
 
-	auto get_name() const noexcept -> std::string const& override;
+	auto name() const noexcept -> std::string const& override;
 
 private:
 	clk::output_of<clk::color_rgb> _color{"Color"};

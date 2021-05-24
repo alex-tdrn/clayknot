@@ -18,28 +18,28 @@ public:
 	auto operator=(algorithm&&) = delete;
 	virtual ~algorithm() = default;
 
-	virtual auto get_name() const noexcept -> std::string const& = 0;
+	virtual auto name() const noexcept -> std::string const& = 0;
 	virtual void update() = 0;
-	auto get_inputs() const noexcept -> std::vector<clk::input*> const&;
-	auto get_outputs() const noexcept -> std::vector<clk::output*> const&;
+	auto inputs() const noexcept -> std::vector<clk::input*> const&;
+	auto outputs() const noexcept -> std::vector<clk::output*> const&;
 
 protected:
 	algorithm() = default;
 
-	void register_port(clk::input& port);
-	void register_port(clk::output& port);
+	void register_port(clk::input& input);
+	void register_port(clk::output& output);
 
 private:
 	std::vector<clk::input*> _inputs;
 	std::vector<clk::output*> _outputs;
 };
 
-inline auto algorithm::get_inputs() const noexcept -> std::vector<clk::input*> const&
+inline auto algorithm::inputs() const noexcept -> std::vector<clk::input*> const&
 {
 	return _inputs;
 }
 
-inline auto algorithm::get_outputs() const noexcept -> std::vector<clk::output*> const&
+inline auto algorithm::outputs() const noexcept -> std::vector<clk::output*> const&
 {
 	return _outputs;
 }

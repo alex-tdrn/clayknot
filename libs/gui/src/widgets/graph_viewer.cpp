@@ -35,7 +35,7 @@ graph_viewer::~graph_viewer()
 
 auto graph_viewer::clone() const -> std::unique_ptr<widget>
 {
-	return std::make_unique<graph_viewer>(get_data(), get_data_name());
+	return std::make_unique<graph_viewer>(data(), data_name());
 }
 
 void graph_viewer::draw_contents() const
@@ -54,12 +54,12 @@ void graph_viewer::draw_graph() const
 
 	imnodes::BeginNodeEditor();
 
-	for(auto const& node : *get_data())
+	for(auto const& node : *data())
 	{
-		_node_cache->get_widget(node.get()).draw();
-		for(auto* output : node->get_outputs())
-			for(auto* input : output->get_connected_inputs())
-				if(_port_cache->has_widget(input))
+		_node_cache->widget_for(node.get()).draw();
+		for(auto* output : node->outputs())
+			for(auto* input : output->connected_inputs())
+				if(_port_cache->has_widget_for(input))
 					_connections.emplace_back(std::make_pair(input, output));
 	}
 
@@ -67,10 +67,10 @@ void graph_viewer::draw_graph() const
 		int linkID = 0;
 		for(auto& connection : _connections)
 		{
-			auto color = color_rgba(color_rgb::create_random(connection.first->get_data_type_hash()), 1.0f).packed();
+			auto color = color_rgba(color_rgb::create_random(connection.first->data_type_hash()), 1.0f).packed();
 			imnodes::PushColorStyle(imnodes::ColorStyle_Link, color);
-			imnodes::Link(linkID++, _port_cache->get_widget(connection.first).get_id(),
-				_port_cache->get_widget(connection.second).get_id());
+			imnodes::Link(linkID++, _port_cache->widget_for(connection.first).id(),
+				_port_cache->widget_for(connection.second).id());
 			imnodes::PopColorStyle();
 		}
 	}

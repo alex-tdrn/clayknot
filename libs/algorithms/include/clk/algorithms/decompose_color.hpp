@@ -12,7 +12,7 @@ class decompose_color final : public clk::algorithm
 {
 public:
 	decompose_color();
-	auto get_name() const noexcept -> std::string const& final;
+	auto name() const noexcept -> std::string const& final;
 
 private:
 	clk::input_of<clk::color_rgb> _color{"Color"};

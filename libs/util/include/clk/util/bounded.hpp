@@ -24,9 +24,9 @@ public:
 	auto valid() -> bool;
 	void set_min(T min);
 	void set_max(T max);
-	auto get_min() const -> T;
-	auto get_max() const -> T;
-	auto get_val() const -> T;
+	auto min() const -> T;
+	auto max() const -> T;
+	auto val() const -> T;
 	auto data() -> T*;
 	explicit operator T() const;
 	auto operator+=(T const& that) -> bounded&;
@@ -114,19 +114,19 @@ void bounded<T>::set_max(T max)
 }
 
 template <typename T>
-auto bounded<T>::get_min() const -> T
+auto bounded<T>::min() const -> T
 {
 	return _min;
 }
 
 template <typename T>
-auto bounded<T>::get_max() const -> T
+auto bounded<T>::max() const -> T
 {
 	return _max;
 }
 
 template <typename T>
-auto bounded<T>::get_val() const -> T
+auto bounded<T>::val() const -> T
 {
 	return _val;
 }

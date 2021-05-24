@@ -26,13 +26,13 @@ public:
 	void prefer_compact();
 	void set_maximum_width(float width);
 	void clear_maximum_width();
-	auto get_last_size() const -> glm::vec2;
-	auto get_data_name() const -> std::string const&;
+	auto last_size() const -> glm::vec2;
+	auto data_name() const -> std::string const&;
 
 protected:
-	auto get_available_width() const -> float;
-	auto is_extended_preferred() const -> bool;
-	virtual auto is_data_available() const noexcept -> bool = 0;
+	auto available_width() const -> float;
+	auto extended_preferred() const -> bool;
+	virtual auto data_available() const noexcept -> bool = 0;
 	virtual void draw_contents() const = 0;
 
 private:
@@ -61,7 +61,7 @@ inline void widget::draw() const
 
 		if(_draw_title)
 			ImGui::Text("%s", _data_name.c_str());
-		if(is_data_available())
+		if(data_available())
 			draw_contents();
 		ImGui::EndPopup();
 
@@ -86,7 +86,7 @@ inline void widget::draw() const
 					ImGui::OpenPopup(_data_name.c_str());
 			}
 		}
-		if(is_data_available())
+		if(data_available())
 			draw_contents();
 		else
 			ImGui::Text("No data...");
@@ -128,17 +128,17 @@ inline void widget::clear_maximum_width()
 	_maximum_width.reset();
 }
 
-inline auto widget::get_last_size() const -> glm::vec2
+inline auto widget::last_size() const -> glm::vec2
 {
 	return _last_size;
 }
 
-inline auto widget::get_data_name() const -> std::string const&
+inline auto widget::data_name() const -> std::string const&
 {
 	return _data_name;
 }
 
-inline auto widget::get_available_width() const -> float
+inline auto widget::available_width() const -> float
 {
 	if(_maximum_width)
 		return _maximum_width.value();
@@ -146,7 +146,7 @@ inline auto widget::get_available_width() const -> float
 		   ImGui::GetStyle().FramePadding.x;
 }
 
-inline auto widget::is_extended_preferred() const -> bool
+inline auto widget::extended_preferred() const -> bool
 {
 	_extended_available = true;
 	return _extended_preferred;

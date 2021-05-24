@@ -22,8 +22,8 @@ public:
 	void add_widget(std::unique_ptr<clk::gui::widget>&& widget);
 	void draw();
 	void set_title(std::string title);
-	auto get_title() const -> std::string const&;
-	auto is_visible() const -> bool;
+	auto title() const -> std::string const&;
+	auto visible() const -> bool;
 	void toggle_visibility();
 	void show();
 	void hide();
