@@ -144,14 +144,12 @@ template <typename T>
 auto color_rgb::operator+=(T const& that) -> color_rgb&
 {
 	_values += that;
-	assert(valid());
 	return *this;
 }
 
 inline auto color_rgb::operator+=(color_rgb const& that) -> color_rgb&
 {
 	_values += that._values;
-	assert(valid());
 	return *this;
 }
 
@@ -159,14 +157,12 @@ template <typename T>
 auto color_rgb::operator-=(T const& that) -> color_rgb&
 {
 	_values -= that;
-	assert(valid());
 	return *this;
 }
 
 inline auto color_rgb::operator-=(color_rgb const& that) -> color_rgb&
 {
 	_values -= that._values;
-	assert(valid());
 	return *this;
 }
 
@@ -174,14 +170,12 @@ template <typename T>
 auto color_rgb::operator*=(T const& that) -> color_rgb&
 {
 	_values *= that;
-	assert(valid());
 	return *this;
 }
 
 inline auto color_rgb::operator*=(color_rgb const& that) -> color_rgb&
 {
 	_values *= that._values;
-	assert(valid());
 	return *this;
 }
 
@@ -189,14 +183,12 @@ template <typename T>
 auto color_rgb::operator/=(T const& that) -> color_rgb&
 {
 	_values /= that;
-	assert(valid());
 	return *this;
 }
 
 inline auto color_rgb::operator/=(color_rgb const& that) -> color_rgb&
 {
 	_values /= that._values;
-	assert(valid());
 	return *this;
 }
 

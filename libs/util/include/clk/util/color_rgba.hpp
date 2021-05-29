@@ -157,7 +157,6 @@ auto color_rgba::operator+=(T const& that) -> color_rgba&
 {
 	_rgb_value += that;
 	_alpha_value += that;
-	assert(valid());
 	return *this;
 }
 
@@ -165,7 +164,6 @@ inline auto color_rgba::operator+=(color_rgba const& that) -> color_rgba&
 {
 	_rgb_value += that._rgb_value;
 	_alpha_value += that._alpha_value;
-	assert(valid());
 	return *this;
 }
 
@@ -174,7 +172,6 @@ auto color_rgba::operator-=(T const& that) -> color_rgba&
 {
 	_rgb_value -= that;
 	_alpha_value -= that;
-	assert(valid());
 	return *this;
 }
 
@@ -182,7 +179,6 @@ inline auto color_rgba::operator-=(color_rgba const& that) -> color_rgba&
 {
 	_rgb_value -= that._rgb_value;
 	_alpha_value -= that._alpha_value;
-	assert(valid());
 	return *this;
 }
 
@@ -191,7 +187,6 @@ auto color_rgba::operator*=(T const& that) -> color_rgba&
 {
 	_rgb_value *= that;
 	_alpha_value *= that;
-	assert(valid());
 	return *this;
 }
 
@@ -199,7 +194,6 @@ inline auto color_rgba::operator*=(color_rgba const& that) -> color_rgba&
 {
 	_rgb_value *= that._rgb_value;
 	_alpha_value *= that._alpha_value;
-	assert(valid());
 	return *this;
 }
 
@@ -208,7 +202,6 @@ auto color_rgba::operator/=(T const& that) -> color_rgba&
 {
 	_rgb_value /= that;
 	_alpha_value /= that;
-	assert(valid());
 	return *this;
 }
 
@@ -216,7 +209,6 @@ inline auto color_rgba::operator/=(color_rgba const& that) -> color_rgba&
 {
 	_rgb_value /= that._rgb_value;
 	_alpha_value /= that._alpha_value;
-	assert(valid());
 	return *this;
 }
 

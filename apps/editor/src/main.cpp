@@ -88,7 +88,7 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 
 		auto graph1 = []() -> clk::graph {
 			auto random_color =
-				std::make_unique<clk::algorithm_node>(std::make_unique<clk::algorithms::random_color_source>());
+				std::make_unique<clk::algorithm_node>(std::make_unique<clk::algorithms::random_color>());
 			auto decompose_color =
 				std::make_unique<clk::algorithm_node>(std::make_unique<clk::algorithms::decompose_color>());
 			auto value_to_color =
