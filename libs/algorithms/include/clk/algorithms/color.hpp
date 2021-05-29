@@ -65,6 +65,22 @@ private:
 	void update() override;
 };
 
+class compose_color final : public clk::algorithm_builder<compose_color>
+{
+public:
+	static constexpr std::string_view name = "Compose Colors";
+
+	compose_color();
+
+private:
+	clk::input_of<float> _red_component{"R"};
+	clk::input_of<float> _green_component{"G"};
+	clk::input_of<float> _blue_component{"B"};
+	clk::output_of<clk::color_rgb> _color{"Color"};
+
+	void update() final;
+};
+
 class decompose_color final : public clk::algorithm_builder<decompose_color>
 {
 public:

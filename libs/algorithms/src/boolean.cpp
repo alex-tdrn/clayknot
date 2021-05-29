@@ -84,4 +84,26 @@ void boolean_xnor::update()
 {
 	*_result = *_a == *_b;
 }
+
+integer_to_boolean::integer_to_boolean()
+{
+	register_port(_integer);
+	register_port(_boolean);
+}
+
+void integer_to_boolean::update()
+{
+	*_boolean = static_cast<bool>(*_integer);
+}
+
+boolean_to_integer::boolean_to_integer()
+{
+	register_port(_boolean);
+	register_port(_integer);
+}
+
+void boolean_to_integer::update()
+{
+	*_integer = static_cast<int>(*_boolean);
+}
 } // namespace clk::algorithms

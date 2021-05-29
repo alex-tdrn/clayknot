@@ -99,7 +99,7 @@ inline void algorithm_node::pull(std::weak_ptr<clk::sentinel> const& sentinel)
 
 	node::pull(_sentinel);
 
-	if(update_needed())
+	if(sentinel_origin != nullptr || update_needed())
 		_algorithm->update();
 }
 
@@ -121,7 +121,7 @@ inline void algorithm_node::push(std::weak_ptr<clk::sentinel> const& sentinel)
 
 	node::pull(_sentinel);
 
-	if(update_needed())
+	if(sentinel_origin != nullptr || update_needed())
 		_algorithm->update();
 
 	node::push(_sentinel);

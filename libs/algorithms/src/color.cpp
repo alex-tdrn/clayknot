@@ -51,6 +51,19 @@ void divide_colors::update()
 		*_result = *_color_a / *_color_b;
 }
 
+compose_color::compose_color()
+{
+	register_port(_red_component);
+	register_port(_green_component);
+	register_port(_blue_component);
+	register_port(_color);
+}
+
+void compose_color::update()
+{
+	*_color = clk::color_rgb(*_red_component, *_green_component, *_blue_component);
+}
+
 decompose_color::decompose_color()
 {
 	register_port(_color);
@@ -61,9 +74,9 @@ decompose_color::decompose_color()
 
 void decompose_color::update()
 {
-	*_red_component = _color->r() * 100;
-	*_green_component = _color->g() * 100;
-	*_blue_component = _color->b() * 100;
+	*_red_component = _color->r();
+	*_green_component = _color->g();
+	*_blue_component = _color->b();
 }
 
 grayscale::grayscale()
@@ -128,7 +141,7 @@ value_to_color::value_to_color()
 
 void value_to_color::update()
 {
-	*_color = clk::color_rgb{*_value / 100.0f};
+	*_color = clk::color_rgb{*_value};
 }
 
 apply_gamma::apply_gamma()

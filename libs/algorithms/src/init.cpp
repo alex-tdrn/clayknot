@@ -24,11 +24,28 @@ void init()
 	clk::algorithm::register_factory<deg_to_rad>();
 	clk::algorithm::register_factory<sin>();
 	clk::algorithm::register_factory<cos>();
+	clk::algorithm::register_factory<is_even>();
+	clk::algorithm::register_factory<is_odd>();
+	clk::algorithm::register_factory<integer_equal_to>();
+	clk::algorithm::register_factory<integer_not_equal_to>();
+	clk::algorithm::register_factory<integer_less_than>();
+	clk::algorithm::register_factory<integer_less_than_or_equal_to>();
+	clk::algorithm::register_factory<integer_greater_than>();
+	clk::algorithm::register_factory<integer_greater_than_or_equal_to>();
+	clk::algorithm::register_factory<float_equal_to>();
+	clk::algorithm::register_factory<float_not_equal_to>();
+	clk::algorithm::register_factory<float_less_than>();
+	clk::algorithm::register_factory<float_less_than_or_equal_to>();
+	clk::algorithm::register_factory<float_greater_than>();
+	clk::algorithm::register_factory<float_greater_than_or_equal_to>();
+	clk::algorithm::register_factory<integer_to_float>();
+	clk::algorithm::register_factory<float_to_integer>();
 
 	clk::algorithm::register_factory<add_colors>();
 	clk::algorithm::register_factory<subtract_colors>();
 	clk::algorithm::register_factory<multiply_colors>();
 	clk::algorithm::register_factory<divide_colors>();
+	clk::algorithm::register_factory<compose_color>();
 	clk::algorithm::register_factory<decompose_color>();
 	clk::algorithm::register_factory<grayscale>();
 	clk::algorithm::register_factory<mix_colors>();
@@ -46,5 +63,7 @@ void init()
 	clk::algorithm::register_factory<boolean_nor>();
 	clk::algorithm::register_factory<boolean_xor>();
 	clk::algorithm::register_factory<boolean_xnor>();
+	clk::algorithm::register_factory<integer_to_boolean>();
+	clk::algorithm::register_factory<boolean_to_integer>();
 }
 } // namespace clk::algorithms

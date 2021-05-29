@@ -198,7 +198,7 @@ template <>
 inline void editor_of<float>::draw_contents() const
 {
 	ImGui::SetNextItemWidth(available_width());
-	if(ImGui::DragFloat("##", _data))
+	if(ImGui::DragFloat("##", _data, 0.01f))
 		data_modified();
 }
 

@@ -106,4 +106,32 @@ private:
 
 	void update() override;
 };
+
+class integer_to_boolean final : public clk::algorithm_builder<integer_to_boolean>
+{
+public:
+	static constexpr std::string_view name = "Integer To Boolean";
+
+	integer_to_boolean();
+
+private:
+	clk::input_of<int> _integer{"Integer"};
+	clk::output_of<bool> _boolean{"Boolean"};
+
+	void update() override;
+};
+
+class boolean_to_integer final : public clk::algorithm_builder<boolean_to_integer>
+{
+public:
+	static constexpr std::string_view name = "Boolean To Integer";
+
+	boolean_to_integer();
+
+private:
+	clk::input_of<bool> _boolean{"Boolean"};
+	clk::output_of<int> _integer{"Integer"};
+
+	void update() override;
+};
 } // namespace clk::algorithms
