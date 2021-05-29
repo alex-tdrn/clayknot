@@ -1,10 +1,6 @@
 #include "clk/gui/widgets/graph_editor.hpp"
 
-#include "clk/algorithms/decompose_color.hpp"
-#include "clk/algorithms/grayscale_color_node.hpp"
-#include "clk/algorithms/mix_colors.hpp"
-#include "clk/algorithms/random_color_source.hpp"
-#include "clk/algorithms/value_to_color.hpp"
+#include "clk/algorithms/color.hpp"
 #include "clk/base/algorithm_node.hpp"
 #include "clk/base/constant_node.hpp"
 #include "clk/base/port.hpp"
@@ -152,18 +148,10 @@ void graph_editor::draw_menus() const
 			auto* graph = data();
 			if(ImGui::BeginMenu("Algorithm"))
 			{
-				if(ImGui::MenuItem("DecomposeColor"))
-					graph->push_back(
-						std::make_unique<clk::algorithm_node>(std::make_unique<clk::algorithms::decompose_color>()));
-				if(ImGui::MenuItem("GrayscaleColorNode"))
-					graph->push_back(std::make_unique<clk::algorithm_node>(
-						std::make_unique<clk::algorithms::grayscale_color_node>()));
-				if(ImGui::MenuItem("MixColors"))
-					graph->push_back(
-						std::make_unique<clk::algorithm_node>(std::make_unique<clk::algorithms::mix_colors>()));
-				if(ImGui::MenuItem("RandomColorSource"))
-					graph->push_back(std::make_unique<clk::algorithm_node>(
-						std::make_unique<clk::algorithms::random_color_source>()));
+				for(auto [algorithm_name, algorithm_factory] : clk::algorithm::factories())
+					if(ImGui::MenuItem(algorithm_name.c_str()))
+						graph->push_back(std::make_unique<algorithm_node>(algorithm_factory()));
+
 				ImGui::EndMenu();
 			}
 

@@ -1,8 +1,5 @@
-#include "clk/algorithms/decompose_color.hpp"
-#include "clk/algorithms/grayscale_color_node.hpp"
-#include "clk/algorithms/mix_colors.hpp"
-#include "clk/algorithms/random_color_source.hpp"
-#include "clk/algorithms/value_to_color.hpp"
+#include "clk/algorithms/color.hpp"
+#include "clk/algorithms/init.hpp"
 #include "clk/base/algorithm_node.hpp"
 #include "clk/base/graph.hpp"
 #include "clk/gui/init.hpp"
@@ -86,6 +83,7 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 		style.colors[imnodes::ColorStyle_NodeBackgroundHovered] = style.colors[imnodes::ColorStyle_NodeBackground];
 		style.colors[imnodes::ColorStyle_NodeBackgroundSelected] = style.colors[imnodes::ColorStyle_NodeBackground];
 
+		clk::algorithms::init();
 		clk::gui::init();
 
 		auto graph1 = []() -> clk::graph {

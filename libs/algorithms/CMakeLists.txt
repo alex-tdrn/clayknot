@@ -1,15 +1,5 @@
 add_library(
-	algorithms
-	"src/decompose_color.cpp"
-	"include/clk/algorithms/decompose_color.hpp"
-	"src/grayscale_color_node.cpp"
-	"include/clk/algorithms/grayscale_color_node.hpp"
-	"src/mix_colors.cpp"
-	"include/clk/algorithms/mix_colors.hpp"
-	"src/random_color_source.cpp"
-	"include/clk/algorithms/random_color_source.hpp"
-	"src/value_to_color.cpp"
-	"include/clk/algorithms/value_to_color.hpp"
+	algorithms "src/init.cpp ""src/color.cpp" "include/clk/algorithms/init.hpp" "include/clk/algorithms/color.hpp"
 )
 
 target_include_directories(algorithms PUBLIC "include")

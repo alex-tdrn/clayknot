@@ -24,7 +24,7 @@ public:
 	auto operator=(node&&) noexcept -> node& = delete;
 	virtual ~node() = default;
 
-	virtual auto name() const -> std::string const& = 0;
+	virtual auto name() const -> std::string_view = 0;
 	auto all_ports() const -> port_range<clk::port*>;
 	virtual auto inputs() const -> port_range<clk::input*>;
 	virtual auto outputs() const -> port_range<clk::output*>;

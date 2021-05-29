@@ -25,7 +25,7 @@ public:
 	auto operator=(algorithm_node&&) noexcept -> algorithm_node& = delete;
 	~algorithm_node() final = default;
 
-	auto name() const -> std::string const& final;
+	auto name() const -> std::string_view final;
 	void set_algorithm(std::unique_ptr<clk::algorithm>&& algorithm);
 	auto inputs() const -> port_range<clk::input*> final;
 	auto outputs() const -> port_range<clk::output*> final;
@@ -46,11 +46,10 @@ inline algorithm_node::algorithm_node(std::unique_ptr<clk::algorithm>&& algorith
 	set_algorithm(std::move(algorithm));
 }
 
-inline auto algorithm_node::name() const -> std::string const&
+inline auto algorithm_node::name() const -> std::string_view
 {
-	static std::string const empty_name = "Empty algorithm node";
 	if(_algorithm == nullptr)
-		return empty_name;
+		return "Empty algorithm node";
 	return _algorithm->name();
 }
 
