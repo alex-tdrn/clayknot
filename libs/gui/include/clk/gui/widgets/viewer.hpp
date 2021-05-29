@@ -154,10 +154,10 @@ template <>
 inline void viewer_of<bool>::draw_contents() const
 {
 	ImGui::SameLine();
-	if(*_data)
-		ImGui::Text("On");
+	if(*_data) // TODO use icons later when integrating icon fonts
+		ImGui::Text("True");
 	else
-		ImGui::Text("Off");
+		ImGui::Text("False");
 }
 
 template <>

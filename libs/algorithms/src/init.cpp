@@ -1,4 +1,5 @@
 #include "clk/algorithms/init.hpp"
+#include "clk/algorithms/boolean.hpp"
 #include "clk/algorithms/color.hpp"
 #include "clk/algorithms/math.hpp"
 
@@ -37,5 +38,13 @@ void init()
 	clk::algorithm::register_factory<remove_gamma>();
 	clk::algorithm::register_factory<tonemap_reinhard>();
 	clk::algorithm::register_factory<tonemap_filmic_aces>();
+
+	clk::algorithm::register_factory<boolean_not>();
+	clk::algorithm::register_factory<boolean_and>();
+	clk::algorithm::register_factory<boolean_nand>();
+	clk::algorithm::register_factory<boolean_or>();
+	clk::algorithm::register_factory<boolean_nor>();
+	clk::algorithm::register_factory<boolean_xor>();
+	clk::algorithm::register_factory<boolean_xnor>();
 }
 } // namespace clk::algorithms

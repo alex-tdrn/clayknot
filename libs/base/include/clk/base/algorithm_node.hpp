@@ -56,6 +56,7 @@ inline auto algorithm_node::name() const -> std::string_view
 inline void algorithm_node::set_algorithm(std::unique_ptr<clk::algorithm>&& algorithm)
 {
 	_algorithm = std::move(algorithm);
+	_algorithm->update();
 	for(auto* input : _algorithm->inputs())
 		input->set_push_callback([&](auto sentinel) {
 			push(sentinel);
