@@ -94,15 +94,30 @@ void mix_colors::update()
 
 random_color::random_color()
 {
+	register_port(_from);
+	register_port(_to);
 	register_port(_color);
+
+	*_from.default_port() = clk::color_rgb(0.0f, 0.0f, 0.0f);
+	*_to.default_port() = clk::color_rgb(1.0f, 1.0f, 1.0f);
 }
 
 void random_color::update()
 {
-	std::mt19937 generator(static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count()));
-	std::uniform_real_distribution<float> dis(0, 1);
+	auto min = *_from;
+	auto max = *_to;
 
-	*_color = clk::color_rgb{dis(generator), dis(generator), dis(generator)};
+	if(min.r() > max.r() && min.g() > max.g() && min.b() > max.b())
+		std::swap(min, max);
+	else if(!(min.r() < max.r() && min.g() < max.g() && min.b() < max.b()))
+		return;
+
+	std::mt19937 generator(static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count()));
+	std::uniform_real_distribution<float> dis_r(min.r(), max.r());
+	std::uniform_real_distribution<float> dis_g(min.g(), max.g());
+	std::uniform_real_distribution<float> dis_b(min.b(), max.b());
+
+	*_color = clk::color_rgb{dis_r(generator), dis_g(generator), dis_b(generator)};
 }
 
 value_to_color::value_to_color()

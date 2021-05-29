@@ -118,6 +118,8 @@ public:
 	random_color();
 
 private:
+	clk::input_of<clk::color_rgb> _from{"From"};
+	clk::input_of<clk::color_rgb> _to{"To"};
 	clk::output_of<clk::color_rgb> _color{"Color"};
 
 	void update() override;

@@ -1,5 +1,6 @@
 add_library(
-	algorithms "src/init.cpp ""src/color.cpp" "include/clk/algorithms/init.hpp" "include/clk/algorithms/color.hpp"
+	algorithms "src/init.cpp" "src/math.cpp" "src/color.cpp" "include/clk/algorithms/init.hpp"
+				"include/clk/algorithms/math.hpp" "include/clk/algorithms/color.hpp"
 )
 
 target_include_directories(algorithms PUBLIC "include")
