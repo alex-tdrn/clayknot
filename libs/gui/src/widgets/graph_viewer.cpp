@@ -9,7 +9,7 @@
 
 namespace clk::gui
 {
-graph_viewer::graph_viewer(clk::graph const* data, std::string const& data_name)
+graph_viewer::graph_viewer(clk::graph const* data, std::string_view data_name)
 	: viewer_of<clk::graph>(data, data_name)
 	, _node_cache(
 		  std::make_unique<impl::widget_cache<clk::node const, impl::node_viewer>>([&](node const* node, int id) {

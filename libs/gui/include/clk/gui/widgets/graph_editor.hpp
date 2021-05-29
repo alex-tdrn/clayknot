@@ -28,7 +28,7 @@ class graph_editor final : public editor_of<clk::graph>
 {
 public:
 	graph_editor() = delete;
-	graph_editor(clk::graph* data, std::string const& data_name,
+	graph_editor(clk::graph* data, std::string_view data_name,
 		std::optional<std::function<void()>> modified_callback = std::nullopt);
 	graph_editor(graph_editor const&) = delete;
 	graph_editor(graph_editor&&) = delete;

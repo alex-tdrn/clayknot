@@ -22,7 +22,7 @@ class graph_viewer final : public viewer_of<clk::graph>
 {
 public:
 	graph_viewer() = delete;
-	graph_viewer(clk::graph const* data, std::string const& data_name);
+	graph_viewer(clk::graph const* data, std::string_view data_name);
 	graph_viewer(graph_viewer const&) = delete;
 	graph_viewer(graph_viewer&&) = delete;
 	auto operator=(graph_viewer const&) -> graph_viewer& = delete;

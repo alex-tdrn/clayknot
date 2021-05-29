@@ -3,6 +3,7 @@
 #include <imgui.h>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace clk::gui
@@ -22,7 +23,7 @@ public:
 	void add_widget(std::unique_ptr<clk::gui::widget>&& widget);
 	void draw();
 	void set_title(std::string title);
-	auto title() const -> std::string const&;
+	auto title() const -> std::string_view;
 	auto visible() const -> bool;
 	void toggle_visibility();
 	void show();

@@ -16,7 +16,7 @@
 namespace clk::gui
 {
 graph_editor::graph_editor(
-	clk::graph* data, std::string const& data_name, std::optional<std::function<void()>> modified_callback)
+	clk::graph* data, std::string_view data_name, std::optional<std::function<void()>> modified_callback)
 	: editor_of<clk::graph>(data, data_name, std::move(modified_callback))
 	, _node_cache(std::make_unique<impl::widget_cache<node, impl::node_editor>>([&](node* node, int id) {
 		return impl::create_node_editor(node, id, _port_cache.get(), _modification_callback);

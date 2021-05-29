@@ -18,10 +18,10 @@ namespace clk::gui
 class editor : public widget
 {
 public:
-	using factory = std::unique_ptr<editor> (*)(void*, std::string const&, std::optional<std::function<void()>>);
+	using factory = std::unique_ptr<editor> (*)(void*, std::string_view, std::optional<std::function<void()>>);
 
 	editor() = delete;
-	explicit editor(std::string const& data_name);
+	explicit editor(std::string_view data_name);
 	editor(editor const&) = delete;
 	editor(editor&&) = delete;
 	auto operator=(editor const&) -> editor& = delete;
@@ -31,9 +31,9 @@ public:
 	template <typename data_type, typename editorImplementation>
 	static void register_factory();
 	template <typename data_type>
-	static auto create(data_type* data, std::string const& data_name,
+	static auto create(data_type* data, std::string_view data_name,
 		std::optional<std::function<void()>> modified_callback = std::nullopt) -> std::unique_ptr<editor>;
-	static auto create(std::size_t type_hash, void* data, std::string const& data_name,
+	static auto create(std::size_t type_hash, void* data, std::string_view data_name,
 		std::optional<std::function<void()>> modified_callback = std::nullopt) -> std::unique_ptr<editor>;
 	virtual void update_data_pointer(void* data) = 0;
 
@@ -46,7 +46,7 @@ class editor_of : public editor
 {
 public:
 	editor_of() = delete;
-	editor_of(data_type* data, std::string const& data_name, std::optional<std::function<void()>> modified_callback);
+	editor_of(data_type* data, std::string_view data_name, std::optional<std::function<void()>> modified_callback);
 	editor_of(editor_of const&) = delete;
 	editor_of(editor_of&&) = delete;
 	auto operator=(editor_of const&) -> editor_of& = delete;
@@ -73,14 +73,14 @@ template <typename data_type, typename editorImplementation>
 inline void editor::register_factory()
 {
 	factories_map()[std::type_index(typeid(data_type)).hash_code()] =
-		[](void* data, const std::string& data_name,
+		[](void* data, std::string_view data_name,
 			std::optional<std::function<void()>> modified_callback) -> std::unique_ptr<editor> {
 		return std::make_unique<editorImplementation>(
 			static_cast<data_type*>(data), data_name, std::move(modified_callback));
 	};
 }
 
-inline auto editor::create(std::size_t type_hash, void* data, std::string const& data_name,
+inline auto editor::create(std::size_t type_hash, void* data, std::string_view data_name,
 	std::optional<std::function<void()>> modified_callback) -> std::unique_ptr<editor>
 {
 	auto& factories = factories_map();
@@ -90,8 +90,8 @@ inline auto editor::create(std::size_t type_hash, void* data, std::string const&
 }
 
 template <typename data_type>
-auto editor::create(data_type* data, std::string const& data_name,
-	std::optional<std::function<void()>> modified_callback) -> std::unique_ptr<editor>
+auto editor::create(data_type* data, std::string_view data_name, std::optional<std::function<void()>> modified_callback)
+	-> std::unique_ptr<editor>
 {
 	return editor::create(std::type_index(typeid(data_type)).hash_code(), data, data_name, modified_callback);
 }
@@ -111,7 +111,7 @@ inline auto editor::factories_map() -> std::unordered_map<std::uint64_t, factory
 			auto hash = std::type_index(typeid(current_type)).hash_code();
 			assert("Type hash function collision!" && map.count(hash) == 0);
 
-			map[hash] = [](void* data, const std::string& data_name,
+			map[hash] = [](void* data, std::string_view data_name,
 							std::optional<std::function<void()>> modified_callback) -> std::unique_ptr<editor> {
 				return std::make_unique<editor_of<current_type>>(
 					static_cast<current_type*>(data), data_name, std::move(modified_callback));
@@ -123,13 +123,13 @@ inline auto editor::factories_map() -> std::unordered_map<std::uint64_t, factory
 	return factories;
 }
 
-inline editor::editor(std::string const& data_name) : widget(data_name)
+inline editor::editor(std::string_view data_name) : widget(data_name)
 {
 }
 
 template <typename data_type>
 editor_of<data_type>::editor_of(
-	data_type* data, std::string const& data_name, std::optional<std::function<void()>> modified_callback)
+	data_type* data, std::string_view data_name, std::optional<std::function<void()>> modified_callback)
 	: editor(data_name), _data(data), _modified_callback(std::move(modified_callback))
 {
 }

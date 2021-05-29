@@ -43,7 +43,7 @@ public:
 	using compatible_port = output_of<T>;
 
 	input_of();
-	explicit input_of(std::string name);
+	explicit input_of(std::string_view name);
 	input_of(input_of const&) = delete;
 	input_of(input_of&&) = delete;
 	auto operator=(input_of const&) -> input_of& = delete;
@@ -97,9 +97,9 @@ input_of<T>::input_of()
 }
 
 template <typename T>
-input_of<T>::input_of(std::string name)
+input_of<T>::input_of(std::string_view name)
 {
-	set_name(std::move(name));
+	set_name(name);
 	_default_port.connect_to(*this, false);
 }
 

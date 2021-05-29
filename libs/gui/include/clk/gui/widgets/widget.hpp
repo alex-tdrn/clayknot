@@ -11,7 +11,7 @@ class widget
 {
 public:
 	widget() = delete;
-	explicit widget(std::string data_name);
+	explicit widget(std::string_view data_name);
 	widget(widget const&) = delete;
 	widget(widget&&) = delete;
 	auto operator=(widget const&) -> widget& = delete;
@@ -27,7 +27,7 @@ public:
 	void set_maximum_width(float width);
 	void clear_maximum_width();
 	auto last_size() const -> glm::vec2;
-	auto data_name() const -> std::string const&;
+	auto data_name() const -> std::string_view;
 
 protected:
 	auto available_width() const -> float;
@@ -44,7 +44,7 @@ private:
 	mutable bool _extended_preferred = false;
 };
 
-inline widget::widget(std::string data_name) : _data_name(std::move(data_name))
+inline widget::widget(std::string_view data_name) : _data_name(data_name)
 {
 }
 
@@ -133,7 +133,7 @@ inline auto widget::last_size() const -> glm::vec2
 	return _last_size;
 }
 
-inline auto widget::data_name() const -> std::string const&
+inline auto widget::data_name() const -> std::string_view
 {
 	return _data_name;
 }

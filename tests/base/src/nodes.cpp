@@ -38,7 +38,7 @@ using namespace std::literals;
 // 			*output0 = *input0;
 // 		}
 
-// 		auto getName() const -> std::string const& override
+// 		auto getName() const -> std::string_view override
 // 		{
 // 			static const std::string name = "Test Node";
 // 			return name;

@@ -56,7 +56,7 @@ void panel::set_title(std::string title)
 	_title = std::move(title);
 }
 
-auto panel::title() const -> std::string const&
+auto panel::title() const -> std::string_view
 {
 	return _title;
 }

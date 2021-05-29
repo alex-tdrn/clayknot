@@ -21,9 +21,8 @@ public:
 	auto operator=(port const&) -> port& = delete;
 	virtual ~port() = default;
 
-	void set_name(const std::string& name);
-	void set_name(std::string&& name) noexcept;
-	auto name() const noexcept -> std::string const&;
+	void set_name(std::string_view name);
+	auto name() const noexcept -> std::string_view;
 	void update_timestamp() noexcept;
 	virtual auto timestamp() const noexcept -> clk::timestamp;
 	virtual auto data_pointer() const noexcept -> void const* = 0;
@@ -47,17 +46,12 @@ private:
 	clk::timestamp _timestamp;
 };
 
-inline void port::set_name(const std::string& name)
+inline void port::set_name(std::string_view name)
 {
 	_name = name;
 }
 
-inline void port::set_name(std::string&& name) noexcept
-{
-	_name = std::move(name);
-}
-
-inline auto port::name() const noexcept -> std::string const&
+inline auto port::name() const noexcept -> std::string_view
 {
 	return _name;
 }

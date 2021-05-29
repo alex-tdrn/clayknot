@@ -17,10 +17,10 @@ namespace clk::gui
 class viewer : public widget
 {
 public:
-	using factory = std::unique_ptr<viewer> (*)(void const*, std::string const&);
+	using factory = std::unique_ptr<viewer> (*)(void const*, std::string_view);
 
 	viewer() = delete;
-	explicit viewer(std::string const& data_name);
+	explicit viewer(std::string_view data_name);
 	viewer(viewer const&) = delete;
 	viewer(viewer&&) = delete;
 	auto operator=(viewer const&) -> viewer& = delete;
@@ -30,9 +30,8 @@ public:
 	template <typename data_type, typename viewer_implementation>
 	static void register_factory();
 	template <typename data_type>
-	static auto create(data_type const* data, std::string const& data_name) -> std::unique_ptr<viewer>;
-	static auto create(std::size_t type_hash, void const* data, std::string const& data_name)
-		-> std::unique_ptr<viewer>;
+	static auto create(data_type const* data, std::string_view data_name) -> std::unique_ptr<viewer>;
+	static auto create(std::size_t type_hash, void const* data, std::string_view data_name) -> std::unique_ptr<viewer>;
 	virtual void update_data_pointer(void const* data) = 0;
 
 private:
@@ -44,7 +43,7 @@ class viewer_of : public viewer
 {
 public:
 	viewer_of() = delete;
-	viewer_of(data_type const* data, std::string const& data_name);
+	viewer_of(data_type const* data, std::string_view data_name);
 	viewer_of(viewer_of const&) = delete;
 	viewer_of(viewer_of&&) = delete;
 	auto operator=(viewer_of const&) -> viewer_of& = delete;
@@ -67,12 +66,12 @@ template <typename data_type, typename viewer_implementation>
 inline void viewer::register_factory()
 {
 	factories_map()[std::type_index(typeid(data_type)).hash_code()] =
-		[](void const* data, std::string const& data_name) -> std::unique_ptr<viewer> {
+		[](void const* data, std::string_view data_name) -> std::unique_ptr<viewer> {
 		return std::make_unique<viewer_implementation>(static_cast<data_type const*>(data), data_name);
 	};
 }
 
-inline auto viewer::create(std::size_t type_hash, void const* data, std::string const& data_name)
+inline auto viewer::create(std::size_t type_hash, void const* data, std::string_view data_name)
 	-> std::unique_ptr<viewer>
 {
 	auto& factories = factories_map();
@@ -82,7 +81,7 @@ inline auto viewer::create(std::size_t type_hash, void const* data, std::string 
 }
 
 template <typename data_type>
-auto viewer::create(data_type const* data, std::string const& data_name) -> std::unique_ptr<viewer>
+auto viewer::create(data_type const* data, std::string_view data_name) -> std::unique_ptr<viewer>
 {
 	return viewer::create(std::type_index(typeid(data_type)).hash_code(), data, data_name);
 }
@@ -102,7 +101,7 @@ inline auto viewer::factories_map() -> std::unordered_map<std::uint64_t, factory
 			std::size_t hash = std::type_index(typeid(current_type)).hash_code();
 			assert("Type hash function collision!" && map.count(hash) == 0);
 
-			map[hash] = [](void const* data, std::string const& dataName) -> std::unique_ptr<viewer> {
+			map[hash] = [](void const* data, std::string_view dataName) -> std::unique_ptr<viewer> {
 				return std::make_unique<viewer_of<current_type>>(static_cast<current_type const*>(data), dataName);
 			};
 		});
@@ -111,12 +110,12 @@ inline auto viewer::factories_map() -> std::unordered_map<std::uint64_t, factory
 	return factories;
 }
 
-inline viewer::viewer(std::string const& data_name) : widget(data_name)
+inline viewer::viewer(std::string_view data_name) : widget(data_name)
 {
 }
 
 template <typename data_type>
-viewer_of<data_type>::viewer_of(data_type const* data, std::string const& data_name) : viewer(data_name), _data(data)
+viewer_of<data_type>::viewer_of(data_type const* data, std::string_view data_name) : viewer(data_name), _data(data)
 {
 }
 

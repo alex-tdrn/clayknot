@@ -48,7 +48,7 @@ public:
 	using compatible_port = input_of<T>;
 
 	output_of() = default;
-	explicit output_of(std::string name);
+	explicit output_of(std::string_view name);
 	output_of(output_of const&) = delete;
 	output_of(output_of&&) = delete;
 	auto operator=(output_of const&) -> output_of& = delete;
@@ -99,9 +99,9 @@ inline void output::set_pull_callback(std::function<void(std::weak_ptr<clk::sent
 }
 
 template <typename T>
-output_of<T>::output_of(std::string name)
+output_of<T>::output_of(std::string_view name)
 {
-	set_name(std::move(name));
+	set_name(name);
 }
 
 template <typename T>
