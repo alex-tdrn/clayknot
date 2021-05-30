@@ -146,17 +146,27 @@ void graph_editor::draw_menus() const
 		if(ImGui::BeginMenu("New node"))
 		{
 			auto* graph = data();
+			std::unique_ptr<clk::node> new_node = nullptr;
 			if(ImGui::BeginMenu("Algorithm"))
 			{
 				for(auto [algorithm_name, algorithm_factory] : clk::algorithm::factories())
 					if(ImGui::MenuItem(algorithm_name.c_str()))
-						graph->push_back(std::make_unique<algorithm_node>(algorithm_factory()));
+					{
+						new_node = std::make_unique<algorithm_node>(algorithm_factory());
+					}
 
 				ImGui::EndMenu();
 			}
 
 			if(ImGui::MenuItem("Constant"))
-				graph->push_back(std::make_unique<clk::constant_node>());
+				new_node = std::make_unique<clk::constant_node>();
+
+			if(new_node != nullptr)
+			{
+				if(!_node_cache->has_widget_for(new_node.get()))
+					imnodes::SetNodeScreenSpacePos(_node_cache->widget_for(new_node.get()).id(), ImGui::GetMousePos());
+				graph->push_back(std::move(new_node));
+			}
 			ImGui::EndMenu();
 		}
 
