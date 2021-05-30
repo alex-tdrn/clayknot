@@ -219,15 +219,18 @@ void graph_editor::update_connections() const
 	{
 		_new_connection_in_progress.emplace(connection_change{*_port_cache->widget_for(connecting_port_id).port()});
 
-		for(const auto& it : _port_cache->map())
+		for(auto const& node : *data())
 		{
-			const auto& port_editor = it.second;
-
-			port_editor->set_enabled(false);
-			port_editor->set_stable_height(true);
-			if(port_editor->port()->can_connect_to(_new_connection_in_progress->starting_port))
+			for(auto* port : node->all_ports())
 			{
-				port_editor->set_enabled(true);
+				auto& port_editor = _port_cache->widget_for(port);
+
+				port_editor.set_enabled(false);
+				port_editor.set_stable_height(true);
+				if(port->can_connect_to(_new_connection_in_progress->starting_port))
+				{
+					port_editor.set_enabled(true);
+				}
 			}
 		}
 	}
@@ -268,12 +271,15 @@ void graph_editor::handle_mouse_interactions() const
 	{
 		_new_connection_in_progress = std::nullopt;
 
-		for(const auto& it : _port_cache->map())
+		for(auto const& node : *data())
 		{
-			const auto& portEditor = it.second;
+			for(auto* port : node->all_ports())
+			{
+				auto& port_editor = _port_cache->widget_for(port);
 
-			portEditor->set_enabled(true);
-			portEditor->set_stable_height(false);
+				port_editor.set_enabled(true);
+				port_editor.set_stable_height(false);
+			}
 		}
 	}
 

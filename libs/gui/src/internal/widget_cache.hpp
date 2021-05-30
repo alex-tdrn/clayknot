@@ -71,11 +71,4 @@ inline auto widget_cache<data_type, widget>::widget_for(int id) -> widget&
 	return *_id_to_widget[id];
 }
 
-template <typename data_type, typename widget>
-inline auto widget_cache<data_type, widget>::map() const
-	-> std::unordered_map<data_type*, std::unique_ptr<widget>> const&
-{
-	return _data_type_to_widget;
-}
-
 } // namespace clk::gui::impl
