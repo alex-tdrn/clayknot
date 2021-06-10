@@ -10,7 +10,7 @@
 namespace clk
 {
 template <typename T>
-using port_range = ranges::any_view<T, ranges::category::bidirectional | ranges::category::sized>;
+using port_range = ranges::any_view<T, ranges::category::forward | ranges::category::sized>;
 
 class port
 {

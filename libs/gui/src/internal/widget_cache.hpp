@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <memory>
+#include <stdexcept>
 #include <unordered_map>
 
 namespace clk::gui::impl
@@ -66,7 +67,7 @@ template <typename data_type, typename widget>
 inline auto widget_cache<data_type, widget>::widget_for(int id) -> widget&
 {
 	if(!has_widget_for(id))
-		throw std::exception("No widget with this id found");
+		throw std::runtime_error("No widget with this id found");
 
 	return *_id_to_widget[id];
 }

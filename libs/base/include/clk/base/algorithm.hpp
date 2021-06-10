@@ -55,7 +55,7 @@ template <typename algorithm_implementation>
 void algorithm::register_factory()
 {
 	if(factories_map().find(algorithm_implementation::name) != factories_map().end())
-		throw std::exception("Algorithm already registered!");
+		throw std::runtime_error("Algorithm already registered!");
 
 	factories_map()[std::string(algorithm_implementation::name)] = []() -> std::unique_ptr<algorithm> {
 		return std::make_unique<algorithm_implementation>();
@@ -66,7 +66,7 @@ auto inline algorithm::create(std::string_view name) -> std::unique_ptr<algorith
 {
 	auto it = factories_map().find(name);
 	if(it == factories_map().end())
-		throw std::exception("Algorithm not registered");
+		throw std::runtime_error("Algorithm not registered");
 	return it->second();
 }
 
