@@ -19,15 +19,15 @@ graph_viewer::graph_viewer(clk::graph const* data, std::string_view data_name)
 	, _selection_manager(std::make_unique<impl::selection_manager<true>>(_node_cache.get(), _port_cache.get()))
 {
 	disable_title();
-	_context = imnodes::EditorContextCreate();
-	imnodes::EditorContextSet(_context);
+	_context = ImNodes::EditorContextCreate();
+	ImNodes::EditorContextSet(_context);
 
-	imnodes::EditorContextSet(nullptr);
+	ImNodes::EditorContextSet(nullptr);
 }
 
 graph_viewer::~graph_viewer()
 {
-	imnodes::EditorContextFree(_context);
+	ImNodes::EditorContextFree(_context);
 }
 
 auto graph_viewer::clone() const -> std::unique_ptr<widget>
@@ -37,19 +37,23 @@ auto graph_viewer::clone() const -> std::unique_ptr<widget>
 
 void graph_viewer::draw_contents() const
 {
-	imnodes::EditorContextSet(_context);
+	ImNodes::EditorContextSet(_context);
+	ImNodes::PushStyleVar(ImNodesStyleVar_NodeCornerRounding, 0.0f);
+	ImNodes::PushStyleVar(ImNodesStyleVar_PinOffset, ImNodes::GetStyle().PinHoverRadius * 0.5f);
 
 	draw_graph();
 	_selection_manager->update();
 
-	imnodes::EditorContextSet(nullptr);
+	ImNodes::PopStyleVar();
+	ImNodes::PopStyleVar();
+	ImNodes::EditorContextSet(nullptr);
 }
 
 void graph_viewer::draw_graph() const
 {
 	_connections.clear();
 
-	imnodes::BeginNodeEditor();
+	ImNodes::BeginNodeEditor();
 
 	for(auto const& node : *data())
 	{
@@ -65,14 +69,15 @@ void graph_viewer::draw_graph() const
 		for(auto& connection : _connections)
 		{
 			auto color = color_rgba(color_rgb::create_random(connection.first->data_type_hash()), 1.0f).packed();
-			imnodes::PushColorStyle(imnodes::ColorStyle_Link, color);
-			imnodes::Link(linkID++, _port_cache->widget_for(connection.first).id(),
+			ImNodes::PushColorStyle(ImNodesCol_Link, color);
+			ImNodes::Link(linkID++, _port_cache->widget_for(connection.first).id(),
 				_port_cache->widget_for(connection.second).id());
-			imnodes::PopColorStyle();
+			ImNodes::PopColorStyle();
 		}
 	}
+	ImNodes::MiniMap(0.1f);
 
-	imnodes::EndNodeEditor();
+	ImNodes::EndNodeEditor();
 }
 
 } // namespace clk::gui

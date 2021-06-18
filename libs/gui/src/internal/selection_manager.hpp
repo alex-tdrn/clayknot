@@ -50,16 +50,16 @@ selection_manager<const_data>::selection_manager(
 template <bool const_data>
 inline void selection_manager<const_data>::update()
 {
-	if(imnodes::NumSelectedNodes() != static_cast<int>(_selected_nodes.size()) || _selected_nodes.size() == 1)
+	if(ImNodes::NumSelectedNodes() != static_cast<int>(_selected_nodes.size()) || _selected_nodes.size() == 1)
 	{
 		for(auto* node : _selected_nodes)
 			_node_cache->widget_for(node).set_highlighted(false);
 
 		_selected_nodes.clear();
-		if(imnodes::NumSelectedNodes() > 0)
+		if(ImNodes::NumSelectedNodes() > 0)
 		{
-			std::vector<int> selected_node_ids(imnodes::NumSelectedNodes());
-			imnodes::GetSelectedNodes(selected_node_ids.data());
+			std::vector<int> selected_node_ids(ImNodes::NumSelectedNodes());
+			ImNodes::GetSelectedNodes(selected_node_ids.data());
 
 			for(auto node_id : selected_node_ids)
 			{
@@ -74,7 +74,7 @@ inline void selection_manager<const_data>::update()
 	{
 		node_type* new_hovered_node = nullptr;
 		int hovered_node_id = -1;
-		if(imnodes::IsNodeHovered(&hovered_node_id))
+		if(ImNodes::IsNodeHovered(&hovered_node_id))
 		{
 			auto& new_hovered_node_viewer = _node_cache->widget_for(hovered_node_id);
 			new_hovered_node_viewer.set_highlighted(true);

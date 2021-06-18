@@ -85,11 +85,11 @@ inline void node_editor::set_highlighted(bool highlighted)
 inline void node_editor::draw()
 {
 	if(_highlighted)
-		imnodes::PushColorStyle(imnodes::ColorStyle_NodeOutline, color_rgba{1.0f}.packed());
+		ImNodes::PushColorStyle(ImNodesCol_NodeOutline, color_rgba{1.0f}.packed());
 
-	imnodes::BeginNode(_id);
+	ImNodes::BeginNode(_id);
 
-	imnodes::BeginNodeTitleBar();
+	ImNodes::BeginNodeTitleBar();
 	ImGui::BeginGroup();
 	if(!_first_draw && _title_width < _contents_width)
 		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (_contents_width - _title_width) / 2);
@@ -97,7 +97,7 @@ inline void node_editor::draw()
 	ImGui::EndGroup();
 	if(_first_draw)
 		_title_width = ImGui::GetItemRectSize().x;
-	imnodes::EndNodeTitleBar();
+	ImNodes::EndNodeTitleBar();
 
 	ImGui::BeginGroup();
 	draw_inputs();
@@ -109,11 +109,11 @@ inline void node_editor::draw()
 	draw_outputs();
 	ImGui::EndGroup();
 
-	imnodes::EndNode();
+	ImNodes::EndNode();
 	_contents_width = ImGui::GetItemRectSize().x;
 
 	if(_highlighted)
-		imnodes::PopColorStyle();
+		ImNodes::PopColorStyle();
 
 	_first_draw = false;
 }

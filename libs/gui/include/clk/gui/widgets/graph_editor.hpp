@@ -47,7 +47,7 @@ private:
 		std::optional<std::pair<clk::port*, clk::port*>> dropped_connection = std::nullopt;
 	};
 
-	imnodes::EditorContext* _context;
+	ImNodesEditorContext* _context;
 	std::unique_ptr<impl::widget_cache<clk::node, impl::node_editor>> _node_cache;
 	std::unique_ptr<impl::widget_cache<clk::port, impl::port_editor>> _port_cache;
 	mutable std::vector<std::pair<clk::input*, clk::output*>> _connections;

@@ -90,21 +90,18 @@ inline auto input_viewer::port() const -> clk::input const*
 
 inline void input_viewer::draw()
 {
-	imnodes::PushColorStyle(imnodes::ColorStyle_Pin, _color);
-	imnodes::PushColorStyle(imnodes::ColorStyle_PinHovered, _color);
+	ImNodes::PushColorStyle(ImNodesCol_Pin, _color);
+	ImNodes::PushColorStyle(ImNodesCol_PinHovered, _color);
 
-	if(_port->is_connected())
-		imnodes::BeginInputAttribute(_id, imnodes::PinShape_QuadFilled);
-	else
-		imnodes::BeginInputAttribute(_id, imnodes::PinShape_Quad);
+	ImNodes::BeginInputAttribute(_id, ImNodesPinShape_QuadFilled);
 
 	_data_viewer->update_data_pointer(_port->data_pointer());
 	_data_viewer->draw();
 
-	imnodes::EndInputAttribute();
+	ImNodes::EndInputAttribute();
 
-	imnodes::PopColorStyle();
-	imnodes::PopColorStyle();
+	ImNodes::PopColorStyle();
+	ImNodes::PopColorStyle();
 }
 
 inline output_viewer::output_viewer(clk::output const* port, int id) : port_viewer(port, id), _port(port)
@@ -118,20 +115,17 @@ inline auto output_viewer::port() const -> output const*
 
 inline void output_viewer::draw()
 {
-	imnodes::PushColorStyle(imnodes::ColorStyle_Pin, _color);
-	imnodes::PushColorStyle(imnodes::ColorStyle_PinHovered, _color);
+	ImNodes::PushColorStyle(ImNodesCol_Pin, _color);
+	ImNodes::PushColorStyle(ImNodesCol_PinHovered, _color);
 
-	if(_port->is_connected())
-		imnodes::BeginOutputAttribute(_id, imnodes::PinShape_TriangleFilled);
-	else
-		imnodes::BeginOutputAttribute(_id, imnodes::PinShape_Triangle);
+	ImNodes::BeginOutputAttribute(_id, ImNodesPinShape_TriangleFilled);
 
 	_data_viewer->draw();
 
-	imnodes::EndOutputAttribute();
+	ImNodes::EndOutputAttribute();
 
-	imnodes::PopColorStyle();
-	imnodes::PopColorStyle();
+	ImNodes::PopColorStyle();
+	ImNodes::PopColorStyle();
 }
 
 inline auto create_port_viewer(clk::port const* port, int id) -> std::unique_ptr<port_viewer>

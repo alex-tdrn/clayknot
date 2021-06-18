@@ -33,7 +33,7 @@ public:
 	void draw_contents() const final;
 
 private:
-	imnodes::EditorContext* _context;
+	ImNodesEditorContext* _context;
 	std::unique_ptr<impl::widget_cache<clk::node const, impl::node_viewer>> _node_cache;
 	std::unique_ptr<impl::widget_cache<clk::port const, impl::port_viewer>> _port_cache;
 	mutable std::vector<std::pair<clk::input const*, clk::output const*>> _connections;

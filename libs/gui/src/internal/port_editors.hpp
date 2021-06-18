@@ -120,16 +120,14 @@ inline auto input_editor::port() const -> input*
 
 inline void input_editor::draw(clk::gui::widget* override_widget)
 {
-	imnodes::PushColorStyle(imnodes::ColorStyle_Pin, _color);
+	ImNodes::PushColorStyle(ImNodesCol_Pin, _color);
 
 	float const begin_y = ImGui::GetCursorPosY();
 
 	if(!_enabled)
-		imnodes::BeginStaticAttribute(_id);
-	else if(_port->is_connected())
-		imnodes::BeginInputAttribute(_id, imnodes::PinShape_QuadFilled);
+		ImNodes::BeginStaticAttribute(_id);
 	else
-		imnodes::BeginInputAttribute(_id, imnodes::PinShape_Quad);
+		ImNodes::BeginInputAttribute(_id, ImNodesPinShape_QuadFilled);
 
 	if(override_widget != nullptr)
 	{
@@ -157,11 +155,11 @@ inline void input_editor::draw(clk::gui::widget* override_widget)
 	}
 
 	if(!_enabled)
-		imnodes::EndStaticAttribute();
+		ImNodes::EndStaticAttribute();
 	else
-		imnodes::EndInputAttribute();
+		ImNodes::EndInputAttribute();
 
-	imnodes::PopColorStyle();
+	ImNodes::PopColorStyle();
 }
 
 inline output_editor::output_editor(clk::output* port, int id) : port_editor(port, id), _port(port)
@@ -175,14 +173,12 @@ inline auto output_editor::port() const -> output*
 
 inline void output_editor::draw(clk::gui::widget* override_widget)
 {
-	imnodes::PushColorStyle(imnodes::ColorStyle_Pin, _color);
+	ImNodes::PushColorStyle(ImNodesCol_Pin, _color);
 
 	if(!_enabled)
-		imnodes::BeginStaticAttribute(_id);
-	else if(_port->is_connected())
-		imnodes::BeginOutputAttribute(_id, imnodes::PinShape_TriangleFilled);
+		ImNodes::BeginStaticAttribute(_id);
 	else
-		imnodes::BeginOutputAttribute(_id, imnodes::PinShape_Triangle);
+		ImNodes::BeginOutputAttribute(_id, ImNodesPinShape_TriangleFilled);
 
 	if(override_widget != nullptr)
 		override_widget->draw();
@@ -190,11 +186,11 @@ inline void output_editor::draw(clk::gui::widget* override_widget)
 		_data_viewer->draw();
 
 	if(!_enabled)
-		imnodes::EndStaticAttribute();
+		ImNodes::EndStaticAttribute();
 	else
-		imnodes::EndOutputAttribute();
+		ImNodes::EndOutputAttribute();
 
-	imnodes::PopColorStyle();
+	ImNodes::PopColorStyle();
 }
 
 inline auto create_port_editor(clk::port* port, int id) -> std::unique_ptr<port_editor>

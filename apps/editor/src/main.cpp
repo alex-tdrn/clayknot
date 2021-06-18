@@ -70,18 +70,18 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init("#version 420");
 
-		imnodes::CreateContext();
-		auto& style = imnodes::GetStyle();
+		ImNodes::CreateContext();
+		auto& style = ImNodes::GetStyle();
 		// TODO these colors need to come form a stylesheet
-		style.colors[imnodes::ColorStyle_LinkHovered] = clk::color_rgba{1.0f}.packed();
-		style.colors[imnodes::ColorStyle_LinkSelected] = clk::color_rgba{1.0f}.packed();
-		style.colors[imnodes::ColorStyle_Link] = clk::color_rgba{0.0f}.packed();
-		style.colors[imnodes::ColorStyle_PinHovered] = clk::color_rgba{1.0f}.packed();
+		style.Colors[ImNodesCol_LinkHovered] = clk::color_rgba{1.0f}.packed();
+		style.Colors[ImNodesCol_LinkSelected] = clk::color_rgba{1.0f}.packed();
+		style.Colors[ImNodesCol_Link] = clk::color_rgba{0.0f}.packed();
+		style.Colors[ImNodesCol_PinHovered] = clk::color_rgba{1.0f}.packed();
 
-		style.colors[imnodes::ColorStyle_TitleBarHovered] = style.colors[imnodes::ColorStyle_TitleBar];
-		style.colors[imnodes::ColorStyle_TitleBarSelected] = style.colors[imnodes::ColorStyle_TitleBar];
-		style.colors[imnodes::ColorStyle_NodeBackgroundHovered] = style.colors[imnodes::ColorStyle_NodeBackground];
-		style.colors[imnodes::ColorStyle_NodeBackgroundSelected] = style.colors[imnodes::ColorStyle_NodeBackground];
+		style.Colors[ImNodesCol_TitleBarHovered] = style.Colors[ImNodesCol_TitleBar];
+		style.Colors[ImNodesCol_TitleBarSelected] = style.Colors[ImNodesCol_TitleBar];
+		style.Colors[ImNodesCol_NodeBackgroundHovered] = style.Colors[ImNodesCol_NodeBackground];
+		style.Colors[ImNodesCol_NodeBackgroundSelected] = style.Colors[ImNodesCol_NodeBackground];
 
 		clk::algorithms::init();
 		clk::gui::init();
@@ -183,7 +183,7 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 			glfwSwapBuffers(window);
 		}
 
-		imnodes::DestroyContext();
+		ImNodes::DestroyContext();
 
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();

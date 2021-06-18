@@ -60,9 +60,9 @@ inline void node_viewer::set_highlighted(bool highlighted)
 inline void node_viewer::draw()
 {
 	if(_highlighted)
-		imnodes::PushColorStyle(imnodes::ColorStyle_NodeOutline, color_rgba{1.0f}.packed());
+		ImNodes::PushColorStyle(ImNodesCol_NodeOutline, color_rgba{1.0f}.packed());
 
-	imnodes::BeginNode(_id);
+	ImNodes::BeginNode(_id);
 
 	draw_title_bar();
 
@@ -78,18 +78,18 @@ inline void node_viewer::draw()
 		_port_cache->widget_for(port).draw();
 	ImGui::EndGroup();
 
-	imnodes::EndNode();
+	ImNodes::EndNode();
 	_contents_width = ImGui::GetItemRectSize().x;
 
 	if(_highlighted)
-		imnodes::PopColorStyle();
+		ImNodes::PopColorStyle();
 
 	_first_draw = false;
 }
 
 inline void node_viewer::draw_title_bar()
 {
-	imnodes::BeginNodeTitleBar();
+	ImNodes::BeginNodeTitleBar();
 
 	ImGui::BeginGroup();
 
@@ -103,7 +103,7 @@ inline void node_viewer::draw_title_bar()
 	if(_first_draw)
 		_title_width = ImGui::GetItemRectSize().x;
 
-	imnodes::EndNodeTitleBar();
+	ImNodes::EndNodeTitleBar();
 }
 
 inline auto create_node_viewer(clk::node const* node, int id, widget_cache<clk::port const, port_viewer>* portCache)

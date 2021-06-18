@@ -25,15 +25,15 @@ graph_editor::graph_editor(
 	, _selection_manager(std::make_unique<impl::selection_manager<false>>(_node_cache.get(), _port_cache.get()))
 {
 	disable_title();
-	_context = imnodes::EditorContextCreate();
-	imnodes::EditorContextSet(_context);
+	_context = ImNodes::EditorContextCreate();
+	ImNodes::EditorContextSet(_context);
 
-	imnodes::EditorContextSet(nullptr);
+	ImNodes::EditorContextSet(nullptr);
 }
 
 graph_editor::~graph_editor()
 {
-	imnodes::EditorContextFree(_context);
+	ImNodes::EditorContextFree(_context);
 }
 
 auto graph_editor::clone() const -> std::unique_ptr<widget>
@@ -43,7 +43,9 @@ auto graph_editor::clone() const -> std::unique_ptr<widget>
 
 void graph_editor::draw_contents() const
 {
-	imnodes::EditorContextSet(_context);
+	ImNodes::EditorContextSet(_context);
+	ImNodes::PushStyleVar(ImNodesStyleVar_NodeCornerRounding, 0.0f);
+	ImNodes::PushStyleVar(ImNodesStyleVar_PinOffset, ImNodes::GetStyle().PinHoverRadius * 0.75f);
 
 	draw_graph();
 	draw_menus();
@@ -57,21 +59,23 @@ void graph_editor::draw_contents() const
 			_modification_callback = std::nullopt;
 	}
 
-	imnodes::EditorContextSet(nullptr);
+	ImNodes::PopStyleVar();
+	ImNodes::PopStyleVar();
+	ImNodes::EditorContextSet(nullptr);
 }
 
 void graph_editor::draw_graph() const
 {
-	imnodes::PushAttributeFlag(imnodes::AttributeFlags_EnableLinkCreationOnSnap);
+	ImNodes::PushAttributeFlag(ImNodesAttributeFlags_EnableLinkCreationOnSnap);
 	if(_new_connection_in_progress)
-		imnodes::PushColorStyle(
-			imnodes::ColorStyle_Link, _port_cache->widget_for(&_new_connection_in_progress->starting_port).color());
+		ImNodes::PushColorStyle(
+			ImNodesCol_Link, _port_cache->widget_for(&_new_connection_in_progress->starting_port).color());
 	else
-		imnodes::PushColorStyle(imnodes::ColorStyle_Link, clk::color_rgba{1.0f}.packed());
+		ImNodes::PushColorStyle(ImNodesCol_Link, clk::color_rgba{1.0f}.packed());
 
 	_connections.clear();
 
-	imnodes::BeginNodeEditor();
+	ImNodes::BeginNodeEditor();
 
 	for(auto const& node : *data())
 	{
@@ -99,22 +103,26 @@ void graph_editor::draw_graph() const
 					continue;
 				}
 			}
+			float link_opacity = 1.0f;
+			if(_new_connection_in_progress)
+				link_opacity = 0.25f;
 			auto color =
-				clk::color_rgba(clk::color_rgb::create_random(connection.first->data_type_hash()), 1.0f).packed();
-			imnodes::PushColorStyle(imnodes::ColorStyle_Link, color);
+				clk::color_rgba(clk::color_rgb::create_random(connection.first->data_type_hash()), link_opacity)
+					.packed();
+			ImNodes::PushColorStyle(ImNodesCol_Link, color);
 			if(_new_connection_in_progress)
 			{
-				imnodes::PushColorStyle(imnodes::ColorStyle_LinkHovered, color);
-				imnodes::PushColorStyle(imnodes::ColorStyle_LinkSelected, color);
+				ImNodes::PushColorStyle(ImNodesCol_LinkHovered, color);
+				ImNodes::PushColorStyle(ImNodesCol_LinkSelected, color);
 			}
-			imnodes::Link(link_id++, _port_cache->widget_for(connection.first).id(),
+			ImNodes::Link(link_id++, _port_cache->widget_for(connection.first).id(),
 				_port_cache->widget_for(connection.second).id());
 
-			imnodes::PopColorStyle();
+			ImNodes::PopColorStyle();
 			if(_new_connection_in_progress)
 			{
-				imnodes::PopColorStyle();
-				imnodes::PopColorStyle();
+				ImNodes::PopColorStyle();
+				ImNodes::PopColorStyle();
 			}
 		}
 	}
@@ -122,26 +130,35 @@ void graph_editor::draw_graph() const
 	if(_new_connection_in_progress && _new_connection_in_progress->dropped_connection)
 	{
 		auto color = clk::color_rgba(clk::color_rgb(0.0f), 1.0f).packed();
-		imnodes::PushColorStyle(imnodes::ColorStyle_Link, color);
-		imnodes::PushColorStyle(imnodes::ColorStyle_LinkHovered, color);
-		imnodes::PushColorStyle(imnodes::ColorStyle_LinkSelected, color);
+		ImNodes::PushColorStyle(ImNodesCol_Link, color);
+		ImNodes::PushColorStyle(ImNodesCol_LinkHovered, color);
+		ImNodes::PushColorStyle(ImNodesCol_LinkSelected, color);
 
-		imnodes::Link(-1, _port_cache->widget_for(_new_connection_in_progress->dropped_connection->first).id(),
+		ImNodes::Link(-1, _port_cache->widget_for(_new_connection_in_progress->dropped_connection->first).id(),
 			_port_cache->widget_for(_new_connection_in_progress->dropped_connection->second).id());
 
-		imnodes::PopColorStyle();
-		imnodes::PopColorStyle();
-		imnodes::PopColorStyle();
+		ImNodes::PopColorStyle();
+		ImNodes::PopColorStyle();
+		ImNodes::PopColorStyle();
 	}
-	imnodes::EndNodeEditor();
-	imnodes::PopAttributeFlag();
-	imnodes::PopColorStyle();
+
+	ImNodes::MiniMap(0.1f);
+
+	ImNodes::EndNodeEditor();
+	ImNodes::PopAttributeFlag();
+	ImNodes::PopColorStyle();
 }
 
 void graph_editor::draw_menus() const
 {
+	if(ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows) && ImGui::IsMouseReleased(ImGuiMouseButton_Right))
+	{
+		ImGui::OpenPopup("Context menu");
+	}
+
 	bool delet_this = false;
-	if(ImGui::BeginPopupContextItem("Context menu"))
+
+	if(ImGui::BeginPopup("Context menu"))
 	{
 		if(ImGui::BeginMenu("New node"))
 		{
@@ -164,13 +181,13 @@ void graph_editor::draw_menus() const
 			if(new_node != nullptr)
 			{
 				if(!_node_cache->has_widget_for(new_node.get()))
-					imnodes::SetNodeScreenSpacePos(_node_cache->widget_for(new_node.get()).id(), ImGui::GetMousePos());
+					ImNodes::SetNodeScreenSpacePos(_node_cache->widget_for(new_node.get()).id(), ImGui::GetMousePos());
 				graph->push_back(std::move(new_node));
 			}
 			ImGui::EndMenu();
 		}
 
-		if(imnodes::NumSelectedLinks() > 0 || imnodes::NumSelectedNodes() > 0)
+		if(ImNodes::NumSelectedLinks() > 0 || ImNodes::NumSelectedNodes() > 0)
 		{
 			ImGui::Separator();
 			if(!_selection_manager->selected_nodes().empty())
@@ -201,13 +218,13 @@ void graph_editor::draw_menus() const
 	if(delet_this || (ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows) &&
 						 ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Delete))))
 	{
-		if(imnodes::NumSelectedLinks() > 0)
+		if(ImNodes::NumSelectedLinks() > 0)
 		{
-			std::vector<int> selectedLinks(imnodes::NumSelectedLinks());
-			imnodes::GetSelectedLinks(selectedLinks.data());
+			std::vector<int> selectedLinks(ImNodes::NumSelectedLinks());
+			ImNodes::GetSelectedLinks(selectedLinks.data());
 			for(auto linkID : selectedLinks)
 				_connections[linkID].first->disconnect_from(*_connections[linkID].second);
-			imnodes::ClearLinkSelection();
+			ImNodes::ClearLinkSelection();
 		}
 
 		auto* graph = data();
@@ -219,13 +236,13 @@ void graph_editor::draw_menus() const
 				graph->end());
 		}
 
-		imnodes::ClearNodeSelection();
+		ImNodes::ClearNodeSelection();
 	}
 }
 
 void graph_editor::update_connections() const
 {
-	if(int connecting_port_id = -1; imnodes::IsLinkStarted(&connecting_port_id))
+	if(int connecting_port_id = -1; ImNodes::IsLinkStarted(&connecting_port_id))
 	{
 		_new_connection_in_progress.emplace(connection_change{*_port_cache->widget_for(connecting_port_id).port()});
 
@@ -237,7 +254,8 @@ void graph_editor::update_connections() const
 
 				port_editor.set_enabled(false);
 				port_editor.set_stable_height(true);
-				if(port->can_connect_to(_new_connection_in_progress->starting_port))
+				if(port->can_connect_to(_new_connection_in_progress->starting_port) ||
+					port == &_new_connection_in_progress->starting_port)
 				{
 					port_editor.set_enabled(true);
 				}
@@ -245,7 +263,7 @@ void graph_editor::update_connections() const
 		}
 	}
 
-	if(int output_id = -1, input_id = -1; imnodes::IsLinkCreated(&output_id, &input_id))
+	if(int output_id = -1, input_id = -1; ImNodes::IsLinkCreated(&output_id, &input_id))
 	{
 		auto* input = dynamic_cast<clk::input*>(_port_cache->widget_for(input_id).port());
 		auto* output = dynamic_cast<clk::output*>(_port_cache->widget_for(output_id).port());
@@ -267,7 +285,7 @@ void graph_editor::update_connections() const
 	}
 
 	if(int dummy = -1; _new_connection_in_progress && _new_connection_in_progress->ending_port != nullptr &&
-					   !imnodes::IsPinHovered(&dummy))
+					   !ImNodes::IsPinHovered(&dummy))
 	{
 		_new_connection_in_progress->starting_port.disconnect_from(*_new_connection_in_progress->ending_port);
 		_new_connection_in_progress->ending_port = nullptr;
@@ -293,13 +311,13 @@ void graph_editor::handle_mouse_interactions() const
 		}
 	}
 
-	if(ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && imnodes::NumSelectedLinks() > 0)
+	if(ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && ImNodes::NumSelectedLinks() > 0)
 	{
-		std::vector<int> selectedLinks(imnodes::NumSelectedLinks());
-		imnodes::GetSelectedLinks(selectedLinks.data());
+		std::vector<int> selectedLinks(ImNodes::NumSelectedLinks());
+		ImNodes::GetSelectedLinks(selectedLinks.data());
 		for(auto linkID : selectedLinks)
 			_connections[linkID].first->disconnect_from(*_connections[linkID].second);
-		imnodes::ClearLinkSelection();
+		ImNodes::ClearLinkSelection();
 	}
 }
 
