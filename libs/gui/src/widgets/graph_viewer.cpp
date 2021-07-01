@@ -7,6 +7,8 @@
 #include "selection_manager.hpp"
 #include "widget_cache.hpp"
 
+#include <imgui_internal.h>
+
 namespace clk::gui
 {
 graph_viewer::graph_viewer(clk::graph const* data, std::string_view data_name)
@@ -54,6 +56,12 @@ void graph_viewer::draw_graph() const
 	_connections.clear();
 
 	ImNodes::BeginNodeEditor();
+
+	if(!is_interactive())
+	{
+		auto* current_window = ImGui::GetCurrentWindow();
+		ImGui::SetWindowHitTestHole(current_window, current_window->Pos, current_window->Size);
+	}
 
 	for(auto const& node : *data())
 	{

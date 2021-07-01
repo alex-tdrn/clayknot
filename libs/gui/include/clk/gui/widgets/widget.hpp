@@ -28,6 +28,8 @@ public:
 	void clear_maximum_width();
 	auto last_size() const -> glm::vec2;
 	auto data_name() const -> std::string_view;
+	void set_interactivity(bool interactive) noexcept;
+	auto is_interactive() const noexcept -> bool;
 
 protected:
 	auto available_width() const -> float;
@@ -38,6 +40,7 @@ protected:
 private:
 	std::string const _data_name;
 	bool _draw_title = true;
+	bool _interactive = true;
 	mutable std::optional<float> _maximum_width;
 	mutable glm::vec2 _last_size = {0.0f, 0.0f};
 	mutable bool _extended_available = false;
@@ -104,6 +107,16 @@ inline void widget::enable_title()
 inline void widget::disable_title()
 {
 	_draw_title = false;
+}
+
+inline void widget::set_interactivity(bool interactive) noexcept
+{
+	_interactive = interactive;
+}
+
+inline auto widget::is_interactive() const noexcept -> bool
+{
+	return _interactive;
 }
 
 inline void widget::prefer_extended()

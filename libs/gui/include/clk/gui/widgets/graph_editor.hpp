@@ -54,6 +54,7 @@ private:
 	std::unique_ptr<impl::selection_manager<false>> _selection_manager;
 	mutable std::optional<connection_change> _new_connection_in_progress = std::nullopt;
 	mutable std::optional<std::function<bool()>> _modification_callback = std::nullopt; // this is smelly af
+	mutable bool _context_menu_queued = false;
 
 	void draw_graph() const;
 	void draw_menus() const;

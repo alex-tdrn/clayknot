@@ -104,15 +104,8 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 			return ret;
 		}();
 
-		std::vector<clk::gui::panel> panels;
-		auto graph_viewer = clk::gui::panel("graph viewer");
-		auto graph_editor = clk::gui::panel("graph editor");
-
-		graph_viewer.add_widget(clk::gui::viewer::create(&graph1, "graph1 viewer"));
-		graph_editor.add_widget(clk::gui::editor::create(&graph1, "graph1 editor"));
-
-		panels.push_back(std::move(graph_viewer));
-		panels.push_back(std::move(graph_editor));
+		clk::gui::panel::create_orphan(clk::gui::viewer::create(&graph1, "graph1 viewer"));
+		clk::gui::panel::create_orphan(clk::gui::editor::create(&graph1, "graph1 editor"));
 
 		while(glfwWindowShouldClose(window) == 0)
 		{
@@ -121,53 +114,14 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 			ImGui_ImplGlfw_NewFrame();
 			ImGui::NewFrame();
 
-			int wind_x = 0;
-			int wind_y = 0;
 			int display_w = 0;
 			int display_h = 0;
 			glfwGetFramebufferSize(window, &display_w, &display_h);
 			glViewport(0, 0, display_w, display_h);
 			glClearColor(0, 0, 0, 1);
 			glClear(GL_COLOR_BUFFER_BIT);
-			glfwGetWindowPos(window, &wind_x, &wind_y);
 
-			ImGuiViewport* viewport = ImGui::GetMainViewport();
-			ImGui::SetNextWindowPos(viewport->Pos);
-			ImGui::SetNextWindowSize(viewport->Size);
-			ImGui::SetNextWindowViewport(viewport->ID);
-			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-			ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-
-			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-			ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar;
-			window_flags |= ImGuiWindowFlags_NoDocking;
-			window_flags |= ImGuiWindowFlags_NoTitleBar;
-			window_flags |= ImGuiWindowFlags_NoCollapse;
-			window_flags |= ImGuiWindowFlags_NoResize;
-			window_flags |= ImGuiWindowFlags_NoMove;
-			window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
-			window_flags |= ImGuiWindowFlags_NoNavFocus;
-			ImGui::Begin("Main Window", nullptr, window_flags);
-			ImGui::PopStyleVar(3);
-
-			ImGuiID dockspace_id = ImGui::GetID("Main Window Dockspace");
-			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
-
-			if(ImGui::BeginMenuBar())
-			{
-				if(ImGui::BeginMenu("View"))
-				{
-					for(auto& panel : panels)
-						if(ImGui::MenuItem(panel.title().data(), "", panel.visible()))
-							panel.toggle_visibility();
-					ImGui::EndMenu();
-				}
-				ImGui::EndMenuBar();
-			}
-
-			ImGui::End();
-			for(auto& panel : panels)
-				panel.draw();
+			clk::gui::draw();
 
 			ImGui::Render();
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
