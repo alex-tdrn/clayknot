@@ -3,6 +3,7 @@
 #include "clk/gui/panel.hpp"
 #include "clk/gui/widgets/graph_editor.hpp"
 #include "clk/gui/widgets/graph_viewer.hpp"
+#include "clk/gui/widgets/profiler_viewer.hpp"
 
 #include <range/v3/algorithm.hpp>
 
@@ -12,6 +13,7 @@ void init()
 {
 	editor::register_factory<clk::graph, graph_editor>();
 	viewer::register_factory<clk::graph, graph_viewer>();
+	viewer::register_factory<clk::profiler, profiler_viewer>();
 }
 
 void draw()

@@ -66,6 +66,8 @@ public:
 	auto docking_is_enabled() const noexcept -> bool;
 	void set_interactivity(bool interactive) noexcept;
 	auto is_interactive() const noexcept -> bool;
+	void set_opactiy(float opacity) noexcept;
+	auto opacity() const noexcept -> float;
 
 private:
 	inline static std::vector<panel*> _all_panels; // NOLINT

@@ -22,6 +22,7 @@ panel::panel(std::unique_ptr<clk::gui::widget>&& widget) : _widget(std::move(wid
 {
 	update_title_with_id();
 	register_self();
+	_widget->disable_title();
 }
 
 panel::panel(std::unique_ptr<clk::gui::widget>&& widget, std::string_view title)
@@ -29,6 +30,7 @@ panel::panel(std::unique_ptr<clk::gui::widget>&& widget, std::string_view title)
 {
 	update_title_with_id();
 	register_self();
+	_widget->disable_title();
 }
 
 panel::panel(panel const& other)
@@ -76,6 +78,7 @@ void panel::queue(action_type action_type) const
 void panel::set_widget(std::unique_ptr<clk::gui::widget>&& widget) noexcept
 {
 	_widget = std::move(widget);
+	_widget->disable_title();
 }
 
 void panel::draw()
@@ -218,6 +221,16 @@ void panel::set_interactivity(bool interactive) noexcept
 auto panel::is_interactive() const noexcept -> bool
 {
 	return _interactive;
+}
+
+void panel::set_opactiy(float opacity) noexcept
+{
+	_opacity = opacity;
+}
+
+auto panel::opacity() const noexcept -> float
+{
+	return _opacity;
 }
 
 auto panel::generate_id() noexcept -> int
