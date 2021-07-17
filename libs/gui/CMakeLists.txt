@@ -7,6 +7,7 @@ add_library(
 	"include/clk/gui/widgets/editor.hpp"
 	"include/clk/gui/widgets/graph_viewer.hpp"
 	"include/clk/gui/widgets/graph_editor.hpp"
+	"include/clk/gui/widgets/profiler_viewer.hpp"
 	"src/init.cpp"
 	"src/panel.cpp"
 	"src/widgets/graph_viewer.cpp"
@@ -27,7 +28,7 @@ target_include_directories(
 
 target_compile_definitions(gui PUBLIC IMGUI_ADD_VECTOR_CONVERSIONS)
 
-target_link_libraries(gui PUBLIC clayknot::base clayknot::algorithms range-v3::range-v3 imgui imnodes)
+target_link_libraries(gui PUBLIC clayknot::base clayknot::algorithms range-v3::range-v3 imgui imnodes implot)
 
 install(TARGETS gui)
 install(DIRECTORY include/ DESTINATION include)

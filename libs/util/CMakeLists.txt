@@ -11,6 +11,7 @@ target_sources(
 				"include/clk/util/type_list.hpp"
 				"include/clk/util/predicates.hpp"
 				"include/clk/util/projections.hpp"
+				"include/clk/util/profiler.hpp"
 )
 
 target_include_directories(util INTERFACE "include")

@@ -7,6 +7,7 @@
 #include "clk/gui/widgets/editor.hpp"
 #include "clk/gui/widgets/viewer.hpp"
 #include "clk/util/color_rgba.hpp"
+#include "clk/util/profiler.hpp"
 
 #include <glad/glad.h>
 
@@ -18,6 +19,7 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 #include <imnodes.h>
+#include <implot.h>
 #include <iostream>
 #include <memory>
 #include <utility>
@@ -60,7 +62,7 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 		}
 #endif
 
-		glfwSwapInterval(1);
+		glfwSwapInterval(0);
 
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
@@ -82,6 +84,8 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 		style.Colors[ImNodesCol_TitleBarSelected] = style.Colors[ImNodesCol_TitleBar];
 		style.Colors[ImNodesCol_NodeBackgroundHovered] = style.Colors[ImNodesCol_NodeBackground];
 		style.Colors[ImNodesCol_NodeBackgroundSelected] = style.Colors[ImNodesCol_NodeBackground];
+
+		ImPlot::CreateContext();
 
 		clk::algorithms::init();
 		clk::gui::init();
@@ -107,6 +111,15 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 		clk::gui::panel::create_orphan(clk::gui::viewer::create(&graph1, "graph1 viewer"));
 		clk::gui::panel::create_orphan(clk::gui::editor::create(&graph1, "graph1 editor"));
 
+		clk::profiler profiler;
+		auto profiler_panel = clk::gui::panel(clk::gui::viewer::create(&profiler, "Frametimes"));
+		profiler_panel.set_title_bar_visibility(false);
+		profiler_panel.set_resizability(clk::gui::panel::resizability::off);
+		profiler_panel.set_docking(false);
+		profiler_panel.set_movability(false);
+		profiler_panel.set_interactivity(false);
+		profiler_panel.set_opactiy(0.5f);
+
 		while(glfwWindowShouldClose(window) == 0)
 		{
 			glfwPollEvents();
@@ -123,6 +136,8 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 
 			clk::gui::draw();
 
+			profiler.record_frame();
+
 			ImGui::Render();
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
@@ -136,6 +151,8 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 
 			glfwSwapBuffers(window);
 		}
+
+		ImPlot::DestroyContext();
 
 		ImNodes::DestroyContext();
 

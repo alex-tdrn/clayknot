@@ -9,6 +9,7 @@ target_link_libraries(
 			glfw::glfw
 			imgui
 			imnodes
+			implot
 )
 
 install(TARGETS editor)
