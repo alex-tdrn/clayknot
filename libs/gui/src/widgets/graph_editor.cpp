@@ -45,6 +45,11 @@ auto graph_editor::clone() const -> std::unique_ptr<widget>
 
 void graph_editor::draw_contents() const
 {
+	auto time_since_last_modification = std::chrono::duration_cast<std::chrono::duration<float, std::ratio<1, 1>>>(
+		std::chrono::steady_clock::now() - data()->timestamp().time_point());
+
+	ImGui::Text("Last modified: %.1fs", time_since_last_modification.count());
+
 	ImNodes::EditorContextSet(_context);
 	ImNodes::PushStyleVar(ImNodesStyleVar_NodeCornerRounding, 0.0f);
 	ImNodes::PushStyleVar(ImNodesStyleVar_PinOffset, ImNodes::GetStyle().PinHoverRadius * 0.75f);
@@ -84,7 +89,7 @@ void graph_editor::draw_graph() const
 		ImGui::SetWindowHitTestHole(current_window, current_window->Pos, current_window->Size);
 	}
 
-	for(auto const& node : *data())
+	for(auto const& node : data()->nodes())
 	{
 		_node_cache->widget_for(node.get()).draw();
 		for(auto* output : node->outputs())
@@ -170,7 +175,6 @@ void graph_editor::draw_menus() const
 	{
 		if(ImGui::BeginMenu("New node"))
 		{
-			auto* graph = data();
 			std::unique_ptr<clk::node> new_node = nullptr;
 			if(ImGui::BeginMenu("Algorithm"))
 			{
@@ -190,7 +194,7 @@ void graph_editor::draw_menus() const
 			{
 				if(!_node_cache->has_widget_for(new_node.get()))
 					ImNodes::SetNodeScreenSpacePos(_node_cache->widget_for(new_node.get()).id(), ImGui::GetMousePos());
-				graph->push_back(std::move(new_node));
+				data()->add_node(std::move(new_node));
 			}
 			ImGui::EndMenu();
 		}
@@ -215,7 +219,7 @@ void graph_editor::draw_menus() const
 								dynamic_cast<output*>(input->create_compatible_port().release())));
 					}
 
-					data()->push_back(std::move(constant_node));
+					data()->add_node(std::move(constant_node));
 				}
 			}
 			delet_this = ImGui::MenuItem("Delete");
@@ -235,14 +239,8 @@ void graph_editor::draw_menus() const
 			ImNodes::ClearLinkSelection();
 		}
 
-		auto* graph = data();
-
-		for(auto* selectedNode : _selection_manager->selected_nodes())
-		{
-			graph->erase(
-				ranges::remove_if(*graph, clk::predicates::is_equal_to(selectedNode), clk::projections::underlying()),
-				graph->end());
-		}
+		for(auto* selected_node : _selection_manager->selected_nodes())
+			data()->remove_node(selected_node);
 
 		ImNodes::ClearNodeSelection();
 	}
@@ -254,7 +252,7 @@ void graph_editor::update_connections() const
 	{
 		_new_connection_in_progress.emplace(connection_change{*_port_cache->widget_for(connecting_port_id).port()});
 
-		for(auto const& node : *data())
+		for(auto const& node : data()->nodes())
 		{
 			for(auto* port : node->all_ports())
 			{
@@ -307,7 +305,7 @@ void graph_editor::handle_mouse_interactions() const
 	{
 		_new_connection_in_progress = std::nullopt;
 
-		for(auto const& node : *data())
+		for(auto const& node : data()->nodes())
 		{
 			for(auto* port : node->all_ports())
 			{

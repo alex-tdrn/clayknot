@@ -145,6 +145,8 @@ void output_of<T>::connect_to(compatible_port& other_port, bool notify)
 	_connections.insert(&other_port);
 	if(!other_port.is_connected_to(*this))
 		other_port.connect_to(*this, notify);
+
+	connection_changed();
 }
 
 template <typename T>
@@ -159,6 +161,8 @@ void output_of<T>::disconnect_from(compatible_port& other_port, bool notify)
 	_connections.erase(&other_port);
 	if(other_port.is_connected_to(*this))
 		other_port.disconnect(notify);
+
+	connection_changed();
 }
 
 template <typename T>

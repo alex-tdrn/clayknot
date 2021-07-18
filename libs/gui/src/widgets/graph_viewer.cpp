@@ -63,7 +63,7 @@ void graph_viewer::draw_graph() const
 		ImGui::SetWindowHitTestHole(current_window, current_window->Pos, current_window->Size);
 	}
 
-	for(auto const& node : *data())
+	for(auto const& node : data()->nodes())
 	{
 		_node_cache->widget_for(node.get()).draw();
 		for(auto* output : node->outputs())

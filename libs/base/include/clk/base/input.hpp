@@ -154,6 +154,7 @@ void input_of<T>::connect_to(compatible_port& other_port, bool notify)
 	if(!other_port.is_connected_to(*this))
 		other_port.connect_to(*this, false);
 	update_timestamp();
+	connection_changed();
 	if(notify)
 		push();
 }
@@ -174,6 +175,7 @@ void input_of<T>::disconnect(bool notify)
 		_connection = nullptr;
 		old_connection->disconnect_from(*this, false);
 		update_timestamp();
+		connection_changed();
 		if(notify)
 			push();
 	}
