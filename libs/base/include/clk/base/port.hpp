@@ -3,6 +3,7 @@
 #include "clk/base/sentinel.hpp"
 #include "clk/util/timestamp.hpp"
 
+#include <functional>
 #include <memory>
 #include <range/v3/view.hpp>
 #include <string>
@@ -24,6 +25,7 @@ public:
 	void set_name(std::string_view name);
 	auto name() const noexcept -> std::string_view;
 	void update_timestamp() noexcept;
+	void set_connection_changed_callback(std::function<void()> const& callback);
 	virtual auto timestamp() const noexcept -> clk::timestamp;
 	virtual auto data_pointer() const noexcept -> void const* = 0;
 	virtual auto data_type_hash() const noexcept -> std::size_t = 0;
@@ -40,10 +42,12 @@ public:
 
 protected:
 	port() = default;
+	void connection_changed();
 
 private:
 	std::string _name = "Unnamed";
 	clk::timestamp _timestamp;
+	std::function<void()> _connection_changed_callback;
 };
 
 inline void port::set_name(std::string_view name)
@@ -61,9 +65,20 @@ inline void port::update_timestamp() noexcept
 	_timestamp.update();
 }
 
+inline void port::set_connection_changed_callback(std::function<void()> const& callback)
+{
+	_connection_changed_callback = callback;
+}
+
 inline auto port::timestamp() const noexcept -> clk::timestamp
 {
 	return _timestamp;
+}
+
+inline void port::connection_changed()
+{
+	if(_connection_changed_callback)
+		_connection_changed_callback();
 }
 
 } // namespace clk

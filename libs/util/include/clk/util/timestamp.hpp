@@ -21,6 +21,7 @@ public:
 	auto operator<(timestamp const& other) const -> bool;
 	auto is_newer_than(timestamp const& other) const -> bool;
 	auto is_older_than(timestamp const& other) const -> bool;
+	auto time_point() const -> std::chrono::steady_clock::time_point;
 
 private:
 	using chrono = std::chrono::steady_clock;
@@ -60,6 +61,11 @@ inline auto timestamp::is_newer_than(timestamp const& other) const -> bool
 inline auto timestamp::is_older_than(timestamp const& other) const -> bool
 {
 	return *this < other;
+}
+
+inline auto timestamp::time_point() const -> std::chrono::steady_clock::time_point
+{
+	return _timepoint;
 }
 
 } // namespace clk

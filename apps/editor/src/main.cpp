@@ -101,10 +101,10 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 
 			clk::graph ret;
 
-			ret.emplace_back(std::move(random_color));
-			ret.emplace_back(std::move(decompose_color));
-			ret.emplace_back(std::move(value_to_color));
-			ret.emplace_back(std::move(mix_colors));
+			ret.add_node(std::move(random_color));
+			ret.add_node(std::move(decompose_color));
+			ret.add_node(std::move(value_to_color));
+			ret.add_node(std::move(mix_colors));
 			return ret;
 		}();
 
