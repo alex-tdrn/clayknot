@@ -1,2 +1,3 @@
 #normalize line endings for following file types
 *	text=auto
+external/* linguist-vendored
