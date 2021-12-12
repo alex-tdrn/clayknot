@@ -72,6 +72,42 @@
             "inherits": [
                 "base"
             ],
+            "name": "gcc",
+            "displayName": "gcc",
+            "description": "gcc base",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "gcc",
+                "CMAKE_CXX_COMPILER": "g++"
+            }
+        },
+        {
+            "inherits": [
+                "gcc"
+            ],
+            "name": "gcc_debug",
+            "displayName": "gcc Debug",
+            "description": "gcc debug mode with Ninja",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "inherits": [
+                "gcc"
+            ],
+            "name": "gcc_release",
+            "displayName": "gcc Release",
+            "description": "gcc release mode with Ninja",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "hidden": true,
+            "inherits": [
+                "base"
+            ],
             "name": "clang",
             "displayName": "Clang",
             "description": "Clang base",
