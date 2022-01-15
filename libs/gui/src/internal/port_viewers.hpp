@@ -69,7 +69,10 @@ private:
 inline port_viewer::port_viewer(clk::port const* port, int id)
 	: _id(id)
 	, _color(color_rgba(color_rgb::create_random(port->data_type_hash()), 1.0f).packed())
-	, _data_viewer(clk::gui::viewer::create(port->data_type_hash(), port->data_pointer(), port->name()))
+	, _data_viewer(clk::gui::viewer::create(data_reader<void>{[=]() {
+		return port->data_pointer();
+	}},
+		  port->data_type_hash(), port->name()))
 {
 	_data_viewer->set_maximum_width(200);
 }
@@ -95,7 +98,6 @@ inline void input_viewer::draw()
 
 	ImNodes::BeginInputAttribute(_id, ImNodesPinShape_QuadFilled);
 
-	_data_viewer->update_data_pointer(_port->data_pointer());
 	_data_viewer->draw();
 
 	ImNodes::EndInputAttribute();

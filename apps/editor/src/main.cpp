@@ -108,11 +108,11 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 			return ret;
 		}();
 
-		clk::gui::panel::create_orphan(clk::gui::viewer::create(&graph1, "graph1 viewer"));
-		clk::gui::panel::create_orphan(clk::gui::editor::create(&graph1, "graph1 editor"));
+		clk::gui::panel::create_orphan(clk::gui::viewer::create(clk::gui::data_reader(&graph1), "graph1 viewer"));
+		clk::gui::panel::create_orphan(clk::gui::editor::create(clk::gui::data_writer(&graph1), "graph1 editor"));
 
 		clk::profiler profiler;
-		auto profiler_panel = clk::gui::panel(clk::gui::viewer::create(&profiler, "Frametimes"));
+		auto profiler_panel = clk::gui::panel(clk::gui::viewer::create(clk::gui::data_reader(&profiler), "Frametimes"));
 		profiler_panel.set_title_bar_visibility(false);
 		profiler_panel.set_resizability(clk::gui::panel::resizability::off);
 		profiler_panel.set_docking(false);

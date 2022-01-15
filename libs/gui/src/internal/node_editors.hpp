@@ -15,7 +15,7 @@ class node_editor
 public:
 	node_editor() = delete;
 	node_editor(clk::node* node, int id, widget_cache<clk::port, port_editor>* port_cache,
-		std::optional<std::function<bool()>>& modification_callback);
+		std::optional<std::function<bool()>>& queued_action);
 	node_editor(node_editor const&) = delete;
 	node_editor(node_editor&&) noexcept = delete;
 	auto operator=(node_editor const&) -> node_editor& = delete;
@@ -28,7 +28,7 @@ public:
 	void draw();
 
 protected:
-	std::optional<std::function<bool()>>& _modification_callback; // NOLINT
+	std::optional<std::function<bool()>>& _queued_action; // NOLINT
 	widget_cache<clk::port, port_editor>* _port_cache = nullptr; // NOLINT
 	clk::node* _node = nullptr; // NOLINT
 	int _id = -1; // NOLINT
@@ -47,7 +47,7 @@ class constant_node_editor final : public node_editor
 public:
 	constant_node_editor() = delete;
 	constant_node_editor(clk::constant_node* constant_node, int id, widget_cache<clk::port, port_editor>* port_cache,
-		std::optional<std::function<bool()>>& modification_callback);
+		std::optional<std::function<bool()>>& queued_action);
 	constant_node_editor(constant_node_editor const&) = delete;
 	constant_node_editor(constant_node_editor&&) noexcept = delete;
 	auto operator=(constant_node_editor const&) -> constant_node_editor& = delete;
@@ -62,8 +62,8 @@ private:
 };
 
 inline node_editor::node_editor(clk::node* node, int id, widget_cache<clk::port, port_editor>* port_cache,
-	std::optional<std::function<bool()>>& modification_callback)
-	: _modification_callback(modification_callback), _port_cache(port_cache), _node(node), _id(id)
+	std::optional<std::function<bool()>>& queued_action)
+	: _queued_action(queued_action), _port_cache(port_cache), _node(node), _id(id)
 {
 }
 
@@ -150,8 +150,8 @@ inline void node_editor::draw_outputs()
 }
 
 inline constant_node_editor::constant_node_editor(clk::constant_node* constant_node, int id,
-	widget_cache<clk::port, port_editor>* port_cache, std::optional<std::function<bool()>>& modification_callback)
-	: node_editor(constant_node, id, port_cache, modification_callback), _constant_node(constant_node)
+	widget_cache<clk::port, port_editor>* port_cache, std::optional<std::function<bool()>>& queued_action)
+	: node_editor(constant_node, id, port_cache, queued_action), _constant_node(constant_node)
 {
 }
 
@@ -162,9 +162,9 @@ inline void constant_node_editor::draw_outputs()
 		ImGui::PushID(port);
 		if(ImGui::SmallButton("-"))
 		{
-			if(!_modification_callback.has_value())
+			if(!_queued_action.has_value())
 			{
-				_modification_callback = [&]() {
+				_queued_action = [&]() {
 					_constant_editors.erase(port);
 					_constant_node->remove_output(port);
 					return true;
@@ -176,10 +176,14 @@ inline void constant_node_editor::draw_outputs()
 		if(_constant_editors.count(port) == 0)
 		{
 			_constant_editors[port] =
-				clk::gui::editor::create(port->data_type_hash(), port->data_pointer(), port->name(), [=]() {
-					port->update_timestamp();
-					port->push();
-				});
+				clk::gui::editor::create(clk::gui::data_writer<void>{[=]() {
+																		 return port->data_pointer();
+																	 },
+											 [=]() {
+												 port->update_timestamp();
+												 port->push();
+											 }},
+					port->data_type_hash(), port->name());
 			_constant_editors[port]->set_maximum_width(200);
 		}
 
@@ -188,9 +192,9 @@ inline void constant_node_editor::draw_outputs()
 
 	if(ImGui::SmallButton("+"))
 	{
-		if(!_modification_callback.has_value())
+		if(!_queued_action.has_value())
 		{
-			_modification_callback = [&]() {
+			_queued_action = [&]() {
 				bool done = false;
 
 				ImGui::OpenPopup("Add Constant Port Menu");
@@ -223,12 +227,12 @@ inline void constant_node_editor::draw_outputs()
 }
 
 inline auto create_node_editor(clk::node* node, int id, widget_cache<clk::port, port_editor>* portCache,
-	std::optional<std::function<bool()>>& modificationCallback) -> std::unique_ptr<node_editor>
+	std::optional<std::function<bool()>>& queued_action) -> std::unique_ptr<node_editor>
 {
 	if(auto* constant_node = dynamic_cast<clk::constant_node*>(node))
-		return std::make_unique<constant_node_editor>(constant_node, id, portCache, modificationCallback);
+		return std::make_unique<constant_node_editor>(constant_node, id, portCache, queued_action);
 	else
-		return std::make_unique<node_editor>(node, id, portCache, modificationCallback);
+		return std::make_unique<node_editor>(node, id, portCache, queued_action);
 }
 
 } // namespace clk::gui::impl

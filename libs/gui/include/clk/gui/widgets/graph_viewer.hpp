@@ -21,16 +21,17 @@ namespace clk::gui
 class graph_viewer final : public viewer_of<clk::graph>
 {
 public:
-	graph_viewer() = delete;
-	graph_viewer(clk::graph const* data, std::string_view data_name);
+	graph_viewer();
 	graph_viewer(graph_viewer const&) = delete;
 	graph_viewer(graph_viewer&&) = delete;
 	auto operator=(graph_viewer const&) -> graph_viewer& = delete;
 	auto operator=(graph_viewer&&) -> graph_viewer& = delete;
 	~graph_viewer() final;
 
-	auto clone() const -> std::unique_ptr<clk::gui::widget> final;
-	void draw_contents() const final;
+	auto clone() const -> std::unique_ptr<widget> override;
+	void copy(widget const& other) override;
+
+	void draw_contents(clk::graph const& graph) const final;
 
 private:
 	ImNodesEditorContext* _context;
@@ -39,7 +40,7 @@ private:
 	mutable std::vector<std::pair<clk::input const*, clk::output const*>> _connections;
 	std::unique_ptr<impl::selection_manager<true>> _selection_manager;
 
-	void draw_graph() const;
+	void draw_graph(clk::graph const& graph) const;
 };
 
 } // namespace clk::gui

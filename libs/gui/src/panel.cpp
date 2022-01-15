@@ -18,7 +18,7 @@ panel::panel() : _title("Unnamed panel")
 	register_self();
 }
 
-panel::panel(std::unique_ptr<clk::gui::widget>&& widget) : _widget(std::move(widget)), _title(_widget->data_name())
+panel::panel(std::unique_ptr<clk::gui::widget>&& widget) : _widget(std::move(widget)), _title(_widget->name())
 {
 	update_title_with_id();
 	register_self();
@@ -112,7 +112,7 @@ void panel::draw()
 void panel::set_title(std::string_view title)
 {
 	if(title.empty() && _widget != nullptr)
-		_title = _widget->data_name();
+		_title = _widget->name();
 	else
 		_title = std::string(title);
 }

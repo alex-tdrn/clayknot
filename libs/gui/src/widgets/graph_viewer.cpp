@@ -11,19 +11,18 @@
 
 namespace clk::gui
 {
-graph_viewer::graph_viewer(clk::graph const* data, std::string_view data_name)
-	: viewer_of<clk::graph>(data, data_name)
+graph_viewer::graph_viewer()
+	: _context(ImNodes::EditorContextCreate())
 	, _node_cache(
 		  std::make_unique<impl::widget_cache<clk::node const, impl::node_viewer>>([&](node const* node, int id) {
 			  return impl::create_node_viewer(node, id, _port_cache.get());
 		  }))
 	, _port_cache(std::make_unique<impl::widget_cache<clk::port const, impl::port_viewer>>(&impl::create_port_viewer))
 	, _selection_manager(std::make_unique<impl::selection_manager<true>>(_node_cache.get(), _port_cache.get()))
+
 {
 	disable_title();
-	_context = ImNodes::EditorContextCreate();
 	ImNodes::EditorContextSet(_context);
-
 	ImNodes::EditorContextSet(nullptr);
 }
 
@@ -34,16 +33,23 @@ graph_viewer::~graph_viewer()
 
 auto graph_viewer::clone() const -> std::unique_ptr<widget>
 {
-	return std::make_unique<graph_viewer>(data(), data_name());
+	auto clone = std::make_unique<graph_viewer>();
+	clone->copy(*this);
+	return clone;
 }
 
-void graph_viewer::draw_contents() const
+void graph_viewer::copy(widget const& other)
+{
+	viewer_of<clk::graph>::copy(other);
+}
+
+void graph_viewer::draw_contents(clk::graph const& graph) const
 {
 	ImNodes::EditorContextSet(_context);
 	ImNodes::PushStyleVar(ImNodesStyleVar_NodeCornerRounding, 0.0f);
 	ImNodes::PushStyleVar(ImNodesStyleVar_PinOffset, ImNodes::GetStyle().PinHoverRadius * 0.5f);
 
-	draw_graph();
+	draw_graph(graph);
 	_selection_manager->update();
 
 	ImNodes::PopStyleVar();
@@ -51,7 +57,7 @@ void graph_viewer::draw_contents() const
 	ImNodes::EditorContextSet(nullptr);
 }
 
-void graph_viewer::draw_graph() const
+void graph_viewer::draw_graph(clk::graph const& graph) const
 {
 	_connections.clear();
 
@@ -63,7 +69,7 @@ void graph_viewer::draw_graph() const
 		ImGui::SetWindowHitTestHole(current_window, current_window->Pos, current_window->Size);
 	}
 
-	for(auto const& node : data()->nodes())
+	for(auto const& node : graph.nodes())
 	{
 		_node_cache->widget_for(node.get()).draw();
 		for(auto* output : node->outputs())

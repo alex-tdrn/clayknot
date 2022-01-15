@@ -76,7 +76,10 @@ private:
 inline port_editor::port_editor(clk::port* port, int id)
 	: _id(id)
 	, _color(color_rgba(color_rgb::create_random(port->data_type_hash()), 1.0f).packed())
-	, _data_viewer(clk::gui::viewer::create(port->data_type_hash(), port->data_pointer(), port->name()))
+	, _data_viewer(clk::gui::viewer::create(data_reader<void>{[=]() {
+		return port->data_pointer();
+	}},
+		  port->data_type_hash(), port->name()))
 {
 	_data_viewer->set_maximum_width(200);
 }
@@ -105,11 +108,14 @@ inline input_editor::input_editor(clk::input* port, int id) : port_editor(port, 
 {
 	auto* default_port = &port->default_port();
 
-	_default_data_editor =
-		clk::gui::editor::create(default_port->data_type_hash(), default_port->data_pointer(), port->name(), [=]() {
-			default_port->update_timestamp();
-			default_port->push();
-		});
+	_default_data_editor = clk::gui::editor::create(clk::gui::data_writer<void>{[=]() {
+																					return default_port->data_pointer();
+																				},
+														[=]() {
+															default_port->update_timestamp();
+															default_port->push();
+														}},
+		default_port->data_type_hash(), port->name());
 	_default_data_editor->set_maximum_width(200);
 }
 
@@ -141,7 +147,6 @@ inline void input_editor::draw(clk::gui::widget* override_widget)
 		}
 		else
 		{
-			_data_viewer->update_data_pointer(_port->data_pointer());
 			_data_viewer->draw();
 		}
 

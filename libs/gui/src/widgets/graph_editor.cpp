@@ -4,6 +4,7 @@
 #include "clk/base/algorithm_node.hpp"
 #include "clk/base/constant_node.hpp"
 #include "clk/base/port.hpp"
+#include "clk/gui/widgets/editor.hpp"
 #include "clk/util/predicates.hpp"
 #include "clk/util/projections.hpp"
 #include "node_editors.hpp"
@@ -17,19 +18,17 @@
 
 namespace clk::gui
 {
-graph_editor::graph_editor(
-	clk::graph* data, std::string_view data_name, std::optional<std::function<void()>> modified_callback)
-	: editor_of<clk::graph>(data, data_name, std::move(modified_callback))
+graph_editor::graph_editor()
+	: _context(ImNodes::EditorContextCreate())
 	, _node_cache(std::make_unique<impl::widget_cache<node, impl::node_editor>>([&](node* node, int id) {
-		return impl::create_node_editor(node, id, _port_cache.get(), _modification_callback);
+		return impl::create_node_editor(node, id, _port_cache.get(), _queued_action);
 	}))
 	, _port_cache(std::make_unique<impl::widget_cache<port, impl::port_editor>>(&impl::create_port_editor))
 	, _selection_manager(std::make_unique<impl::selection_manager<false>>(_node_cache.get(), _port_cache.get()))
+
 {
 	disable_title();
-	_context = ImNodes::EditorContextCreate();
 	ImNodes::EditorContextSet(_context);
-
 	ImNodes::EditorContextSet(nullptr);
 }
 
@@ -40,37 +39,47 @@ graph_editor::~graph_editor()
 
 auto graph_editor::clone() const -> std::unique_ptr<widget>
 {
-	return std::make_unique<graph_editor>(data(), data_name(), modified_callback());
+	auto clone = std::make_unique<graph_editor>();
+	clone->copy(*this);
+	return clone;
 }
 
-void graph_editor::draw_contents() const
+void graph_editor::copy(widget const& other)
 {
+	editor_of<clk::graph>::copy(other);
+}
+
+auto graph_editor::draw_contents(clk::graph& graph) const -> bool
+{
+	auto last_timestamp = graph.timestamp().time_point();
 	auto time_since_last_modification = std::chrono::duration_cast<std::chrono::duration<float, std::ratio<1, 1>>>(
-		std::chrono::steady_clock::now() - data()->timestamp().time_point());
+		std::chrono::steady_clock::now() - last_timestamp);
 
 	ImGui::Text("Last modified: %.1fs", time_since_last_modification.count());
 
 	ImNodes::EditorContextSet(_context);
 	ImNodes::PushStyleVar(ImNodesStyleVar_NodeCornerRounding, 0.0f);
 	ImNodes::PushStyleVar(ImNodesStyleVar_PinOffset, ImNodes::GetStyle().PinHoverRadius * 0.75f);
-	draw_graph();
-	draw_menus();
-	update_connections();
+	draw_graph(graph);
+	draw_menus(graph);
+	update_connections(graph);
 	_selection_manager->update();
-	handle_mouse_interactions();
+	handle_mouse_interactions(graph);
 
-	if(_modification_callback.has_value())
+	if(_queued_action.has_value())
 	{
-		if((*_modification_callback)())
-			_modification_callback = std::nullopt;
+		if((*_queued_action)())
+			_queued_action = std::nullopt;
 	}
 
 	ImNodes::PopStyleVar();
 	ImNodes::PopStyleVar();
 	ImNodes::EditorContextSet(nullptr);
+
+	return last_timestamp != graph.timestamp().time_point();
 }
 
-void graph_editor::draw_graph() const
+void graph_editor::draw_graph(clk::graph& graph) const
 {
 	ImNodes::PushAttributeFlag(ImNodesAttributeFlags_EnableLinkCreationOnSnap);
 	if(_new_connection_in_progress)
@@ -89,7 +98,7 @@ void graph_editor::draw_graph() const
 		ImGui::SetWindowHitTestHole(current_window, current_window->Pos, current_window->Size);
 	}
 
-	for(auto const& node : data()->nodes())
+	for(auto const& node : graph.nodes())
 	{
 		_node_cache->widget_for(node.get()).draw();
 		for(auto* output : node->outputs())
@@ -162,7 +171,7 @@ void graph_editor::draw_graph() const
 	ImNodes::PopColorStyle();
 }
 
-void graph_editor::draw_menus() const
+void graph_editor::draw_menus(clk::graph& graph) const
 {
 	bool delet_this = false;
 	if(_context_menu_queued)
@@ -194,7 +203,7 @@ void graph_editor::draw_menus() const
 			{
 				if(!_node_cache->has_widget_for(new_node.get()))
 					ImNodes::SetNodeScreenSpacePos(_node_cache->widget_for(new_node.get()).id(), ImGui::GetMousePos());
-				data()->add_node(std::move(new_node));
+				graph.add_node(std::move(new_node));
 			}
 			ImGui::EndMenu();
 		}
@@ -219,7 +228,7 @@ void graph_editor::draw_menus() const
 								dynamic_cast<output*>(input->create_compatible_port().release())));
 					}
 
-					data()->add_node(std::move(constant_node));
+					graph.add_node(std::move(constant_node));
 				}
 			}
 			delet_this = ImGui::MenuItem("Delete");
@@ -240,19 +249,19 @@ void graph_editor::draw_menus() const
 		}
 
 		for(auto* selected_node : _selection_manager->selected_nodes())
-			data()->remove_node(selected_node);
+			graph.remove_node(selected_node);
 
 		ImNodes::ClearNodeSelection();
 	}
 }
 
-void graph_editor::update_connections() const
+void graph_editor::update_connections(clk::graph& graph) const
 {
 	if(int connecting_port_id = -1; ImNodes::IsLinkStarted(&connecting_port_id))
 	{
 		_new_connection_in_progress.emplace(connection_change{*_port_cache->widget_for(connecting_port_id).port()});
 
-		for(auto const& node : data()->nodes())
+		for(auto const& node : graph.nodes())
 		{
 			for(auto* port : node->all_ports())
 			{
@@ -299,13 +308,13 @@ void graph_editor::update_connections() const
 	}
 }
 
-void graph_editor::handle_mouse_interactions() const
+void graph_editor::handle_mouse_interactions(clk::graph& graph) const
 {
 	if(ImGui::IsMouseReleased(ImGuiMouseButton_Left))
 	{
 		_new_connection_in_progress = std::nullopt;
 
-		for(auto const& node : data()->nodes())
+		for(auto const& node : graph.nodes())
 		{
 			for(auto* port : node->all_ports())
 			{

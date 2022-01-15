@@ -10,17 +10,18 @@ namespace clk::gui
 class profiler_viewer final : public viewer_of<clk::profiler>
 {
 public:
-	profiler_viewer() = delete;
-	profiler_viewer(clk::profiler const* data, std::string_view data_name);
+	profiler_viewer() = default;
 	profiler_viewer(profiler_viewer const&) = delete;
 	profiler_viewer(profiler_viewer&&) = delete;
 	auto operator=(profiler_viewer const&) -> profiler_viewer& = delete;
 	auto operator=(profiler_viewer&&) -> profiler_viewer& = delete;
 	~profiler_viewer() override = default;
 
+	auto clone() const -> std::unique_ptr<widget> override;
+	void copy(widget const& other) override;
+
 	void set_plot_height(float height);
-	auto clone() const -> std::unique_ptr<clk::gui::widget> final;
-	void draw_contents() const final;
+	void draw_contents(clk::profiler const& profiler) const final;
 
 private:
 	float _plot_height = 100;
@@ -29,17 +30,21 @@ private:
 		std::chrono::high_resolution_clock::time_point::min();
 
 	template <typename T, typename Ratio>
-	void draw_contents(std::chrono::duration<T, Ratio> average_frametime) const;
+	void draw_helper(std::chrono::duration<T, Ratio> average_frametime, clk::profiler const& profiler) const;
 };
 
-inline profiler_viewer::profiler_viewer(clk::profiler const* data, std::string_view data_name)
-	: viewer_of<clk::profiler>(data, data_name)
+inline auto profiler_viewer::clone() const -> std::unique_ptr<widget>
 {
+	auto clone = std::make_unique<profiler_viewer>();
+	clone->copy(*this);
+	return clone;
 }
 
-inline auto profiler_viewer::clone() const -> std::unique_ptr<clk::gui::widget>
+inline void profiler_viewer::copy(widget const& other)
 {
-	return std::make_unique<profiler_viewer>(data(), data_name());
+	auto const& casted = dynamic_cast<profiler_viewer const&>(other);
+	_plot_height = casted._plot_height;
+	viewer_of<clk::profiler>::copy(other);
 }
 
 inline void profiler_viewer::set_plot_height(float height)
@@ -47,13 +52,14 @@ inline void profiler_viewer::set_plot_height(float height)
 	_plot_height = height;
 }
 
-inline void profiler_viewer::draw_contents() const
+inline void profiler_viewer::draw_contents(clk::profiler const& profiler) const
 {
-	draw_contents(data()->average_frametime());
+	draw_helper(profiler.average_frametime(), profiler);
 }
 
 template <typename T, typename Ratio>
-void profiler_viewer::draw_contents(std::chrono::duration<T, Ratio> average_frametime) const
+void profiler_viewer::draw_helper(
+	std::chrono::duration<T, Ratio> average_frametime, clk::profiler const& profiler) const
 {
 	static int const threshold = 1'000;
 	std::string unit_postfix_short; // TODO use fmt someday
@@ -67,7 +73,7 @@ void profiler_viewer::draw_contents(std::chrono::duration<T, Ratio> average_fram
 		}
 		else
 		{
-			return draw_contents(std::chrono::duration_cast<std::chrono::microseconds>(average_frametime));
+			return draw_helper(std::chrono::duration_cast<std::chrono::microseconds>(average_frametime), profiler);
 		}
 	}
 	else if constexpr(std::is_same_v<Ratio, std::micro>)
@@ -79,7 +85,7 @@ void profiler_viewer::draw_contents(std::chrono::duration<T, Ratio> average_fram
 		}
 		else
 		{
-			return draw_contents(std::chrono::duration_cast<std::chrono::milliseconds>(average_frametime));
+			return draw_helper(std::chrono::duration_cast<std::chrono::milliseconds>(average_frametime), profiler);
 		}
 	}
 	else if constexpr(std::is_same_v<Ratio, std::milli>)
@@ -91,7 +97,7 @@ void profiler_viewer::draw_contents(std::chrono::duration<T, Ratio> average_fram
 		}
 		else
 		{
-			return draw_contents(std::chrono::duration_cast<std::chrono::seconds>(average_frametime));
+			return draw_helper(std::chrono::duration_cast<std::chrono::seconds>(average_frametime), profiler);
 		}
 	}
 	else if constexpr(std::is_same_v<Ratio, std::ratio<1, 1>>)
@@ -100,7 +106,6 @@ void profiler_viewer::draw_contents(std::chrono::duration<T, Ratio> average_fram
 		unit_postfix_long = "seconds";
 	}
 
-	const auto& profiler = *data();
 	auto longest_frametime = std::chrono::duration_cast<std::chrono::duration<T, Ratio>>(profiler.longest_frametime());
 	if(ImGui::BeginTable("###frametime_table", 3))
 	{

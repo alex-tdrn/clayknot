@@ -27,17 +27,17 @@ namespace clk::gui
 class graph_editor final : public editor_of<clk::graph>
 {
 public:
-	graph_editor() = delete;
-	graph_editor(clk::graph* data, std::string_view data_name,
-		std::optional<std::function<void()>> modified_callback = std::nullopt);
+	graph_editor();
 	graph_editor(graph_editor const&) = delete;
 	graph_editor(graph_editor&&) = delete;
 	auto operator=(graph_editor const&) = delete;
 	auto operator=(graph_editor&&) = delete;
 	~graph_editor() final;
 
-	auto clone() const -> std::unique_ptr<clk::gui::widget> final;
-	void draw_contents() const final;
+	auto clone() const -> std::unique_ptr<widget> override;
+	void copy(widget const& other) override;
+
+	auto draw_contents(clk::graph& graph) const -> bool final;
 
 private:
 	struct connection_change
@@ -47,19 +47,19 @@ private:
 		std::optional<std::pair<clk::port*, clk::port*>> dropped_connection = std::nullopt;
 	};
 
-	ImNodesEditorContext* _context;
+	ImNodesEditorContext* _context = nullptr;
 	std::unique_ptr<impl::widget_cache<clk::node, impl::node_editor>> _node_cache;
 	std::unique_ptr<impl::widget_cache<clk::port, impl::port_editor>> _port_cache;
 	mutable std::vector<std::pair<clk::input*, clk::output*>> _connections;
 	std::unique_ptr<impl::selection_manager<false>> _selection_manager;
 	mutable std::optional<connection_change> _new_connection_in_progress = std::nullopt;
-	mutable std::optional<std::function<bool()>> _modification_callback = std::nullopt; // this is smelly af
+	mutable std::optional<std::function<bool()>> _queued_action = std::nullopt;
 	mutable bool _context_menu_queued = false;
 
-	void draw_graph() const;
-	void draw_menus() const;
-	void update_connections() const;
-	void handle_mouse_interactions() const;
+	void draw_graph(clk::graph& graph) const;
+	void draw_menus(clk::graph& graph) const;
+	void update_connections(clk::graph& graph) const;
+	void handle_mouse_interactions(clk::graph& graph) const;
 	void restore_dropped_connection() const;
 };
 } // namespace clk::gui
