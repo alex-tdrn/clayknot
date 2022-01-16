@@ -1,6 +1,7 @@
 #pragma once
 #include "clk/base/constant_node.hpp"
 #include "clk/base/node.hpp"
+#include "clk/gui/widgets/widget_factory.hpp"
 #include "clk/util/color_rgba.hpp"
 #include "port_editors.hpp"
 #include "widget_cache.hpp"
@@ -47,7 +48,7 @@ class constant_node_editor final : public node_editor
 public:
 	constant_node_editor() = delete;
 	constant_node_editor(clk::constant_node* constant_node, int id, widget_cache<clk::port, port_editor>* port_cache,
-		std::optional<std::function<bool()>>& queued_action);
+		std::optional<std::function<bool()>>& queued_action, widget_factory const& widget_factory);
 	constant_node_editor(constant_node_editor const&) = delete;
 	constant_node_editor(constant_node_editor&&) noexcept = delete;
 	auto operator=(constant_node_editor const&) -> constant_node_editor& = delete;
@@ -55,6 +56,7 @@ public:
 	~constant_node_editor() final = default;
 
 private:
+	widget_factory const& _widget_factory;
 	clk::constant_node* _constant_node;
 	std::unordered_map<clk::output*, std::unique_ptr<clk::gui::editor>> _constant_editors;
 
@@ -150,8 +152,11 @@ inline void node_editor::draw_outputs()
 }
 
 inline constant_node_editor::constant_node_editor(clk::constant_node* constant_node, int id,
-	widget_cache<clk::port, port_editor>* port_cache, std::optional<std::function<bool()>>& queued_action)
-	: node_editor(constant_node, id, port_cache, queued_action), _constant_node(constant_node)
+	widget_cache<clk::port, port_editor>* port_cache, std::optional<std::function<bool()>>& queued_action,
+	widget_factory const& widget_factory)
+	: node_editor(constant_node, id, port_cache, queued_action)
+	, _widget_factory(widget_factory)
+	, _constant_node(constant_node)
 {
 }
 
@@ -176,13 +181,13 @@ inline void constant_node_editor::draw_outputs()
 		if(_constant_editors.count(port) == 0)
 		{
 			_constant_editors[port] =
-				clk::gui::editor::create(clk::gui::data_writer<void>{[=]() {
-																		 return port->data_pointer();
-																	 },
-											 [=]() {
-												 port->update_timestamp();
-												 port->push();
-											 }},
+				_widget_factory.create(clk::gui::data_writer<void>{[=]() {
+																	   return port->data_pointer();
+																   },
+										   [=]() {
+											   port->update_timestamp();
+											   port->push();
+										   }},
 					port->data_type_hash(), port->name());
 			_constant_editors[port]->set_maximum_width(200);
 		}
@@ -227,10 +232,11 @@ inline void constant_node_editor::draw_outputs()
 }
 
 inline auto create_node_editor(clk::node* node, int id, widget_cache<clk::port, port_editor>* portCache,
-	std::optional<std::function<bool()>>& queued_action) -> std::unique_ptr<node_editor>
+	std::optional<std::function<bool()>>& queued_action, widget_factory const& widget_factory)
+	-> std::unique_ptr<node_editor>
 {
 	if(auto* constant_node = dynamic_cast<clk::constant_node*>(node))
-		return std::make_unique<constant_node_editor>(constant_node, id, portCache, queued_action);
+		return std::make_unique<constant_node_editor>(constant_node, id, portCache, queued_action, widget_factory);
 	else
 		return std::make_unique<node_editor>(node, id, portCache, queued_action);
 }

@@ -21,9 +21,11 @@ namespace clk::gui
 graph_editor::graph_editor()
 	: _context(ImNodes::EditorContextCreate())
 	, _node_cache(std::make_unique<impl::widget_cache<node, impl::node_editor>>([&](node* node, int id) {
-		return impl::create_node_editor(node, id, _port_cache.get(), _queued_action);
+		return impl::create_node_editor(node, id, _port_cache.get(), _queued_action, *get_widget_factory());
 	}))
-	, _port_cache(std::make_unique<impl::widget_cache<port, impl::port_editor>>(&impl::create_port_editor))
+	, _port_cache(std::make_unique<impl::widget_cache<port, impl::port_editor>>([&](port* port, int id) {
+		return impl::create_port_editor(port, id, *get_widget_factory());
+	}))
 	, _selection_manager(std::make_unique<impl::selection_manager<false>>(_node_cache.get(), _port_cache.get()))
 
 {

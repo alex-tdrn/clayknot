@@ -17,7 +17,10 @@ graph_viewer::graph_viewer()
 		  std::make_unique<impl::widget_cache<clk::node const, impl::node_viewer>>([&](node const* node, int id) {
 			  return impl::create_node_viewer(node, id, _port_cache.get());
 		  }))
-	, _port_cache(std::make_unique<impl::widget_cache<clk::port const, impl::port_viewer>>(&impl::create_port_viewer))
+	, _port_cache(
+		  std::make_unique<impl::widget_cache<clk::port const, impl::port_viewer>>([&](port const* port, int id) {
+			  return impl::create_port_viewer(port, id, *get_widget_factory());
+		  }))
 	, _selection_manager(std::make_unique<impl::selection_manager<true>>(_node_cache.get(), _port_cache.get()))
 
 {

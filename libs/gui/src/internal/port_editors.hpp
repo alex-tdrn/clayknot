@@ -3,6 +3,8 @@
 #include "clk/base/output.hpp"
 #include "clk/gui/widgets/editor.hpp"
 #include "clk/gui/widgets/viewer.hpp"
+#include "clk/gui/widgets/widget.hpp"
+#include "clk/gui/widgets/widget_factory.hpp"
 #include "clk/util/color_rgba.hpp"
 
 #include <imnodes.h>
@@ -14,7 +16,7 @@ class port_editor
 {
 public:
 	port_editor() = delete;
-	port_editor(clk::port* port, int id);
+	port_editor(clk::port* port, int id, widget_factory const& widget_factory);
 	port_editor(port_editor const&) = delete;
 	port_editor(port_editor&&) noexcept = delete;
 	auto operator=(port_editor const&) -> port_editor& = delete;
@@ -40,7 +42,7 @@ class input_editor final : public port_editor
 {
 public:
 	input_editor() = delete;
-	input_editor(clk::input* port, int id);
+	input_editor(clk::input* port, int id, widget_factory const& widget_factory);
 	input_editor(input_editor const&) = delete;
 	input_editor(input_editor&&) noexcept = delete;
 	auto operator=(input_editor const&) -> input_editor& = delete;
@@ -59,7 +61,7 @@ class output_editor final : public port_editor
 {
 public:
 	output_editor() = delete;
-	output_editor(clk::output* port, int id);
+	output_editor(clk::output* port, int id, widget_factory const& widget_factory);
 	output_editor(output_editor const&) = delete;
 	output_editor(output_editor&&) noexcept = delete;
 	auto operator=(output_editor const&) -> output_editor& = delete;
@@ -73,10 +75,10 @@ private:
 	clk::output* _port = nullptr;
 };
 
-inline port_editor::port_editor(clk::port* port, int id)
+inline port_editor::port_editor(clk::port* port, int id, widget_factory const& widget_factory)
 	: _id(id)
 	, _color(color_rgba(color_rgb::create_random(port->data_type_hash()), 1.0f).packed())
-	, _data_viewer(clk::gui::viewer::create(data_reader<void>{[=]() {
+	, _data_viewer(widget_factory.create(data_reader<void>{[=]() {
 		return port->data_pointer();
 	}},
 		  port->data_type_hash(), port->name()))
@@ -104,17 +106,18 @@ inline void port_editor::set_stable_height(bool stable_height)
 	_stable_height = stable_height;
 }
 
-inline input_editor::input_editor(clk::input* port, int id) : port_editor(port, id), _port(port)
+inline input_editor::input_editor(clk::input* port, int id, widget_factory const& widget_factory)
+	: port_editor(port, id, widget_factory), _port(port)
 {
 	auto* default_port = &port->default_port();
 
-	_default_data_editor = clk::gui::editor::create(clk::gui::data_writer<void>{[=]() {
-																					return default_port->data_pointer();
-																				},
-														[=]() {
-															default_port->update_timestamp();
-															default_port->push();
-														}},
+	_default_data_editor = widget_factory.create(clk::gui::data_writer<void>{[=]() {
+																				 return default_port->data_pointer();
+																			 },
+													 [=]() {
+														 default_port->update_timestamp();
+														 default_port->push();
+													 }},
 		default_port->data_type_hash(), port->name());
 	_default_data_editor->set_maximum_width(200);
 }
@@ -167,7 +170,8 @@ inline void input_editor::draw(clk::gui::widget* override_widget)
 	ImNodes::PopColorStyle();
 }
 
-inline output_editor::output_editor(clk::output* port, int id) : port_editor(port, id), _port(port)
+inline output_editor::output_editor(clk::output* port, int id, widget_factory const& widget_factory)
+	: port_editor(port, id, widget_factory), _port(port)
 {
 }
 
@@ -198,12 +202,13 @@ inline void output_editor::draw(clk::gui::widget* override_widget)
 	ImNodes::PopColorStyle();
 }
 
-inline auto create_port_editor(clk::port* port, int id) -> std::unique_ptr<port_editor>
+inline auto create_port_editor(clk::port* port, int id, widget_factory const& widget_factory)
+	-> std::unique_ptr<port_editor>
 {
 	if(auto* input = dynamic_cast<clk::input*>(port); input != nullptr)
-		return std::make_unique<input_editor>(input, id);
+		return std::make_unique<input_editor>(input, id, widget_factory);
 	else if(auto* output = dynamic_cast<clk::output*>(port); output != nullptr)
-		return std::make_unique<output_editor>(output, id);
+		return std::make_unique<output_editor>(output, id, widget_factory);
 	return nullptr;
 }
 

@@ -7,6 +7,8 @@
 
 namespace clk::gui
 {
+class widget_factory;
+
 class widget
 {
 public:
@@ -32,6 +34,8 @@ public:
 	auto name() const -> std::string_view;
 	void set_interactivity(bool interactive) noexcept;
 	auto is_interactive() const noexcept -> bool;
+	auto get_widget_factory() const -> std::shared_ptr<widget_factory> const&;
+	void set_widget_factory(std::shared_ptr<widget_factory> factory);
 
 protected:
 	auto available_width() const -> float;
@@ -42,6 +46,7 @@ private:
 	std::string _name;
 	bool _draw_title = true;
 	bool _interactive = true;
+	std::shared_ptr<widget_factory> _factory;
 	mutable std::optional<float> _maximum_width;
 	mutable glm::vec2 _last_size = {0.0f, 0.0f};
 	mutable bool _extended_available = false;
@@ -121,6 +126,16 @@ inline void widget::set_interactivity(bool interactive) noexcept
 inline auto widget::is_interactive() const noexcept -> bool
 {
 	return _interactive;
+}
+
+inline auto widget::get_widget_factory() const -> std::shared_ptr<widget_factory> const&
+{
+	return _factory;
+}
+
+inline void widget::set_widget_factory(std::shared_ptr<widget_factory> factory)
+{
+	_factory = std::move(factory);
 }
 
 inline void widget::prefer_extended()

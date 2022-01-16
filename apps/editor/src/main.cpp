@@ -6,6 +6,7 @@
 #include "clk/gui/panel.hpp"
 #include "clk/gui/widgets/editor.hpp"
 #include "clk/gui/widgets/viewer.hpp"
+#include "clk/gui/widgets/widget_factory.hpp"
 #include "clk/util/color_rgba.hpp"
 #include "clk/util/profiler.hpp"
 
@@ -88,7 +89,7 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 		ImPlot::CreateContext();
 
 		clk::algorithms::init();
-		clk::gui::init();
+		auto widget_factory = clk::gui::create_default_factory();
 
 		auto graph1 = []() -> clk::graph {
 			auto random_color =
@@ -108,11 +109,12 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 			return ret;
 		}();
 
-		clk::gui::panel::create_orphan(clk::gui::viewer::create(clk::gui::data_reader(&graph1), "graph1 viewer"));
-		clk::gui::panel::create_orphan(clk::gui::editor::create(clk::gui::data_writer(&graph1), "graph1 editor"));
+		clk::gui::panel::create_orphan(widget_factory->create(clk::gui::data_reader{&graph1}, "graph1 viewer"));
+
+		clk::gui::panel::create_orphan(widget_factory->create(clk::gui::data_writer{&graph1}, "graph1 editor"));
 
 		clk::profiler profiler;
-		auto profiler_panel = clk::gui::panel(clk::gui::viewer::create(clk::gui::data_reader(&profiler), "Frametimes"));
+		auto profiler_panel = clk::gui::panel(widget_factory->create(clk::gui::data_reader{&profiler}, "Frametimes"));
 		profiler_panel.set_title_bar_visibility(false);
 		profiler_panel.set_resizability(clk::gui::panel::resizability::off);
 		profiler_panel.set_docking(false);

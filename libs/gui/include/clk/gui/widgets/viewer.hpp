@@ -6,16 +6,9 @@
 #include "clk/util/color_rgb.hpp"
 #include "clk/util/color_rgba.hpp"
 #include "clk/util/time_unit.hpp"
-#include "clk/util/type_list.hpp"
 
-#include <any>
-#include <exception>
 #include <imgui.h>
-#include <memory>
 #include <range/v3/view.hpp>
-#include <stdexcept>
-#include <typeindex>
-#include <unordered_map>
 
 namespace clk::gui
 {
@@ -28,21 +21,6 @@ public:
 	auto operator=(viewer const&) -> viewer& = delete;
 	auto operator=(viewer&&) -> viewer& = delete;
 	~viewer() override = default;
-
-	template <typename data_type, typename viewer_implementation>
-	static void register_factory();
-	template <typename data_type>
-	static auto create(data_reader<data_type> data_reader, std::string_view name) -> std::unique_ptr<viewer>;
-	static auto create(data_reader<void> data_reader, std::uint64_t data_hash, std::string_view name)
-		-> std::unique_ptr<viewer>;
-
-private:
-	using factory = std::unique_ptr<viewer> (*)(std::any, std::string_view);
-	using nested_data_reader_factory = std::any (*)(data_reader<void>);
-
-	static auto create(std::any data_reader, std::string_view name) -> std::unique_ptr<viewer>;
-	static auto factories_map() -> std::unordered_map<std::uint64_t, factory>&;
-	static auto nested_data_reader_factories_map() -> std::unordered_map<std::uint64_t, nested_data_reader_factory>&;
 };
 
 template <typename data_type>
@@ -67,88 +45,6 @@ private:
 
 	void draw_contents() const final;
 };
-
-template <typename data_type, typename viewer_implementation>
-inline void viewer::register_factory()
-{
-	auto data_reader_hash = std::type_index(typeid(data_reader<data_type>)).hash_code();
-	factories_map()[data_reader_hash] = [](std::any data, std::string_view name) -> std::unique_ptr<viewer> {
-		auto viewer = std::make_unique<viewer_implementation>();
-		viewer->set_name(name);
-		viewer->set_data_reader(std::any_cast<data_reader<data_type>>(data));
-		return viewer;
-	};
-
-	auto data_hash = std::type_index(typeid(data_type)).hash_code();
-	nested_data_reader_factories_map()[data_hash] = [](data_reader<void> type_erased_data_reader) -> std::any {
-		return data_reader<data_type>{[nested_reader = std::move(type_erased_data_reader)]() {
-			return static_cast<data_type const*>(nested_reader.read());
-		}};
-	};
-}
-
-template <typename data_type>
-auto viewer::create(data_reader<data_type> data_reader, std::string_view name) -> std::unique_ptr<viewer>
-{
-	return viewer::create(std::any(std::move(data_reader)), name);
-}
-
-inline auto viewer::create(data_reader<void> data_reader, std::uint64_t data_hash, std::string_view name)
-	-> std::unique_ptr<viewer>
-{
-	if(nested_data_reader_factories_map().count(data_hash) == 0)
-		throw std::runtime_error("Cannot create requested viewer");
-	return create(nested_data_reader_factories_map()[data_hash](std::move(data_reader)), name);
-}
-
-inline auto viewer::create(std::any data_reader, std::string_view name) -> std::unique_ptr<viewer>
-{
-	auto& factories = factories_map();
-	auto hash = data_reader.type().hash_code();
-	if(factories.count(hash) == 0)
-		throw std::runtime_error("Cannot create requested viewer");
-	return factories.at(hash)(std::move(data_reader), name);
-}
-
-inline auto viewer::factories_map() -> std::unordered_map<std::uint64_t, factory>&
-{
-	static auto factories = []() {
-		std::unordered_map<std::uint64_t, factory> map;
-
-		using supported_types = meta::type_list<bool, int, float, glm::vec2, glm::vec3, glm::vec4, clk::bounded<int>,
-			clk::bounded<float>, clk::bounded<glm::vec2>, clk::bounded<glm::vec3>, clk::bounded<glm::vec4>,
-			clk::color_rgb, clk::color_rgba, std::chrono::nanoseconds>;
-
-		supported_types::for_each([&map](auto* dummy) {
-			using current_type = std::remove_cv_t<std::remove_pointer_t<decltype(dummy)>>;
-
-			auto data_reader_hash = std::type_index(typeid(data_reader<current_type>)).hash_code();
-			assert("Type hash function collision!" && map.count(data_reader_hash) == 0);
-
-			map[data_reader_hash] = [](std::any data, std::string_view name) -> std::unique_ptr<viewer> {
-				auto viewer = std::make_unique<viewer_of<current_type>>();
-				viewer->set_name(name);
-				viewer->set_data_reader(std::any_cast<data_reader<current_type>&&>(std::move(data)));
-				return viewer;
-			};
-
-			auto data_hash = std::type_index(typeid(current_type)).hash_code();
-			nested_data_reader_factories_map()[data_hash] = [](data_reader<void> type_erased_data_reader) -> std::any {
-				return data_reader<current_type>{[nested_reader = std::move(type_erased_data_reader)]() {
-					return static_cast<current_type const*>(nested_reader.read());
-				}};
-			};
-		});
-		return map;
-	}();
-	return factories;
-}
-
-inline auto viewer::nested_data_reader_factories_map() -> std::unordered_map<std::uint64_t, nested_data_reader_factory>&
-{
-	static std::unordered_map<std::uint64_t, nested_data_reader_factory> map;
-	return map;
-}
 
 template <typename data_type>
 auto viewer_of<data_type>::clone() const -> std::unique_ptr<widget>

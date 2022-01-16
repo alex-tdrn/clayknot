@@ -4,16 +4,32 @@
 #include "clk/gui/widgets/graph_editor.hpp"
 #include "clk/gui/widgets/graph_viewer.hpp"
 #include "clk/gui/widgets/profiler_viewer.hpp"
+#include "clk/gui/widgets/widget_factory.hpp"
+#include "clk/util/type_list.hpp"
 
 #include <range/v3/algorithm.hpp>
 
 namespace clk::gui
 {
-void init()
+auto create_default_factory() -> std::shared_ptr<widget_factory>
 {
-	editor::register_factory<clk::graph, graph_editor>();
-	viewer::register_factory<clk::graph, graph_viewer>();
-	viewer::register_factory<clk::profiler, profiler_viewer>();
+	auto factory = std::make_shared<widget_factory>();
+
+	using base_types = meta::type_list<bool, int, float, glm::vec2, glm::vec3, glm::vec4, clk::bounded<int>,
+		clk::bounded<float>, clk::bounded<glm::vec2>, clk::bounded<glm::vec3>, clk::bounded<glm::vec4>, clk::color_rgb,
+		clk::color_rgba, std::chrono::nanoseconds>;
+
+	base_types::for_each([&](auto* dummy) {
+		using current_type = std::remove_cv_t<std::remove_pointer_t<decltype(dummy)>>;
+		factory->register_viewer<current_type, viewer_of<current_type>>();
+		factory->register_editor<current_type, editor_of<current_type>>();
+	});
+
+	factory->register_viewer<clk::graph, graph_viewer>();
+	factory->register_viewer<clk::profiler, profiler_viewer>();
+	factory->register_editor<clk::graph, graph_editor>();
+
+	return factory;
 }
 
 void draw()

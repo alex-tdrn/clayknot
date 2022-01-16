@@ -6,12 +6,9 @@
 #include "clk/util/color_rgb.hpp"
 #include "clk/util/color_rgba.hpp"
 #include "clk/util/time_unit.hpp"
-#include "clk/util/type_list.hpp"
 
-#include <any>
 #include <imgui.h>
 #include <range/v3/view.hpp>
-#include <typeindex>
 
 namespace clk::gui
 {
@@ -24,21 +21,6 @@ public:
 	auto operator=(editor const&) -> editor& = delete;
 	auto operator=(editor&&) -> editor& = delete;
 	~editor() override = default;
-
-	template <typename data_type, typename editorImplementation>
-	static void register_factory();
-	template <typename data_type>
-	static auto create(data_writer<data_type> data_writer, std::string_view name) -> std::unique_ptr<editor>;
-	static auto create(data_writer<void> data_writer, std::uint64_t data_hash, std::string_view name)
-		-> std::unique_ptr<editor>;
-
-private:
-	using factory = std::unique_ptr<editor> (*)(std::any, std::string_view);
-	using nested_data_writer_factory = std::any (*)(data_writer<void>);
-
-	static auto create(std::any data_writer, std::string_view name) -> std::unique_ptr<editor>;
-	static auto factories_map() -> std::unordered_map<std::uint64_t, factory>&;
-	static auto nested_data_writer_factories_map() -> std::unordered_map<std::uint64_t, nested_data_writer_factory>&;
 };
 
 template <typename data_type>
@@ -63,97 +45,6 @@ private:
 
 	void draw_contents() const final;
 };
-
-template <typename data_type, typename editor_implementation>
-inline void editor::register_factory()
-{
-	auto data_writer_hash = std::type_index(typeid(data_writer<data_type>)).hash_code();
-	factories_map()[data_writer_hash] = [](std::any data, std::string_view name) -> std::unique_ptr<editor> {
-		auto editor = std::make_unique<editor_implementation>();
-		editor->set_name(name);
-		editor->set_data_writer(std::any_cast<data_writer<data_type>>(data));
-		return editor;
-	};
-
-	auto data_hash = std::type_index(typeid(data_type)).hash_code();
-	nested_data_writer_factories_map()[data_hash] = [](data_writer<void> type_erased_data_writer) -> std::any {
-		auto getter = [=]() {
-			return static_cast<data_type*>(type_erased_data_writer.read());
-		};
-		auto setter = [type_erased_data_writer = std::move(type_erased_data_writer)](data_type* data) {
-			type_erased_data_writer.write(data);
-		};
-		return data_writer<data_type>{std::move(getter), std::move(setter)};
-	};
-}
-
-template <typename data_type>
-auto editor::create(data_writer<data_type> data_writer, std::string_view name) -> std::unique_ptr<editor>
-{
-	return editor::create(std::any(std::move(data_writer)), name);
-}
-
-inline auto editor::create(data_writer<void> data_writer, std::uint64_t data_hash, std::string_view name)
-	-> std::unique_ptr<editor>
-{
-	if(nested_data_writer_factories_map().count(data_hash) == 0)
-		throw std::runtime_error("Cannot create requested editor");
-	return create(nested_data_writer_factories_map()[data_hash](std::move(data_writer)), name);
-}
-
-inline auto editor::create(std::any data_writer, std::string_view name) -> std::unique_ptr<editor>
-{
-	auto& factories = factories_map();
-	auto hash = data_writer.type().hash_code();
-	if(factories.count(hash) == 0)
-		throw std::runtime_error("Cannot create requested editor");
-	return factories.at(hash)(std::move(data_writer), name);
-}
-
-inline auto editor::factories_map() -> std::unordered_map<std::uint64_t, factory>&
-{
-	static auto factories = []() {
-		std::unordered_map<std::uint64_t, factory> map;
-
-		using supported_types = meta::type_list<bool, int, float, glm::vec2, glm::vec3, glm::vec4, clk::bounded<int>,
-			clk::bounded<float>, clk::bounded<glm::vec2>, clk::bounded<glm::vec3>, clk::bounded<glm::vec4>,
-			clk::color_rgb, clk::color_rgba, std::chrono::nanoseconds>;
-
-		supported_types::for_each([&map](auto* dummy) {
-			using current_type = std::remove_cv_t<std::remove_pointer_t<decltype(dummy)>>;
-
-			auto data_writer_hash = std::type_index(typeid(data_writer<current_type>)).hash_code();
-			assert("Type hash function collision!" && map.count(data_writer_hash) == 0);
-
-			map[data_writer_hash] = [](std::any data, std::string_view name) -> std::unique_ptr<editor> {
-				auto editor = std::make_unique<editor_of<current_type>>();
-				editor->set_name(name);
-				editor->set_data_writer(std::any_cast<data_writer<current_type>&&>(std::move(data)));
-				return editor;
-			};
-
-			auto data_hash = std::type_index(typeid(current_type)).hash_code();
-			nested_data_writer_factories_map()[data_hash] = [](data_writer<void> type_erased_data_writer) -> std::any {
-				auto getter = [=]() {
-					return static_cast<current_type*>(type_erased_data_writer.read());
-				};
-				auto setter = [type_erased_data_writer = std::move(type_erased_data_writer)](current_type* data) {
-					type_erased_data_writer.write(data);
-				};
-				return data_writer<current_type>{std::move(getter), std::move(setter)};
-			};
-		});
-
-		return map;
-	}();
-	return factories;
-}
-
-inline auto editor::nested_data_writer_factories_map() -> std::unordered_map<std::uint64_t, nested_data_writer_factory>&
-{
-	static std::unordered_map<std::uint64_t, nested_data_writer_factory> map;
-	return map;
-}
 
 template <typename data_type>
 auto editor_of<data_type>::clone() const -> std::unique_ptr<widget>
