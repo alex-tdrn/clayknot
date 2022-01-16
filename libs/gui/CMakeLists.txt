@@ -7,6 +7,8 @@ add_library(
 	"include/clk/gui/widgets/viewer.hpp"
 	"include/clk/gui/widgets/data_writer.hpp"
 	"include/clk/gui/widgets/editor.hpp"
+	"include/clk/gui/widgets/default_viewers.hpp"
+	"include/clk/gui/widgets/default_editors.hpp"
 	"include/clk/gui/widgets/graph_viewer.hpp"
 	"include/clk/gui/widgets/graph_editor.hpp"
 	"include/clk/gui/widgets/profiler_viewer.hpp"

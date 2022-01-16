@@ -1,6 +1,8 @@
 #include "clk/gui/init.hpp"
 
 #include "clk/gui/panel.hpp"
+#include "clk/gui/widgets/default_editors.hpp"
+#include "clk/gui/widgets/default_viewers.hpp"
 #include "clk/gui/widgets/graph_editor.hpp"
 #include "clk/gui/widgets/graph_viewer.hpp"
 #include "clk/gui/widgets/profiler_viewer.hpp"
@@ -15,11 +17,11 @@ auto create_default_factory() -> std::shared_ptr<widget_factory>
 {
 	auto factory = std::make_shared<widget_factory>();
 
-	using base_types = meta::type_list<bool, int, float, glm::vec2, glm::vec3, glm::vec4, clk::bounded<int>,
+	using default_types = meta::type_list<bool, int, float, glm::vec2, glm::vec3, glm::vec4, clk::bounded<int>,
 		clk::bounded<float>, clk::bounded<glm::vec2>, clk::bounded<glm::vec3>, clk::bounded<glm::vec4>, clk::color_rgb,
 		clk::color_rgba, std::chrono::nanoseconds>;
 
-	base_types::for_each([&](auto* dummy) {
+	default_types::for_each([&](auto* dummy) {
 		using current_type = std::remove_cv_t<std::remove_pointer_t<decltype(dummy)>>;
 		factory->register_viewer<current_type, viewer_of<current_type>>();
 		factory->register_editor<current_type, editor_of<current_type>>();
