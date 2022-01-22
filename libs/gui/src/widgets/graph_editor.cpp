@@ -18,8 +18,9 @@
 
 namespace clk::gui
 {
-graph_editor::graph_editor()
-	: _context(ImNodes::EditorContextCreate())
+graph_editor::graph_editor(std::shared_ptr<widget_factory> factory, std::string_view name)
+	: editor_of<clk::graph>(std::move(factory), name)
+	, _context(ImNodes::EditorContextCreate())
 	, _node_cache(std::make_unique<impl::widget_cache<node, impl::node_editor>>([&](node* node, int id) {
 		return impl::create_node_editor(node, id, _port_cache.get(), _queued_action, *get_widget_factory());
 	}))
@@ -41,7 +42,7 @@ graph_editor::~graph_editor()
 
 auto graph_editor::clone() const -> std::unique_ptr<widget>
 {
-	auto clone = std::make_unique<graph_editor>();
+	auto clone = std::make_unique<graph_editor>(this->get_widget_factory(), this->name());
 	clone->copy(*this);
 	return clone;
 }

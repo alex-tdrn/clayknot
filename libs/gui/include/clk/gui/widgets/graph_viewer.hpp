@@ -2,6 +2,7 @@
 
 #include "clk/base/graph.hpp"
 #include "clk/gui/widgets/viewer.hpp"
+#include "clk/gui/widgets/widget.hpp"
 
 #include <imnodes.h>
 
@@ -21,7 +22,7 @@ namespace clk::gui
 class graph_viewer final : public viewer_of<clk::graph>
 {
 public:
-	graph_viewer();
+	graph_viewer(std::shared_ptr<widget_factory> factory, std::string_view name);
 	graph_viewer(graph_viewer const&) = delete;
 	graph_viewer(graph_viewer&&) = delete;
 	auto operator=(graph_viewer const&) -> graph_viewer& = delete;

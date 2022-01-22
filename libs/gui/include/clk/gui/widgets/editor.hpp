@@ -10,7 +10,8 @@ namespace clk::gui
 class editor : public widget
 {
 public:
-	editor() = default;
+	using widget::widget;
+	editor() = delete;
 	editor(editor const&) = delete;
 	editor(editor&&) = delete;
 	auto operator=(editor const&) -> editor& = delete;
@@ -22,7 +23,8 @@ template <typename data_type>
 class editor_of : public editor
 {
 public:
-	editor_of() = default;
+	using editor::editor;
+	editor_of() = delete;
 	editor_of(editor_of const&) = delete;
 	editor_of(editor_of&&) = delete;
 	auto operator=(editor_of const&) -> editor_of& = delete;
@@ -44,7 +46,7 @@ private:
 template <typename data_type>
 auto editor_of<data_type>::clone() const -> std::unique_ptr<widget>
 {
-	auto clone = std::make_unique<editor_of<data_type>>();
+	auto clone = std::make_unique<editor_of<data_type>>(get_widget_factory(), name());
 	clone->copy(*this);
 	return clone;
 }

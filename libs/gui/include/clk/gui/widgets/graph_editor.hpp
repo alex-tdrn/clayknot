@@ -27,7 +27,7 @@ namespace clk::gui
 class graph_editor final : public editor_of<clk::graph>
 {
 public:
-	graph_editor();
+	graph_editor(std::shared_ptr<widget_factory> factory, std::string_view name);
 	graph_editor(graph_editor const&) = delete;
 	graph_editor(graph_editor&&) = delete;
 	auto operator=(graph_editor const&) = delete;

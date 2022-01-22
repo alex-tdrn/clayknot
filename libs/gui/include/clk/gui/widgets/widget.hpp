@@ -12,7 +12,8 @@ class widget_factory;
 class widget
 {
 public:
-	widget() = default;
+	widget() = delete;
+	widget(std::shared_ptr<widget_factory> factory, std::string_view name);
 	widget(widget const&) = delete;
 	widget(widget&&) = delete;
 	auto operator=(widget const&) -> widget& = delete;
@@ -52,6 +53,11 @@ private:
 	mutable bool _extended_available = false;
 	mutable bool _extended_preferred = false;
 };
+
+inline widget::widget(std::shared_ptr<widget_factory> factory, std::string_view name)
+	: _name(name), _factory(std::move(factory))
+{
+}
 
 inline void widget::copy(widget const& other)
 {

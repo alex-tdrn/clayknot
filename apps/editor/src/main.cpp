@@ -1,9 +1,13 @@
+#include "clk/algorithms/boolean.hpp"
 #include "clk/algorithms/color.hpp"
 #include "clk/algorithms/init.hpp"
 #include "clk/base/algorithm_node.hpp"
+#include "clk/base/constant_node.hpp"
 #include "clk/base/graph.hpp"
 #include "clk/gui/init.hpp"
 #include "clk/gui/panel.hpp"
+#include "clk/gui/widgets/composite_editor.hpp"
+#include "clk/gui/widgets/composite_viewer.hpp"
 #include "clk/gui/widgets/editor.hpp"
 #include "clk/gui/widgets/viewer.hpp"
 #include "clk/gui/widgets/widget_factory.hpp"
@@ -90,6 +94,70 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 
 		clk::algorithms::init();
 		auto widget_factory = clk::gui::create_default_factory();
+
+		struct test_struct
+		{
+			int a = 2;
+			float b = 3.0;
+			clk::color_rgba c = clk::color_rgba::create_random();
+			clk::graph g = []() -> clk::graph {
+				clk::graph ret;
+				ret.add_node(std::make_unique<clk::algorithm_node>(std::make_unique<clk::algorithms::boolean_and>()));
+				ret.add_node(std::make_unique<clk::algorithm_node>(std::make_unique<clk::algorithms::boolean_nand>()));
+				ret.add_node(std::make_unique<clk::algorithm_node>(std::make_unique<clk::algorithms::boolean_or>()));
+				ret.add_node(std::make_unique<clk::algorithm_node>(std::make_unique<clk::algorithms::boolean_xor>()));
+				ret.add_node([]() {
+					auto node = std::make_unique<clk::constant_node>();
+					node->add_output(std::make_unique<clk::output_of<bool>>());
+					node->add_output(std::make_unique<clk::output_of<bool>>());
+
+					return node;
+				}());
+
+				return ret;
+			}();
+		};
+		test_struct composite_data;
+
+		widget_factory->register_viewer<test_struct>(
+			[](clk::gui::data_reader<test_struct> reader, std::shared_ptr<clk::gui::widget_factory> factory,
+				std::string_view name) {
+				auto viewer = std::make_unique<clk::gui::composite_viewer_of<test_struct>>(std::move(factory), name);
+				viewer->set_data_reader(std::move(reader));
+
+				viewer->add_sub_viewer(&test_struct::a, "a viewer");
+				viewer->add_sub_viewer(&test_struct::b, "b viewer");
+				viewer->add_sub_viewer<float>(
+					[result = 0.0f](test_struct const& t) mutable -> float const* {
+						result = t.a + t.b;
+						return &result;
+					},
+					"a + b viewer");
+				viewer->add_sub_viewer(&test_struct::c, "c viewer");
+				viewer->add_sub_viewer(&test_struct::g, "g viewer");
+
+				return viewer;
+			});
+
+		widget_factory->register_editor<test_struct>(
+			[](clk::gui::data_writer<test_struct> writer, std::shared_ptr<clk::gui::widget_factory> factory,
+				std::string_view name) {
+				auto editor = std::make_unique<clk::gui::composite_editor_of<test_struct>>(std::move(factory), name);
+				editor->set_data_writer(std::move(writer));
+
+				editor->add_sub_editor(&test_struct::a, "a editor");
+				editor->add_sub_editor(&test_struct::b, "b editor");
+				editor->add_sub_editor(&test_struct::c, "c editor");
+				editor->add_sub_editor(&test_struct::g, "g editor");
+
+				return editor;
+			});
+
+		clk::gui::panel::create_orphan(
+			widget_factory->create(clk::gui::data_reader{&composite_data}, "composite data viewer"));
+
+		clk::gui::panel::create_orphan(
+			widget_factory->create(clk::gui::data_writer{&composite_data}, "composite data editor"));
 
 		auto graph1 = []() -> clk::graph {
 			auto random_color =

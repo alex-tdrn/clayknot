@@ -10,7 +10,8 @@ namespace clk::gui
 class profiler_viewer final : public viewer_of<clk::profiler>
 {
 public:
-	profiler_viewer() = default;
+	using viewer_of<clk::profiler>::viewer_of;
+	profiler_viewer() = delete;
 	profiler_viewer(profiler_viewer const&) = delete;
 	profiler_viewer(profiler_viewer&&) = delete;
 	auto operator=(profiler_viewer const&) -> profiler_viewer& = delete;
@@ -35,7 +36,7 @@ private:
 
 inline auto profiler_viewer::clone() const -> std::unique_ptr<widget>
 {
-	auto clone = std::make_unique<profiler_viewer>();
+	auto clone = std::make_unique<profiler_viewer>(this->get_widget_factory(), this->name());
 	clone->copy(*this);
 	return clone;
 }

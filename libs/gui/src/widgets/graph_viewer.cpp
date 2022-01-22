@@ -11,8 +11,9 @@
 
 namespace clk::gui
 {
-graph_viewer::graph_viewer()
-	: _context(ImNodes::EditorContextCreate())
+graph_viewer::graph_viewer(std::shared_ptr<widget_factory> factory, std::string_view name)
+	: viewer_of<clk::graph>(std::move(factory), name)
+	, _context(ImNodes::EditorContextCreate())
 	, _node_cache(
 		  std::make_unique<impl::widget_cache<clk::node const, impl::node_viewer>>([&](node const* node, int id) {
 			  return impl::create_node_viewer(node, id, _port_cache.get());
@@ -36,7 +37,7 @@ graph_viewer::~graph_viewer()
 
 auto graph_viewer::clone() const -> std::unique_ptr<widget>
 {
-	auto clone = std::make_unique<graph_viewer>();
+	auto clone = std::make_unique<graph_viewer>(this->get_widget_factory(), this->name());
 	clone->copy(*this);
 	return clone;
 }

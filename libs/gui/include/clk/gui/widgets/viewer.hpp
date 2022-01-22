@@ -10,7 +10,8 @@ namespace clk::gui
 class viewer : public widget
 {
 public:
-	viewer() = default;
+	using widget::widget;
+	viewer() = delete;
 	viewer(viewer const&) = delete;
 	viewer(viewer&&) = delete;
 	auto operator=(viewer const&) -> viewer& = delete;
@@ -22,7 +23,8 @@ template <typename data_type>
 class viewer_of : public viewer
 {
 public:
-	viewer_of() = default;
+	using viewer::viewer;
+	viewer_of() = delete;
 	viewer_of(viewer_of const&) = delete;
 	viewer_of(viewer_of&&) = delete;
 	auto operator=(viewer_of const&) -> viewer_of& = delete;
@@ -44,7 +46,7 @@ private:
 template <typename data_type>
 auto viewer_of<data_type>::clone() const -> std::unique_ptr<widget>
 {
-	auto clone = std::make_unique<viewer_of<data_type>>();
+	auto clone = std::make_unique<viewer_of<data_type>>(get_widget_factory(), name());
 	clone->copy(*this);
 	return clone;
 }
@@ -55,6 +57,7 @@ void viewer_of<data_type>::copy(widget const& other)
 	auto const& casted = dynamic_cast<viewer_of<data_type> const&>(other);
 	_data = casted._data;
 	viewer::copy(other);
+	get_widget_factory();
 }
 
 template <typename data_type>

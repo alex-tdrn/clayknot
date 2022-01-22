@@ -30,11 +30,15 @@ public:
 	auto is_editor_registered() const -> bool;
 
 	template <typename data_type>
-	void register_viewer(std::function<std::unique_ptr<viewer>(data_reader<data_type>, std::string_view)> factory);
+	void register_viewer(std::function<std::unique_ptr<viewer>(
+			data_reader<data_type>, std::shared_ptr<widget_factory>, std::string_view)>
+			factory);
 	template <typename data_type, typename viewer_implementation>
 	void register_viewer();
 	template <typename data_type>
-	void register_editor(std::function<std::unique_ptr<editor>(data_writer<data_type>, std::string_view)> factory);
+	void register_editor(std::function<std::unique_ptr<editor>(
+			data_writer<data_type>, std::shared_ptr<widget_factory>, std::string_view)>
+			factory);
 	template <typename data_type, typename editor_implementation>
 	void register_editor();
 
@@ -82,13 +86,13 @@ inline auto widget_factory::is_editor_registered() const -> bool
 
 template <typename data_type>
 inline void widget_factory::register_viewer(
-	std::function<std::unique_ptr<viewer>(data_reader<data_type>, std::string_view)> factory)
+	std::function<std::unique_ptr<viewer>(data_reader<data_type>, std::shared_ptr<widget_factory>, std::string_view)>
+		factory)
 {
 	auto data_reader_hash = std::type_index(typeid(data_reader<data_type>)).hash_code();
 	_viewer_factories[data_reader_hash] = [this, factory = std::move(factory)](
 											  std::any data, std::string_view name) -> std::unique_ptr<viewer> {
-		auto viewer = factory(std::any_cast<data_reader<data_type>&&>(std::move(data)), name);
-		viewer->set_widget_factory(shared_from_this());
+		auto viewer = factory(std::any_cast<data_reader<data_type>&&>(std::move(data)), shared_from_this(), name);
 		return viewer;
 	};
 
@@ -103,24 +107,23 @@ inline void widget_factory::register_viewer(
 template <typename data_type, typename viewer_implementation>
 inline void widget_factory::register_viewer()
 {
-	register_viewer<data_type>(
-		[](data_reader<data_type> data_reader, std::string_view name) -> std::unique_ptr<viewer> {
-			auto viewer = std::make_unique<viewer_implementation>();
-			viewer->set_name(name);
-			viewer->set_data_reader(std::move(data_reader));
-			return viewer;
-		});
+	register_viewer<data_type>([](data_reader<data_type> data_reader, std::shared_ptr<widget_factory> factory,
+								   std::string_view name) -> std::unique_ptr<viewer> {
+		auto viewer = std::make_unique<viewer_implementation>(std::move(factory), name);
+		viewer->set_data_reader(std::move(data_reader));
+		return viewer;
+	});
 }
 
 template <typename data_type>
 inline void widget_factory::register_editor(
-	std::function<std::unique_ptr<editor>(data_writer<data_type>, std::string_view)> factory)
+	std::function<std::unique_ptr<editor>(data_writer<data_type>, std::shared_ptr<widget_factory>, std::string_view)>
+		factory)
 {
 	auto data_writer_hash = std::type_index(typeid(data_writer<data_type>)).hash_code();
 	_editor_factories[data_writer_hash] = [this, factory = std::move(factory)](
 											  std::any data, std::string_view name) -> std::unique_ptr<editor> {
-		auto editor = factory(std::any_cast<data_writer<data_type>&&>(std::move(data)), name);
-		editor->set_widget_factory(shared_from_this());
+		auto editor = factory(std::any_cast<data_writer<data_type>&&>(std::move(data)), shared_from_this(), name);
 		return editor;
 	};
 
@@ -139,13 +142,12 @@ inline void widget_factory::register_editor(
 template <typename data_type, typename editor_implementation>
 inline void widget_factory::register_editor()
 {
-	register_editor<data_type>(
-		[](data_writer<data_type> data_writer, std::string_view name) -> std::unique_ptr<editor> {
-			auto editor = std::make_unique<editor_implementation>();
-			editor->set_name(name);
-			editor->set_data_writer(std::move(data_writer));
-			return editor;
-		});
+	register_editor<data_type>([](data_writer<data_type> data_writer, std::shared_ptr<widget_factory> factory,
+								   std::string_view name) -> std::unique_ptr<editor> {
+		auto editor = std::make_unique<editor_implementation>(std::move(factory), name);
+		editor->set_data_writer(std::move(data_writer));
+		return editor;
+	});
 }
 
 template <typename data_type>

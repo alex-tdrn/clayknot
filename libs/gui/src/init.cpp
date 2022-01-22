@@ -1,6 +1,7 @@
 #include "clk/gui/init.hpp"
 
 #include "clk/gui/panel.hpp"
+#include "clk/gui/widgets/composite_viewer.hpp"
 #include "clk/gui/widgets/default_editors.hpp"
 #include "clk/gui/widgets/default_viewers.hpp"
 #include "clk/gui/widgets/graph_editor.hpp"
