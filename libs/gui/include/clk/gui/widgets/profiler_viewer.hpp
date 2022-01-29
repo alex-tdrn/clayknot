@@ -1,16 +1,20 @@
 #pragma once
 
 #include "clk/gui/widgets/viewer.hpp"
+#include "clk/gui/widgets/widget_factory.hpp"
+#include "clk/gui/widgets/widget_setting.hpp"
+#include "clk/util/bounded.hpp"
 #include "clk/util/profiler.hpp"
 
 #include <implot.h>
 
 namespace clk::gui
 {
+
 class profiler_viewer final : public viewer_of<clk::profiler>
 {
 public:
-	using viewer_of<clk::profiler>::viewer_of;
+	profiler_viewer(std::shared_ptr<widget_factory> factory, std::string_view name);
 	profiler_viewer() = delete;
 	profiler_viewer(profiler_viewer const&) = delete;
 	profiler_viewer(profiler_viewer&&) = delete;
@@ -25,7 +29,9 @@ public:
 	void draw_contents(clk::profiler const& profiler) const final;
 
 private:
-	float _plot_height = 100;
+	float _plot_width = 300;
+	float _plot_height = 150;
+	clk::bounded<float> _plot_alpha{0.25f, 0.0f, 1.0f};
 	mutable std::vector<std::uint32_t> _samples;
 	mutable std::chrono::high_resolution_clock::time_point _last_profiler_sampling_time =
 		std::chrono::high_resolution_clock::time_point::min();
@@ -33,6 +39,14 @@ private:
 	template <typename T, typename Ratio>
 	void draw_helper(std::chrono::duration<T, Ratio> average_frametime, clk::profiler const& profiler) const;
 };
+
+inline profiler_viewer::profiler_viewer(std::shared_ptr<widget_factory> factory, std::string_view name)
+	: viewer_of<clk::profiler>(std::move(factory), name)
+{
+	register_setting(_plot_height, "Plot height");
+	register_setting(_plot_width, "Plot width");
+	register_setting(_plot_alpha, "Plot fill opacity");
+}
 
 inline auto profiler_viewer::clone() const -> std::unique_ptr<widget>
 {
@@ -177,9 +191,9 @@ void profiler_viewer::draw_helper(
 	}
 
 	ImPlot::SetNextPlotLimitsY(0, static_cast<double>(upper_limit), ImGuiCond_Always);
-	ImPlot::PushStyleVar(ImPlotStyleVar_FillAlpha, 0.25f);
+	ImPlot::PushStyleVar(ImPlotStyleVar_FillAlpha, _plot_alpha.val());
 	ImPlot::PushStyleColor(ImPlotCol_FrameBg, ImVec4(0, 0, 0, 0));
-	if(ImPlot::BeginPlot("Frametimes", nullptr, unit_postfix_long.c_str(), ImVec2(-1, -1),
+	if(ImPlot::BeginPlot("Frametimes", nullptr, unit_postfix_long.c_str(), ImVec2(_plot_width, _plot_height),
 		   ImPlotFlags_CanvasOnly | ImPlotFlags_AntiAliased | ImPlotFlags_NoChild,
 		   ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_NoDecorations))
 	{

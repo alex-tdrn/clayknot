@@ -5,6 +5,7 @@
 #include "clk/base/constant_node.hpp"
 #include "clk/base/port.hpp"
 #include "clk/gui/widgets/editor.hpp"
+#include "clk/gui/widgets/widget_setting.hpp"
 #include "clk/util/predicates.hpp"
 #include "clk/util/projections.hpp"
 #include "node_editors.hpp"
@@ -22,14 +23,17 @@ graph_editor::graph_editor(std::shared_ptr<widget_factory> factory, std::string_
 	: editor_of<clk::graph>(std::move(factory), name)
 	, _context(ImNodes::EditorContextCreate())
 	, _node_cache(std::make_unique<impl::widget_cache<node, impl::node_editor>>([&](node* node, int id) {
-		return impl::create_node_editor(node, id, _port_cache.get(), _queued_action, *get_widget_factory());
+		return impl::create_node_editor(
+			node, id, _port_cache.get(), _queued_action, *get_widget_factory(), _draw_node_titles);
 	}))
 	, _port_cache(std::make_unique<impl::widget_cache<port, impl::port_editor>>([&](port* port, int id) {
-		return impl::create_port_editor(port, id, *get_widget_factory());
+		return impl::create_port_editor(port, id, *get_widget_factory(), _draw_port_widgets);
 	}))
 	, _selection_manager(std::make_unique<impl::selection_manager<false>>(_node_cache.get(), _port_cache.get()))
 
 {
+	register_setting(_draw_node_titles, "Draw node titles");
+	register_setting(_draw_port_widgets, "Draw port widgets");
 	disable_title();
 	ImNodes::EditorContextSet(_context);
 	ImNodes::EditorContextSet(nullptr);

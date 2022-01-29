@@ -13,7 +13,8 @@ class node_viewer
 {
 public:
 	node_viewer() = delete;
-	node_viewer(clk::node const* node, int id, widget_cache<clk::port const, port_viewer>* port_cache);
+	node_viewer(clk::node const* node, int id, widget_cache<clk::port const, port_viewer>* port_cache,
+		bool const& draw_node_titles);
 	node_viewer(node_viewer const&) = delete;
 	node_viewer(node_viewer&&) noexcept = delete;
 	auto operator=(node_viewer const&) -> node_viewer& = delete;
@@ -33,12 +34,14 @@ private:
 	float _title_width = 0;
 	float _contents_width = 0;
 	bool _highlighted = false;
+	bool const& _draw_node_titles;
 
 	void draw_title_bar();
 };
 
-inline node_viewer::node_viewer(clk::node const* node, int id, widget_cache<clk::port const, port_viewer>* port_cache)
-	: _port_cache(port_cache), _node(node), _id(id)
+inline node_viewer::node_viewer(
+	clk::node const* node, int id, widget_cache<clk::port const, port_viewer>* port_cache, bool const& draw_node_titles)
+	: _port_cache(port_cache), _node(node), _id(id), _draw_node_titles(draw_node_titles)
 {
 }
 
@@ -96,7 +99,10 @@ inline void node_viewer::draw_title_bar()
 	if(!_first_draw && _title_width < _contents_width)
 		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (_contents_width - _title_width) / 2);
 
-	ImGui::Text("%s", _node->name().data());
+	if(_draw_node_titles)
+	{
+		ImGui::Text("%s", _node->name().data());
+	}
 
 	ImGui::EndGroup();
 
@@ -106,10 +112,10 @@ inline void node_viewer::draw_title_bar()
 	ImNodes::EndNodeTitleBar();
 }
 
-inline auto create_node_viewer(clk::node const* node, int id, widget_cache<clk::port const, port_viewer>* portCache)
-	-> std::unique_ptr<node_viewer>
+inline auto create_node_viewer(clk::node const* node, int id, widget_cache<clk::port const, port_viewer>* portCache,
+	bool const& draw_node_titles) -> std::unique_ptr<node_viewer>
 {
-	return std::make_unique<node_viewer>(node, id, portCache);
+	return std::make_unique<node_viewer>(node, id, portCache, draw_node_titles);
 }
 
 } // namespace clk::gui::impl

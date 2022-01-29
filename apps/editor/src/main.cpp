@@ -184,7 +184,7 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 		clk::profiler profiler;
 		auto profiler_panel = clk::gui::panel(widget_factory->create(clk::gui::data_reader{&profiler}, "Frametimes"));
 		profiler_panel.set_title_bar_visibility(false);
-		profiler_panel.set_resizability(clk::gui::panel::resizability::off);
+		profiler_panel.set_resizability(clk::gui::panel::resizability::automatic);
 		profiler_panel.set_docking(false);
 		profiler_panel.set_movability(false);
 		profiler_panel.set_interactivity(false);

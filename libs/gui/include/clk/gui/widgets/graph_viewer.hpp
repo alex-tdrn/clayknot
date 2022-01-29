@@ -40,6 +40,8 @@ private:
 	std::unique_ptr<impl::widget_cache<clk::port const, impl::port_viewer>> _port_cache;
 	mutable std::vector<std::pair<clk::input const*, clk::output const*>> _connections;
 	std::unique_ptr<impl::selection_manager<true>> _selection_manager;
+	bool _draw_port_widgets = true;
+	bool _draw_node_titles = true;
 
 	void draw_graph(clk::graph const& graph) const;
 };

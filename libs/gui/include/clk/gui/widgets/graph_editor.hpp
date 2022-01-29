@@ -55,6 +55,8 @@ private:
 	mutable std::optional<connection_change> _new_connection_in_progress = std::nullopt;
 	mutable std::optional<std::function<bool()>> _queued_action = std::nullopt;
 	mutable bool _context_menu_queued = false;
+	bool _draw_node_titles = true;
+	bool _draw_port_widgets = true;
 
 	void draw_graph(clk::graph& graph) const;
 	void draw_menus(clk::graph& graph) const;

@@ -2,6 +2,7 @@
 
 #include "clk/base/node.hpp"
 #include "clk/base/port.hpp"
+#include "clk/gui//widgets/widget_setting.hpp"
 #include "node_viewers.hpp"
 #include "port_viewers.hpp"
 #include "selection_manager.hpp"
@@ -16,15 +17,17 @@ graph_viewer::graph_viewer(std::shared_ptr<widget_factory> factory, std::string_
 	, _context(ImNodes::EditorContextCreate())
 	, _node_cache(
 		  std::make_unique<impl::widget_cache<clk::node const, impl::node_viewer>>([&](node const* node, int id) {
-			  return impl::create_node_viewer(node, id, _port_cache.get());
+			  return impl::create_node_viewer(node, id, _port_cache.get(), _draw_node_titles);
 		  }))
 	, _port_cache(
 		  std::make_unique<impl::widget_cache<clk::port const, impl::port_viewer>>([&](port const* port, int id) {
-			  return impl::create_port_viewer(port, id, *get_widget_factory());
+			  return impl::create_port_viewer(port, id, *get_widget_factory(), _draw_port_widgets);
 		  }))
 	, _selection_manager(std::make_unique<impl::selection_manager<true>>(_node_cache.get(), _port_cache.get()))
 
 {
+	register_setting(_draw_node_titles, "Draw node titles");
+	register_setting(_draw_port_widgets, "Draw port widgets");
 	disable_title();
 	ImNodes::EditorContextSet(_context);
 	ImNodes::EditorContextSet(nullptr);

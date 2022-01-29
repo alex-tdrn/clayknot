@@ -16,7 +16,7 @@ class node_editor
 public:
 	node_editor() = delete;
 	node_editor(clk::node* node, int id, widget_cache<clk::port, port_editor>* port_cache,
-		std::optional<std::function<bool()>>& queued_action);
+		std::optional<std::function<bool()>>& queued_action, bool const& draw_node_titles);
 	node_editor(node_editor const&) = delete;
 	node_editor(node_editor&&) noexcept = delete;
 	auto operator=(node_editor const&) -> node_editor& = delete;
@@ -37,6 +37,7 @@ protected:
 	float _title_width = 0; // NOLINT
 	float _contents_width = 0; // NOLINT
 	bool _highlighted = false; // NOLINT
+	bool const& _draw_node_titles; // NOLINT
 
 	virtual void draw_title_bar();
 	virtual void draw_inputs();
@@ -48,7 +49,8 @@ class constant_node_editor final : public node_editor
 public:
 	constant_node_editor() = delete;
 	constant_node_editor(clk::constant_node* constant_node, int id, widget_cache<clk::port, port_editor>* port_cache,
-		std::optional<std::function<bool()>>& queued_action, widget_factory const& widget_factory);
+		std::optional<std::function<bool()>>& queued_action, widget_factory const& widget_factory,
+		bool const& draw_node_titles);
 	constant_node_editor(constant_node_editor const&) = delete;
 	constant_node_editor(constant_node_editor&&) noexcept = delete;
 	auto operator=(constant_node_editor const&) -> constant_node_editor& = delete;
@@ -64,8 +66,8 @@ private:
 };
 
 inline node_editor::node_editor(clk::node* node, int id, widget_cache<clk::port, port_editor>* port_cache,
-	std::optional<std::function<bool()>>& queued_action)
-	: _queued_action(queued_action), _port_cache(port_cache), _node(node), _id(id)
+	std::optional<std::function<bool()>>& queued_action, bool const& draw_node_titles)
+	: _queued_action(queued_action), _port_cache(port_cache), _node(node), _id(id), _draw_node_titles(draw_node_titles)
 {
 }
 
@@ -129,7 +131,10 @@ inline void node_editor::draw_title_bar()
 		ImGui::SameLine();
 	}
 
-	ImGui::Text("%s", _node->name().data());
+	if(_draw_node_titles)
+	{
+		ImGui::Text("%s", _node->name().data());
+	}
 
 	if(!_node->outputs().empty())
 	{
@@ -153,8 +158,8 @@ inline void node_editor::draw_outputs()
 
 inline constant_node_editor::constant_node_editor(clk::constant_node* constant_node, int id,
 	widget_cache<clk::port, port_editor>* port_cache, std::optional<std::function<bool()>>& queued_action,
-	widget_factory const& widget_factory)
-	: node_editor(constant_node, id, port_cache, queued_action)
+	widget_factory const& widget_factory, bool const& draw_node_titles)
+	: node_editor(constant_node, id, port_cache, queued_action, draw_node_titles)
 	, _widget_factory(widget_factory)
 	, _constant_node(constant_node)
 {
@@ -232,13 +237,14 @@ inline void constant_node_editor::draw_outputs()
 }
 
 inline auto create_node_editor(clk::node* node, int id, widget_cache<clk::port, port_editor>* portCache,
-	std::optional<std::function<bool()>>& queued_action, widget_factory const& widget_factory)
-	-> std::unique_ptr<node_editor>
+	std::optional<std::function<bool()>>& queued_action, widget_factory const& widget_factory,
+	bool const& draw_node_titles) -> std::unique_ptr<node_editor>
 {
 	if(auto* constant_node = dynamic_cast<clk::constant_node*>(node))
-		return std::make_unique<constant_node_editor>(constant_node, id, portCache, queued_action, widget_factory);
+		return std::make_unique<constant_node_editor>(
+			constant_node, id, portCache, queued_action, widget_factory, draw_node_titles);
 	else
-		return std::make_unique<node_editor>(node, id, portCache, queued_action);
+		return std::make_unique<node_editor>(node, id, portCache, queued_action, draw_node_titles);
 }
 
 } // namespace clk::gui::impl

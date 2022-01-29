@@ -4,6 +4,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <tuple>
 
 namespace clk::gui
 {
@@ -37,8 +38,12 @@ public:
 	auto is_interactive() const noexcept -> bool;
 	auto get_widget_factory() const -> std::shared_ptr<widget_factory> const&;
 	void set_widget_factory(std::shared_ptr<widget_factory> factory);
+	auto get_setting_widgets() const -> std::vector<std::unique_ptr<widget>> const&;
 
 protected:
+	// definition is in widget_setting.hpp if you want to register settings in your widget implementation
+	template <typename T>
+	void register_setting(T& value, std::string name);
 	auto available_width() const -> float;
 	auto extended_preferred() const -> bool;
 	virtual void draw_contents() const = 0;
@@ -48,6 +53,7 @@ private:
 	bool _draw_title = true;
 	bool _interactive = true;
 	std::shared_ptr<widget_factory> _factory;
+	std::vector<std::unique_ptr<widget>> _setting_widgets;
 	mutable std::optional<float> _maximum_width;
 	mutable glm::vec2 _last_size = {0.0f, 0.0f};
 	mutable bool _extended_available = false;
@@ -142,6 +148,11 @@ inline auto widget::get_widget_factory() const -> std::shared_ptr<widget_factory
 inline void widget::set_widget_factory(std::shared_ptr<widget_factory> factory)
 {
 	_factory = std::move(factory);
+}
+
+inline auto widget::get_setting_widgets() const -> std::vector<std::unique_ptr<widget>> const&
+{
+	return _setting_widgets;
 }
 
 inline void widget::prefer_extended()

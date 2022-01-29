@@ -1,5 +1,6 @@
 #include "clk/gui/panel.hpp"
 
+#include <imgui.h>
 #include <imgui_internal.h>
 #include <imgui_stdlib.h>
 #include <range/v3/algorithm.hpp>
@@ -298,7 +299,14 @@ void panel::handle_context_menu()
 
 		if(_orphan && ImGui::MenuItem("Delete"))
 			queue(action_type::remove);
-
+		if(!_widget->get_setting_widgets().empty())
+		{
+			ImGui::Separator();
+			for(auto const& setting_widget : _widget->get_setting_widgets())
+			{
+				setting_widget->draw();
+			}
+		}
 		ImGui::EndPopup();
 	}
 
