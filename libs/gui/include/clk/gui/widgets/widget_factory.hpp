@@ -177,7 +177,7 @@ inline auto widget_factory::create(data_reader<void> data_reader, std::uint64_t 
 	}
 	else
 	{
-		throw std::runtime_error("Cannot create requested viewer");
+		return std::make_unique<viewer_of<void>>(shared_from_this(), name);
 	}
 }
 
@@ -189,7 +189,7 @@ inline auto widget_factory::create_viewer(std::any data_reader, std::string_view
 	}
 	else
 	{
-		throw std::runtime_error("Cannot create requested viewer");
+		return std::make_unique<viewer_of<void>>(shared_from_this(), name);
 	}
 }
 
@@ -208,7 +208,7 @@ inline auto widget_factory::create(data_writer<void> data_writer, std::uint64_t 
 	}
 	else
 	{
-		throw std::runtime_error("Cannot create requested editor");
+		return std::make_unique<editor_of<void>>(shared_from_this(), name);
 	}
 }
 
@@ -220,7 +220,7 @@ inline auto widget_factory::create_editor(std::any data_writer, std::string_view
 	}
 	else
 	{
-		throw std::runtime_error("Cannot create requested editor");
+		return std::make_unique<editor_of<void>>(shared_from_this(), name);
 	}
 }
 

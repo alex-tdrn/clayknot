@@ -43,6 +43,42 @@ private:
 	void draw_contents() const final;
 };
 
+template <>
+class editor_of<void> : public editor
+{
+public:
+	using editor::editor;
+	editor_of() = delete;
+	editor_of(editor_of const&) = delete;
+	editor_of(editor_of&&) = delete;
+	auto operator=(editor_of const&) -> editor_of& = delete;
+	auto operator=(editor_of&&) -> editor_of& = delete;
+	~editor_of() override = default;
+
+	auto clone() const -> std::unique_ptr<widget> override;
+	void copy(widget const& other) override;
+
+private:
+	void draw_contents() const final;
+};
+
+inline auto editor_of<void>::clone() const -> std::unique_ptr<widget>
+{
+	auto clone = std::make_unique<editor_of<void>>(get_widget_factory(), name());
+	clone->copy(*this);
+	return clone;
+}
+
+inline void editor_of<void>::copy(widget const& other)
+{
+	editor::copy(other);
+}
+
+inline void editor_of<void>::draw_contents() const
+{
+	ImGui::Text("VOID EDITOR");
+}
+
 template <typename data_type>
 auto editor_of<data_type>::clone() const -> std::unique_ptr<widget>
 {

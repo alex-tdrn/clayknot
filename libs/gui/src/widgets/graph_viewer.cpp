@@ -12,7 +12,7 @@
 
 namespace clk::gui
 {
-graph_viewer::graph_viewer(std::shared_ptr<widget_factory> factory, std::string_view name)
+graph_viewer::graph_viewer(std::shared_ptr<widget_factory const> factory, std::string_view name)
 	: viewer_of<clk::graph>(std::move(factory), name)
 	, _context(ImNodes::EditorContextCreate())
 	, _node_cache(

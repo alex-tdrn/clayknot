@@ -19,7 +19,7 @@
 
 namespace clk::gui
 {
-graph_editor::graph_editor(std::shared_ptr<widget_factory> factory, std::string_view name)
+graph_editor::graph_editor(std::shared_ptr<widget_factory const> factory, std::string_view name)
 	: editor_of<clk::graph>(std::move(factory), name)
 	, _context(ImNodes::EditorContextCreate())
 	, _node_cache(std::make_unique<impl::widget_cache<node, impl::node_editor>>([&](node* node, int id) {

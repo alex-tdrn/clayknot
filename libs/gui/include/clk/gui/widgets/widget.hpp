@@ -14,7 +14,7 @@ class widget
 {
 public:
 	widget() = delete;
-	widget(std::shared_ptr<widget_factory> factory, std::string_view name);
+	widget(std::shared_ptr<widget_factory const> factory, std::string_view name);
 	widget(widget const&) = delete;
 	widget(widget&&) = delete;
 	auto operator=(widget const&) -> widget& = delete;
@@ -36,8 +36,8 @@ public:
 	auto name() const -> std::string_view;
 	void set_interactivity(bool interactive) noexcept;
 	auto is_interactive() const noexcept -> bool;
-	auto get_widget_factory() const -> std::shared_ptr<widget_factory> const&;
-	void set_widget_factory(std::shared_ptr<widget_factory> factory);
+	auto get_widget_factory() const -> std::shared_ptr<widget_factory const> const&;
+	void set_widget_factory(std::shared_ptr<widget_factory const> factory);
 	auto get_setting_widgets() const -> std::vector<std::unique_ptr<widget>> const&;
 
 protected:
@@ -52,7 +52,7 @@ private:
 	std::string _name;
 	bool _draw_title = true;
 	bool _interactive = true;
-	std::shared_ptr<widget_factory> _factory;
+	std::shared_ptr<widget_factory const> _factory;
 	std::vector<std::unique_ptr<widget>> _setting_widgets;
 	mutable std::optional<float> _maximum_width;
 	mutable glm::vec2 _last_size = {0.0f, 0.0f};
@@ -60,7 +60,7 @@ private:
 	mutable bool _extended_preferred = false;
 };
 
-inline widget::widget(std::shared_ptr<widget_factory> factory, std::string_view name)
+inline widget::widget(std::shared_ptr<widget_factory const> factory, std::string_view name)
 	: _name(name), _factory(std::move(factory))
 {
 }
@@ -140,12 +140,12 @@ inline auto widget::is_interactive() const noexcept -> bool
 	return _interactive;
 }
 
-inline auto widget::get_widget_factory() const -> std::shared_ptr<widget_factory> const&
+inline auto widget::get_widget_factory() const -> std::shared_ptr<widget_factory const> const&
 {
 	return _factory;
 }
 
-inline void widget::set_widget_factory(std::shared_ptr<widget_factory> factory)
+inline void widget::set_widget_factory(std::shared_ptr<widget_factory const> factory)
 {
 	_factory = std::move(factory);
 }

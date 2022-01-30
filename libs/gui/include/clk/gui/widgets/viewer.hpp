@@ -43,6 +43,42 @@ private:
 	void draw_contents() const final;
 };
 
+template <>
+class viewer_of<void> : public viewer
+{
+public:
+	using viewer::viewer;
+	viewer_of() = delete;
+	viewer_of(viewer_of const&) = delete;
+	viewer_of(viewer_of&&) = delete;
+	auto operator=(viewer_of const&) -> viewer_of& = delete;
+	auto operator=(viewer_of&&) -> viewer_of& = delete;
+	~viewer_of() override = default;
+
+	auto clone() const -> std::unique_ptr<widget> override;
+	void copy(widget const& other) override;
+
+private:
+	void draw_contents() const final;
+};
+
+inline auto viewer_of<void>::clone() const -> std::unique_ptr<widget>
+{
+	auto clone = std::make_unique<viewer_of<void>>(get_widget_factory(), name());
+	clone->copy(*this);
+	return clone;
+}
+
+inline void viewer_of<void>::copy(widget const& other)
+{
+	viewer::copy(other);
+}
+
+inline void viewer_of<void>::draw_contents() const
+{
+	ImGui::Text("VOID VIEWER");
+}
+
 template <typename data_type>
 auto viewer_of<data_type>::clone() const -> std::unique_ptr<widget>
 {
@@ -57,7 +93,6 @@ void viewer_of<data_type>::copy(widget const& other)
 	auto const& casted = dynamic_cast<viewer_of<data_type> const&>(other);
 	_data = casted._data;
 	viewer::copy(other);
-	get_widget_factory();
 }
 
 template <typename data_type>

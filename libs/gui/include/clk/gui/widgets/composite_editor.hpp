@@ -14,7 +14,7 @@ template <typename data_type>
 class composite_editor_of final : public editor_of<data_type>
 {
 public:
-	composite_editor_of(std::shared_ptr<widget_factory> factory, std::string_view name);
+	composite_editor_of(std::shared_ptr<widget_factory const> factory, std::string_view name);
 	composite_editor_of() = delete;
 	composite_editor_of(composite_editor_of const&) = delete;
 	composite_editor_of(composite_editor_of&&) = delete;
@@ -52,7 +52,8 @@ private:
 };
 
 template <typename data_type>
-composite_editor_of<data_type>::composite_editor_of(std::shared_ptr<widget_factory> factory, std::string_view name)
+composite_editor_of<data_type>::composite_editor_of(
+	std::shared_ptr<widget_factory const> factory, std::string_view name)
 	: editor_of<data_type>(std::move(factory), name)
 {
 }

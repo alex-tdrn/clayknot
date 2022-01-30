@@ -14,7 +14,7 @@ template <typename data_type>
 class composite_viewer_of final : public viewer_of<data_type>
 {
 public:
-	composite_viewer_of(std::shared_ptr<widget_factory> factory, std::string_view name);
+	composite_viewer_of(std::shared_ptr<widget_factory const> factory, std::string_view name);
 	composite_viewer_of() = delete;
 	composite_viewer_of(composite_viewer_of const&) = delete;
 	composite_viewer_of(composite_viewer_of&&) = delete;
@@ -42,7 +42,8 @@ private:
 };
 
 template <typename data_type>
-composite_viewer_of<data_type>::composite_viewer_of(std::shared_ptr<widget_factory> factory, std::string_view name)
+composite_viewer_of<data_type>::composite_viewer_of(
+	std::shared_ptr<widget_factory const> factory, std::string_view name)
 	: viewer_of<data_type>(std::move(factory), name)
 {
 }

@@ -14,7 +14,7 @@ namespace clk::gui
 class profiler_viewer final : public viewer_of<clk::profiler>
 {
 public:
-	profiler_viewer(std::shared_ptr<widget_factory> factory, std::string_view name);
+	profiler_viewer(std::shared_ptr<widget_factory const> factory, std::string_view name);
 	profiler_viewer() = delete;
 	profiler_viewer(profiler_viewer const&) = delete;
 	profiler_viewer(profiler_viewer&&) = delete;
@@ -40,7 +40,7 @@ private:
 	void draw_helper(std::chrono::duration<T, Ratio> average_frametime, clk::profiler const& profiler) const;
 };
 
-inline profiler_viewer::profiler_viewer(std::shared_ptr<widget_factory> factory, std::string_view name)
+inline profiler_viewer::profiler_viewer(std::shared_ptr<widget_factory const> factory, std::string_view name)
 	: viewer_of<clk::profiler>(std::move(factory), name)
 {
 	register_setting(_plot_height, "Plot height");
