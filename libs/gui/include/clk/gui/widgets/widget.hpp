@@ -40,10 +40,11 @@ public:
 	void set_widget_factory(std::shared_ptr<widget_factory const> factory);
 	auto get_setting_widgets() const -> std::vector<std::unique_ptr<widget>> const&;
 
-protected:
-	// definition is in widget_setting.hpp if you want to register settings in your widget implementation
+	// definition is in widget_setting.hpp if you want to call this
 	template <typename T>
 	void register_setting(T& value, std::string name);
+
+protected:
 	auto available_width() const -> float;
 	auto extended_preferred() const -> bool;
 	virtual void draw_contents() const = 0;
