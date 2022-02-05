@@ -14,10 +14,10 @@ public:
 	data_writer() = default;
 	// would be nice to just pass the variants directly here and have a single constructor
 	//  but then the type cannot be deduced automatically, and I can't get deduction guides to do what I want
-	data_writer(T* data_pointer);
+	explicit data_writer(T* data_pointer);
 	data_writer(T* data_pointer, std::function<void()> callback);
 	data_writer(T* data_pointer, std::function<void(T*)> setter);
-	data_writer(std::function<T*()> getter);
+	explicit data_writer(std::function<T*()> getter);
 	data_writer(std::function<T*()> getter, std::function<void()> callback);
 	data_writer(std::function<T*()> getter, std::function<void(T*)> setter);
 	data_writer(data_writer const&) = default;

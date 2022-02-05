@@ -48,10 +48,14 @@ public:
 	void unregister_editor();
 
 	template <typename data_type>
+	auto create(data_type const& data, std::string_view name) const -> std::unique_ptr<viewer>;
+	template <typename data_type>
 	auto create(data_reader<data_type> data_reader, std::string_view name) const -> std::unique_ptr<viewer>;
 	auto create(data_reader<void> data_reader, std::uint64_t data_hash, std::string_view name) const
 		-> std::unique_ptr<viewer>;
 
+	template <typename data_type>
+	auto create(data_type& data, std::string_view name) const -> std::unique_ptr<editor>;
 	template <typename data_type>
 	auto create(data_writer<data_type> data_writer, std::string_view name) const -> std::unique_ptr<editor>;
 	auto create(data_writer<void> data_writer, std::uint64_t data_hash, std::string_view name) const
@@ -163,6 +167,12 @@ inline void widget_factory::unregister_editor()
 }
 
 template <typename data_type>
+auto widget_factory::create(data_type const& data, std::string_view name) const -> std::unique_ptr<viewer>
+{
+	return widget_factory::create(data_reader{&data}, name);
+}
+
+template <typename data_type>
 auto widget_factory::create(data_reader<data_type> data_reader, std::string_view name) const -> std::unique_ptr<viewer>
 {
 	return widget_factory::create_viewer(std::any(std::move(data_reader)), name);
@@ -191,6 +201,12 @@ inline auto widget_factory::create_viewer(std::any data_reader, std::string_view
 	{
 		return std::make_unique<viewer_of<void>>(shared_from_this(), name);
 	}
+}
+
+template <typename data_type>
+auto widget_factory::create(data_type& data, std::string_view name) const -> std::unique_ptr<editor>
+{
+	return widget_factory::create(data_writer{&data}, name);
 }
 
 template <typename data_type>

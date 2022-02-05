@@ -153,11 +153,9 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 				return editor;
 			});
 
-		clk::gui::panel::create_orphan(
-			widget_factory->create(clk::gui::data_reader{&composite_data}, "composite data viewer"));
+		clk::gui::panel::create_orphan(widget_factory->create(std::as_const(composite_data), "composite data viewer"));
 
-		clk::gui::panel::create_orphan(
-			widget_factory->create(clk::gui::data_writer{&composite_data}, "composite data editor"));
+		clk::gui::panel::create_orphan(widget_factory->create(composite_data, "composite data editor"));
 
 		auto graph1 = []() -> clk::graph {
 			auto random_color =
@@ -177,12 +175,12 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 			return ret;
 		}();
 
-		clk::gui::panel::create_orphan(widget_factory->create(clk::gui::data_reader{&graph1}, "graph1 viewer"));
+		clk::gui::panel::create_orphan(widget_factory->create(std::as_const(graph1), "graph1 viewer"));
 
-		clk::gui::panel::create_orphan(widget_factory->create(clk::gui::data_writer{&graph1}, "graph1 editor"));
+		clk::gui::panel::create_orphan(widget_factory->create(graph1, "graph1 editor"));
 
 		clk::profiler profiler;
-		auto profiler_panel = clk::gui::panel(widget_factory->create(clk::gui::data_reader{&profiler}, "Frametimes"));
+		auto profiler_panel = clk::gui::panel(widget_factory->create(std::as_const(profiler), "Frametimes"));
 		profiler_panel.set_title_bar_visibility(false);
 		profiler_panel.set_resizability(clk::gui::panel::resizability::automatic);
 		profiler_panel.set_docking(false);
