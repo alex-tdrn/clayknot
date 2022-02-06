@@ -1,4 +1,5 @@
 #include "clk/gui/panel.hpp"
+#include "clk/gui/widgets/widget_group.hpp"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -80,6 +81,16 @@ void panel::set_widget(std::unique_ptr<clk::gui::widget>&& widget) noexcept
 {
 	_widget = std::move(widget);
 	_widget->disable_title();
+}
+
+auto panel::widget() const -> clk::gui::widget const*
+{
+	return _widget.get();
+}
+
+void panel::add_child_panel(panel&& child)
+{
+	_child_panels.push_back(std::move(child));
 }
 
 void panel::draw()
@@ -299,13 +310,15 @@ void panel::handle_context_menu()
 
 		if(_orphan && ImGui::MenuItem("Delete"))
 			queue(action_type::remove);
-		if(!_widget->get_setting_widgets().empty())
+		if(auto const* settings = _widget->get_settings(); settings != nullptr)
 		{
 			ImGui::Separator();
-			for(auto const& setting_widget : _widget->get_setting_widgets())
-			{
-				setting_widget->draw();
-			}
+			ImGui::Text("Settings");
+			ImGui::SameLine();
+			if(ImGui::SmallButton("Extract to panel"))
+				queue(action_type::extract_widget_settings);
+
+			settings->draw();
 		}
 		ImGui::EndPopup();
 	}

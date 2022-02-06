@@ -2,7 +2,7 @@
 
 #include "clk/gui/widgets/viewer.hpp"
 #include "clk/gui/widgets/widget_factory.hpp"
-#include "clk/gui/widgets/widget_setting.hpp"
+#include "clk/gui/widgets/widget_group.hpp"
 #include "clk/util/bounded.hpp"
 #include "clk/util/profiler.hpp"
 
@@ -43,9 +43,10 @@ private:
 inline profiler_viewer::profiler_viewer(std::shared_ptr<widget_factory const> factory, std::string_view name)
 	: viewer_of<clk::profiler>(std::move(factory), name)
 {
-	register_setting(_plot_height, "Plot height");
-	register_setting(_plot_width, "Plot width");
-	register_setting(_plot_alpha, "Plot fill opacity");
+	std::string plot_group = "Plot/";
+	settings().add(_plot_height, plot_group + "Height");
+	settings().add(_plot_width, plot_group + "Width");
+	settings().add(_plot_alpha, plot_group + "Fill opacity");
 }
 
 inline auto profiler_viewer::clone() const -> std::unique_ptr<widget>

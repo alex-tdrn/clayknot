@@ -2,7 +2,7 @@
 
 #include "clk/base/node.hpp"
 #include "clk/base/port.hpp"
-#include "clk/gui//widgets/widget_setting.hpp"
+#include "clk/gui//widgets/widget_group.hpp"
 #include "node_viewers.hpp"
 #include "port_viewers.hpp"
 #include "selection_manager.hpp"
@@ -26,8 +26,9 @@ graph_viewer::graph_viewer(std::shared_ptr<widget_factory const> factory, std::s
 	, _selection_manager(std::make_unique<impl::selection_manager<true>>(_node_cache.get(), _port_cache.get()))
 
 {
-	register_setting(_draw_node_titles, "Draw node titles");
-	register_setting(_draw_port_widgets, "Draw port widgets");
+	settings().add(_draw_node_titles, "Draw node titles");
+	settings().add(_draw_port_widgets, "Draw port widgets");
+
 	disable_title();
 	ImNodes::EditorContextSet(_context);
 	ImNodes::EditorContextSet(nullptr);

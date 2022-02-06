@@ -80,7 +80,7 @@ void draw()
 		auto it = ranges::find(panel::_all_panels, panel_id, &panel::_id);
 		if(it == panel::_all_panels.end())
 			continue;
-		auto const* panel = *it;
+		auto* panel = *it;
 
 		switch(action)
 		{
@@ -97,6 +97,19 @@ void draw()
 													  return other._id == panel->_id;
 												  }),
 					panel::_orphaned_panels.end());
+				break;
+			}
+			case panel::action_type::extract_widget_settings:
+			{
+				if(panel->widget() != nullptr)
+				{
+					if(auto const* settings = panel->widget()->get_settings(); settings != nullptr)
+					{
+						auto clone = settings->clone();
+						static_cast<widget_group*>(clone.get())->set_draw_mode(widget_group::draw_mode::tree);
+						panel->add_child_panel(clk::gui::panel(std::move(clone)));
+					}
+				}
 				break;
 			}
 		}

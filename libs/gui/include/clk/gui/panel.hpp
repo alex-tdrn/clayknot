@@ -18,7 +18,8 @@ public:
 	enum class action_type
 	{
 		duplicate,
-		remove
+		remove,
+		extract_widget_settings
 	};
 
 	enum class resizability
@@ -49,6 +50,8 @@ public:
 
 	void queue(action_type action_type) const;
 	void set_widget(std::unique_ptr<clk::gui::widget>&& widget) noexcept;
+	auto widget() const -> clk::gui::widget const*;
+	void add_child_panel(panel&& child);
 	void draw();
 	void set_title(std::string_view title);
 	auto title() const noexcept -> std::string_view;
@@ -83,6 +86,7 @@ private:
 	float _opacity = 1.0f;
 	bool _interactive = true;
 	bool _orphan = false;
+	std::vector<panel> _child_panels;
 
 	static auto generate_id() noexcept -> int;
 
