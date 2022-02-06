@@ -40,7 +40,7 @@ public:
 	explicit panel(std::unique_ptr<clk::gui::widget>&& widget);
 	panel(std::unique_ptr<clk::gui::widget>&& widget, std::string_view title);
 	panel(panel const& other);
-	panel(panel&&) noexcept;
+	panel(panel&& other) noexcept;
 	auto operator=(panel const& other) -> panel&;
 	auto operator=(panel&&) noexcept -> panel& = default;
 	~panel();

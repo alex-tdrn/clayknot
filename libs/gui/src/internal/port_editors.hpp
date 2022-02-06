@@ -37,7 +37,7 @@ protected:
 	std::unique_ptr<clk::gui::viewer> _data_viewer; // NOLINT
 	bool _enabled = true; // NOLINT
 	bool _stable_height = false; // NOLINT
-	bool const& _draw_port_widgets;
+	bool const& _draw_port_widgets; // NOLINT
 };
 
 class input_editor final : public port_editor

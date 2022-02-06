@@ -129,7 +129,7 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 				viewer->add_sub_viewer(&test_struct::b, "b viewer");
 				viewer->add_sub_viewer<float>(
 					[result = 0.0f](test_struct const& t) mutable -> float const* {
-						result = t.a + t.b;
+						result = static_cast<float>(t.a) + t.b;
 						return &result;
 					},
 					"a + b viewer");
@@ -238,6 +238,7 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 	return 0;
 }
 
+// NOLINTNEXTLINE
 void glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei /*length*/, const GLchar* message,
 	const void* /*userParam*/)
 {

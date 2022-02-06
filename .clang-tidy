@@ -1,6 +1,6 @@
 ---
 Checks:          '*,
-                  -fuchsia*,-google*,-zircon*,-abseil*,-llvm*, 
+                  -fuchsia*,-google*,-zircon*,-abseil*,-llvm*,-altera*,
                   -*braces-around-statements,
                   -*uppercase-literal-suffix,
                   -*magic-numbers,
@@ -13,7 +13,8 @@ Checks:          '*,
                   -cppcoreguidelines-pro-type-union-access,
                   -cppcoreguidelines-pro-type-vararg,
                   -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
-                  -cppcoreguidelines-pro-type-static-cast-downcast'
+                  -cppcoreguidelines-pro-type-static-cast-downcast,
+                  -readability-function-cognitive-complexity'
 HeaderFilterRegex: ''
 FormatStyle:     none
 

@@ -54,22 +54,32 @@ inline auto widget_cache<data_type, widget>::has_widget_for(int id) const -> boo
 template <typename data_type, typename widget>
 inline auto widget_cache<data_type, widget>::widget_for(data_type* data) -> widget&
 {
-	if(!has_widget_for(data))
+	if(auto found_it = _data_type_to_widget.find(data); found_it != _data_type_to_widget.end())
 	{
-		_data_type_to_widget.insert({data, _make_widget(data, _next_available_id)});
-		_id_to_widget[_next_available_id] = _data_type_to_widget[data].get();
-		_next_available_id++;
+		return *(found_it->second.get());
 	}
-	return *_data_type_to_widget[data];
+	else
+	{
+		auto new_widget = _make_widget(data, _next_available_id);
+		auto& widget_ref = *new_widget;
+		_id_to_widget.insert({_next_available_id, new_widget.get()});
+		_data_type_to_widget.insert({data, std::move(new_widget)});
+		_next_available_id++;
+		return widget_ref;
+	}
 }
 
 template <typename data_type, typename widget>
 inline auto widget_cache<data_type, widget>::widget_for(int id) -> widget&
 {
-	if(!has_widget_for(id))
+	if(auto found_it = _id_to_widget.find(id); found_it != _id_to_widget.end())
+	{
+		return *(found_it->second);
+	}
+	else
+	{
 		throw std::runtime_error("No widget with this id found");
-
-	return *_id_to_widget[id];
+	}
 }
 
 } // namespace clk::gui::impl

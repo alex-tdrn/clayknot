@@ -94,7 +94,7 @@ auto data_writer<T>::read() const -> T*
 }
 
 template <typename T>
-void data_writer<T>::write(T* new_in) const
+void data_writer<T>::write(T* new_data) const
 {
 	if(std::holds_alternative<std::function<void()>>(_out))
 	{
@@ -110,7 +110,7 @@ void data_writer<T>::write(T* new_in) const
 		auto setter = std::get<std::function<void(T*)>>(_out);
 		if(setter)
 		{
-			setter(new_in);
+			setter(new_data);
 			return;
 		}
 	}
