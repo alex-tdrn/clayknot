@@ -1,5 +1,5 @@
 #include "clk/gui/panel.hpp"
-#include "clk/gui/widgets/widget_group.hpp"
+#include "clk/gui/widgets/widget_tree.hpp"
 
 #include <imgui.h>
 #include <imgui_internal.h>

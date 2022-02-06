@@ -13,22 +13,22 @@
 namespace clk::gui
 {
 
-class widget_group : public widget
+class widget_tree : public widget
 {
 public:
 	enum class draw_mode
 	{
-		tree,
+		tree_nodes,
 		menu
 	};
 
 	using widget::widget;
-	widget_group() = delete;
-	widget_group(widget_group const&) = delete;
-	widget_group(widget_group&&) = delete;
-	auto operator=(widget_group const&) -> widget_group& = delete;
-	auto operator=(widget_group&&) -> widget_group& = delete;
-	~widget_group() override = default;
+	widget_tree() = delete;
+	widget_tree(widget_tree const&) = delete;
+	widget_tree(widget_tree&&) = delete;
+	auto operator=(widget_tree const&) -> widget_tree& = delete;
+	auto operator=(widget_tree&&) -> widget_tree& = delete;
+	~widget_tree() override = default;
 
 	auto clone() const -> std::unique_ptr<widget> override;
 	void copy(widget const& other) override;
@@ -42,15 +42,15 @@ public:
 	void draw_contents() const override;
 
 private:
-	class group
+	class tree
 	{
 	public:
-		group() = default;
-		group(group const& other);
-		group(group&&) = default;
-		auto operator=(group const& other) -> group&;
-		auto operator=(group&&) -> group& = default;
-		~group() = default;
+		tree() = default;
+		tree(tree const& other);
+		tree(tree&&) = default;
+		auto operator=(tree const& other) -> tree&;
+		auto operator=(tree&&) -> tree& = default;
+		~tree() = default;
 
 		void set_name(std::string_view name);
 		void add(std::unique_ptr<widget> widget);
@@ -59,54 +59,54 @@ private:
 	private:
 		std::string _name;
 		std::vector<std::unique_ptr<widget>> _widgets;
-		std::vector<group> _sub_groups;
+		std::vector<tree> _sub_trees;
 	};
 
-	group _root;
-	draw_mode _draw_mode = draw_mode::tree;
+	tree _root;
+	draw_mode _draw_mode = draw_mode::tree_nodes;
 };
 
-inline auto widget_group::clone() const -> std::unique_ptr<widget>
+inline auto widget_tree::clone() const -> std::unique_ptr<widget>
 {
-	auto clone = std::make_unique<widget_group>(this->get_widget_factory(), this->name());
+	auto clone = std::make_unique<widget_tree>(this->get_widget_factory(), this->name());
 	clone->copy(*this);
 	return clone;
 }
 
-inline void widget_group::copy(widget const& other)
+inline void widget_tree::copy(widget const& other)
 {
-	auto const& casted = dynamic_cast<widget_group const&>(other);
+	auto const& casted = dynamic_cast<widget_tree const&>(other);
 	_root = casted._root;
 	widget::copy(other);
 }
 
 template <typename data_type>
-void widget_group::add(data_type& data, std::string_view name)
+void widget_tree::add(data_type& data, std::string_view name)
 {
 	add(get_widget_factory()->create(data, name));
 }
 
-inline void widget_group::add(std::unique_ptr<widget> widget)
+inline void widget_tree::add(std::unique_ptr<widget> widget)
 {
 	_root.add(std::move(widget));
 }
 
-inline void widget_group::set_draw_mode(draw_mode mode)
+inline void widget_tree::set_draw_mode(draw_mode mode)
 {
 	_draw_mode = mode;
 }
 
-inline void widget_group::draw_contents() const
+inline void widget_tree::draw_contents() const
 {
 	_root.draw(_draw_mode, true);
 }
 
-inline widget_group::group::group(group const& other)
+inline widget_tree::tree::tree(tree const& other)
 {
 	*this = other;
 }
 
-inline auto widget_group::group::operator=(group const& other) -> group&
+inline auto widget_tree::tree::operator=(tree const& other) -> tree&
 {
 	if(&other != this)
 	{
@@ -116,39 +116,39 @@ inline auto widget_group::group::operator=(group const& other) -> group&
 		{
 			_widgets.push_back(widget->clone());
 		}
-		_sub_groups = other._sub_groups;
+		_sub_trees = other._sub_trees;
 	}
 	return *this;
 }
 
-inline void widget_group::group::set_name(std::string_view name)
+inline void widget_tree::tree::set_name(std::string_view name)
 {
 	_name = std::string(name);
 }
 
-inline void widget_group::group::add(std::unique_ptr<widget> widget)
+inline void widget_tree::tree::add(std::unique_ptr<widget> widget)
 {
 	auto name = std::string(widget->name());
 	if(auto first_delimiter = name.find_first_of('/'); first_delimiter != std::string_view::npos)
 	{
-		auto sub_group_name = name.substr(0, first_delimiter);
+		auto sub_tree_name = name.substr(0, first_delimiter);
 		auto sub_setting_name = name.substr(first_delimiter + 1, name.size() - first_delimiter);
 		widget->set_name(sub_setting_name);
 
-		if(auto found_it = ranges::find_if(_sub_groups,
-			   [&](const auto& group) {
-				   return group._name == sub_group_name;
+		if(auto found_it = ranges::find_if(_sub_trees,
+			   [&](const auto& tree) {
+				   return tree._name == sub_tree_name;
 			   });
-			found_it != _sub_groups.end())
+			found_it != _sub_trees.end())
 		{
 			found_it->add(std::move(widget));
 		}
 		else
 		{
-			group sub_group;
-			sub_group.set_name(sub_group_name);
-			sub_group.add(std::move(widget));
-			_sub_groups.push_back(std::move(sub_group));
+			tree sub_tree;
+			sub_tree.set_name(sub_tree_name);
+			sub_tree.add(std::move(widget));
+			_sub_trees.push_back(std::move(sub_tree));
 		}
 	}
 	else
@@ -157,13 +157,13 @@ inline void widget_group::group::add(std::unique_ptr<widget> widget)
 	}
 }
 
-inline void widget_group::group::draw(draw_mode mode, bool is_root) const
+inline void widget_tree::tree::draw(draw_mode mode, bool is_root) const
 {
 	auto draw_internal = [&]() {
 		for(auto const& widget : _widgets)
 			widget->draw();
-		for(auto const& subgroup : _sub_groups)
-			subgroup.draw(mode, false);
+		for(auto const& subtree : _sub_trees)
+			subtree.draw(mode, false);
 	};
 
 	if(is_root)
@@ -174,7 +174,7 @@ inline void widget_group::group::draw(draw_mode mode, bool is_root) const
 	{
 		switch(mode)
 		{
-			case draw_mode::tree:
+			case draw_mode::tree_nodes:
 				if(ImGui::TreeNode(_name.c_str()))
 				{
 					draw_internal();

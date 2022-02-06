@@ -2,7 +2,7 @@
 
 #include "clk/gui/widgets/viewer.hpp"
 #include "clk/gui/widgets/widget_factory.hpp"
-#include "clk/gui/widgets/widget_group.hpp"
+#include "clk/gui/widgets/widget_tree.hpp"
 #include "clk/util/bounded.hpp"
 #include "clk/util/profiler.hpp"
 

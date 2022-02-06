@@ -5,7 +5,7 @@
 #include "clk/base/constant_node.hpp"
 #include "clk/base/port.hpp"
 #include "clk/gui/widgets/editor.hpp"
-#include "clk/gui/widgets/widget_group.hpp"
+#include "clk/gui/widgets/widget_tree.hpp"
 #include "clk/util/predicates.hpp"
 #include "clk/util/projections.hpp"
 #include "node_editors.hpp"

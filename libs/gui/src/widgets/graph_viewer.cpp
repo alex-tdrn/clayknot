@@ -2,7 +2,7 @@
 
 #include "clk/base/node.hpp"
 #include "clk/base/port.hpp"
-#include "clk/gui//widgets/widget_group.hpp"
+#include "clk/gui//widgets/widget_tree.hpp"
 #include "node_viewers.hpp"
 #include "port_viewers.hpp"
 #include "selection_manager.hpp"

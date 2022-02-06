@@ -106,7 +106,7 @@ void draw()
 					if(auto const* settings = panel->widget()->get_settings(); settings != nullptr)
 					{
 						auto clone = settings->clone();
-						static_cast<widget_group*>(clone.get())->set_draw_mode(widget_group::draw_mode::tree);
+						static_cast<widget_tree*>(clone.get())->set_draw_mode(widget_tree::draw_mode::tree_nodes);
 						panel->add_child_panel(clk::gui::panel(std::move(clone)));
 					}
 				}

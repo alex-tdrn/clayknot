@@ -1,7 +1,7 @@
 #include "clk/gui/widgets/widget.hpp"
 
 #include "clk/gui/widgets/widget_factory.hpp"
-#include "clk/gui/widgets/widget_group.hpp"
+#include "clk/gui/widgets/widget_tree.hpp"
 
 #include <imgui.h>
 
@@ -137,7 +137,7 @@ auto widget::name() const -> std::string_view
 	return _name;
 }
 
-auto widget::get_settings() const -> widget_group const*
+auto widget::get_settings() const -> widget_tree const*
 {
 	return _settings.get();
 }
@@ -156,13 +156,13 @@ auto widget::extended_preferred() const -> bool
 	return _extended_preferred;
 }
 
-auto widget::settings() -> widget_group&
+auto widget::settings() -> widget_tree&
 {
 	if(_settings == nullptr)
 	{
-		_settings = std::make_unique<widget_group>(get_widget_factory(), "Settings for '" + _name + "'");
+		_settings = std::make_unique<widget_tree>(get_widget_factory(), "Settings for '" + _name + "'");
 		_settings->disable_title();
-		_settings->set_draw_mode(widget_group::draw_mode::menu);
+		_settings->set_draw_mode(widget_tree::draw_mode::menu);
 	}
 	return *_settings;
 }
