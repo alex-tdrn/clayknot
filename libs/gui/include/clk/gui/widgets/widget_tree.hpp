@@ -33,8 +33,6 @@ public:
 	auto clone() const -> std::unique_ptr<widget> override;
 	void copy(widget const& other) override;
 
-	template <typename data_type>
-	void add(data_type& data, std::string_view name);
 	void add(std::unique_ptr<widget> widget);
 
 	void set_draw_mode(draw_mode mode);
@@ -68,7 +66,7 @@ private:
 
 inline auto widget_tree::clone() const -> std::unique_ptr<widget>
 {
-	auto clone = std::make_unique<widget_tree>(this->get_widget_factory(), this->name());
+	auto clone = std::make_unique<widget_tree>(this->name());
 	clone->copy(*this);
 	return clone;
 }
@@ -78,12 +76,6 @@ inline void widget_tree::copy(widget const& other)
 	auto const& casted = dynamic_cast<widget_tree const&>(other);
 	_root = casted._root;
 	widget::copy(other);
-}
-
-template <typename data_type>
-void widget_tree::add(data_type& data, std::string_view name)
-{
-	add(get_widget_factory()->create(data, name));
 }
 
 inline void widget_tree::add(std::unique_ptr<widget> widget)

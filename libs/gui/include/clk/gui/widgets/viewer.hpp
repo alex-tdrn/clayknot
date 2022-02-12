@@ -1,16 +1,16 @@
 #pragma once
 
 #include "clk/gui/widgets/data_reader.hpp"
-#include "clk/gui/widgets/widget.hpp"
+#include "clk/gui/widgets/data_widget.hpp"
 
 #include <imgui.h>
 
 namespace clk::gui
 {
-class viewer : public widget
+class viewer : public data_widget
 {
 public:
-	using widget::widget;
+	using data_widget::data_widget;
 	viewer() = delete;
 	viewer(viewer const&) = delete;
 	viewer(viewer&&) = delete;

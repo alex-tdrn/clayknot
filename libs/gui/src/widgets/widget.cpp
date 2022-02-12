@@ -1,6 +1,5 @@
 #include "clk/gui/widgets/widget.hpp"
 
-#include "clk/gui/widgets/widget_factory.hpp"
 #include "clk/gui/widgets/widget_tree.hpp"
 
 #include <imgui.h>
@@ -8,8 +7,7 @@
 namespace clk::gui
 {
 
-widget::widget(std::shared_ptr<widget_factory const> factory, std::string_view name)
-	: _name(name), _factory(std::move(factory))
+widget::widget(std::string_view name) : _name(name)
 {
 }
 
@@ -91,16 +89,6 @@ auto widget::is_interactive() const noexcept -> bool
 	return _interactive;
 }
 
-auto widget::get_widget_factory() const -> std::shared_ptr<widget_factory const> const&
-{
-	return _factory;
-}
-
-void widget::set_widget_factory(std::shared_ptr<widget_factory const> factory)
-{
-	_factory = std::move(factory);
-}
-
 void widget::prefer_extended()
 {
 	_extended_available = true;
@@ -166,7 +154,7 @@ auto widget::settings() -> widget_tree&
 {
 	if(_settings == nullptr)
 	{
-		_settings = std::make_unique<widget_tree>(get_widget_factory(), "Settings for '" + _name + "'");
+		_settings = std::make_unique<widget_tree>("Settings for '" + _name + "'");
 		_settings->disable_title();
 		_settings->set_draw_mode(widget_tree::draw_mode::menu);
 	}

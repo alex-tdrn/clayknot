@@ -32,8 +32,10 @@ graph_editor::graph_editor(std::shared_ptr<widget_factory const> factory, std::s
 	, _selection_manager(std::make_unique<impl::selection_manager<false>>(_node_cache.get(), _port_cache.get()))
 
 {
-	settings().add(_draw_node_titles, "Draw node titles");
-	settings().add(_draw_port_widgets, "Draw port widgets");
+	auto const& f = get_widget_factory();
+
+	settings().add(f->create(_draw_node_titles, "Draw node titles"));
+	settings().add(f->create(_draw_port_widgets, "Draw port widgets"));
 	disable_title();
 	ImNodes::EditorContextSet(_context);
 	ImNodes::EditorContextSet(nullptr);

@@ -8,15 +8,13 @@
 
 namespace clk::gui
 {
-class widget_factory;
-
 class widget_tree;
 
 class widget
 {
 public:
 	widget() = delete;
-	widget(std::shared_ptr<widget_factory const> factory, std::string_view name);
+	explicit widget(std::string_view name);
 	widget(widget const&) = delete;
 	widget(widget&&) = delete;
 	auto operator=(widget const&) -> widget& = delete;
@@ -38,8 +36,7 @@ public:
 	auto name() const -> std::string_view;
 	void set_interactivity(bool interactive) noexcept;
 	auto is_interactive() const noexcept -> bool;
-	auto get_widget_factory() const -> std::shared_ptr<widget_factory const> const&;
-	void set_widget_factory(std::shared_ptr<widget_factory const> factory);
+
 	auto get_settings() const -> widget_tree const*;
 
 protected:
@@ -53,7 +50,6 @@ private:
 	std::string _name;
 	bool _draw_title = true;
 	bool _interactive = true;
-	std::shared_ptr<widget_factory const> _factory;
 	std::unique_ptr<widget_tree> _settings;
 	mutable bool _first_draw = true;
 	mutable std::optional<float> _maximum_width;

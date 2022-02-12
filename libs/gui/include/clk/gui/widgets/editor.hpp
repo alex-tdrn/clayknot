@@ -1,16 +1,16 @@
 #pragma once
 
+#include "clk/gui/widgets/data_widget.hpp"
 #include "clk/gui/widgets/data_writer.hpp"
-#include "clk/gui/widgets/widget.hpp"
 
 #include <imgui.h>
 
 namespace clk::gui
 {
-class editor : public widget
+class editor : public data_widget
 {
 public:
-	using widget::widget;
+	using data_widget::data_widget;
 	editor() = delete;
 	editor(editor const&) = delete;
 	editor(editor&&) = delete;
