@@ -56,8 +56,18 @@ void graph_editor::copy(widget const& other)
 	editor_of<clk::graph>::copy(other);
 }
 
+void graph_editor::center_view() const
+{
+	ImNodes::EditorContextSet(_context);
+	ImNodes::EditorContextResetPanning({ImGui::GetContentRegionAvail().x / 2, ImGui::GetContentRegionAvail().y / 2});
+	ImNodes::EditorContextSet(nullptr);
+}
+
 auto graph_editor::draw_contents(clk::graph& graph) const -> bool
 {
+	if(is_first_draw())
+		center_view();
+
 	auto last_timestamp = graph.timestamp().time_point();
 	auto time_since_last_modification = std::chrono::duration_cast<std::chrono::duration<float, std::ratio<1, 1>>>(
 		std::chrono::steady_clock::now() - last_timestamp);

@@ -68,6 +68,7 @@ void widget::draw() const
 		_last_size = ImGui::GetItemRectSize();
 	}
 	ImGui::PopID();
+	_first_draw = false;
 }
 
 void widget::enable_title()
@@ -140,6 +141,11 @@ auto widget::name() const -> std::string_view
 auto widget::get_settings() const -> widget_tree const*
 {
 	return _settings.get();
+}
+
+auto widget::is_first_draw() const -> bool
+{
+	return _first_draw;
 }
 
 auto widget::available_width() const -> float

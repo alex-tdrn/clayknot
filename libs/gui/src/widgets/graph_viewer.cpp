@@ -51,8 +51,18 @@ void graph_viewer::copy(widget const& other)
 	viewer_of<clk::graph>::copy(other);
 }
 
+void graph_viewer::center_view() const
+{
+	ImNodes::EditorContextSet(_context);
+	ImNodes::EditorContextResetPanning({ImGui::GetContentRegionAvail().x / 2, ImGui::GetContentRegionAvail().y / 2});
+	ImNodes::EditorContextSet(nullptr);
+}
+
 void graph_viewer::draw_contents(clk::graph const& graph) const
 {
+	if(is_first_draw())
+		center_view();
+
 	ImNodes::EditorContextSet(_context);
 	ImNodes::PushStyleVar(ImNodesStyleVar_NodeCornerRounding, 0.0f);
 	ImNodes::PushStyleVar(ImNodesStyleVar_PinOffset, ImNodes::GetStyle().PinHoverRadius * 0.5f);

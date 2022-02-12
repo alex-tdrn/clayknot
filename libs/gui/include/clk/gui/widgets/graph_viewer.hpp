@@ -32,6 +32,8 @@ public:
 	auto clone() const -> std::unique_ptr<widget> override;
 	void copy(widget const& other) override;
 
+	void center_view() const;
+
 	void draw_contents(clk::graph const& graph) const final;
 
 private:
