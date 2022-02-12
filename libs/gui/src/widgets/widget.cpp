@@ -27,7 +27,7 @@ void widget::copy(widget const& other)
 void widget::draw() const
 {
 	ImGui::PushID(this);
-	if(ImGui::BeginPopup(_name.c_str()))
+	if(_extended_available && ImGui::BeginPopup(_name.c_str()))
 	{
 		bool was_extended_preferred = _extended_preferred;
 		std::optional<float> old_maximum_width = _maximum_width;

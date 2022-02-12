@@ -33,35 +33,17 @@ public:
 	auto clone() const -> std::unique_ptr<widget> override;
 	void copy(widget const& other) override;
 
+	auto get_subtree(std::string_view path) -> widget_tree&;
 	void add(std::unique_ptr<widget> widget);
-
 	void set_draw_mode(draw_mode mode);
 
 	void draw_contents() const override;
 
 private:
-	class tree
-	{
-	public:
-		tree() = default;
-		tree(tree const& other);
-		tree(tree&&) = default;
-		auto operator=(tree const& other) -> tree&;
-		auto operator=(tree&&) -> tree& = default;
-		~tree() = default;
-
-		void set_name(std::string_view name);
-		void add(std::unique_ptr<widget> widget);
-		void draw(draw_mode mode, bool is_root) const;
-
-	private:
-		std::string _name;
-		std::vector<std::unique_ptr<widget>> _widgets;
-		std::vector<tree> _sub_trees;
-	};
-
-	tree _root;
+	std::vector<std::unique_ptr<widget_tree>> _subtrees;
+	std::vector<std::unique_ptr<widget>> _widgets;
 	draw_mode _draw_mode = draw_mode::tree_nodes;
+	bool _draw_inline = true;
 };
 
 inline auto widget_tree::clone() const -> std::unique_ptr<widget>
@@ -74,107 +56,102 @@ inline auto widget_tree::clone() const -> std::unique_ptr<widget>
 inline void widget_tree::copy(widget const& other)
 {
 	auto const& casted = dynamic_cast<widget_tree const&>(other);
-	_root = casted._root;
+	_widgets.reserve(casted._widgets.size());
+	for(auto const& widget : casted._widgets)
+	{
+		_widgets.push_back(widget->clone());
+	}
+
+	_subtrees.reserve(casted._subtrees.size());
+	for(auto const& subtree : casted._subtrees)
+	{
+		auto cloned_subtree = std::unique_ptr<widget_tree>(static_cast<widget_tree*>(subtree->clone().release()));
+		_subtrees.push_back(std::move(cloned_subtree));
+	}
+	_draw_mode = casted._draw_mode;
+	_draw_inline = casted._draw_inline;
+
 	widget::copy(other);
+}
+
+inline auto widget_tree::get_subtree(std::string_view path) -> widget_tree&
+{
+	if(path.empty())
+	{
+		return *this;
+	}
+	auto make_subtree = [&](std::string_view name) -> widget_tree& {
+		auto subtree = std::make_unique<widget_tree>(name);
+		subtree->_draw_inline = false;
+		subtree->disable_title();
+		subtree->_draw_mode = _draw_mode;
+		auto& ref = *subtree;
+		_subtrees.push_back(std::move(subtree));
+		return ref;
+	};
+
+	if(auto first_delimiter = path.find_first_of('/'); first_delimiter != std::string_view::npos)
+	{
+		auto subtree_name = path.substr(0, first_delimiter);
+		auto subpath = path.substr(first_delimiter + 1, path.size() - first_delimiter);
+
+		if(auto found_it = ranges::find_if(_subtrees,
+			   [&](const auto& subtree) {
+				   return subtree->name() == subtree_name;
+			   });
+			found_it != _subtrees.end())
+		{
+			return get_subtree(subpath);
+		}
+		else
+		{
+			return make_subtree(subtree_name).get_subtree(subpath);
+		}
+	}
+	else
+	{
+		return make_subtree(path);
+	}
 }
 
 inline void widget_tree::add(std::unique_ptr<widget> widget)
 {
-	_root.add(std::move(widget));
+	_widgets.push_back(std::move(widget));
 }
 
 inline void widget_tree::set_draw_mode(draw_mode mode)
 {
 	_draw_mode = mode;
+	for(auto& subtree : _subtrees)
+		subtree->set_draw_mode(mode);
 }
 
 inline void widget_tree::draw_contents() const
 {
-	_root.draw(_draw_mode, true);
-}
-
-inline widget_tree::tree::tree(tree const& other)
-{
-	*this = other;
-}
-
-inline auto widget_tree::tree::operator=(tree const& other) -> tree&
-{
-	if(&other != this)
-	{
-		_name = other._name;
-		_widgets.reserve(other._widgets.size());
-		for(auto const& widget : other._widgets)
-		{
-			_widgets.push_back(widget->clone());
-		}
-		_sub_trees = other._sub_trees;
-	}
-	return *this;
-}
-
-inline void widget_tree::tree::set_name(std::string_view name)
-{
-	_name = std::string(name);
-}
-
-inline void widget_tree::tree::add(std::unique_ptr<widget> widget)
-{
-	auto name = std::string(widget->name());
-	if(auto first_delimiter = name.find_first_of('/'); first_delimiter != std::string_view::npos)
-	{
-		auto sub_tree_name = name.substr(0, first_delimiter);
-		auto sub_setting_name = name.substr(first_delimiter + 1, name.size() - first_delimiter);
-		widget->set_name(sub_setting_name);
-
-		if(auto found_it = ranges::find_if(_sub_trees,
-			   [&](const auto& tree) {
-				   return tree._name == sub_tree_name;
-			   });
-			found_it != _sub_trees.end())
-		{
-			found_it->add(std::move(widget));
-		}
-		else
-		{
-			tree sub_tree;
-			sub_tree.set_name(sub_tree_name);
-			sub_tree.add(std::move(widget));
-			_sub_trees.push_back(std::move(sub_tree));
-		}
-	}
-	else
-	{
-		_widgets.push_back(std::move(widget));
-	}
-}
-
-inline void widget_tree::tree::draw(draw_mode mode, bool is_root) const
-{
 	auto draw_internal = [&]() {
 		for(auto const& widget : _widgets)
 			widget->draw();
-		for(auto const& subtree : _sub_trees)
-			subtree.draw(mode, false);
+		for(auto const& subtree : _subtrees)
+			subtree->draw();
 	};
 
-	if(is_root)
+	if(_draw_inline)
 	{
 		draw_internal();
 	}
 	else
 	{
-		switch(mode)
+		switch(_draw_mode)
 		{
 			case draw_mode::tree_nodes:
-				if(ImGui::TreeNode(_name.c_str()))
+				if(ImGui::TreeNodeEx(name().data(), ImGuiTreeNodeFlags_DefaultOpen))
 				{
 					draw_internal();
 					ImGui::TreePop();
 				}
 				break;
 			case draw_mode::menu:
-				if(ImGui::BeginMenu(_name.c_str()))
+				if(ImGui::BeginMenu(name().data()))
 				{
 					draw_internal();
 					ImGui::EndMenu();

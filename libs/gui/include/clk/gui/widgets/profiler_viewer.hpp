@@ -44,10 +44,10 @@ inline profiler_viewer::profiler_viewer(std::shared_ptr<widget_factory const> fa
 	: viewer_of<clk::profiler>(std::move(factory), name)
 {
 	auto const& f = get_widget_factory();
-	std::string plot_group = "Plot/";
-	settings().add(f->create(_plot_height, plot_group + "Height"));
-	settings().add(f->create(_plot_width, plot_group + "Width"));
-	settings().add(f->create(_plot_alpha, plot_group + "Fill opacity"));
+	auto& plot_settings = settings().get_subtree("Plot");
+	plot_settings.add(f->create(_plot_height, "Height"));
+	plot_settings.add(f->create(_plot_width, "Width"));
+	plot_settings.add(f->create(_plot_alpha, "Fill opacity"));
 }
 
 inline auto profiler_viewer::clone() const -> std::unique_ptr<widget>
