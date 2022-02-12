@@ -78,6 +78,7 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 		ImGui_ImplOpenGL3_Init("#version 420");
 
 		ImNodes::CreateContext();
+		ImNodes::GetIO().AltMouseButton = ImGuiMouseButton_Right;
 		auto& style = ImNodes::GetStyle();
 		// TODO these colors need to come form a stylesheet
 		style.Colors[ImNodesCol_LinkHovered] = clk::color_rgba{1.0f}.packed();

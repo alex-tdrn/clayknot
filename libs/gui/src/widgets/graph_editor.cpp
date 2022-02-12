@@ -4,6 +4,7 @@
 #include "clk/base/algorithm_node.hpp"
 #include "clk/base/constant_node.hpp"
 #include "clk/base/port.hpp"
+#include "clk/gui/widgets/action_widget.hpp"
 #include "clk/gui/widgets/editor.hpp"
 #include "clk/gui/widgets/widget_tree.hpp"
 #include "clk/util/predicates.hpp"
@@ -36,6 +37,12 @@ graph_editor::graph_editor(std::shared_ptr<widget_factory const> factory, std::s
 
 	settings().add(f->create(_draw_node_titles, "Draw node titles"));
 	settings().add(f->create(_draw_port_widgets, "Draw port widgets"));
+	settings().add(std::make_unique<action_widget>(
+		[&]() {
+			center_view();
+		},
+		"Center view"));
+
 	disable_title();
 	ImNodes::EditorContextSet(_context);
 	ImNodes::EditorContextSet(nullptr);
@@ -60,9 +67,7 @@ void graph_editor::copy(widget const& other)
 
 void graph_editor::center_view() const
 {
-	ImNodes::EditorContextSet(_context);
-	ImNodes::EditorContextResetPanning({ImGui::GetContentRegionAvail().x / 2, ImGui::GetContentRegionAvail().y / 2});
-	ImNodes::EditorContextSet(nullptr);
+	_centering_queued = true;
 }
 
 auto graph_editor::draw_contents(clk::graph& graph) const -> bool
@@ -110,6 +115,13 @@ void graph_editor::draw_graph(clk::graph& graph) const
 	_connections.clear();
 
 	ImNodes::BeginNodeEditor();
+
+	if(_centering_queued)
+	{
+		ImNodes::EditorContextResetPanning(
+			{ImGui::GetContentRegionAvail().x / 2, ImGui::GetContentRegionAvail().y / 2});
+		_centering_queued = false;
+	}
 
 	if(!is_interactive())
 	{

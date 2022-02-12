@@ -4,6 +4,7 @@ add_library(
 	"include/clk/gui/panel.hpp"
 	"include/clk/gui/widgets/widget.hpp"
 	"include/clk/gui/widgets/widget_tree.hpp"
+	"include/clk/gui/widgets/action_widget.hpp"
 	"include/clk/gui/widgets/data_widget.hpp"
 	"include/clk/gui/widgets/data_reader.hpp"
 	"include/clk/gui/widgets/viewer.hpp"

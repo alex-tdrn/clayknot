@@ -44,6 +44,7 @@ private:
 	std::unique_ptr<impl::selection_manager<true>> _selection_manager;
 	bool _draw_port_widgets = true;
 	bool _draw_node_titles = true;
+	mutable bool _centering_queued = true;
 
 	void draw_graph(clk::graph const& graph) const;
 };

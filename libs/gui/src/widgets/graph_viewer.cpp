@@ -3,6 +3,7 @@
 #include "clk/base/node.hpp"
 #include "clk/base/port.hpp"
 #include "clk/gui//widgets/widget_tree.hpp"
+#include "clk/gui/widgets/action_widget.hpp"
 #include "node_viewers.hpp"
 #include "port_viewers.hpp"
 #include "selection_manager.hpp"
@@ -29,6 +30,11 @@ graph_viewer::graph_viewer(std::shared_ptr<widget_factory const> factory, std::s
 	auto const& f = get_widget_factory();
 	settings().add(f->create(_draw_node_titles, "Draw node titles"));
 	settings().add(f->create(_draw_port_widgets, "Draw port widgets"));
+	settings().add(std::make_unique<action_widget>(
+		[&]() {
+			center_view();
+		},
+		"Center view"));
 
 	disable_title();
 	ImNodes::EditorContextSet(_context);
@@ -54,16 +60,11 @@ void graph_viewer::copy(widget const& other)
 
 void graph_viewer::center_view() const
 {
-	ImNodes::EditorContextSet(_context);
-	ImNodes::EditorContextResetPanning({ImGui::GetContentRegionAvail().x / 2, ImGui::GetContentRegionAvail().y / 2});
-	ImNodes::EditorContextSet(nullptr);
+	_centering_queued = true;
 }
 
 void graph_viewer::draw_contents(clk::graph const& graph) const
 {
-	if(is_first_draw())
-		center_view();
-
 	ImNodes::EditorContextSet(_context);
 	ImNodes::PushStyleVar(ImNodesStyleVar_NodeCornerRounding, 0.0f);
 	ImNodes::PushStyleVar(ImNodesStyleVar_PinOffset, ImNodes::GetStyle().PinHoverRadius * 0.5f);
@@ -81,6 +82,13 @@ void graph_viewer::draw_graph(clk::graph const& graph) const
 	_connections.clear();
 
 	ImNodes::BeginNodeEditor();
+
+	if(_centering_queued)
+	{
+		ImNodes::EditorContextResetPanning(
+			{ImGui::GetContentRegionAvail().x / 2, ImGui::GetContentRegionAvail().y / 2});
+		_centering_queued = false;
+	}
 
 	if(!is_interactive())
 	{

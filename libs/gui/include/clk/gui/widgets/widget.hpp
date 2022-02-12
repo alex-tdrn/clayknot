@@ -27,6 +27,8 @@ public:
 	void draw() const;
 	void enable_title();
 	void disable_title();
+	void enable_extra_id();
+	void disable_extra_id();
 	void prefer_extended();
 	void prefer_compact();
 	void set_maximum_width(float width);
@@ -49,6 +51,7 @@ protected:
 private:
 	std::string _name;
 	bool _draw_title = true;
+	bool _push_extra_id = false;
 	bool _interactive = true;
 	std::unique_ptr<widget_tree> _settings;
 	mutable bool _first_draw = true;

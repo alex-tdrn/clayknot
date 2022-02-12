@@ -17,6 +17,7 @@ void widget::copy(widget const& other)
 {
 	_name = other._name;
 	_draw_title = other._draw_title;
+	_push_extra_id = other._push_extra_id;
 	_interactive = other._interactive;
 	_maximum_width = other._maximum_width;
 	_last_size = other._last_size;
@@ -26,7 +27,8 @@ void widget::copy(widget const& other)
 
 void widget::draw() const
 {
-	ImGui::PushID(this);
+	if(_push_extra_id)
+		ImGui::PushID(this);
 	if(_extended_available && ImGui::BeginPopup(_name.c_str()))
 	{
 		bool was_extended_preferred = _extended_preferred;
@@ -65,7 +67,8 @@ void widget::draw() const
 		ImGui::EndGroup();
 		_last_size = ImGui::GetItemRectSize();
 	}
-	ImGui::PopID();
+	if(_push_extra_id)
+		ImGui::PopID();
 	_first_draw = false;
 }
 
@@ -77,6 +80,16 @@ void widget::enable_title()
 void widget::disable_title()
 {
 	_draw_title = false;
+}
+
+void widget::enable_extra_id()
+{
+	_push_extra_id = false;
+}
+
+void widget::disable_extra_id()
+{
+	_push_extra_id = false;
 }
 
 void widget::set_interactivity(bool interactive) noexcept

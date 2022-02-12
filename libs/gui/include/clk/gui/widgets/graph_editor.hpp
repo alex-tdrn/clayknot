@@ -59,6 +59,7 @@ private:
 	mutable bool _context_menu_queued = false;
 	bool _draw_node_titles = true;
 	bool _draw_port_widgets = true;
+	mutable bool _centering_queued = true;
 
 	void draw_graph(clk::graph& graph) const;
 	void draw_menus(clk::graph& graph) const;
