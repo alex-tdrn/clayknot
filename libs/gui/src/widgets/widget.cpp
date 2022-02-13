@@ -84,7 +84,7 @@ void widget::disable_title()
 
 void widget::enable_extra_id()
 {
-	_push_extra_id = false;
+	_push_extra_id = true;
 }
 
 void widget::disable_extra_id()

@@ -51,7 +51,7 @@ protected:
 private:
 	std::string _name;
 	bool _draw_title = true;
-	bool _push_extra_id = false;
+	bool _push_extra_id = true;
 	bool _interactive = true;
 	std::unique_ptr<widget_tree> _settings;
 	mutable bool _first_draw = true;
