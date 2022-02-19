@@ -16,7 +16,7 @@ add_library(
 	"include/clk/gui/widgets/default_editors.hpp"
 	"include/clk/gui/widgets/graph_viewer.hpp"
 	"include/clk/gui/widgets/graph_editor.hpp"
-	"include/clk/gui/widgets/profiler_viewer.hpp"
+	"include/clk/gui/widgets/profiler_editor.hpp"
 	"src/init.cpp"
 	"src/panel.cpp"
 	"src/widgets/widget.cpp"

@@ -11,6 +11,7 @@
 #include "clk/gui/widgets/editor.hpp"
 #include "clk/gui/widgets/viewer.hpp"
 #include "clk/gui/widgets/widget_factory.hpp"
+#include "clk/gui/widgets/widget_tree.hpp"
 #include "clk/util/color_rgba.hpp"
 #include "clk/util/profiler.hpp"
 
@@ -67,7 +68,7 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 		}
 #endif
 
-		glfwSwapInterval(0);
+		glfwSwapInterval(1);
 
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
@@ -180,17 +181,40 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 
 		clk::gui::panel::create_orphan(widget_factory->create(graph1, "graph1 editor"));
 
-		clk::profiler profiler;
-		auto profiler_panel = clk::gui::panel(widget_factory->create(std::as_const(profiler), "Frametimes"));
-		profiler_panel.set_title_bar_visibility(false);
-		profiler_panel.set_resizability(clk::gui::panel::resizability::automatic);
-		profiler_panel.set_docking(false);
-		profiler_panel.set_movability(false);
-		profiler_panel.set_interactivity(false);
-		profiler_panel.set_opactiy(0.5f);
+		clk::profiler profiler_frame;
+		auto frametimes_panel = clk::gui::panel();
+		frametimes_panel.set_widget(widget_factory->create(profiler_frame, "Frametimes"));
+		frametimes_panel.set_title_bar_visibility(false);
+		frametimes_panel.set_resizability(clk::gui::panel::resizability::automatic);
+		frametimes_panel.set_docking(false);
+		frametimes_panel.set_movability(false);
+		frametimes_panel.set_interactivity(false);
+		frametimes_panel.set_opactiy(0.5f);
+
+		clk::profiler profiler_empty;
+		profiler_empty.set_active(false);
+		clk::profiler profiler_draw;
+		profiler_draw.set_active(false);
+		clk::profiler profiler_swap;
+		profiler_swap.set_active(false);
+
+		{
+			auto profiler_tree = std::make_unique<clk::gui::widget_tree>("Extra profilers");
+			profiler_tree->get_subtree("Profiler overhead")
+				.add(widget_factory->create(profiler_empty, "Profiler overhead"));
+			profiler_tree->get_subtree("GUI Draw").add(widget_factory->create(profiler_draw, "GUI Draw"));
+			profiler_tree->get_subtree("Swap buffers").add(widget_factory->create(profiler_swap, "Swap buffers"));
+			clk::gui::panel::create_orphan(std::move(profiler_tree));
+		}
 
 		while(glfwWindowShouldClose(window) == 0)
 		{
+			profiler_frame.record_sample_end();
+			profiler_frame.record_sample_start();
+
+			profiler_empty.record_sample_start();
+			profiler_empty.record_sample_end();
+
 			glfwPollEvents();
 			ImGui_ImplOpenGL3_NewFrame();
 			ImGui_ImplGlfw_NewFrame();
@@ -203,11 +227,11 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 			glClearColor(0, 0, 0, 1);
 			glClear(GL_COLOR_BUFFER_BIT);
 
+			profiler_draw.record_sample_start();
 			clk::gui::draw();
-
-			profiler.record_frame();
-
 			ImGui::Render();
+			profiler_draw.record_sample_end();
+
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 			if((io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) != 0)
@@ -218,7 +242,9 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 				glfwMakeContextCurrent(backup_current_context);
 			}
 
+			profiler_swap.record_sample_start();
 			glfwSwapBuffers(window);
+			profiler_swap.record_sample_end();
 		}
 
 		ImPlot::DestroyContext();

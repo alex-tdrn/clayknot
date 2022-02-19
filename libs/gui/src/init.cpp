@@ -6,7 +6,7 @@
 #include "clk/gui/widgets/default_viewers.hpp"
 #include "clk/gui/widgets/graph_editor.hpp"
 #include "clk/gui/widgets/graph_viewer.hpp"
-#include "clk/gui/widgets/profiler_viewer.hpp"
+#include "clk/gui/widgets/profiler_editor.hpp"
 #include "clk/gui/widgets/widget_factory.hpp"
 #include "clk/util/type_list.hpp"
 
@@ -29,7 +29,7 @@ auto create_default_factory() -> std::shared_ptr<widget_factory>
 	});
 
 	factory->register_viewer<clk::graph, graph_viewer>();
-	factory->register_viewer<clk::profiler, profiler_viewer>();
+	factory->register_editor<clk::profiler, profiler_editor>();
 	factory->register_editor<clk::graph, graph_editor>();
 
 	return factory;
