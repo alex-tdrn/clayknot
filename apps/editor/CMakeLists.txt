@@ -6,7 +6,7 @@ target_link_libraries(
 			clayknot::algorithms
 			clayknot::gui
 			glad::glad
-			glfw::glfw
+			glfw
 			imgui
 			imnodes
 			implot

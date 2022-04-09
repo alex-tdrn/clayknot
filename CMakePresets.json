@@ -9,8 +9,7 @@
             "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/install/${presetName}",
-                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-                "CONAN_AUTO_INSTALL": "ON"
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
             }
         },
         {
