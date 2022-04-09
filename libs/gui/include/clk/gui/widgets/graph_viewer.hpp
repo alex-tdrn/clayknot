@@ -12,9 +12,9 @@ template <typename data, typename widget>
 class widget_cache;
 class node_viewer;
 class port_viewer;
-
 template <bool const_data>
 class selection_manager;
+class layout_solver;
 } // namespace clk::gui::impl
 
 namespace clk::gui
@@ -37,16 +37,20 @@ public:
 	void draw_contents(clk::graph const& graph) const final;
 
 private:
+	mutable bool _first_draw = true;
 	ImNodesEditorContext* _context;
 	std::unique_ptr<impl::widget_cache<clk::node const, impl::node_viewer>> _node_cache;
 	std::unique_ptr<impl::widget_cache<clk::port const, impl::port_viewer>> _port_cache;
 	mutable std::vector<std::pair<clk::input const*, clk::output const*>> _connections;
 	std::unique_ptr<impl::selection_manager<true>> _selection_manager;
+	std::unique_ptr<impl::layout_solver> _layout_solver;
 	bool _draw_port_widgets = true;
 	bool _draw_node_titles = true;
+	bool _enable_layout_solver = true;
 	mutable bool _centering_queued = true;
 
 	void draw_graph(clk::graph const& graph) const;
+	void run_layout_solver(clk::graph const& graph) const;
 };
 
 } // namespace clk::gui

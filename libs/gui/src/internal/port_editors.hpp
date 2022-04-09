@@ -30,6 +30,7 @@ public:
 	void set_stable_height(bool stable_height);
 	virtual auto port() const -> port* = 0;
 	virtual void draw(clk::gui::widget* override_widget = nullptr) = 0;
+	auto position() const -> glm::vec2 const&;
 
 protected:
 	int _id = -1; // NOLINT
@@ -37,6 +38,7 @@ protected:
 	std::unique_ptr<clk::gui::viewer> _data_viewer; // NOLINT
 	bool _enabled = true; // NOLINT
 	bool _stable_height = false; // NOLINT
+	glm::vec2 _position; // NOLINT
 	bool const& _draw_port_widgets; // NOLINT
 };
 
@@ -110,6 +112,11 @@ inline void port_editor::set_stable_height(bool stable_height)
 	_stable_height = stable_height;
 }
 
+inline auto port_editor::position() const -> glm::vec2 const&
+{
+	return _position;
+}
+
 inline input_editor::input_editor(
 	clk::input* port, int id, widget_factory const& widget_factory, bool const& draw_port_widgets)
 	: port_editor(port, id, widget_factory, draw_port_widgets), _port(port)
@@ -179,6 +186,11 @@ inline void input_editor::draw(clk::gui::widget* override_widget)
 	else
 		ImNodes::EndInputAttribute();
 
+	auto rect_min = glm::vec2(ImGui::GetItemRectMin());
+	auto rect_max = glm::vec2(ImGui::GetItemRectMax());
+	_position.y = (rect_min.y + rect_max.y) / 2;
+	_position.x = rect_min.x;
+
 	ImNodes::PopColorStyle();
 }
 
@@ -218,6 +230,11 @@ inline void output_editor::draw(clk::gui::widget* override_widget)
 		ImNodes::EndStaticAttribute();
 	else
 		ImNodes::EndOutputAttribute();
+
+	auto rect_min = glm::vec2(ImGui::GetItemRectMin());
+	auto rect_max = glm::vec2(ImGui::GetItemRectMax());
+	_position.y = (rect_min.y + rect_max.y) / 2;
+	_position.x = rect_max.x;
 
 	ImNodes::PopColorStyle();
 }

@@ -23,6 +23,7 @@ add_library(
 	"src/widgets/data_widget.cpp"
 	"src/widgets/graph_viewer.cpp"
 	"src/widgets/graph_editor.cpp"
+	"src/internal/layout_solver.hpp"
 	"src/internal/widget_cache.hpp"
 	"src/internal/selection_manager.hpp"
 	"src/internal/node_viewers.hpp"

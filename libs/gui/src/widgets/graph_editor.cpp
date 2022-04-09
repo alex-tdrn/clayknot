@@ -9,14 +9,16 @@
 #include "clk/gui/widgets/widget_tree.hpp"
 #include "clk/util/predicates.hpp"
 #include "clk/util/projections.hpp"
+#include "layout_solver.hpp"
 #include "node_editors.hpp"
 #include "port_editors.hpp"
 #include "selection_manager.hpp"
 #include "widget_cache.hpp"
 
-#include <range/v3/algorithm.hpp>
-
+#include <imgui.h>
 #include <imgui_internal.h>
+#include <random>
+#include <range/v3/algorithm.hpp>
 
 namespace clk::gui
 {
@@ -31,17 +33,42 @@ graph_editor::graph_editor(std::shared_ptr<widget_factory const> factory, std::s
 		return impl::create_port_editor(port, id, *get_widget_factory(), _draw_port_widgets);
 	}))
 	, _selection_manager(std::make_unique<impl::selection_manager<false>>(_node_cache.get(), _port_cache.get()))
-
+	, _layout_solver(std::make_unique<impl::layout_solver>())
 {
-	auto const& f = get_widget_factory();
-
-	settings().add(f->create(_draw_node_titles, "Draw node titles"));
-	settings().add(f->create(_draw_port_widgets, "Draw port widgets"));
+	auto const& f = *get_widget_factory();
+	settings().add(f.create(_draw_node_titles, "Draw node titles"));
+	settings().add(f.create(_draw_port_widgets, "Draw port widgets"));
 	settings().add(std::make_unique<action_widget>(
 		[&]() {
 			center_view();
 		},
 		"Center view"));
+
+	{
+		auto& layout_solver_settings = settings().get_subtree("Force based layout solver");
+		layout_solver_settings.add(f.create(_enable_layout_solver, "Enabled"));
+		_layout_solver->register_settings(layout_solver_settings, f);
+	}
+	{
+		auto& stress_tests = settings().get_subtree("Stress tests");
+		stress_tests.add(std::make_unique<action_widget>(
+			[&]() {
+				_add_random_node_queued = true;
+			},
+			"Add random node"));
+
+		stress_tests.add(std::make_unique<action_widget>(
+			[&]() {
+				_clear_connections_queued = true;
+			},
+			"Clear connections"));
+
+		stress_tests.add(std::make_unique<action_widget>(
+			[&]() {
+				_randomize_connections_queued = true;
+			},
+			"Randomize connections"));
+	}
 
 	disable_title();
 	ImNodes::EditorContextSet(_context);
@@ -129,6 +156,62 @@ void graph_editor::draw_graph(clk::graph& graph) const
 		ImGui::SetWindowHitTestHole(current_window, current_window->Pos, current_window->Size);
 	}
 
+	if(_clear_connections_queued)
+	{
+		for(auto& node : graph.nodes())
+			for(auto* port : node->all_ports())
+				port->disconnect();
+
+		_clear_connections_queued = false;
+	}
+
+	if(_randomize_connections_queued)
+	{
+		std::mt19937 generator(static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count()));
+		std::uniform_real_distribution<float> distribution(0, 1);
+
+		for(auto& node : graph.nodes())
+			for(auto* port : node->all_ports())
+				port->disconnect();
+
+		for(auto& node1 : graph.nodes())
+		{
+			for(auto& node2 : graph.nodes())
+			{
+				if(node1.get() == node2.get())
+					continue;
+				for(auto* port1 : node1->inputs())
+				{
+					for(auto* port2 : node2->outputs())
+					{
+						if(port1->can_connect_to(*port2))
+						{
+							auto p = distribution(generator);
+							if(p < 0.25f)
+							{
+								port1->connect_to(*port2);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		_randomize_connections_queued = false;
+	}
+
+	if(_add_random_node_queued)
+	{
+		std::mt19937 generator(static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count()));
+		std::uniform_int_distribution<std::size_t> dis(0, clk::algorithm::factories().size() - 1);
+		std::size_t index = dis(generator);
+		auto it = clk::algorithm::factories().begin();
+		std::advance(it, index);
+		auto random_node = std::make_unique<algorithm_node>(it->second());
+		graph.add_node(std::move(random_node));
+		_add_random_node_queued = false;
+	}
+
 	for(auto const& node : graph.nodes())
 	{
 		_node_cache->widget_for(node.get()).draw();
@@ -195,7 +278,18 @@ void graph_editor::draw_graph(clk::graph& graph) const
 	}
 
 	ImNodes::MiniMap(0.1f);
-	_context_menu_queued = ImGui::IsMouseReleased(ImGuiMouseButton_Right) && ImNodes::IsEditorHovered();
+
+	{
+		auto mouse_drag = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right);
+		bool mouse_dragging = mouse_drag.x != 0.0f && mouse_drag.y != 0.0f;
+		_context_menu_queued =
+			ImGui::IsMouseReleased(ImGuiMouseButton_Right) && !mouse_dragging && ImNodes::IsEditorHovered();
+	}
+
+	if(_enable_layout_solver)
+	{
+		run_layout_solver(graph);
+	}
 
 	ImNodes::EndNodeEditor();
 	ImNodes::PopAttributeFlag();
@@ -236,8 +330,17 @@ void graph_editor::draw_menus(clk::graph& graph) const
 					ImNodes::SetNodeScreenSpacePos(_node_cache->widget_for(new_node.get()).id(), ImGui::GetMousePos());
 				graph.add_node(std::move(new_node));
 			}
+
+			if(ImGui::MenuItem("Random node"))
+				_add_random_node_queued = true;
 			ImGui::EndMenu();
 		}
+
+		if(ImGui::MenuItem("Clear all connections"))
+			_clear_connections_queued = true;
+
+		if(ImGui::MenuItem("Randomize all connections"))
+			_randomize_connections_queued = true;
 
 		if(ImNodes::NumSelectedLinks() > 0 || ImNodes::NumSelectedNodes() > 0)
 		{
@@ -375,6 +478,12 @@ void graph_editor::restore_dropped_connection() const
 			*_new_connection_in_progress->dropped_connection->second);
 		_new_connection_in_progress->dropped_connection = std::nullopt;
 	}
+}
+
+void graph_editor::run_layout_solver(clk::graph const& graph) const
+{
+	_layout_solver->update_cache(graph, *_node_cache, *_port_cache);
+	_layout_solver->step();
 }
 
 } // namespace clk::gui

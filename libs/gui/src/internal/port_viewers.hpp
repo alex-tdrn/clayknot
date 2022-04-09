@@ -25,11 +25,13 @@ public:
 	auto id() const -> int;
 	virtual auto port() const -> clk::port const* = 0;
 	virtual void draw() = 0;
+	auto position() const -> glm::vec2 const&;
 
 protected:
 	int _id = -1; // NOLINT
 	std::uint32_t _color; // NOLINT
 	std::unique_ptr<clk::gui::viewer> _data_viewer; // NOLINT
+	glm::vec2 _position; // NOLINT
 	bool const& _draw_port_widgets; // NOLINT
 };
 
@@ -87,6 +89,11 @@ inline auto port_viewer::id() const -> int
 	return _id;
 }
 
+inline auto port_viewer::position() const -> glm::vec2 const&
+{
+	return _position;
+}
+
 inline input_viewer::input_viewer(
 	clk::input const* port, int id, widget_factory const& widget_factory, bool const& draw_port_widgets)
 	: port_viewer(port, id, widget_factory, draw_port_widgets), _port(port)
@@ -115,7 +122,10 @@ inline void input_viewer::draw()
 	}
 
 	ImNodes::EndInputAttribute();
-
+	auto rect_min = glm::vec2(ImGui::GetItemRectMin());
+	auto rect_max = glm::vec2(ImGui::GetItemRectMax());
+	_position.y = (rect_min.y + rect_max.y) / 2;
+	_position.x = rect_min.x;
 	ImNodes::PopColorStyle();
 	ImNodes::PopColorStyle();
 }
@@ -148,6 +158,10 @@ inline void output_viewer::draw()
 	}
 
 	ImNodes::EndOutputAttribute();
+	auto rect_min = glm::vec2(ImGui::GetItemRectMin());
+	auto rect_max = glm::vec2(ImGui::GetItemRectMax());
+	_position.y = (rect_min.y + rect_max.y) / 2;
+	_position.x = rect_max.x;
 
 	ImNodes::PopColorStyle();
 	ImNodes::PopColorStyle();

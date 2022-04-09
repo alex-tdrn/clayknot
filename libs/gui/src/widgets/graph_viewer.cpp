@@ -4,6 +4,7 @@
 #include "clk/base/port.hpp"
 #include "clk/gui//widgets/widget_tree.hpp"
 #include "clk/gui/widgets/action_widget.hpp"
+#include "layout_solver.hpp"
 #include "node_viewers.hpp"
 #include "port_viewers.hpp"
 #include "selection_manager.hpp"
@@ -25,16 +26,22 @@ graph_viewer::graph_viewer(std::shared_ptr<widget_factory const> factory, std::s
 			  return impl::create_port_viewer(port, id, *get_widget_factory(), _draw_port_widgets);
 		  }))
 	, _selection_manager(std::make_unique<impl::selection_manager<true>>(_node_cache.get(), _port_cache.get()))
-
+	, _layout_solver(std::make_unique<impl::layout_solver>())
 {
-	auto const& f = get_widget_factory();
-	settings().add(f->create(_draw_node_titles, "Draw node titles"));
-	settings().add(f->create(_draw_port_widgets, "Draw port widgets"));
+	auto const& f = *get_widget_factory();
+	settings().add(f.create(_draw_node_titles, "Draw node titles"));
+	settings().add(f.create(_draw_port_widgets, "Draw port widgets"));
 	settings().add(std::make_unique<action_widget>(
 		[&]() {
 			center_view();
 		},
 		"Center view"));
+
+	{
+		auto& layout_solver_settings = settings().get_subtree("Force based layout solver");
+		layout_solver_settings.add(f.create(_enable_layout_solver, "Enabled"));
+		_layout_solver->register_settings(layout_solver_settings, f);
+	}
 
 	disable_title();
 	ImNodes::EditorContextSet(_context);
@@ -74,6 +81,11 @@ void graph_viewer::draw_contents(clk::graph const& graph) const
 
 	ImNodes::PopStyleVar();
 	ImNodes::PopStyleVar();
+	if(_first_draw)
+	{
+		_first_draw = false;
+		ImNodes::EditorContextResetPanning(glm::vec2(ImGui::GetItemRectSize()) / 2.0f);
+	}
 	ImNodes::EditorContextSet(nullptr);
 }
 
@@ -118,7 +130,18 @@ void graph_viewer::draw_graph(clk::graph const& graph) const
 	}
 	ImNodes::MiniMap(0.1f);
 
+	if(_enable_layout_solver)
+	{
+		run_layout_solver(graph);
+	}
+
 	ImNodes::EndNodeEditor();
+}
+
+void graph_viewer::run_layout_solver(clk::graph const& graph) const
+{
+	_layout_solver->update_cache(graph, *_node_cache, *_port_cache);
+	_layout_solver->step();
 }
 
 } // namespace clk::gui

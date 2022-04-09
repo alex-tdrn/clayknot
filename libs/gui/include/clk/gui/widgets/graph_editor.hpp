@@ -17,9 +17,9 @@ template <typename data, typename widget>
 class widget_cache;
 class node_editor;
 class port_editor;
-
 template <bool const_data>
 class selection_manager;
+class layout_solver;
 } // namespace clk::gui::impl
 
 namespace clk::gui
@@ -57,14 +57,20 @@ private:
 	mutable std::optional<connection_change> _new_connection_in_progress = std::nullopt;
 	mutable std::optional<std::function<bool()>> _queued_action = std::nullopt;
 	mutable bool _context_menu_queued = false;
+	std::unique_ptr<impl::layout_solver> _layout_solver;
 	bool _draw_node_titles = true;
 	bool _draw_port_widgets = true;
+	bool _enable_layout_solver = true;
 	mutable bool _centering_queued = true;
+	mutable bool _clear_connections_queued = false;
+	mutable bool _randomize_connections_queued = false;
+	mutable bool _add_random_node_queued = false;
 
 	void draw_graph(clk::graph& graph) const;
 	void draw_menus(clk::graph& graph) const;
 	void update_connections(clk::graph& graph) const;
 	void handle_mouse_interactions(clk::graph& graph) const;
 	void restore_dropped_connection() const;
+	void run_layout_solver(clk::graph const& graph) const;
 };
 } // namespace clk::gui
