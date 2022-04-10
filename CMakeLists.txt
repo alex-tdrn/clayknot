@@ -8,8 +8,6 @@ set(CMAKE_CXX_EXTENSIONS NO)
 
 include(cmake/Sanitizers.cmake)
 include(cmake/StaticAnalyzers.cmake)
-include(cmake/ConanAutoInstall.cmake)
-include(${CMAKE_BINARY_DIR}/conan_paths.cmake OPTIONAL)
 
 include(CheckIPOSupported)
 check_ipo_supported(RESULT supported OUTPUT error)
