@@ -1,12 +1,13 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(clayknot VERSION 0.1.0)
+set(CMAKE_FIND_PACKAGE_PREFER_CONFIG ON)
+
+project(clayknot VERSION 0.0.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(CMAKE_CXX_EXTENSIONS NO)
 
-include(cmake/Sanitizers.cmake)
 include(cmake/StaticAnalyzers.cmake)
 
 include(CheckIPOSupported)
