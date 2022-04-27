@@ -19,6 +19,10 @@ else()
 	message(STATUS "IPO / LTO not supported: <${error}>")
 endif()
 
+if(MSVC)
+	add_compile_options("/bigobj")
+endif()
+
 add_subdirectory("external")
 add_subdirectory("libs")
 add_subdirectory("tests")

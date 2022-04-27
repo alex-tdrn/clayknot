@@ -1,0 +1,48 @@
+on: [push]
+jobs:
+  build:
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        compiler: [gcc, clang, msvc]
+        config: [Debug, Release]
+        exclude:
+          - os: ubuntu-latest
+            compiler: msvc
+          - os: windows-latest
+            compiler: gcc
+          - os: windows-latest
+            compiler: clang
+    runs-on: ${{matrix.os}}
+    steps:
+      - name: Install needed tools (Windows)
+        if: matrix.os == 'windows-latest'
+        run: choco install ninja
+      - name: Install needed tools and system libraries (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt update
+          sudo apt install ninja-build libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev
+      - uses: actions/checkout@v3
+      - name: Set vcpkg environment vars
+        run: |
+          echo "VCPKG_ROOT=$VCPKG_INSTALLATION_ROOT" >> $GITHUB_ENV
+          echo "VCPKG_DEFAULT_BINARY_CACHE=$HOME/vcpkg_cache" >> $GITHUB_ENV
+      - name: Create vcpkg cache directory
+        run: mkdir ~/vcpkg_cache
+      - name: Cache vcpkg binaries
+        uses: actions/cache@v3
+        with:
+          path: ~/vcpkg_cache
+          key: ${{matrix.os}}-${{matrix.compiler}}-${{matrix.config}}-${{hashFiles('vcpkg.json')}}
+      - name: Set msvc environment vars
+        if: matrix.os == 'windows-latest'
+        uses: ilammy/msvc-dev-cmd@v1
+      - name: Configure
+        run: cmake -S . --preset ${{matrix.compiler}}_vcpkg
+      - name: Build
+        run: cmake --build build/${{matrix.compiler}}_vcpkg --config ${{matrix.config}}
