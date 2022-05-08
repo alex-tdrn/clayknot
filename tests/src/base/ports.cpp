@@ -27,7 +27,7 @@ void require_unconnected(T& portA, U& portB);
 
 // NOLINTNEXTLINE
 TEMPLATE_PRODUCT_TEST_CASE(
-	"Ports cannot connect to themselves", "[ports]", (clk::input_of, clk::output_of), (DATATYPES))
+	"Ports cannot connect to themselves", "[base], [ports]", (clk::input_of, clk::output_of), (DATATYPES))
 {
 	GIVEN("a port")
 	{
@@ -46,7 +46,7 @@ TEMPLATE_PRODUCT_TEST_CASE(
 
 // NOLINTNEXTLINE
 TEMPLATE_PRODUCT_TEST_CASE(
-	"Ports of the same type cannot be connected", "[ports]", (clk::input_of, clk::output_of), (DATATYPES))
+	"Ports of the same type cannot be connected", "[base], [ports]", (clk::input_of, clk::output_of), (DATATYPES))
 {
 	GIVEN("ports A and B of same type")
 	{
@@ -56,7 +56,7 @@ TEMPLATE_PRODUCT_TEST_CASE(
 	}
 }
 
-TEST_CASE("Ports holding differing datatypes cannot be connected", "[ports]")
+TEST_CASE("Ports holding differing datatypes cannot be connected", "[base], [ports]")
 {
 	GIVEN("input port A of int and output port B of string")
 	{
@@ -67,7 +67,7 @@ TEST_CASE("Ports holding differing datatypes cannot be connected", "[ports]")
 }
 
 // NOLINTNEXTLINE
-TEMPLATE_TEST_CASE("Ports holding the same datatype can be connected", "[ports]", DATATYPES)
+TEMPLATE_TEST_CASE("Ports holding the same datatype can be connected", "[base], [ports]", DATATYPES)
 {
 	GIVEN("input port A and output port B, both holding the same datatype")
 	{
@@ -93,7 +93,7 @@ TEMPLATE_TEST_CASE("Ports holding the same datatype can be connected", "[ports]"
 }
 
 // NOLINTNEXTLINE
-TEMPLATE_TEST_CASE("Connected ports can be disconnected", "[ports]", DATATYPES)
+TEMPLATE_TEST_CASE("Connected ports can be disconnected", "[base], [ports]", DATATYPES)
 {
 	GIVEN("connected ports A, and B")
 	{
@@ -126,7 +126,7 @@ TEMPLATE_TEST_CASE("Connected ports can be disconnected", "[ports]", DATATYPES)
 	}
 }
 
-TEST_CASE("Ports disconnect automatically when their lifetime ends", "[ports]")
+TEST_CASE("Ports disconnect automatically when their lifetime ends", "[base], [ports]")
 {
 	GIVEN("input port A connected to output port B")
 	{
@@ -157,7 +157,7 @@ TEST_CASE("Ports disconnect automatically when their lifetime ends", "[ports]")
 }
 
 // NOLINTNEXTLINE
-TEMPLATE_TEST_CASE("Ports holding the same datatype return the same hash", "[ports]", DATATYPES)
+TEMPLATE_TEST_CASE("Ports holding the same datatype return the same hash", "[base], [ports]", DATATYPES)
 {
 	GIVEN("input port A and output port B, both holding the same datatype")
 	{
@@ -170,21 +170,21 @@ TEMPLATE_TEST_CASE("Ports holding the same datatype return the same hash", "[por
 	}
 }
 
-TEST_CASE("Unconnected input ports cannot provide data", "[ports]")
+TEST_CASE("Unconnected input ports can still provide default data", "[base], [ports]")
 {
 	GIVEN("unconnected input port A")
 	{
 		clk::input_of<int> A;
-		THEN("trying to get data from it, fails")
+		THEN("trying to get data from it, succeeds")
 		{
-			REQUIRE_THROWS(A.data());
-			REQUIRE_THROWS(*A);
-			REQUIRE_THROWS(A.operator->());
+			REQUIRE_NOTHROW(A.data());
+			REQUIRE_NOTHROW(*A);
+			REQUIRE_NOTHROW(A.operator->());
 		}
 	}
 }
 
-TEST_CASE("Output ports can provide data", "[ports]")
+TEST_CASE("Output ports can provide data", "[base], [ports]")
 {
 	GIVEN("output port A")
 	{
@@ -225,7 +225,7 @@ TEST_CASE("Output ports can provide data", "[ports]")
 	}
 }
 
-TEST_CASE("Connected input ports can provide the data from their connection", "[ports]")
+TEST_CASE("Connected input ports can provide the data from their connection", "[base], [ports]")
 {
 	GIVEN("output port A connected to multiple input ports")
 	{

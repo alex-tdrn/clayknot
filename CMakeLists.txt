@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.23)
 
 set(CMAKE_FIND_PACKAGE_PREFER_CONFIG ON)
 
@@ -25,5 +25,10 @@ endif()
 
 add_subdirectory("external")
 add_subdirectory("libs")
-add_subdirectory("tests")
 add_subdirectory("apps")
+
+option(BUILD_TESTING "Build tests" ON)
+if(BUILD_TESTING)
+	enable_testing()
+	add_subdirectory("tests")
+endif()

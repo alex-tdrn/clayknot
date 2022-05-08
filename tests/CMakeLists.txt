@@ -1,4 +1,8 @@
 find_package(Catch2 REQUIRED)
+
 enable_extra_compiler_warnings()
-add_subdirectory("base")
-add_subdirectory("util")
+
+add_executable(tests "src/main.cpp" "src/base/nodes.cpp" "src/base/ports.cpp" "src/util/colors.cpp")
+
+target_link_libraries(tests PRIVATE Catch2::Catch2 clayknot::util clayknot::base)
+target_compile_definitions(tests PRIVATE CATCH_CONFIG_CONSOLE_WIDTH=200)

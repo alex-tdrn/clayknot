@@ -5,7 +5,7 @@
 #include <chrono>
 #include <random>
 
-TEST_CASE("Colors can be randomly generated")
+TEST_CASE("Colors can be randomly generated", "[util]")
 {
 	GIVEN("A random seed S")
 	{
@@ -26,7 +26,7 @@ TEST_CASE("Colors can be randomly generated")
 	}
 }
 
-TEST_CASE("Colors can be packed and unpacked")
+TEST_CASE("Colors can be packed and unpacked", "[util]")
 {
 	GIVEN("Random color without alpha, C")
 	{

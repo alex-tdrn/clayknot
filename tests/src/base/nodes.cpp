@@ -9,7 +9,7 @@ using namespace std::literals;
 
 // FIXME rethink this whole test suite before merging to dev
 
-// TEST_CASE("New node types can be implemented by inheriting from clk::Node", "[nodes], [ports]")
+// TEST_CASE("New node types can be implemented by inheriting from clk::Node", "[base], [nodes], [ports]")
 // {
 // 	class TestNode final : public clk::Node
 // 	{
@@ -95,7 +95,7 @@ using namespace std::literals;
 // 	}
 // }
 
-// // TEST_CASE("Cycles are ignored", "[nodes], [ports]")
+// // TEST_CASE("Cycles are ignored", "[base], [nodes], [ports]")
 // // {
 // // 	GIVEN("Nodes A and B, connected to each other in a cycle")
 // // 	{
