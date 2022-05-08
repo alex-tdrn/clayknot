@@ -1,22 +1,23 @@
 ---
-Checks:          '*,
-                  -fuchsia*,-google*,-zircon*,-abseil*,-llvm*,-altera*,
-                  -*braces-around-statements,
-                  -*uppercase-literal-suffix,
-                  -*magic-numbers,
-                  -*signed-bitwise,
-                  -hicpp-vararg,
-                  -hicpp-no-array-decay,
-                  -modernize-use-nodiscard,
-                  -misc-no-recursion,
-                  -readability-else-after-return,
-                  -cppcoreguidelines-pro-type-union-access,
-                  -cppcoreguidelines-pro-type-vararg,
-                  -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
-                  -cppcoreguidelines-pro-type-static-cast-downcast,
-                  -readability-function-cognitive-complexity'
-HeaderFilterRegex: ''
-FormatStyle:     none
-
-
-#TODO: check if assert() in clang 12 still triggers array-to-pointer-decay checks
+Checks: "
+  clang-analyzer-*,cppcoreguidelines-*,modernize-*,performance-*,readability-*,
+  -clang-diagnostic-unused-function,
+  -modernize-use-nodiscard,
+  -*-magic-numbers,
+  -*uppercase-literal-suffix,
+  -cppcoreguidelines-pro-type-union-access,
+  -cppcoreguidelines-pro-type-vararg,
+  -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  -cppcoreguidelines-pro-type-static-cast-downcast,
+  -readability-function-cognitive-complexity,
+  -readability-braces-around-statements,
+  -readability-else-after-return,
+  -readability-identifier-length,
+  -readability-redundant-smartptr-get
+  "
+HeaderFilterRegex: "*"
+# TODO
+# reconsider
+#   readability-braces-around-statements
+#   readability-function-cognitive-complexity
+#   readability-magic-numbers

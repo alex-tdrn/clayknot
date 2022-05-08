@@ -1,8 +1,8 @@
-name: "Build & Test"
+name: "Tests"
 on: [push]
 jobs:
-  build_and_test:
-    name: "Build & Test"
+  run_tests:
+    name: "Run"
     defaults:
       run:
         shell: bash
@@ -55,10 +55,10 @@ jobs:
         run: cmake -S . --preset ${{matrix.compiler}}_vcpkg -G "Ninja" -DCMAKE_BUILD_TYPE=${{matrix.config}} -DTREAT_WARNINGS_AS_ERRORS=${{matrix.config != 'Release'}}
       - name: Build
         run: cmake --build build/${{matrix.compiler}}_vcpkg
-      - name: Test
-        run: |
-          build/${{matrix.compiler}}_vcpkg/tests/tests "[util]" --name util_tests --reporter junit --out test_results_util.xml
-          build/${{matrix.compiler}}_vcpkg/tests/tests "[base]" --name base_tests --reporter junit --out test_results_base.xml
+      - name: Run 'base' tests
+        run: build/${{matrix.compiler}}_vcpkg/tests/tests "[base]" --name base_tests --reporter junit --out test_results_base.xml
+      - name: Run 'util' tests
+        run: build/${{matrix.compiler}}_vcpkg/tests/tests "[util]" --name util_tests --reporter junit --out test_results_util.xml
       - name: Upload test results
         uses: actions/upload-artifact@v3
         if: always()
@@ -66,9 +66,9 @@ jobs:
           name: "test_results_${{matrix.compiler}}_${{matrix.config}}"
           path: "test_results_*.xml"
 
-  publish_test_results:
-    name: "Publish Test Results"
-    needs: build_and_test
+  collect_results:
+    name: "Collect Results"
+    needs: run_tests
     runs-on: ubuntu-latest
     if: always()
     steps:
@@ -79,10 +79,10 @@ jobs:
       - name: Publish results
         uses: EnricoMi/publish-unit-test-result-action@v1
         with:
-          check_name: "Test Results 'util'"
+          check_name: "Results 'util'"
           files: "results/**/test_results_util.xml"
       - name: Publish results
         uses: EnricoMi/publish-unit-test-result-action@v1
         with:
-          check_name: "Test Results 'base'"
+          check_name: "Results 'base'"
           files: "results/**/test_results_base.xml"

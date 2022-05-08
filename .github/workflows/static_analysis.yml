@@ -1,0 +1,35 @@
+name: "Static Analysis"
+on: [push]
+jobs:
+  clang_tidy:
+    timeout-minutes: 30
+    name: "Clang Tidy"
+    defaults:
+      run:
+        shell: bash
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install needed tools and system libraries
+        run: |
+          echo "deb http://apt.llvm.org/focal/ llvm-toolchain-focal main" | sudo tee -a /etc/apt/sources.list
+          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
+          sudo apt update
+          sudo apt install ninja-build libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev clang-tidy
+      - uses: actions/checkout@v3
+      - name: Set vcpkg environment vars
+        run: |
+          echo "VCPKG_ROOT=$VCPKG_INSTALLATION_ROOT" >> $GITHUB_ENV
+          echo "VCPKG_DEFAULT_BINARY_CACHE=$HOME/vcpkg_cache" >> $GITHUB_ENV
+      - name: Create vcpkg cache directory
+        run: mkdir ~/vcpkg_cache
+      - name: Cache vcpkg binaries
+        uses: actions/cache@v3
+        with:
+          path: ~/vcpkg_cache
+          key: ubuntu-latest-clang-Debug-${{hashFiles('vcpkg.json')}}
+      - name: Configure
+        run: cmake -S . --preset clang_vcpkg -G "Ninja" -DCMAKE_BUILD_TYPE=Debug
+      - name: Run clang-tidy
+        run: |
+          clang-tidy --version
+          parallel 'clang-tidy {} -p ./build/clang_vcpkg -quiet -warnings-as-errors "\*" 2> /dev/stdout | grep -v "generated"' ::: $(find -regex ".*\.\(cpp\|hpp\)" -not -path "./build/**" -not -path "./external/**" -not -path "./tests/**")
