@@ -155,6 +155,7 @@ void profiler_editor::draw_helper(clk::profiler const& profiler) const
 	}
 	else if constexpr(std::is_same_v<Ratio, std::ratio<1, 1>>)
 	{
+		std::ignore = timescale_too_small;
 		unit_postfix_short = "s";
 		unit_postfix_long = "seconds";
 	}

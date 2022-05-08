@@ -52,13 +52,13 @@ jobs:
         if: matrix.os == 'windows-latest'
         uses: ilammy/msvc-dev-cmd@v1
       - name: Configure
-        run: cmake -S . --preset ${{matrix.compiler}}_vcpkg
+        run: cmake -S . --preset ${{matrix.compiler}}_vcpkg -G "Ninja" -DCMAKE_BUILD_TYPE=${{matrix.config}} -DTREAT_WARNINGS_AS_ERRORS=${{matrix.config != 'Release'}}
       - name: Build
-        run: cmake --build build/${{matrix.compiler}}_vcpkg --config ${{matrix.config}}
+        run: cmake --build build/${{matrix.compiler}}_vcpkg
       - name: Test
         run: |
-          build/${{matrix.compiler}}_vcpkg/tests/${{matrix.config}}/tests "[util]" --name util_tests --reporter junit --out test_results_util.xml
-          build/${{matrix.compiler}}_vcpkg/tests/${{matrix.config}}/tests "[base]" --name base_tests --reporter junit --out test_results_base.xml
+          build/${{matrix.compiler}}_vcpkg/tests/tests "[util]" --name util_tests --reporter junit --out test_results_util.xml
+          build/${{matrix.compiler}}_vcpkg/tests/tests "[base]" --name base_tests --reporter junit --out test_results_base.xml
       - name: Upload test results
         uses: actions/upload-artifact@v3
         if: always()
