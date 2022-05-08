@@ -9,16 +9,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
         compiler: [gcc, clang, msvc]
         config: [Debug, Release]
+        os: [ubuntu-latest, windows-latest]
         include:
-          - os: ubuntu-latest
-            compiler: gcc
+          - compiler: gcc
             config: ASan
-          - os: ubuntu-latest
-            compiler: gcc
+            os: ubuntu-latest
+          - compiler: gcc
             config: UBSan
+            os: ubuntu-latest
         exclude:
           - os: ubuntu-latest
             compiler: msvc
