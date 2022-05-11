@@ -13,7 +13,8 @@ Checks: "
   -readability-braces-around-statements,
   -readability-else-after-return,
   -readability-identifier-length,
-  -readability-redundant-smartptr-get
+  -readability-redundant-smartptr-get,
+  -performance-unnecessary-value-param
   "
 HeaderFilterRegex: "*"
 # TODO
@@ -21,3 +22,4 @@ HeaderFilterRegex: "*"
 #   readability-braces-around-statements
 #   readability-function-cognitive-complexity
 #   readability-magic-numbers
+#   performance-unnecessary-value-param

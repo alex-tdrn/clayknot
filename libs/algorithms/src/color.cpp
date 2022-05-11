@@ -192,14 +192,17 @@ tonemap_filmic_aces::tonemap_filmic_aces()
 
 void tonemap_filmic_aces::update()
 {
-	auto a = 2.51f;
-	auto b = 0.03f;
 	auto c = 2.43f;
 	auto d = 0.59f;
 	auto e = 0.14f;
 	auto divisor = *_input_color * (c * *_input_color + d) + e;
 	if(divisor.r() != 0 && divisor.g() != 0 && divisor.b() != 0)
+	{
+		auto a = 2.51f;
+		auto b = 0.03f;
+
 		*_tonemapped_color = (*_input_color * (a * *_input_color + b)) / divisor;
+	}
 }
 
 } // namespace clk::algorithms

@@ -176,7 +176,7 @@ void graph_editor::draw_graph(clk::graph& graph) const
 
 	if(_clear_connections_queued)
 	{
-		for(auto& node : graph.nodes())
+		for(const auto& node : graph.nodes())
 			for(auto* port : node->all_ports())
 				port->disconnect();
 
@@ -188,13 +188,13 @@ void graph_editor::draw_graph(clk::graph& graph) const
 		std::mt19937 generator(static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count()));
 		std::uniform_real_distribution<float> distribution(0, 1);
 
-		for(auto& node : graph.nodes())
+		for(const auto& node : graph.nodes())
 			for(auto* port : node->all_ports())
 				port->disconnect();
 
-		for(auto& node1 : graph.nodes())
+		for(const auto& node1 : graph.nodes())
 		{
-			for(auto& node2 : graph.nodes())
+			for(const auto& node2 : graph.nodes())
 			{
 				if(node1.get() == node2.get())
 					continue;

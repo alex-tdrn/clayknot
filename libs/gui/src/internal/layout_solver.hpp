@@ -70,7 +70,7 @@ private:
 	std::chrono::steady_clock::time_point _cached_graph_timestamp = std::chrono::steady_clock::time_point::min();
 	std::chrono::milliseconds _minimum_timestep{10};
 	std::chrono::milliseconds _maximum_timestep{100};
-	glm::vec2 _mouse_position;
+	glm::vec2 _mouse_position = {0.0f, 0.0f};
 	std::vector<node_representation> _nodes;
 	std::vector<port_representation> _ports;
 	float _mouse_influence_radius = 500.0f;

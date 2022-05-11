@@ -14,7 +14,7 @@ template <typename data_type>
 class composite_editor_of final : public editor_of<data_type>
 {
 public:
-	composite_editor_of(std::shared_ptr<widget_factory const> factory, std::string_view name);
+	using editor_of<data_type>::editor_of;
 	composite_editor_of() = delete;
 	composite_editor_of(composite_editor_of const&) = delete;
 	composite_editor_of(composite_editor_of&&) = delete;
@@ -50,13 +50,6 @@ private:
 
 	auto draw_contents(data_type& data) const -> bool final;
 };
-
-template <typename data_type>
-composite_editor_of<data_type>::composite_editor_of(
-	std::shared_ptr<widget_factory const> factory, std::string_view name)
-	: editor_of<data_type>(std::move(factory), name)
-{
-}
 
 template <typename data_type>
 auto composite_editor_of<data_type>::clone() const -> std::unique_ptr<widget>

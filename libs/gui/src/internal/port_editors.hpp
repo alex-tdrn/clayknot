@@ -38,7 +38,7 @@ protected:
 	std::unique_ptr<clk::gui::viewer> _data_viewer; // NOLINT
 	bool _enabled = true; // NOLINT
 	bool _stable_height = false; // NOLINT
-	glm::vec2 _position; // NOLINT
+	glm::vec2 _position = {0.0f, 0.0f}; // NOLINT
 	bool const& _draw_port_widgets; // NOLINT
 };
 

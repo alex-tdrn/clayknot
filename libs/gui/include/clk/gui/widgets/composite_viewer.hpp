@@ -14,7 +14,7 @@ template <typename data_type>
 class composite_viewer_of final : public viewer_of<data_type>
 {
 public:
-	composite_viewer_of(std::shared_ptr<widget_factory const> factory, std::string_view name);
+	using viewer_of<data_type>::viewer_of;
 	composite_viewer_of() = delete;
 	composite_viewer_of(composite_viewer_of const&) = delete;
 	composite_viewer_of(composite_viewer_of&&) = delete;
@@ -40,13 +40,6 @@ private:
 
 	void draw_contents(data_type const& data) const final;
 };
-
-template <typename data_type>
-composite_viewer_of<data_type>::composite_viewer_of(
-	std::shared_ptr<widget_factory const> factory, std::string_view name)
-	: viewer_of<data_type>(std::move(factory), name)
-{
-}
 
 template <typename data_type>
 auto composite_viewer_of<data_type>::clone() const -> std::unique_ptr<widget>
