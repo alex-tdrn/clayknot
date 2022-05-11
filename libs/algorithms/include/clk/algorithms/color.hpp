@@ -1,7 +1,17 @@
 #pragma once
 
 #include "clk/base/algorithm.hpp"
+#include "clk/base/input.hpp"
+#include "clk/base/output.hpp"
+#include "clk/base/port.hpp"
 #include "clk/util/color_rgb.hpp"
+#include "clk/util/timestamp.hpp"
+
+#include <cstddef>
+#include <memory>
+#include <range/v3/view/view.hpp>
+#include <string_view>
+#include <unordered_set>
 
 namespace clk::algorithms
 {

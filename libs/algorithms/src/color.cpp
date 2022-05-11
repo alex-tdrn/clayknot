@@ -1,5 +1,10 @@
 #include "clk/algorithms/color.hpp"
 
+#include <chrono>
+#include <glm/glm.hpp>
+#include <random>
+#include <utility>
+
 namespace clk::algorithms
 {
 add_colors::add_colors()

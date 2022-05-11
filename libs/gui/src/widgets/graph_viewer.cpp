@@ -1,16 +1,28 @@
 #include "clk/gui/widgets/graph_viewer.hpp"
-
+#include "clk/base/graph.hpp"
+#include "clk/base/input.hpp"
 #include "clk/base/node.hpp"
+#include "clk/base/output.hpp"
 #include "clk/base/port.hpp"
-#include "clk/gui//widgets/widget_tree.hpp"
 #include "clk/gui/widgets/action_widget.hpp"
+#include "clk/gui/widgets/widget.hpp"
+#include "clk/gui/widgets/widget_factory.hpp"
+#include "clk/gui/widgets/widget_tree.hpp"
+#include "clk/util/color_rgb.hpp"
+#include "clk/util/color_rgba.hpp"
 #include "layout_solver.hpp"
 #include "node_viewers.hpp"
 #include "port_viewers.hpp"
 #include "selection_manager.hpp"
 #include "widget_cache.hpp"
 
+#include <glm/glm.hpp>
+#include <imgui.h>
 #include <imgui_internal.h>
+#include <imnodes.h>
+#include <range/v3/iterator/basic_iterator.hpp>
+#include <range/v3/view/any_view.hpp>
+#include <range/v3/view/filter.hpp>
 
 namespace clk::gui
 {

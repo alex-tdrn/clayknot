@@ -31,6 +31,7 @@ jobs:
           clang-tidy --version
           parallel 'clang-tidy {} -p ./build/clang_vcpkg -quiet -warnings-as-errors "\*" 2> /dev/stdout | grep -v "generated"' ::: $(find -regex ".*\.\(cpp\|hpp\)" -not -path "./build/**" -not -path "./external/**" -not -path "./tests/**")
   cppcheck:
+    timeout-minutes: 30
     name: "Cppcheck"
     runs-on: ubuntu-22.04
     steps:
@@ -57,6 +58,7 @@ jobs:
           cppcheck --version
           cppcheck --project=./build/clang_vcpkg/compile_commands.json -iexternal -itests --error-exitcode=1 --enable=style -q --suppress="internalAstError" --suppress="passedByValue"
   include-what-you-use:
+    timeout-minutes: 30
     name: "Include what you use"
     runs-on: ubuntu-22.04
     steps:
@@ -80,10 +82,20 @@ jobs:
           key: ubuntu-jammmy-clang-${{hashFiles('vcpkg.json')}}
       - name: Configure
         run: cmake -S . --preset gcc_vcpkg -G "Ninja"
-      - name: Run iwyu
+      - name: Remove 'external' and 'tests' from compile_commands.json
+        run: cat ./build/gcc_vcpkg/compile_commands.json | jq 'map(select(.file | test("external|tests") | not))' > ./build/compile_commands.json
+      - name: Download iwyu_tool.py
         run: |
-          include-what-you-use --version
-          cat ./build/gcc_vcpkg/compile_commands.json | jq 'map(select(.file | test("external|tests") | not))' > ./build/compile_commands.json
           wget https://raw.githubusercontent.com/include-what-you-use/include-what-you-use/master/iwyu_tool.py
           chmod +x iwyu_tool.py
-          python iwyu_tool.py -p ./build -j2 -- -Xiwyu --mapping_file=/home/runner/work/clayknot/clayknot/iwyu.imp -Xiwyu --quoted_includes_first
+      - name: Run iwyu
+        # iwyu returns 2 when there are no suggestions. this is fixed in version 0.18. until then, look at the error code, and
+        # treat 2 as success. need to disable bash '-e' for this
+        run: |
+          set +e
+          set +o pipefail
+          include-what-you-use --version
+          python iwyu_tool.py -p ./build -j2 -- -Xiwyu --mapping_file=$PWD/iwyu.imp -Xiwyu --cxx17ns -Xiwyu --quoted_includes_first
+          export iwyu_status=$?
+          echo iwyu status was $iwyu_status
+          ([ $iwyu_status -eq 0 ] || [ $iwyu_status -eq 2 ]) && exit 0 || exit 1

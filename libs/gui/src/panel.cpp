@@ -4,7 +4,8 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 #include <imgui_stdlib.h>
-#include <range/v3/algorithm.hpp>
+#include <range/v3/algorithm/remove.hpp>
+#include <range/v3/functional/identity.hpp>
 
 namespace clk::gui
 {

@@ -4,23 +4,30 @@
 #include "clk/base/algorithm_node.hpp"
 #include "clk/base/constant_node.hpp"
 #include "clk/base/graph.hpp"
+#include "clk/base/input.hpp"
+#include "clk/base/node.hpp"
+#include "clk/base/output.hpp"
+#include "clk/base/port.hpp"
 #include "clk/gui/init.hpp"
 #include "clk/gui/panel.hpp"
 #include "clk/gui/widgets/composite_editor.hpp"
 #include "clk/gui/widgets/composite_viewer.hpp"
+#include "clk/gui/widgets/data_reader.hpp"
+#include "clk/gui/widgets/data_writer.hpp"
 #include "clk/gui/widgets/editor.hpp"
 #include "clk/gui/widgets/viewer.hpp"
+#include "clk/gui/widgets/widget.hpp"
 #include "clk/gui/widgets/widget_factory.hpp"
 #include "clk/gui/widgets/widget_tree.hpp"
 #include "clk/util/color_rgba.hpp"
 #include "clk/util/profiler.hpp"
+#include "clk/util/timestamp.hpp"
 
 #include <glad/glad.h>
 
 #include <GLFW/glfw3.h>
 
-#include <algorithm>
-#include <chrono>
+#include <cstddef>
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
@@ -28,6 +35,9 @@
 #include <implot.h>
 #include <iostream>
 #include <memory>
+#include <range/v3/view/view.hpp>
+#include <string_view>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 

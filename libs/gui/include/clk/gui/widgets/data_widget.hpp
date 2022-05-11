@@ -3,6 +3,7 @@
 #include "clk/gui/widgets/widget.hpp"
 
 #include <memory>
+#include <string_view>
 
 namespace clk::gui
 {

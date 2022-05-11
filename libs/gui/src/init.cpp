@@ -1,19 +1,42 @@
 #include "clk/gui/init.hpp"
-
+#include "clk/base/graph.hpp"
 #include "clk/gui/panel.hpp"
-#include "clk/gui/widgets/composite_viewer.hpp"
-#include "clk/gui/widgets/default_editors.hpp"
-#include "clk/gui/widgets/default_viewers.hpp"
 #include "clk/gui/widgets/graph_editor.hpp"
 #include "clk/gui/widgets/graph_viewer.hpp"
 #include "clk/gui/widgets/profiler_editor.hpp"
+#include "clk/gui/widgets/widget.hpp"
 #include "clk/gui/widgets/widget_factory.hpp"
+#include "clk/gui/widgets/widget_tree.hpp"
+#include "clk/util/profiler.hpp"
 #include "clk/util/type_list.hpp"
 
-#include <range/v3/algorithm.hpp>
+#include <chrono>
+#include <glm/glm.hpp>
+#include <imgui.h>
+#include <range/v3/algorithm/find.hpp>
+#include <range/v3/algorithm/remove_if.hpp>
+#include <range/v3/functional/identity.hpp>
+#include <string_view>
+#include <type_traits>
+#include <utility>
+#include <vector>
+
+namespace clk
+{
+class color_rgb;
+class color_rgba;
+template <typename T>
+class bounded;
+} // namespace clk
 
 namespace clk::gui
 {
+
+template <typename data_type>
+class editor_of;
+template <typename data_type>
+class viewer_of;
+
 auto create_default_factory() -> std::shared_ptr<widget_factory>
 {
 	auto factory = std::make_shared<widget_factory>();

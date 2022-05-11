@@ -2,6 +2,7 @@
 #include "clk/algorithms/boolean.hpp"
 #include "clk/algorithms/color.hpp"
 #include "clk/algorithms/math.hpp"
+#include "clk/base/algorithm.hpp"
 
 namespace clk::algorithms
 {

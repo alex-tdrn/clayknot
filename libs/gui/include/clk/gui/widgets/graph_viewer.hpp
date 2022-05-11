@@ -1,17 +1,29 @@
 #pragma once
 
-#include "clk/base/graph.hpp"
 #include "clk/gui/widgets/viewer.hpp"
-#include "clk/gui/widgets/widget.hpp"
+#include "node_viewers.hpp"
+#include "port_viewers.hpp"
 
-#include <imnodes.h>
+#include <memory>
+#include <string_view>
+#include <utility>
+#include <vector>
+
+struct ImNodesEditorContext;
+
+namespace clk
+{
+class graph;
+class input;
+class node;
+class output;
+class port;
+} // namespace clk
 
 namespace clk::gui::impl
 {
 template <typename data, typename widget>
 class widget_cache;
-class node_viewer;
-class port_viewer;
 template <bool const_data>
 class selection_manager;
 class layout_solver;
@@ -19,6 +31,8 @@ class layout_solver;
 
 namespace clk::gui
 {
+class widget;
+class widget_factory;
 class graph_viewer final : public viewer_of<clk::graph>
 {
 public:

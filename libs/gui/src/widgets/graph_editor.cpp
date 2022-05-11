@@ -1,24 +1,42 @@
 #include "clk/gui/widgets/graph_editor.hpp"
-
-#include "clk/algorithms/color.hpp"
+#include "clk/base/algorithm.hpp"
 #include "clk/base/algorithm_node.hpp"
 #include "clk/base/constant_node.hpp"
+#include "clk/base/graph.hpp"
+#include "clk/base/input.hpp"
+#include "clk/base/node.hpp"
+#include "clk/base/output.hpp"
 #include "clk/base/port.hpp"
 #include "clk/gui/widgets/action_widget.hpp"
 #include "clk/gui/widgets/editor.hpp"
+#include "clk/gui/widgets/widget.hpp"
+#include "clk/gui/widgets/widget_factory.hpp"
 #include "clk/gui/widgets/widget_tree.hpp"
-#include "clk/util/predicates.hpp"
-#include "clk/util/projections.hpp"
+#include "clk/util/color_rgb.hpp"
+#include "clk/util/color_rgba.hpp"
+#include "clk/util/timestamp.hpp"
 #include "layout_solver.hpp"
 #include "node_editors.hpp"
 #include "port_editors.hpp"
 #include "selection_manager.hpp"
 #include "widget_cache.hpp"
 
+#include <chrono>
+#include <cstddef>
 #include <imgui.h>
 #include <imgui_internal.h>
+#include <imnodes.h>
+#include <iterator>
+#include <map>
 #include <random>
-#include <range/v3/algorithm.hpp>
+#include <range/v3/algorithm/any_of.hpp>
+#include <range/v3/functional/identity.hpp>
+#include <range/v3/iterator/basic_iterator.hpp>
+#include <range/v3/view/any_view.hpp>
+#include <range/v3/view/filter.hpp>
+#include <ratio>
+#include <string>
+#include <unordered_set>
 
 namespace clk::gui
 {
