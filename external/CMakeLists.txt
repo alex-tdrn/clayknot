@@ -1,5 +1,4 @@
 project(external)
-suppress_static_analysis()
 disable_all_warnings()
 find_package(glfw3 REQUIRED)
 find_package(glad REQUIRED)

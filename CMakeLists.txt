@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(CMAKE_CXX_EXTENSIONS NO)
 
-include(cmake/StaticAnalyzers.cmake)
+include(cmake/CompilerWarnings.cmake)
 
 include(CheckIPOSupported)
 check_ipo_supported(RESULT supported OUTPUT error)
