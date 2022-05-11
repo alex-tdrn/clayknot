@@ -56,3 +56,34 @@ jobs:
         run: |
           cppcheck --version
           cppcheck --project=./build/clang_vcpkg/compile_commands.json -iexternal -itests --error-exitcode=1 --enable=style -q --suppress="internalAstError" --suppress="passedByValue"
+  include-what-you-use:
+    name: "Include what you use"
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Install needed tools and system libraries
+        run: |
+          echo "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main" | sudo tee -a /etc/apt/sources.list
+          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
+          sudo apt update
+          sudo apt install ninja-build libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev iwyu jq clang-13
+      - uses: actions/checkout@v3
+      - name: Set vcpkg environment vars
+        run: |
+          echo "VCPKG_ROOT=$VCPKG_INSTALLATION_ROOT" >> $GITHUB_ENV
+          echo "VCPKG_DEFAULT_BINARY_CACHE=$HOME/vcpkg_cache" >> $GITHUB_ENV
+      - name: Create vcpkg cache directory
+        run: mkdir ~/vcpkg_cache
+      - name: Cache vcpkg binaries
+        uses: actions/cache@v3
+        with:
+          path: ~/vcpkg_cache
+          key: ubuntu-jammmy-clang-${{hashFiles('vcpkg.json')}}
+      - name: Configure
+        run: cmake -S . --preset gcc_vcpkg -G "Ninja"
+      - name: Run iwyu
+        run: |
+          include-what-you-use --version
+          cat ./build/gcc_vcpkg/compile_commands.json | jq 'map(select(.file | test("external|tests") | not))' > ./build/compile_commands.json
+          wget https://raw.githubusercontent.com/include-what-you-use/include-what-you-use/master/iwyu_tool.py
+          chmod +x iwyu_tool.py
+          python iwyu_tool.py -p ./build -j2 -- -Xiwyu --mapping_file=/home/runner/work/clayknot/clayknot/iwyu.imp -Xiwyu --quoted_includes_first
