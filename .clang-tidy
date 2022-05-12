@@ -17,6 +17,7 @@ Checks: "
   -performance-unnecessary-value-param
   "
 HeaderFilterRegex: "*"
+WarningsAsErrors: "*"
 # TODO
 # reconsider
 #   readability-braces-around-statements

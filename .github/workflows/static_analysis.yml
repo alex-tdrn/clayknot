@@ -11,7 +11,7 @@ jobs:
           echo "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main" | sudo tee -a /etc/apt/sources.list
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
           sudo apt update
-          sudo apt install ninja-build libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev clang-tidy
+          sudo apt install ninja-build libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev clang-tidy-13
       - uses: actions/checkout@v3
       - name: Set vcpkg environment vars
         run: |
@@ -26,10 +26,11 @@ jobs:
           key: ubuntu-latest-clang-Debug-${{hashFiles('vcpkg.json')}}
       - name: Configure
         run: cmake -S . --preset clang_vcpkg -G "Ninja" -DCMAKE_BUILD_TYPE=Debug
+      - name: Remove 'external' and 'tests' from compile_commands.json
+        run: cat ./build/clang_vcpkg/compile_commands.json | jq 'map(select(.file | test("external|tests") | not))' > ./build/compile_commands.json
       - name: Run clang-tidy
         run: |
-          clang-tidy --version
-          parallel 'clang-tidy {} -p ./build/clang_vcpkg -quiet -warnings-as-errors "\*" 2> /dev/stdout | grep -v "generated"' ::: $(find -regex ".*\.\(cpp\|hpp\)" -not -path "./build/**" -not -path "./external/**" -not -path "./tests/**")
+          run-clang-tidy-13 -p ./build -j2 -quiet
   cppcheck:
     timeout-minutes: 30
     name: "Cppcheck"
