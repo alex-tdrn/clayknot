@@ -36,18 +36,44 @@ public:
 	static auto pack(color_rgba color) -> std::uint32_t;
 	static auto unpack(std::uint32_t packedColor) -> color_rgba;
 	auto valid() const -> bool;
+
 	template <typename T>
-	auto operator+=(T const& that) -> color_rgba&;
+	auto operator+=(T const& that) -> color_rgba&
+	{
+		_rgb_value += that;
+		_alpha_value += that;
+		return *this;
+	}
+
+	template <typename T>
+	auto operator-=(T const& that) -> color_rgba&
+	{
+		_rgb_value -= that;
+		_alpha_value -= that;
+		return *this;
+	}
+
+	template <typename T>
+	auto operator*=(T const& that) -> color_rgba&
+	{
+		_rgb_value *= that;
+		_alpha_value *= that;
+		return *this;
+	}
+
+	template <typename T>
+	auto operator/=(T const& that) -> color_rgba&
+	{
+		_rgb_value /= that;
+		_alpha_value /= that;
+		return *this;
+	}
+
 	auto operator+=(color_rgba const& that) -> color_rgba&;
-	template <typename T>
-	auto operator-=(T const& that) -> color_rgba&;
 	auto operator-=(color_rgba const& that) -> color_rgba&;
-	template <typename T>
-	auto operator*=(T const& that) -> color_rgba&;
 	auto operator*=(color_rgba const& that) -> color_rgba&;
-	template <typename T>
-	auto operator/=(T const& that) -> color_rgba&;
 	auto operator/=(color_rgba const& that) -> color_rgba&;
+
 	auto data() -> float*;
 	auto r() const -> float;
 	auto g() const -> float;
@@ -66,38 +92,6 @@ private:
 	color_rgb _rgb_value;
 	float _alpha_value = 1.0f;
 };
-
-template <typename T>
-auto color_rgba::operator+=(T const& that) -> color_rgba&
-{
-	_rgb_value += that;
-	_alpha_value += that;
-	return *this;
-}
-
-template <typename T>
-auto color_rgba::operator-=(T const& that) -> color_rgba&
-{
-	_rgb_value -= that;
-	_alpha_value -= that;
-	return *this;
-}
-
-template <typename T>
-auto color_rgba::operator*=(T const& that) -> color_rgba&
-{
-	_rgb_value *= that;
-	_alpha_value *= that;
-	return *this;
-}
-
-template <typename T>
-auto color_rgba::operator/=(T const& that) -> color_rgba&
-{
-	_rgb_value /= that;
-	_alpha_value /= that;
-	return *this;
-}
 
 template <typename T>
 auto operator+(color_rgba const& lhs, T const& rhs) -> color_rgba

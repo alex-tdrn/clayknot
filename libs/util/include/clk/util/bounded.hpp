@@ -11,60 +11,106 @@ template <typename T>
 class bounded
 {
 public:
+	explicit bounded(T val, T min, T max) : _val(val), _min(min), _max(max)
+	{
+		assert(valid());
+	}
+
 	bounded() = default;
-	explicit bounded(T val, T min, T max);
 	bounded(bounded const&) = default;
 	bounded(bounded&&) noexcept = default;
 	auto operator=(bounded const& that) -> bounded& = default;
 	auto operator=(bounded&& that) noexcept -> bounded& = default;
-	auto operator=(T const& that) -> bounded&;
-	auto operator=(T&& that) -> bounded&;
+
+	auto operator=(T const& that) -> bounded&
+	{
+		_val = that;
+		assert(valid());
+	}
+
+	auto operator=(T&& that) -> bounded&
+	{
+		_val = std::move(that);
+		assert(valid());
+	}
+
 	~bounded() = default;
 
-	auto valid() -> bool;
-	void set_min(T min);
-	void set_max(T max);
-	auto min() const -> T;
-	auto max() const -> T;
-	auto val() const -> T;
-	auto data() -> T*;
-	explicit operator T() const;
-	auto operator+=(T const& that) -> bounded&;
-	auto operator-=(T const& that) -> bounded&;
-	auto operator*=(T const& that) -> bounded&;
-	auto operator/=(T const& that) -> bounded&;
+	auto valid() -> bool
+	{
+		return _min <= _max && _val >= _min && _val <= _max;
+	}
+
+	void set_min(T min)
+	{
+		_min = min;
+		assert(valid());
+	}
+
+	void set_max(T max)
+	{
+		_max = max;
+		assert(valid());
+	}
+
+	auto min() const -> T
+	{
+		return _min;
+	}
+
+	auto max() const -> T
+	{
+		return _max;
+	}
+
+	auto val() const -> T
+	{
+		return _val;
+	}
+
+	auto data() -> T*
+	{
+		return &_val;
+	}
+
+	operator T() const
+	{
+		return _val;
+	}
+
+	auto operator+=(T const& that) -> bounded&
+	{
+		_val += that;
+		assert(valid());
+		return *this;
+	}
+
+	auto operator-=(T const& that) -> bounded&
+	{
+		_val -= that;
+		assert(valid());
+		return *this;
+	}
+
+	auto operator*=(T const& that) -> bounded&
+	{
+		_val *= that;
+		assert(valid());
+		return *this;
+	}
+
+	auto operator/=(T const& that) -> bounded&
+	{
+		_val /= that;
+		assert(valid());
+		return *this;
+	}
 
 private:
 	T _val;
 	T _min;
 	T _max;
 };
-
-template <typename T>
-bounded<T>::bounded(T val, T min, T max) : _val(val), _min(min), _max(max)
-{
-	assert(valid());
-}
-
-template <typename T>
-auto bounded<T>::operator=(T const& that) -> bounded&
-{
-	_val = that;
-	assert(valid());
-}
-
-template <typename T>
-auto bounded<T>::operator=(T&& that) -> bounded&
-{
-	_val = std::move(that);
-	assert(valid());
-}
-
-template <typename T>
-auto bounded<T>::valid() -> bool
-{
-	return _min <= _max && _val >= _min && _val <= _max;
-}
 
 template <>
 inline auto bounded<glm::vec2>::valid() -> bool
@@ -97,82 +143,6 @@ inline auto bounded<glm::vec4>::valid() -> bool
 			return false;
 	}
 	return true;
-}
-
-template <typename T>
-void bounded<T>::set_min(T min)
-{
-	_min = min;
-	assert(valid());
-}
-
-template <typename T>
-void bounded<T>::set_max(T max)
-{
-	_max = max;
-	assert(valid());
-}
-
-template <typename T>
-auto bounded<T>::min() const -> T
-{
-	return _min;
-}
-
-template <typename T>
-auto bounded<T>::max() const -> T
-{
-	return _max;
-}
-
-template <typename T>
-auto bounded<T>::val() const -> T
-{
-	return _val;
-}
-
-template <typename T>
-auto bounded<T>::data() -> T*
-{
-	return &_val;
-}
-
-template <typename T>
-bounded<T>::operator T() const
-{
-	return _val;
-}
-
-template <typename T>
-auto bounded<T>::operator+=(T const& that) -> bounded&
-{
-	_val += that;
-	assert(valid());
-	return *this;
-}
-
-template <typename T>
-auto bounded<T>::operator-=(T const& that) -> bounded&
-{
-	_val -= that;
-	assert(valid());
-	return *this;
-}
-
-template <typename T>
-auto bounded<T>::operator*=(T const& that) -> bounded&
-{
-	_val *= that;
-	assert(valid());
-	return *this;
-}
-
-template <typename T>
-auto bounded<T>::operator/=(T const& that) -> bounded&
-{
-	_val /= that;
-	assert(valid());
-	return *this;
 }
 
 template <typename DataType>

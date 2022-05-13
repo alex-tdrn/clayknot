@@ -11,6 +11,11 @@ target_sources(
 			"src/widgets/widget_tree.cpp"
 			"src/widgets/profiler_editor.cpp"
 			"src/widgets/action_widget.cpp"
+			"src/internal/layout_solver.cpp"
+			"src/internal/port_viewers.cpp"
+			"src/internal/port_editors.cpp"
+			"src/internal/node_viewers.cpp"
+			"src/internal/node_editors.cpp"
 )
 
 target_include_directories(

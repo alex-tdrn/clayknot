@@ -17,7 +17,16 @@ class algorithm
 {
 public:
 	template <typename algorithm_implementation>
-	static void register_factory();
+	static void register_factory()
+	{
+		if(factories_map().find(algorithm_implementation::name) != factories_map().end())
+			throw std::runtime_error("Algorithm already registered!");
+
+		factories_map()[std::string(algorithm_implementation::name)] = []() -> std::unique_ptr<algorithm> {
+			return std::make_unique<algorithm_implementation>();
+		};
+	}
+
 	static auto create(std::string_view name) -> std::unique_ptr<algorithm>;
 	static auto factories() -> std::map<std::string, std::unique_ptr<algorithm> (*)(), std::less<>> const&;
 
@@ -49,24 +58,10 @@ template <typename algorithm_implementation>
 class algorithm_builder : public algorithm
 {
 public:
-	auto name() const noexcept -> std::string_view final;
+	auto name() const noexcept -> std::string_view final
+	{
+		return algorithm_implementation::name;
+	}
 };
-
-template <typename algorithm_implementation>
-void algorithm::register_factory()
-{
-	if(factories_map().find(algorithm_implementation::name) != factories_map().end())
-		throw std::runtime_error("Algorithm already registered!");
-
-	factories_map()[std::string(algorithm_implementation::name)] = []() -> std::unique_ptr<algorithm> {
-		return std::make_unique<algorithm_implementation>();
-	};
-}
-
-template <typename algorithm_implementation>
-auto algorithm_builder<algorithm_implementation>::name() const noexcept -> std::string_view
-{
-	return algorithm_implementation::name;
-}
 
 } // namespace clk

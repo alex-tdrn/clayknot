@@ -32,18 +32,39 @@ public:
 	static auto pack(color_rgb color) -> std::uint32_t;
 	static auto unpack(std::uint32_t packed_color) -> color_rgb;
 	auto valid() const -> bool;
+
 	template <typename T>
-	auto operator+=(T const& that) -> color_rgb&;
+	auto operator+=(T const& that) -> color_rgb&
+	{
+		_values += that;
+		return *this;
+	}
+
+	template <typename T>
+	auto operator-=(T const& that) -> color_rgb&
+	{
+		_values -= that;
+		return *this;
+	}
+
+	template <typename T>
+	auto operator*=(T const& that) -> color_rgb&
+	{
+		_values *= that;
+		return *this;
+	}
+
+	template <typename T>
+	auto operator/=(T const& that) -> color_rgb&
+	{
+		_values /= that;
+		return *this;
+	}
 	auto operator+=(color_rgb const& that) -> color_rgb&;
-	template <typename T>
-	auto operator-=(T const& that) -> color_rgb&;
 	auto operator-=(color_rgb const& that) -> color_rgb&;
-	template <typename T>
-	auto operator*=(T const& that) -> color_rgb&;
 	auto operator*=(color_rgb const& that) -> color_rgb&;
-	template <typename T>
-	auto operator/=(T const& that) -> color_rgb&;
 	auto operator/=(color_rgb const& that) -> color_rgb&;
+
 	auto data() -> float*;
 	auto r() const -> float;
 	auto g() const -> float;
@@ -58,34 +79,6 @@ public:
 private:
 	glm::vec3 _values = {0.0f, 0.0f, 0.0f};
 };
-
-template <typename T>
-auto color_rgb::operator+=(T const& that) -> color_rgb&
-{
-	_values += that;
-	return *this;
-}
-
-template <typename T>
-auto color_rgb::operator-=(T const& that) -> color_rgb&
-{
-	_values -= that;
-	return *this;
-}
-
-template <typename T>
-auto color_rgb::operator*=(T const& that) -> color_rgb&
-{
-	_values *= that;
-	return *this;
-}
-
-template <typename T>
-auto color_rgb::operator/=(T const& that) -> color_rgb&
-{
-	_values /= that;
-	return *this;
-}
 
 template <typename T>
 auto operator+(color_rgb const& lhs, T const& rhs) -> color_rgb
