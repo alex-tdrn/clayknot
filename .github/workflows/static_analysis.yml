@@ -8,10 +8,13 @@ jobs:
     steps:
       - name: Install needed tools and system libraries
         run: |
-          echo "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main" | sudo tee -a /etc/apt/sources.list
+          echo "deb http://apt.llvm.org/focal/ llvm-toolchain-focal main" | sudo tee -a /etc/apt/sources.list
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
+          sudo apt remove -y "libclang-dev*"
+          sudo apt remove -y "clang*"
+          sudo apt remove -y "llvm*"
           sudo apt update
-          sudo apt install ninja-build libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev clang-tidy-13
+          sudo apt install ninja-build libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev clang-tidy-15
       - uses: actions/checkout@v3
       - name: Set vcpkg environment vars
         run: |
@@ -25,12 +28,12 @@ jobs:
           path: ~/vcpkg_cache
           key: ubuntu-latest-clang-Debug-${{hashFiles('vcpkg.json')}}
       - name: Configure
-        run: cmake -S . --preset clang_vcpkg -G "Ninja" -DCMAKE_BUILD_TYPE=Debug
+        run: cmake -S . --preset gcc_vcpkg -G "Ninja" -DCMAKE_BUILD_TYPE=Debug
       - name: Remove 'external' and 'tests' from compile_commands.json
-        run: cat ./build/clang_vcpkg/compile_commands.json | jq 'map(select(.file | test("external|tests") | not))' > ./build/compile_commands.json
+        run: cat ./build/gcc_vcpkg/compile_commands.json | jq 'map(select(.file | test("external|tests") | not))' > ./build/compile_commands.json
       - name: Run clang-tidy
         run: |
-          run-clang-tidy-13 -p ./build -j2 -quiet
+          run-clang-tidy-15 -p ./build -j2 -quiet
   cppcheck:
     timeout-minutes: 30
     name: "Cppcheck"
@@ -53,23 +56,33 @@ jobs:
           path: ~/vcpkg_cache
           key: ubuntu-jammmy-clang-${{hashFiles('vcpkg.json')}}
       - name: Configure
-        run: cmake -S . --preset clang_vcpkg -G "Ninja"
+        run: cmake -S . --preset gcc_vcpkg -G "Ninja"
       - name: Run cppcheck
         run: |
           cppcheck --version
-          cppcheck --project=./build/clang_vcpkg/compile_commands.json -iexternal -itests --error-exitcode=1 --enable=style -q --suppress="internalAstError" --suppress="passedByValue"
+          cppcheck --project=./build/gcc_vcpkg/compile_commands.json -iexternal -itests --error-exitcode=1 --enable=style -q --suppress="internalAstError" --suppress="passedByValue"
   include-what-you-use:
     timeout-minutes: 30
     name: "Include what you use"
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-18.04
     steps:
       - name: Install needed tools and system libraries
         run: |
-          echo "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main" | sudo tee -a /etc/apt/sources.list
+          echo "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic main" | sudo tee -a /etc/apt/sources.list
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
           sudo apt update
-          sudo apt install ninja-build libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev iwyu jq clang-13 libc++-13-dev libc++abi-13-dev
-          sudo ln -s /usr/bin/include-what-you-use /usr/lib/llvm-13/bin/include-what-you-use
+          sudo apt remove -y "libclang-dev*"
+          sudo apt remove -y "clang*"
+          sudo apt remove -y "llvm*"
+          sudo apt install ninja-build libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev jq llvm-15-dev libclang-15-dev clang-15 libc++-15-dev libc++abi-15-dev
+      - name: Build latest include-what-you-use
+        run: |
+          mkdir ~/iwyu
+          cd ~/iwyu
+          git clone https://github.com/include-what-you-use/include-what-you-use.git
+          cd ./include-what-you-use
+          cmake -S . -B ./build -G "Ninja" -DCMAKE_C_COMPILER=clang-15 -DCMAKE_CXX_COMPILER=clang++-15 
+          cmake --build ./build
       - uses: actions/checkout@v3
       - name: Set vcpkg environment vars
         run: |
@@ -81,23 +94,14 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/vcpkg_cache
-          key: ubuntu-jammmy-clang-${{hashFiles('vcpkg.json')}}
+          key: ubuntu-bionic-clang-libcpp-${{hashFiles('vcpkg.json')}}
       - name: Configure
-        run: cmake -S . --preset clang_vcpkg -G "Ninja"
+        run: cmake -S . --preset clang_vcpkg -G "Ninja" -DCMAKE_C_COMPILER=clang-15 -DCMAKE_CXX_COMPILER=clang++-15 -DCMAKE_CXX_COMPILER_FLAGS="-stdlib=libc++"
       - name: Remove 'external' and 'tests' from compile_commands.json
         run: cat ./build/clang_vcpkg/compile_commands.json | jq 'map(select(.file | test("external|tests") | not))' > ./build/compile_commands.json
-      - name: Download iwyu_tool.py
-        run: |
-          wget https://raw.githubusercontent.com/include-what-you-use/include-what-you-use/master/iwyu_tool.py
-          chmod +x iwyu_tool.py
       - name: Run iwyu
-        # iwyu returns 2 when there are no suggestions. this is fixed in version 0.18. until then, look at the error code, and
-        # treat 2 as success. need to disable bash '-e' for this
+        # intentionally letting iwyu return 0 even if there are suggestions, since there are unavoidable false positives right now
         run: |
-          set +e
-          set +o pipefail
+          export PATH=$PATH:~/iwyu/include-what-you-use/build/bin/
           include-what-you-use --version
-          python iwyu_tool.py -p ./build -j2 -- -Xiwyu --mapping_file=$PWD/iwyu.imp -Xiwyu --cxx17ns -Xiwyu --quoted_includes_first -stdlib=libc++
-          export iwyu_status=$?
-          echo iwyu status was $iwyu_status
-          ([ $iwyu_status -eq 0 ] || [ $iwyu_status -eq 2 ]) && exit 0 || exit 1
+          python ~/iwyu/include-what-you-use/iwyu_tool.py -p ./build -j2 -- -Xiwyu --mapping_file=$PWD/iwyu.imp -Xiwyu --cxx17ns -Xiwyu --quoted_includes_first
