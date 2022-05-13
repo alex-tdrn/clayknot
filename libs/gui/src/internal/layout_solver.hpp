@@ -15,6 +15,7 @@
 #include <glm/glm.hpp>
 #include <imgui.h>
 #include <imnodes.h>
+#include <range/v3/view/filter.hpp>
 #include <vector>
 
 namespace clk::gui::impl

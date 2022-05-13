@@ -4,14 +4,19 @@
 #include "clk/util/predicates.hpp"
 #include "clk/util/projections.hpp"
 
+#include <cstddef>
 #include <functional>
-#include <range/v3/algorithm.hpp>
+#include <memory>
+#include <range/v3/algorithm/any_of.hpp>
+#include <range/v3/view/transform.hpp>
+#include <string_view>
 #include <typeindex>
 #include <unordered_set>
 
 namespace clk
 {
 class input;
+class sentinel;
 
 class output : public port
 {
@@ -81,22 +86,6 @@ private:
 	T _data = {};
 	std::unordered_set<compatible_port*> _connections;
 };
-
-inline void output::pull(std::weak_ptr<clk::sentinel> const& sentinel) noexcept
-{
-	if(_pull_callback)
-		_pull_callback(sentinel);
-}
-
-inline void output::set_pull_callback(const std::function<void(std::weak_ptr<clk::sentinel> const&)>& callback)
-{
-	_pull_callback = callback;
-}
-
-inline void output::set_pull_callback(std::function<void(std::weak_ptr<clk::sentinel> const&)>&& callback) noexcept
-{
-	_pull_callback = std::move(callback);
-}
 
 template <typename T>
 output_of<T>::output_of(std::string_view name)

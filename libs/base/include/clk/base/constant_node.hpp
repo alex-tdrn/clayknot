@@ -1,14 +1,11 @@
 #pragma once
 
 #include "clk/base/node.hpp"
+#include "clk/base/output.hpp"
 #include "clk/base/port.hpp"
-#include "clk/util/predicates.hpp"
-#include "clk/util/projections.hpp"
 
 #include <memory>
-#include <range/v3/algorithm.hpp>
-#include <range/v3/view.hpp>
-#include <string>
+#include <string_view>
 #include <vector>
 
 namespace clk
@@ -31,26 +28,5 @@ public:
 private:
 	std::vector<std::unique_ptr<clk::output>> _outputs;
 };
-
-inline auto constant_node::name() const -> std::string_view
-{
-	return "Constant";
-}
-
-inline auto constant_node::outputs() const -> port_range<clk::output*>
-{
-	return _outputs | ranges::views::transform(clk::projections::underlying());
-}
-
-inline void constant_node::remove_output(clk::output* output)
-{
-	_outputs.erase(ranges::remove_if(_outputs, clk::predicates::is_equal_to(output), clk::projections::underlying()),
-		_outputs.end());
-}
-
-inline void constant_node::add_output(std::unique_ptr<clk::output>&& output)
-{
-	_outputs.push_back(std::move(output));
-}
 
 } // namespace clk

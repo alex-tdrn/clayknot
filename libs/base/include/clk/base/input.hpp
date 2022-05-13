@@ -1,13 +1,19 @@
 #pragma once
 
 #include "clk/base/port.hpp"
+#include "clk/util/timestamp.hpp"
 
+#include <cstddef>
 #include <functional>
+#include <memory>
+#include <range/v3/view/single.hpp>
+#include <string_view>
 #include <typeindex>
 
 namespace clk
 {
 class output;
+class sentinel;
 
 class input : public port
 {
@@ -73,22 +79,6 @@ private:
 	compatible_port mutable _default_port = compatible_port("Default port");
 	compatible_port mutable* _connection = nullptr;
 };
-
-inline void input::set_push_callback(const std::function<void(std::weak_ptr<clk::sentinel> const&)>& callback)
-{
-	_push_callback = callback;
-}
-
-inline void input::set_push_callback(std::function<void(std::weak_ptr<clk::sentinel> const&)>&& callback) noexcept
-{
-	_push_callback = std::move(callback);
-}
-
-inline void input::push(std::weak_ptr<clk::sentinel> const& sentinel) noexcept
-{
-	if(_push_callback)
-		_push_callback(sentinel);
-}
 
 template <typename T>
 input_of<T>::input_of()

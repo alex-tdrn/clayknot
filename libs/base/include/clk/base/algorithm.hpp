@@ -1,17 +1,18 @@
 #pragma once
 
-#include "clk/base/input.hpp"
-#include "clk/base/output.hpp"
-
+#include <functional>
 #include <map>
 #include <memory>
-#include <range/v3/algorithm.hpp>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <vector>
 
 namespace clk
 {
+class input;
+class output;
+
 class algorithm
 {
 public:
@@ -60,49 +61,6 @@ void algorithm::register_factory()
 	factories_map()[std::string(algorithm_implementation::name)] = []() -> std::unique_ptr<algorithm> {
 		return std::make_unique<algorithm_implementation>();
 	};
-}
-
-auto inline algorithm::create(std::string_view name) -> std::unique_ptr<algorithm>
-{
-	auto it = factories_map().find(name);
-	if(it == factories_map().end())
-		throw std::runtime_error("Algorithm not registered");
-	return it->second();
-}
-
-inline auto algorithm::factories() -> std::map<std::string, std::unique_ptr<algorithm> (*)(), std::less<>> const&
-{
-	return factories_map();
-}
-
-inline auto algorithm::inputs() const noexcept -> std::vector<clk::input*> const&
-{
-	return _inputs;
-}
-
-inline auto algorithm::outputs() const noexcept -> std::vector<clk::output*> const&
-{
-	return _outputs;
-}
-
-inline void algorithm::register_port(clk::input& input)
-{
-	if(ranges::find(_inputs, &input) != _inputs.end())
-		return;
-	_inputs.emplace_back(&input);
-}
-
-inline void algorithm::register_port(clk::output& output)
-{
-	if(ranges::find(_outputs, &output) != _outputs.end())
-		return;
-	_outputs.emplace_back(&output);
-}
-
-inline auto algorithm::factories_map() -> std::map<std::string, std::unique_ptr<algorithm> (*)(), std::less<>>&
-{
-	static std::map<std::string, std::unique_ptr<algorithm> (*)(), std::less<>> factories_map;
-	return factories_map;
 }
 
 template <typename algorithm_implementation>

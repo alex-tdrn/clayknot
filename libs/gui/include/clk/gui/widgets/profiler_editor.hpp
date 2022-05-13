@@ -1,18 +1,27 @@
 #pragma once
 
 #include "clk/gui/widgets/editor.hpp"
-#include "clk/gui/widgets/widget_factory.hpp"
-#include "clk/gui/widgets/widget_tree.hpp"
 #include "clk/util/bounded.hpp"
 #include "clk/util/profiler.hpp"
 
+#include <algorithm>
 #include <chrono>
+#include <cstdint>
 #include <imgui.h>
 #include <implot.h>
-#include <range/v3/functional/not_fn.hpp>
+#include <initializer_list>
+#include <iterator>
+#include <memory>
+#include <ratio>
+#include <string>
+#include <string_view>
+#include <tuple>
+#include <vector>
 
 namespace clk::gui
 {
+class widget;
+class widget_factory;
 
 class profiler_editor final : public editor_of<clk::profiler>
 {
@@ -45,61 +54,6 @@ private:
 	template <typename Ratio>
 	void draw_helper(clk::profiler const& profiler) const;
 };
-
-inline profiler_editor::profiler_editor(std::shared_ptr<widget_factory const> factory, std::string_view name)
-	: editor_of<clk::profiler>(std::move(factory), name)
-{
-	auto const& f = get_widget_factory();
-	auto& plot_settings = settings().get_subtree("Plot");
-	plot_settings.add(f->create(_plot_height, "Height"));
-	plot_settings.add(f->create(_plot_width, "Width"));
-	plot_settings.add(f->create(_plot_alpha, "Fill opacity"));
-}
-
-inline auto profiler_editor::clone() const -> std::unique_ptr<widget>
-{
-	auto clone = std::make_unique<profiler_editor>(this->get_widget_factory(), this->name());
-	clone->copy(*this);
-	return clone;
-}
-
-inline void profiler_editor::copy(widget const& other)
-{
-	auto const& casted = dynamic_cast<profiler_editor const&>(other);
-	_plot_height = casted._plot_height;
-	editor_of<clk::profiler>::copy(other);
-}
-
-inline void profiler_editor::set_plot_height(float height)
-{
-	_plot_height = height;
-}
-
-inline auto profiler_editor::draw_contents(clk::profiler& profiler) const -> bool
-{
-	bool modified = false;
-
-	if(auto active = profiler.is_active(); ImGui::Checkbox("Active", &active))
-	{
-		profiler.set_active(active);
-		modified = true;
-	}
-	ImGui::SameLine();
-
-	ImGui::Text("Sample count");
-	ImGui::SameLine();
-	ImGui::SetNextItemWidth(-1);
-	if(auto sample_count = static_cast<int>(profiler.samples().second.size());
-		ImGui::DragInt("###Sample count", &sample_count, 1.0f, 2))
-	{
-		profiler.set_sample_count(static_cast<std::size_t>(std::max(sample_count, 2)));
-		modified = true;
-	}
-
-	draw_helper<std::nano>(profiler);
-
-	return modified;
-}
 
 template <typename Ratio>
 void profiler_editor::draw_helper(clk::profiler const& profiler) const

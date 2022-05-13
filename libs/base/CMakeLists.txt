@@ -1,21 +1,20 @@
-add_library(base INTERFACE)
+add_library(base)
 
 target_sources(
 	base
-	INTERFACE "include/clk/base/node.hpp"
-				"include/clk/base/algorithm_node.hpp"
-				"include/clk/base/constant_node.hpp"
-				"include/clk/base/algorithm.hpp"
-				"include/clk/base/port.hpp"
-				"include/clk/base/input.hpp"
-				"include/clk/base/output.hpp"
-				"include/clk/base/sentinel.hpp"
-				"include/clk/base/graph.hpp"
+	PRIVATE "src/node.cpp"
+			"src/algorithm_node.cpp"
+			"src/constant_node.cpp"
+			"src/algorithm.cpp"
+			"src/port.cpp"
+			"src/input.cpp"
+			"src/output.cpp"
+			"src/graph.cpp"
 )
 
-target_include_directories(base INTERFACE "include")
+target_include_directories(base PUBLIC "include")
 
-target_link_libraries(base INTERFACE clayknot::util range-v3::range-v3)
+target_link_libraries(base PUBLIC clayknot::util range-v3::range-v3)
 
 install(TARGETS base)
 install(DIRECTORY include/ DESTINATION include)

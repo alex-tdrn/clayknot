@@ -1,15 +1,18 @@
 #pragma once
 
-#include "clk/base/sentinel.hpp"
 #include "clk/util/timestamp.hpp"
 
+#include <cstddef>
 #include <functional>
 #include <memory>
-#include <range/v3/view.hpp>
+#include <range/v3/view/any_view.hpp>
 #include <string>
+#include <string_view>
 
 namespace clk
 {
+class sentinel;
+
 template <typename T>
 using port_range = ranges::any_view<T, ranges::category::forward | ranges::category::sized>;
 
@@ -49,36 +52,5 @@ private:
 	clk::timestamp _timestamp;
 	std::function<void()> _connection_changed_callback;
 };
-
-inline void port::set_name(std::string_view name)
-{
-	_name = name;
-}
-
-inline auto port::name() const noexcept -> std::string_view
-{
-	return _name;
-}
-
-inline void port::update_timestamp() noexcept
-{
-	_timestamp.update();
-}
-
-inline void port::set_connection_changed_callback(std::function<void()> const& callback)
-{
-	_connection_changed_callback = callback;
-}
-
-inline auto port::timestamp() const noexcept -> clk::timestamp
-{
-	return _timestamp;
-}
-
-inline void port::connection_changed()
-{
-	if(_connection_changed_callback)
-		_connection_changed_callback();
-}
 
 } // namespace clk

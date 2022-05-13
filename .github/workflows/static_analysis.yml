@@ -68,7 +68,8 @@ jobs:
           echo "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main" | sudo tee -a /etc/apt/sources.list
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
           sudo apt update
-          sudo apt install ninja-build libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev iwyu jq clang-13
+          sudo apt install ninja-build libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev iwyu jq clang-13 libc++-13-dev libc++abi-13-dev
+          sudo ln -s /usr/bin/include-what-you-use /usr/lib/llvm-13/bin/include-what-you-use
       - uses: actions/checkout@v3
       - name: Set vcpkg environment vars
         run: |
@@ -82,9 +83,9 @@ jobs:
           path: ~/vcpkg_cache
           key: ubuntu-jammmy-clang-${{hashFiles('vcpkg.json')}}
       - name: Configure
-        run: cmake -S . --preset gcc_vcpkg -G "Ninja"
+        run: cmake -S . --preset clang_vcpkg -G "Ninja"
       - name: Remove 'external' and 'tests' from compile_commands.json
-        run: cat ./build/gcc_vcpkg/compile_commands.json | jq 'map(select(.file | test("external|tests") | not))' > ./build/compile_commands.json
+        run: cat ./build/clang_vcpkg/compile_commands.json | jq 'map(select(.file | test("external|tests") | not))' > ./build/compile_commands.json
       - name: Download iwyu_tool.py
         run: |
           wget https://raw.githubusercontent.com/include-what-you-use/include-what-you-use/master/iwyu_tool.py
@@ -96,7 +97,7 @@ jobs:
           set +e
           set +o pipefail
           include-what-you-use --version
-          python iwyu_tool.py -p ./build -j2 -- -Xiwyu --mapping_file=$PWD/iwyu.imp -Xiwyu --cxx17ns -Xiwyu --quoted_includes_first
+          python iwyu_tool.py -p ./build -j2 -- -Xiwyu --mapping_file=$PWD/iwyu.imp -Xiwyu --cxx17ns -Xiwyu --quoted_includes_first -stdlib=libc++
           export iwyu_status=$?
           echo iwyu status was $iwyu_status
           ([ $iwyu_status -eq 0 ] || [ $iwyu_status -eq 2 ]) && exit 0 || exit 1

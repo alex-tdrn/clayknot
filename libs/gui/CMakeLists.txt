@@ -1,35 +1,16 @@
-add_library(
+add_library(gui)
+
+target_sources(
 	gui
-	"include/clk/gui/init.hpp"
-	"include/clk/gui/panel.hpp"
-	"include/clk/gui/widgets/widget.hpp"
-	"include/clk/gui/widgets/widget_tree.hpp"
-	"include/clk/gui/widgets/action_widget.hpp"
-	"include/clk/gui/widgets/data_widget.hpp"
-	"include/clk/gui/widgets/data_reader.hpp"
-	"include/clk/gui/widgets/viewer.hpp"
-	"include/clk/gui/widgets/composite_viewer.hpp"
-	"include/clk/gui/widgets/composite_editor.hpp"
-	"include/clk/gui/widgets/data_writer.hpp"
-	"include/clk/gui/widgets/editor.hpp"
-	"include/clk/gui/widgets/default_viewers.hpp"
-	"include/clk/gui/widgets/default_editors.hpp"
-	"include/clk/gui/widgets/graph_viewer.hpp"
-	"include/clk/gui/widgets/graph_editor.hpp"
-	"include/clk/gui/widgets/profiler_editor.hpp"
-	"src/init.cpp"
-	"src/panel.cpp"
-	"src/widgets/widget.cpp"
-	"src/widgets/data_widget.cpp"
-	"src/widgets/graph_viewer.cpp"
-	"src/widgets/graph_editor.cpp"
-	"src/internal/layout_solver.hpp"
-	"src/internal/widget_cache.hpp"
-	"src/internal/selection_manager.hpp"
-	"src/internal/node_viewers.hpp"
-	"src/internal/port_viewers.hpp"
-	"src/internal/node_editors.hpp"
-	"src/internal/port_editors.hpp"
+	PRIVATE "src/init.cpp"
+			"src/panel.cpp"
+			"src/widgets/widget.cpp"
+			"src/widgets/data_widget.cpp"
+			"src/widgets/graph_viewer.cpp"
+			"src/widgets/graph_editor.cpp"
+			"src/widgets/widget_tree.cpp"
+			"src/widgets/profiler_editor.cpp"
+			"src/widgets/action_widget.cpp"
 )
 
 target_include_directories(
