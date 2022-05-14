@@ -33,7 +33,7 @@ jobs:
         run: cat ./build/gcc_vcpkg/compile_commands.json | jq 'map(select(.file | test("external|tests") | not))' > ./build/compile_commands.json
       - name: Run clang-tidy
         run: |
-          run-clang-tidy-15 -p ./build -j2 -quiet
+          parallel -m clang-tidy-15 {} -p ./build/ -quiet -warnings-as-errors "\*" ::: $(find -regex ".*\.\(cpp\|hpp\)" -not -path "./build/**" -not -path "./external/**" -not -path "./tests/**")
   cppcheck:
     timeout-minutes: 30
     name: "Cppcheck"
