@@ -1,6 +1,8 @@
 #include "clk/gui/init.hpp"
 #include "clk/base/graph.hpp"
 #include "clk/gui/panel.hpp"
+#include "clk/gui/widgets/default_editors.hpp"
+#include "clk/gui/widgets/default_viewers.hpp"
 #include "clk/gui/widgets/graph_editor.hpp"
 #include "clk/gui/widgets/graph_viewer.hpp"
 #include "clk/gui/widgets/profiler_editor.hpp"
