@@ -34,7 +34,7 @@ public:
 	static auto create_random(std::uint64_t seed) -> color_rgba;
 	static auto create_random() -> color_rgba;
 	static auto pack(color_rgba color) -> std::uint32_t;
-	static auto unpack(std::uint32_t packedColor) -> color_rgba;
+	static auto unpack(std::uint32_t packed_color) -> color_rgba;
 	auto valid() const -> bool;
 
 	template <typename T>

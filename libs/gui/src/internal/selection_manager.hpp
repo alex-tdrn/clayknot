@@ -12,14 +12,14 @@
 
 namespace clk::gui::impl
 {
-template <bool const_data>
+template <bool ConstData>
 class selection_manager
 {
 public:
-	using node_type = std::conditional_t<const_data, clk::node const, clk::node>;
-	using port_type = std::conditional_t<const_data, clk::port const, clk::port>;
-	using node_widget = std::conditional_t<const_data, node_viewer, node_editor>;
-	using port_widget = std::conditional_t<const_data, port_viewer, port_editor>;
+	using node_type = std::conditional_t<ConstData, clk::node const, clk::node>;
+	using port_type = std::conditional_t<ConstData, clk::port const, clk::port>;
+	using node_widget = std::conditional_t<ConstData, node_viewer, node_editor>;
+	using port_widget = std::conditional_t<ConstData, port_viewer, port_editor>;
 
 	selection_manager(
 		widget_cache<node_type, node_widget>* node_cache, widget_cache<port_type, port_widget>* port_cache)

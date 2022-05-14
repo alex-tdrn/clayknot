@@ -19,7 +19,7 @@ public:
 	~viewer() override = default;
 };
 
-template <typename data_type>
+template <typename DataType>
 class viewer_of : public viewer
 {
 public:
@@ -33,30 +33,30 @@ public:
 
 	auto clone() const -> std::unique_ptr<widget> override
 	{
-		auto clone = std::make_unique<viewer_of<data_type>>(get_widget_factory(), name());
+		auto clone = std::make_unique<viewer_of<DataType>>(get_widget_factory(), name());
 		clone->copy(*this);
 		return clone;
 	}
 
 	void copy(widget const& other) override
 	{
-		auto const& casted = dynamic_cast<viewer_of<data_type> const&>(other);
+		auto const& casted = dynamic_cast<viewer_of<DataType> const&>(other);
 		_data = casted._data;
 		viewer::copy(other);
 	}
 
-	void set_data_reader(data_reader<data_type> data)
+	void set_data_reader(data_reader<DataType> data)
 	{
 		_data = std::move(data);
 	}
 
-	virtual void draw_contents(data_type const& /*data*/) const
+	virtual void draw_contents(DataType const& /*data*/) const
 	{
 		ImGui::Text("NO VIEWER IMPLEMENTATION");
 	}
 
 private:
-	data_reader<data_type> _data;
+	data_reader<DataType> _data;
 
 	void draw_contents() const final
 	{

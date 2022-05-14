@@ -16,13 +16,13 @@ struct time_unit
 	short range;
 
 	template <typename Representation, typename Period>
-	static auto extractHours(duration<Representation, Period> t) -> time_unit
+	static auto extract_hours(duration<Representation, Period> t) -> time_unit
 	{
 		return {"h", static_cast<short>(duration_cast<hours>(t).count()), 24};
 	}
 
 	template <typename Representation, typename Period>
-	static auto extractMinutes(duration<Representation, Period> t) -> time_unit
+	static auto extract_minutes(duration<Representation, Period> t) -> time_unit
 	{
 		auto unit = time_unit{};
 		unit.suffix = "m";
@@ -32,7 +32,7 @@ struct time_unit
 	}
 
 	template <typename Representation, typename Period>
-	static auto extractSeconds(duration<Representation, Period> t) -> time_unit
+	static auto extract_seconds(duration<Representation, Period> t) -> time_unit
 	{
 		auto unit = time_unit{};
 		unit.suffix = "s";
@@ -42,7 +42,7 @@ struct time_unit
 	}
 
 	template <typename Representation, typename Period>
-	static auto extractMilliseconds(duration<Representation, Period> t) -> time_unit
+	static auto extract_milliseconds(duration<Representation, Period> t) -> time_unit
 	{
 		auto unit = time_unit{};
 		unit.suffix = "ms";
@@ -52,7 +52,7 @@ struct time_unit
 	}
 
 	template <typename Representation, typename Period>
-	static auto extractMicroseconds(duration<Representation, Period> t) -> time_unit
+	static auto extract_microseconds(duration<Representation, Period> t) -> time_unit
 	{
 		auto unit = time_unit{};
 		unit.suffix = "us";
@@ -62,7 +62,7 @@ struct time_unit
 	}
 
 	template <typename Representation, typename Period>
-	static auto extractNanoseconds(duration<Representation, Period> t) -> time_unit
+	static auto extract_nanoseconds(duration<Representation, Period> t) -> time_unit
 	{
 		auto unit = time_unit{};
 		unit.suffix = "ns";
@@ -74,8 +74,8 @@ struct time_unit
 	template <typename Representation, typename Period>
 	static auto decompose(duration<Representation, Period> t) -> std::array<time_unit, 6>
 	{
-		return {extractHours(t), extractMinutes(t), extractSeconds(t), extractMilliseconds(t), extractMicroseconds(t),
-			extractNanoseconds(t)};
+		return {extract_hours(t), extract_minutes(t), extract_seconds(t), extract_milliseconds(t),
+			extract_microseconds(t), extract_nanoseconds(t)};
 	}
 
 	static auto compose(const std::array<time_unit, 6>& units) -> std::chrono::nanoseconds

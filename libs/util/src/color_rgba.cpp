@@ -81,10 +81,10 @@ auto color_rgba::pack(color_rgba color) -> std::uint32_t
 	return ret;
 }
 
-auto color_rgba::unpack(std::uint32_t packedColor) -> color_rgba
+auto color_rgba::unpack(std::uint32_t packed_color) -> color_rgba
 {
-	color_rgb rgb = color_rgb::unpack(packedColor);
-	int a = static_cast<int>(packedColor >> 24 & 0b1111'1111);
+	color_rgb rgb = color_rgb::unpack(packed_color);
+	int a = static_cast<int>(packed_color >> 24 & 0b1111'1111);
 	return color_rgba{rgb, a};
 }
 

@@ -10,7 +10,7 @@ class port;
 namespace clk::gui::impl
 {
 class port_viewer;
-template <typename data_type, typename widget>
+template <typename DataType, typename Widget>
 class widget_cache;
 } // namespace clk::gui::impl
 
@@ -47,7 +47,7 @@ private:
 	void draw_title_bar();
 };
 
-auto create_node_viewer(clk::node const* node, int id, widget_cache<clk::port const, port_viewer>* portCache,
+auto create_node_viewer(clk::node const* node, int id, widget_cache<clk::port const, port_viewer>* port_cache,
 	bool const& draw_node_titles) -> std::unique_ptr<node_viewer>;
 
 } // namespace clk::gui::impl

@@ -130,12 +130,12 @@ void graph_viewer::draw_graph(clk::graph const& graph) const
 	}
 
 	{
-		int linkID = 0;
+		int link_id = 0;
 		for(auto& connection : _connections)
 		{
 			auto color = color_rgba(color_rgb::create_random(connection.first->data_type_hash()), 1.0f).packed();
 			ImNodes::PushColorStyle(ImNodesCol_Link, color);
-			ImNodes::Link(linkID++, _port_cache->widget_for(connection.first).id(),
+			ImNodes::Link(link_id++, _port_cache->widget_for(connection.first).id(),
 				_port_cache->widget_for(connection.second).id());
 			ImNodes::PopColorStyle();
 		}

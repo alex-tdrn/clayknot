@@ -110,10 +110,10 @@ void output_viewer::draw()
 auto create_port_viewer(clk::port const* port, int id, widget_factory const& widget_factory,
 	bool const& draw_port_widgets) -> std::unique_ptr<port_viewer>
 {
-	if(auto const* inputPort = dynamic_cast<clk::input const*>(port); inputPort != nullptr)
-		return std::make_unique<input_viewer>(inputPort, id, widget_factory, draw_port_widgets);
-	else if(auto const* outputPort = dynamic_cast<clk::output const*>(port); outputPort != nullptr)
-		return std::make_unique<output_viewer>(outputPort, id, widget_factory, draw_port_widgets);
+	if(auto const* input_port = dynamic_cast<clk::input const*>(port); input_port != nullptr)
+		return std::make_unique<input_viewer>(input_port, id, widget_factory, draw_port_widgets);
+	else if(auto const* output_port = dynamic_cast<clk::output const*>(port); output_port != nullptr)
+		return std::make_unique<output_viewer>(output_port, id, widget_factory, draw_port_widgets);
 	return nullptr;
 }
 

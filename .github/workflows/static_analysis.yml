@@ -8,13 +8,13 @@ jobs:
     steps:
       - name: Install needed tools and system libraries
         run: |
-          echo "deb http://apt.llvm.org/focal/ llvm-toolchain-focal main" | sudo tee -a /etc/apt/sources.list
+          echo "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-14 main" | sudo tee -a /etc/apt/sources.list
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
           sudo apt remove -y "libclang-dev*"
           sudo apt remove -y "clang*"
           sudo apt remove -y "llvm*"
           sudo apt update
-          sudo apt install ninja-build libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev clang-tidy-15
+          sudo apt install ninja-build libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev clang-tidy-14
       - uses: actions/checkout@v3
       - name: Set vcpkg environment vars
         run: |
@@ -33,7 +33,7 @@ jobs:
         run: cat ./build/gcc_vcpkg/compile_commands.json | jq 'map(select(.file | test("external|tests") | not))' > ./build/compile_commands.json
       - name: Run clang-tidy
         run: |
-          run-clang-tidy-15 -p ./build -j2 -quiet
+          find -regex ".*\.\(cpp\|hpp\)" -not -path "./build/**" -not -path "./external/**" -not -path "./tests/**" | xargs clang-tidy-14 -p ./build/ -quiet -warnings-as-errors "\*"
   cppcheck:
     timeout-minutes: 30
     name: "Cppcheck"

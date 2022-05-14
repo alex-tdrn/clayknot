@@ -393,10 +393,10 @@ void graph_editor::draw_menus(clk::graph& graph) const
 	{
 		if(ImNodes::NumSelectedLinks() > 0)
 		{
-			std::vector<int> selectedLinks(ImNodes::NumSelectedLinks());
-			ImNodes::GetSelectedLinks(selectedLinks.data());
-			for(auto linkID : selectedLinks)
-				_connections[linkID].first->disconnect_from(*_connections[linkID].second);
+			std::vector<int> selected_links(ImNodes::NumSelectedLinks());
+			ImNodes::GetSelectedLinks(selected_links.data());
+			for(auto link_id : selected_links)
+				_connections[link_id].first->disconnect_from(*_connections[link_id].second);
 			ImNodes::ClearLinkSelection();
 		}
 
@@ -480,10 +480,10 @@ void graph_editor::handle_mouse_interactions(clk::graph& graph) const
 
 	if(ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && ImNodes::NumSelectedLinks() > 0)
 	{
-		std::vector<int> selectedLinks(ImNodes::NumSelectedLinks());
-		ImNodes::GetSelectedLinks(selectedLinks.data());
-		for(auto linkID : selectedLinks)
-			_connections[linkID].first->disconnect_from(*_connections[linkID].second);
+		std::vector<int> selected_links(ImNodes::NumSelectedLinks());
+		ImNodes::GetSelectedLinks(selected_links.data());
+		for(auto link_id : selected_links)
+			_connections[link_id].first->disconnect_from(*_connections[link_id].second);
 		ImNodes::ClearLinkSelection();
 	}
 }
