@@ -108,10 +108,10 @@ private:
 		profiler_attraction,
 		profiler_integration,
 		profiler_write_to_gui,
-		profiler_N
+		profiler_n
 	};
 
-	mutable std::array<profiler, profiler_N> _profilers;
+	mutable std::array<profiler, profiler_n> _profilers;
 	using chrono = std::chrono::high_resolution_clock;
 	chrono::time_point _last_step_execution = chrono::time_point::min();
 	std::chrono::steady_clock::time_point _cached_graph_timestamp = std::chrono::steady_clock::time_point::min();

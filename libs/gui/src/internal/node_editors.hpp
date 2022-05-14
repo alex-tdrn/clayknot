@@ -21,7 +21,7 @@ class widget_factory;
 namespace clk::gui::impl
 {
 class port_editor;
-template <typename data_type, typename widget>
+template <typename DataType, typename Widget>
 class widget_cache;
 } // namespace clk::gui::impl
 
@@ -82,7 +82,7 @@ private:
 	void draw_outputs() final;
 };
 
-auto create_node_editor(clk::node* node, int id, widget_cache<clk::port, port_editor>* portCache,
+auto create_node_editor(clk::node* node, int id, widget_cache<clk::port, port_editor>* port_cache,
 	std::optional<std::function<bool()>>& queued_action, widget_factory const& widget_factory,
 	bool const& draw_node_titles) -> std::unique_ptr<node_editor>;
 

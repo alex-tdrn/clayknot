@@ -23,9 +23,9 @@ class port;
 
 namespace clk::gui::impl
 {
-template <typename data, typename widget>
+template <typename Data, typename Widget>
 class widget_cache;
-template <bool const_data>
+template <bool ConstData>
 class selection_manager;
 class layout_solver;
 } // namespace clk::gui::impl

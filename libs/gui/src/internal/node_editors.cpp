@@ -171,18 +171,18 @@ void constant_node_editor::draw_outputs()
 				ImGui::OpenPopup("Add Constant Port Menu");
 				if(ImGui::BeginPopup("Add Constant Port Menu"))
 				{
-					std::unique_ptr<output> constantPort = nullptr;
+					std::unique_ptr<output> constant_port = nullptr;
 
 					if(ImGui::MenuItem("int"))
-						constantPort = std::make_unique<output_of<int>>("Constant");
+						constant_port = std::make_unique<output_of<int>>("Constant");
 					else if(ImGui::MenuItem("float"))
-						constantPort = std::make_unique<output_of<float>>("Constant");
+						constant_port = std::make_unique<output_of<float>>("Constant");
 					else if(ImGui::MenuItem("color"))
-						constantPort = std::make_unique<output_of<color_rgb>>("Constant");
+						constant_port = std::make_unique<output_of<color_rgb>>("Constant");
 
-					if(constantPort != nullptr)
+					if(constant_port != nullptr)
 					{
-						_constant_node->add_output(std::move(constantPort));
+						_constant_node->add_output(std::move(constant_port));
 						done = true;
 					}
 					ImGui::EndPopup();
@@ -197,15 +197,15 @@ void constant_node_editor::draw_outputs()
 	}
 }
 
-auto create_node_editor(clk::node* node, int id, widget_cache<clk::port, port_editor>* portCache,
+auto create_node_editor(clk::node* node, int id, widget_cache<clk::port, port_editor>* port_cache,
 	std::optional<std::function<bool()>>& queued_action, widget_factory const& widget_factory,
 	bool const& draw_node_titles) -> std::unique_ptr<node_editor>
 {
 	if(auto* constant_node = dynamic_cast<clk::constant_node*>(node))
 		return std::make_unique<constant_node_editor>(
-			constant_node, id, portCache, queued_action, widget_factory, draw_node_titles);
+			constant_node, id, port_cache, queued_action, widget_factory, draw_node_titles);
 	else
-		return std::make_unique<node_editor>(node, id, portCache, queued_action, draw_node_titles);
+		return std::make_unique<node_editor>(node, id, port_cache, queued_action, draw_node_titles);
 }
 
 } // namespace clk::gui::impl

@@ -19,7 +19,7 @@ public:
 	~editor() override = default;
 };
 
-template <typename data_type>
+template <typename DataType>
 class editor_of : public editor
 {
 public:
@@ -33,31 +33,31 @@ public:
 
 	auto clone() const -> std::unique_ptr<widget> override
 	{
-		auto clone = std::make_unique<editor_of<data_type>>(get_widget_factory(), name());
+		auto clone = std::make_unique<editor_of<DataType>>(get_widget_factory(), name());
 		clone->copy(*this);
 		return clone;
 	}
 
 	void copy(widget const& other) override
 	{
-		auto const& casted = dynamic_cast<editor_of<data_type> const&>(other);
+		auto const& casted = dynamic_cast<editor_of<DataType> const&>(other);
 		_data = casted._data;
 		editor::copy(other);
 	}
 
-	void set_data_writer(data_writer<data_type> data)
+	void set_data_writer(data_writer<DataType> data)
 	{
 		_data = std::move(data);
 	}
 
-	virtual auto draw_contents(data_type& /*data*/) const -> bool
+	virtual auto draw_contents(DataType& /*data*/) const -> bool
 	{
 		ImGui::Text("NO EDITOR IMPLEMENTATION");
 		return false;
 	}
 
 private:
-	data_writer<data_type> _data;
+	data_writer<DataType> _data;
 
 	void draw_contents() const final
 	{

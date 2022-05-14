@@ -16,14 +16,14 @@ class output;
 class algorithm
 {
 public:
-	template <typename algorithm_implementation>
+	template <typename AlgorithmImplementation>
 	static void register_factory()
 	{
-		if(factories_map().find(algorithm_implementation::name) != factories_map().end())
+		if(factories_map().find(AlgorithmImplementation::name) != factories_map().end())
 			throw std::runtime_error("Algorithm already registered!");
 
-		factories_map()[std::string(algorithm_implementation::name)] = []() -> std::unique_ptr<algorithm> {
-			return std::make_unique<algorithm_implementation>();
+		factories_map()[std::string(AlgorithmImplementation::name)] = []() -> std::unique_ptr<algorithm> {
+			return std::make_unique<AlgorithmImplementation>();
 		};
 	}
 
@@ -54,13 +54,13 @@ private:
 	std::vector<clk::output*> _outputs;
 };
 
-template <typename algorithm_implementation>
+template <typename AlgorithmImplementation>
 class algorithm_builder : public algorithm
 {
 public:
 	auto name() const noexcept -> std::string_view final
 	{
-		return algorithm_implementation::name;
+		return AlgorithmImplementation::name;
 	}
 };
 

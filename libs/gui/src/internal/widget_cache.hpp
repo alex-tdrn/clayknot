@@ -7,11 +7,11 @@
 
 namespace clk::gui::impl
 {
-template <typename data_type, typename widget>
+template <typename DataType, typename Widget>
 class widget_cache
 {
 public:
-	using factory = std::function<std::unique_ptr<widget>(data_type*, int)>;
+	using factory = std::function<std::unique_ptr<Widget>(DataType*, int)>;
 
 	widget_cache() = delete;
 
@@ -25,7 +25,7 @@ public:
 	auto operator=(widget_cache&&) -> widget_cache& = delete;
 	~widget_cache() = default;
 
-	auto has_widget_for(data_type* data) const -> bool
+	auto has_widget_for(DataType* data) const -> bool
 	{
 		return _data_type_to_widget.find(data) != _data_type_to_widget.end();
 	}
@@ -35,7 +35,7 @@ public:
 		return _id_to_widget.find(id) != _id_to_widget.end();
 	}
 
-	auto widget_for(data_type* data) -> widget&
+	auto widget_for(DataType* data) -> Widget&
 	{
 		if(auto found_it = _data_type_to_widget.find(data); found_it != _data_type_to_widget.end())
 		{
@@ -52,7 +52,7 @@ public:
 		}
 	}
 
-	auto widget_for(int id) -> widget&
+	auto widget_for(int id) -> Widget&
 	{
 		if(auto found_it = _id_to_widget.find(id); found_it != _id_to_widget.end())
 		{
@@ -66,8 +66,8 @@ public:
 
 private:
 	factory _make_widget;
-	std::unordered_map<data_type*, std::unique_ptr<widget>> _data_type_to_widget;
-	std::unordered_map<int, widget*> _id_to_widget;
+	std::unordered_map<DataType*, std::unique_ptr<Widget>> _data_type_to_widget;
+	std::unordered_map<int, Widget*> _id_to_widget;
 	int _next_available_id = 0;
 };
 

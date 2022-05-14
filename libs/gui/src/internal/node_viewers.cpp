@@ -89,10 +89,10 @@ void node_viewer::draw_title_bar()
 	ImNodes::EndNodeTitleBar();
 }
 
-auto create_node_viewer(clk::node const* node, int id, widget_cache<clk::port const, port_viewer>* portCache,
+auto create_node_viewer(clk::node const* node, int id, widget_cache<clk::port const, port_viewer>* port_cache,
 	bool const& draw_node_titles) -> std::unique_ptr<node_viewer>
 {
-	return std::make_unique<node_viewer>(node, id, portCache, draw_node_titles);
+	return std::make_unique<node_viewer>(node, id, port_cache, draw_node_titles);
 }
 
 } // namespace clk::gui::impl

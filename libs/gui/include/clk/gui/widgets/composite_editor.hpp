@@ -10,11 +10,11 @@
 namespace clk::gui
 {
 
-template <typename data_type>
-class composite_editor_of final : public editor_of<data_type>
+template <typename DataType>
+class composite_editor_of final : public editor_of<DataType>
 {
 public:
-	using editor_of<data_type>::editor_of;
+	using editor_of<DataType>::editor_of;
 	composite_editor_of() = delete;
 	composite_editor_of(composite_editor_of const&) = delete;
 	composite_editor_of(composite_editor_of&&) = delete;
@@ -24,28 +24,28 @@ public:
 
 	auto clone() const -> std::unique_ptr<widget> override
 	{
-		auto clone = std::make_unique<composite_editor_of<data_type>>(this->get_widget_factory(), this->name());
+		auto clone = std::make_unique<composite_editor_of<DataType>>(this->get_widget_factory(), this->name());
 		clone->copy(*this);
 		return clone;
 	}
 
 	void copy(widget const& other) override
 	{
-		auto const& casted = dynamic_cast<composite_editor_of<data_type> const&>(other);
+		auto const& casted = dynamic_cast<composite_editor_of<DataType> const&>(other);
 		_widget_cloners.clear();
 		for(auto const& cloner : casted._widget_cloners)
 		{
 			_widget_cloners.push_back(cloner);
 		}
 
-		editor_of<data_type>::copy(other);
+		editor_of<DataType>::copy(other);
 	}
 
-	template <typename sub_data_type>
-	void add_sub_viewer(sub_data_type data_type::*data_member, std::string_view name)
+	template <typename SubDataType>
+	void add_sub_viewer(SubDataType DataType::*data_member, std::string_view name)
 	{
-		widget_cloner cloner = [=](widget_factory const& factory, data_type*& data_proxy) {
-			return factory.create(data_reader<sub_data_type>([&]() -> sub_data_type const* {
+		widget_cloner cloner = [=](widget_factory const& factory, DataType*& data_proxy) {
+			return factory.create(data_reader<SubDataType>([&]() -> SubDataType const* {
 				if(data_proxy != nullptr)
 				{
 					return &(data_proxy->*data_member);
@@ -61,12 +61,12 @@ public:
 		_widget_cloners.push_back(std::move(cloner));
 	}
 
-	template <typename sub_data_type>
-	void add_sub_viewer(std::function<sub_data_type const*(data_type const&)> sub_data_getter, std::string_view name)
+	template <typename SubDataType>
+	void add_sub_viewer(std::function<SubDataType const*(DataType const&)> sub_data_getter, std::string_view name)
 	{
 		widget_cloner cloner = [=, sub_data_getter = std::move(sub_data_getter)](
-								   widget_factory const& factory, data_type*& data_proxy) {
-			return factory.create(data_reader<sub_data_type>([&]() -> sub_data_type const* {
+								   widget_factory const& factory, DataType*& data_proxy) {
+			return factory.create(data_reader<SubDataType>([&]() -> SubDataType const* {
 				if(data_proxy != nullptr)
 				{
 					return sub_data_getter(*data_proxy);
@@ -82,11 +82,11 @@ public:
 		_widget_cloners.push_back(std::move(cloner));
 	}
 
-	template <typename sub_data_type>
-	void add_sub_editor(sub_data_type data_type::*data_member, std::string_view name)
+	template <typename SubDataType>
+	void add_sub_editor(SubDataType DataType::*data_member, std::string_view name)
 	{
-		widget_cloner cloner = [=](widget_factory const& factory, data_type*& data_proxy) {
-			return factory.create(data_writer<sub_data_type>([&]() -> sub_data_type* {
+		widget_cloner cloner = [=](widget_factory const& factory, DataType*& data_proxy) {
+			return factory.create(data_writer<SubDataType>([&]() -> SubDataType* {
 				if(data_proxy != nullptr)
 				{
 					return &(data_proxy->*data_member);
@@ -102,12 +102,12 @@ public:
 		_widget_cloners.push_back(std::move(cloner));
 	}
 
-	template <typename sub_data_type>
-	void add_sub_editor(std::function<sub_data_type*(data_type&)> sub_data_getter, std::string_view name)
+	template <typename SubDataType>
+	void add_sub_editor(std::function<SubDataType*(DataType&)> sub_data_getter, std::string_view name)
 	{
 		widget_cloner cloner = [=, sub_data_getter = std::move(sub_data_getter)](
-								   widget_factory const& factory, data_type*& data_proxy) {
-			return factory.create(data_writer<sub_data_type>([&]() -> sub_data_type* {
+								   widget_factory const& factory, DataType*& data_proxy) {
+			return factory.create(data_writer<SubDataType>([&]() -> SubDataType* {
 				if(data_proxy != nullptr)
 				{
 					return sub_data_getter(*data_proxy);
@@ -123,15 +123,15 @@ public:
 		_widget_cloners.push_back(std::move(cloner));
 	}
 
-	template <typename sub_data_type>
-	void add_sub_editor(std::function<sub_data_type*(data_type&)> sub_data_getter,
-		std::function<void(data_type&, sub_data_type*)> sub_data_setter, std::string_view name)
+	template <typename SubDataType>
+	void add_sub_editor(std::function<SubDataType*(DataType&)> sub_data_getter,
+		std::function<void(DataType&, SubDataType*)> sub_data_setter, std::string_view name)
 	{
 		widget_cloner cloner = [=, sub_data_getter = std::move(sub_data_getter),
 								   sub_data_setter = std::move(sub_data_setter)](
-								   widget_factory const& factory, data_type*& data_proxy) {
+								   widget_factory const& factory, DataType*& data_proxy) {
 			return factory.create(
-				data_reader<sub_data_type>([&]() -> sub_data_type* {
+				data_reader<SubDataType>([&]() -> SubDataType* {
 					if(data_proxy != nullptr)
 					{
 						return sub_data_getter(*data_proxy);
@@ -141,7 +141,7 @@ public:
 						return nullptr;
 					}
 				}),
-				[&](sub_data_type* new_sub_data) {
+				[&](SubDataType* new_sub_data) {
 					if(data_proxy != nullptr)
 					{
 						sub_data_setter(data_proxy, new_sub_data);
@@ -154,13 +154,13 @@ public:
 	}
 
 private:
-	using widget_cloner = std::function<std::unique_ptr<widget>(widget_factory const&, data_type*&)>;
+	using widget_cloner = std::function<std::unique_ptr<widget>(widget_factory const&, DataType*&)>;
 
-	mutable data_type* _data_proxy = nullptr;
+	mutable DataType* _data_proxy = nullptr;
 	std::vector<std::unique_ptr<widget>> _widgets;
 	std::vector<widget_cloner> _widget_cloners;
 
-	auto draw_contents(data_type& data) const -> bool final
+	auto draw_contents(DataType& data) const -> bool final
 	{
 		_data_proxy = &data;
 

@@ -32,9 +32,9 @@ class bounded;
 namespace clk::gui
 {
 
-template <typename data_type>
+template <typename DataType>
 class editor_of;
-template <typename data_type>
+template <typename DataType>
 class viewer_of;
 
 auto create_default_factory() -> std::shared_ptr<widget_factory>

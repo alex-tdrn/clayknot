@@ -41,9 +41,9 @@
 #include <utility>
 #include <vector>
 
-void APIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei /*length*/,
+void APIENTRY gl_debug_output(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei /*length*/,
 	const GLchar* message, const void* /*userParam*/);
-void ImGuiCherryStyle();
+void im_gui_cherry_style();
 
 auto main(int /*argc*/, char** /*argv*/) -> int
 {
@@ -276,7 +276,7 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 }
 
 // NOLINTNEXTLINE
-void glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei /*length*/, const GLchar* message,
+void gl_debug_output(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei /*length*/, const GLchar* message,
 	const void* /*userParam*/)
 {
 	std::cout << "-----------------------------------\n"
