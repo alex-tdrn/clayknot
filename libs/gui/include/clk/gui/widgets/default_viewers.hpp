@@ -173,6 +173,7 @@ inline void viewer_of<std::chrono::nanoseconds>::draw_contents(std::chrono::nano
 template <>
 inline void viewer_of<std::string>::draw_contents(std::string const& data) const
 {
+	ImGui::PushItemWidth(ImGui::CalcTextSize(data.c_str()).x + ImGui::GetFontSize());
 	ImGui::Text("%s", data.c_str());
 }
 
