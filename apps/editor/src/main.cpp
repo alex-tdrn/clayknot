@@ -30,6 +30,10 @@
 
 #include <GLFW/glfw3.h>
 
+#include "clk/clkvk/application_info.hpp"
+#include "clk/clkvk/instance.hpp"
+#include "clk/clkvk/window.hpp"
+
 #include <cstddef>
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
@@ -110,6 +114,9 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 		auto widget_factory = clk::gui::create_default_factory();
 
 		auto graph1 = clk::graph{};
+		graph1.add_node(std::make_unique<clk::algorithm_node>(std::make_unique<clk::clkvk::application_info>()));
+		graph1.add_node(std::make_unique<clk::algorithm_node>(std::make_unique<clk::clkvk::instance>()));
+		graph1.add_node(std::make_unique<clk::algorithm_node>(std::make_unique<clk::clkvk::window>()));
 
 		clk::gui::panel::create_orphan(widget_factory->create(graph1, "graph1 editor"));
 
