@@ -10,6 +10,7 @@
 #include <imgui_stdlib.h>
 #include <range/v3/view.hpp>
 #include <string>
+#include <type_traits>
 
 namespace clk::gui
 {
@@ -20,18 +21,135 @@ inline auto editor_of<bool>::draw_contents(bool& data) const -> bool
 	return ImGui::Checkbox("##", &data);
 }
 
+namespace impl
+{
+template <typename Scalar>
+constexpr auto fundamental_type_to_scalar_enum() -> ImGuiDataType_
+{
+	constexpr auto size = sizeof(Scalar);
+	if constexpr(std::is_floating_point_v<Scalar>)
+	{
+		if constexpr(size == 32)
+		{
+			return ImGuiDataType_Float;
+		}
+		else if constexpr(size == 64)
+		{
+			return ImGuiDataType_Double;
+		}
+	}
+	else if constexpr(std::is_unsigned_v<Scalar>)
+	{
+		if constexpr(size == 8)
+		{
+			return ImGuiDataType_U8;
+		}
+		else if constexpr(size == 16)
+		{
+			return ImGuiDataType_U16;
+		}
+		else if constexpr(size == 32)
+		{
+			return ImGuiDataType_U32;
+		}
+		else if constexpr(size == 64)
+		{
+			return ImGuiDataType_U64;
+		}
+	}
+	else
+	{
+		if constexpr(size == 8)
+		{
+			return ImGuiDataType_S8;
+		}
+		else if constexpr(size == 16)
+		{
+			return ImGuiDataType_S16;
+		}
+		else if constexpr(size == 32)
+		{
+			return ImGuiDataType_S32;
+		}
+		else if constexpr(size == 64)
+		{
+			return ImGuiDataType_S64;
+		}
+	}
+
+	return ImGuiDataType_COUNT;
+}
+
+} // namespace impl
+
+template <>
+inline auto editor_of<short int>::draw_contents(short int& data) const -> bool
+{
+	ImGui::SetNextItemWidth(available_width());
+	return ImGui::DragScalar("##", impl::fundamental_type_to_scalar_enum<short int>(), &data);
+}
+
+template <>
+inline auto editor_of<unsigned short int>::draw_contents(unsigned short int& data) const -> bool
+{
+	ImGui::SetNextItemWidth(available_width());
+	return ImGui::DragScalar("##", impl::fundamental_type_to_scalar_enum<unsigned short int>(), &data);
+}
+
 template <>
 inline auto editor_of<int>::draw_contents(int& data) const -> bool
 {
 	ImGui::SetNextItemWidth(available_width());
-	return ImGui::DragInt("##", &data);
+	return ImGui::DragScalar("##", impl::fundamental_type_to_scalar_enum<int>(), &data);
+}
+
+template <>
+inline auto editor_of<unsigned int>::draw_contents(unsigned int& data) const -> bool
+{
+	ImGui::SetNextItemWidth(available_width());
+	return ImGui::DragScalar("##", impl::fundamental_type_to_scalar_enum<unsigned int>(), &data);
+}
+
+template <>
+inline auto editor_of<long int>::draw_contents(long int& data) const -> bool
+{
+	ImGui::SetNextItemWidth(available_width());
+	return ImGui::DragScalar("##", impl::fundamental_type_to_scalar_enum<long int>(), &data);
+}
+
+template <>
+inline auto editor_of<unsigned long int>::draw_contents(unsigned long int& data) const -> bool
+{
+	ImGui::SetNextItemWidth(available_width());
+	return ImGui::DragScalar("##", impl::fundamental_type_to_scalar_enum<unsigned long int>(), &data);
+}
+
+template <>
+inline auto editor_of<long long int>::draw_contents(long long int& data) const -> bool
+{
+	ImGui::SetNextItemWidth(available_width());
+	return ImGui::DragScalar("##", impl::fundamental_type_to_scalar_enum<long long int>(), &data);
+}
+
+template <>
+inline auto editor_of<unsigned long long int>::draw_contents(unsigned long long int& data) const -> bool
+{
+	ImGui::SetNextItemWidth(available_width());
+	return ImGui::DragScalar("##", impl::fundamental_type_to_scalar_enum<unsigned long long int>(), &data);
 }
 
 template <>
 inline auto editor_of<float>::draw_contents(float& data) const -> bool
 {
 	ImGui::SetNextItemWidth(available_width());
-	return ImGui::DragFloat("##", &data, 0.01f);
+	return ImGui::DragScalar("##", impl::fundamental_type_to_scalar_enum<float>(), &data, 0.01f);
+}
+
+template <>
+inline auto editor_of<double>::draw_contents(double& data) const -> bool
+{
+	ImGui::SetNextItemWidth(available_width());
+	return ImGui::DragScalar("##", impl::fundamental_type_to_scalar_enum<double>(), &data, 0.01f);
 }
 
 template <>

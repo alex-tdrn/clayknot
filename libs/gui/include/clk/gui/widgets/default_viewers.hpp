@@ -24,6 +24,20 @@ inline void viewer_of<bool>::draw_contents(bool const& data) const
 }
 
 template <>
+inline void viewer_of<short int>::draw_contents(short int const& data) const
+{
+	ImGui::SameLine();
+	ImGui::Text("%hi", data);
+}
+
+template <>
+inline void viewer_of<unsigned short int>::draw_contents(unsigned short int const& data) const
+{
+	ImGui::SameLine();
+	ImGui::Text("%hu", data);
+}
+
+template <>
 inline void viewer_of<int>::draw_contents(int const& data) const
 {
 	ImGui::SameLine();
@@ -31,7 +45,49 @@ inline void viewer_of<int>::draw_contents(int const& data) const
 }
 
 template <>
+inline void viewer_of<unsigned int>::draw_contents(unsigned int const& data) const
+{
+	ImGui::SameLine();
+	ImGui::Text("%u", data);
+}
+
+template <>
+inline void viewer_of<long int>::draw_contents(long int const& data) const
+{
+	ImGui::SameLine();
+	ImGui::Text("%li", data);
+}
+
+template <>
+inline void viewer_of<unsigned long int>::draw_contents(unsigned long int const& data) const
+{
+	ImGui::SameLine();
+	ImGui::Text("%lu", data);
+}
+
+template <>
+inline void viewer_of<long long int>::draw_contents(long long int const& data) const
+{
+	ImGui::SameLine();
+	ImGui::Text("%lli", data);
+}
+
+template <>
+inline void viewer_of<unsigned long long int>::draw_contents(unsigned long long int const& data) const
+{
+	ImGui::SameLine();
+	ImGui::Text("%llu", data);
+}
+
+template <>
 inline void viewer_of<float>::draw_contents(float const& data) const
+{
+	ImGui::SameLine();
+	ImGui::Text("%.3f", data);
+}
+
+template <>
+inline void viewer_of<double>::draw_contents(double const& data) const
 {
 	ImGui::SameLine();
 	ImGui::Text("%.3f", data);
