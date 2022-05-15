@@ -123,29 +123,10 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 		frametimes_panel.set_interactivity(false);
 		frametimes_panel.set_opactiy(0.5f);
 
-		clk::profiler profiler_empty;
-		profiler_empty.set_active(false);
-		clk::profiler profiler_draw;
-		profiler_draw.set_active(false);
-		clk::profiler profiler_swap;
-		profiler_swap.set_active(false);
-
-		{
-			auto profiler_tree = std::make_unique<clk::gui::widget_tree>("Extra profilers");
-			profiler_tree->get_subtree("Profiler overhead")
-				.add(widget_factory->create(profiler_empty, "Profiler overhead"));
-			profiler_tree->get_subtree("GUI Draw").add(widget_factory->create(profiler_draw, "GUI Draw"));
-			profiler_tree->get_subtree("Swap buffers").add(widget_factory->create(profiler_swap, "Swap buffers"));
-			clk::gui::panel::create_orphan(std::move(profiler_tree));
-		}
-
 		while(glfwWindowShouldClose(window) == 0)
 		{
 			profiler_frame.record_sample_end();
 			profiler_frame.record_sample_start();
-
-			profiler_empty.record_sample_start();
-			profiler_empty.record_sample_end();
 
 			glfwPollEvents();
 			ImGui_ImplOpenGL3_NewFrame();
@@ -159,10 +140,8 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 			glClearColor(0, 0, 0, 1);
 			glClear(GL_COLOR_BUFFER_BIT);
 
-			profiler_draw.record_sample_start();
 			clk::gui::draw();
 			ImGui::Render();
-			profiler_draw.record_sample_end();
 
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
@@ -174,9 +153,7 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 				glfwMakeContextCurrent(backup_current_context);
 			}
 
-			profiler_swap.record_sample_start();
 			glfwSwapBuffers(window);
-			profiler_swap.record_sample_end();
 		}
 
 		ImPlot::DestroyContext();
