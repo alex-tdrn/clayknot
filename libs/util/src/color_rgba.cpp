@@ -111,51 +111,51 @@ auto color_rgba::operator-=(color_rgba const& that) -> color_rgba&
 	return *this;
 }
 
-inline auto color_rgba::operator*=(color_rgba const& that) -> color_rgba&
+auto color_rgba::operator*=(color_rgba const& that) -> color_rgba&
 {
 	_rgb_value *= that._rgb_value;
 	_alpha_value *= that._alpha_value;
 	return *this;
 }
 
-inline auto color_rgba::operator/=(color_rgba const& that) -> color_rgba&
+auto color_rgba::operator/=(color_rgba const& that) -> color_rgba&
 {
 	_rgb_value /= that._rgb_value;
 	_alpha_value /= that._alpha_value;
 	return *this;
 }
 
-inline auto color_rgba::data() -> float*
+auto color_rgba::data() -> float*
 {
 	return _rgb_value.data();
 }
 
-inline auto color_rgba::r() const -> float
+auto color_rgba::r() const -> float
 {
 	return _rgb_value.r();
 }
 
-inline auto color_rgba::g() const -> float
+auto color_rgba::g() const -> float
 {
 	return _rgb_value.g();
 }
 
-inline auto color_rgba::b() const -> float
+auto color_rgba::b() const -> float
 {
 	return _rgb_value.b();
 }
 
-inline auto color_rgba::a() const -> float
+auto color_rgba::a() const -> float
 {
 	return _alpha_value;
 }
 
-inline auto color_rgba::ru8() const -> std::uint8_t
+auto color_rgba::ru8() const -> std::uint8_t
 {
 	return _rgb_value.ru8();
 }
 
-inline auto color_rgba::gu8() const -> std::uint8_t
+auto color_rgba::gu8() const -> std::uint8_t
 {
 	return _rgb_value.gu8();
 }
