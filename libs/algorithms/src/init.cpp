@@ -2,6 +2,7 @@
 #include "clk/algorithms/boolean.hpp"
 #include "clk/algorithms/color.hpp"
 #include "clk/algorithms/math.hpp"
+#include "clk/algorithms/text.hpp"
 #include "clk/base/algorithm.hpp"
 
 namespace clk::algorithms
@@ -66,5 +67,8 @@ void init()
 	clk::algorithm::register_factory<boolean_xnor>();
 	clk::algorithm::register_factory<integer_to_boolean>();
 	clk::algorithm::register_factory<boolean_to_integer>();
+
+	clk::algorithm::register_factory<uppercase>();
+	clk::algorithm::register_factory<lowercase>();
 }
 } // namespace clk::algorithms

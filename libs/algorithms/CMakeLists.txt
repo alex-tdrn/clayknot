@@ -1,6 +1,6 @@
 add_library(algorithms)
 
-target_sources(algorithms PRIVATE "src/init.cpp" "src/boolean.cpp" "src/math.cpp" "src/color.cpp")
+target_sources(algorithms PRIVATE "src/init.cpp" "src/boolean.cpp" "src/math.cpp" "src/color.cpp" "src/text.cpp")
 
 target_include_directories(algorithms PUBLIC "include")
 

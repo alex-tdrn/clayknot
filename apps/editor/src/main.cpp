@@ -1,6 +1,8 @@
 #include "clk/algorithms/boolean.hpp"
 #include "clk/algorithms/color.hpp"
 #include "clk/algorithms/init.hpp"
+#include "clk/algorithms/text.hpp"
+#include "clk/base/algorithm.hpp"
 #include "clk/base/algorithm_node.hpp"
 #include "clk/base/constant_node.hpp"
 #include "clk/base/graph.hpp"
@@ -178,12 +180,17 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 				std::make_unique<clk::algorithm_node>(std::make_unique<clk::algorithms::value_to_color>());
 			auto mix_colors = std::make_unique<clk::algorithm_node>(std::make_unique<clk::algorithms::mix_colors>());
 
+			auto lowercase = std::make_unique<clk::algorithm_node>(std::make_unique<clk::algorithms::lowercase>());
+			auto uppercase = std::make_unique<clk::algorithm_node>(std::make_unique<clk::algorithms::uppercase>());
+
 			clk::graph ret;
 
 			ret.add_node(std::move(random_color));
 			ret.add_node(std::move(decompose_color));
 			ret.add_node(std::move(value_to_color));
 			ret.add_node(std::move(mix_colors));
+			ret.add_node(std::move(lowercase));
+			ret.add_node(std::move(uppercase));
 			return ret;
 		}();
 
