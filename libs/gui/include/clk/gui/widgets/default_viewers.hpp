@@ -6,7 +6,9 @@
 #include "clk/util/color_rgba.hpp"
 #include "clk/util/time_unit.hpp"
 
+#include <imgui.h>
 #include <range/v3/view.hpp>
+#include <string>
 
 namespace clk::gui
 {
@@ -167,4 +169,11 @@ inline void viewer_of<std::chrono::nanoseconds>::draw_contents(std::chrono::nano
 		ImGui::NewLine();
 	}
 }
+
+template <>
+inline void viewer_of<std::string>::draw_contents(std::string const& data) const
+{
+	ImGui::Text("%s", data.c_str());
+}
+
 } // namespace clk::gui
