@@ -45,7 +45,7 @@ auto create_default_factory() -> std::shared_ptr<widget_factory>
 
 	using default_types = meta::type_list<bool, int, float, glm::vec2, glm::vec3, glm::vec4, clk::bounded<int>,
 		clk::bounded<float>, clk::bounded<glm::vec2>, clk::bounded<glm::vec3>, clk::bounded<glm::vec4>, clk::color_rgb,
-		clk::color_rgba, std::chrono::nanoseconds>;
+		clk::color_rgba, std::chrono::nanoseconds, std::string>;
 
 	default_types::for_each([&](auto* dummy) {
 		using current_type = std::remove_cv_t<std::remove_pointer_t<decltype(dummy)>>;

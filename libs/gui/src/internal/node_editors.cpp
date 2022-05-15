@@ -179,6 +179,8 @@ void constant_node_editor::draw_outputs()
 						constant_port = std::make_unique<output_of<float>>("Constant");
 					else if(ImGui::MenuItem("color"))
 						constant_port = std::make_unique<output_of<color_rgb>>("Constant");
+					else if(ImGui::MenuItem("string"))
+						constant_port = std::make_unique<output_of<std::string>>("Constant");
 
 					if(constant_port != nullptr)
 					{

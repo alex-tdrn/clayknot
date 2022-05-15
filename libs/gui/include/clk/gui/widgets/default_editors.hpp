@@ -6,7 +6,10 @@
 #include "clk/util/color_rgba.hpp"
 #include "clk/util/time_unit.hpp"
 
+#include <imgui.h>
+#include <imgui_stdlib.h>
 #include <range/v3/view.hpp>
+#include <string>
 
 namespace clk::gui
 {
@@ -384,5 +387,12 @@ inline auto editor_of<std::chrono::nanoseconds>::draw_contents(std::chrono::nano
 	data = time_unit::compose(time_units);
 
 	return data_modified;
+}
+
+template <>
+inline auto editor_of<std::string>::draw_contents(std::string& data) const -> bool
+{
+	ImGui::PushItemWidth(ImGui::CalcTextSize(data.c_str()).x + ImGui::GetFontSize());
+	return ImGui::InputText("##", &data);
 }
 } // namespace clk::gui
