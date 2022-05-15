@@ -1,5 +1,7 @@
 #pragma once
 
+#include "clk/base/input.hpp"
+#include "clk/base/output.hpp"
 #include <clk/base/algorithm.hpp>
 #include <vulkan/vulkan.hpp>
 
@@ -20,19 +22,20 @@ public:
 private:
 	void update() override;
 
-	vk::UniqueInstance _instance;
+	clk::input_of<vk::ApplicationInfo> _application_info;
+	clk::output_of<vk::UniqueInstance> _instance;
 };
 
 inline instance::instance()
 {
+	register_port(_application_info);
+
+	register_port(_instance);
 }
 
 inline void instance::update()
 {
-	if(!_instance)
-	{
-		auto app_info = vk::ApplicationInfo().setPApplicationName("Clayknot").setApplicationVersion(VK_API_VERSION_1_2);
-	}
+	// TODO
 }
 
 } // namespace clk::clkvk
