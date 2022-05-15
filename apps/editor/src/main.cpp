@@ -10,6 +10,7 @@
 #include "clk/base/node.hpp"
 #include "clk/base/output.hpp"
 #include "clk/base/port.hpp"
+#include "clk/clkvk/init.hpp"
 #include "clk/gui/init.hpp"
 #include "clk/gui/panel.hpp"
 #include "clk/gui/widgets/composite_editor.hpp"
@@ -105,108 +106,10 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 		style.Colors[ImNodesCol_NodeBackgroundSelected] = style.Colors[ImNodesCol_NodeBackground];
 
 		ImPlot::CreateContext();
-
-		clk::algorithms::init();
+		clk::clkvk::init();
 		auto widget_factory = clk::gui::create_default_factory();
 
-		struct test_struct
-		{
-			int a = 2;
-			float b = 3.0;
-			clk::color_rgba c = clk::color_rgba::create_random();
-			std::vector<int> d = {42, 13, 12, 6};
-			std::vector<std::string> e = {"AAAA", "gggg", "test", "test"};
-			std::vector<clk::color_rgb> f = {clk::color_rgb::create_random(), clk::color_rgb::create_random()};
-			std::vector<bool> g = {true, false, true};
-			clk::graph h = []() -> clk::graph {
-				clk::graph ret;
-				ret.add_node(std::make_unique<clk::algorithm_node>(std::make_unique<clk::algorithms::boolean_and>()));
-				ret.add_node(std::make_unique<clk::algorithm_node>(std::make_unique<clk::algorithms::boolean_nand>()));
-				ret.add_node(std::make_unique<clk::algorithm_node>(std::make_unique<clk::algorithms::boolean_or>()));
-				ret.add_node(std::make_unique<clk::algorithm_node>(std::make_unique<clk::algorithms::boolean_xor>()));
-				ret.add_node([]() {
-					auto node = std::make_unique<clk::constant_node>();
-					node->add_output(std::make_unique<clk::output_of<bool>>());
-					node->add_output(std::make_unique<clk::output_of<bool>>());
-
-					return node;
-				}());
-
-				return ret;
-			}();
-		};
-		test_struct composite_data;
-
-		widget_factory->register_viewer<test_struct>(
-			[](clk::gui::data_reader<test_struct> reader, std::shared_ptr<clk::gui::widget_factory> factory,
-				std::string_view name) {
-				auto viewer = std::make_unique<clk::gui::composite_viewer_of<test_struct>>(std::move(factory), name);
-				viewer->set_data_reader(std::move(reader));
-
-				viewer->add_sub_viewer(&test_struct::a, "a viewer");
-				viewer->add_sub_viewer(&test_struct::b, "b viewer");
-				viewer->add_sub_viewer<float>(
-					[result = 0.0f](test_struct const& t) mutable -> float const* {
-						result = static_cast<float>(t.a) + t.b;
-						return &result;
-					},
-					"a + b viewer");
-				viewer->add_sub_viewer(&test_struct::c, "c viewer");
-				viewer->add_sub_viewer(&test_struct::d, "d viewer");
-				viewer->add_sub_viewer(&test_struct::e, "e viewer");
-				viewer->add_sub_viewer(&test_struct::f, "f viewer");
-				viewer->add_sub_viewer(&test_struct::g, "g viewer");
-				viewer->add_sub_viewer(&test_struct::h, "h viewer");
-
-				return viewer;
-			});
-
-		widget_factory->register_editor<test_struct>(
-			[](clk::gui::data_writer<test_struct> writer, std::shared_ptr<clk::gui::widget_factory> factory,
-				std::string_view name) {
-				auto editor = std::make_unique<clk::gui::composite_editor_of<test_struct>>(std::move(factory), name);
-				editor->set_data_writer(std::move(writer));
-
-				editor->add_sub_editor(&test_struct::a, "a editor");
-				editor->add_sub_editor(&test_struct::b, "b editor");
-				editor->add_sub_editor(&test_struct::c, "c editor");
-				editor->add_sub_editor(&test_struct::d, "d editor");
-				editor->add_sub_editor(&test_struct::e, "e editor");
-				editor->add_sub_editor(&test_struct::f, "f editor");
-				editor->add_sub_editor(&test_struct::g, "g editor");
-				editor->add_sub_editor(&test_struct::h, "h editor");
-
-				return editor;
-			});
-
-		clk::gui::panel::create_orphan(widget_factory->create(std::as_const(composite_data), "composite data viewer"));
-
-		clk::gui::panel::create_orphan(widget_factory->create(composite_data, "composite data editor"));
-
-		auto graph1 = []() -> clk::graph {
-			auto random_color =
-				std::make_unique<clk::algorithm_node>(std::make_unique<clk::algorithms::random_color>());
-			auto decompose_color =
-				std::make_unique<clk::algorithm_node>(std::make_unique<clk::algorithms::decompose_color>());
-			auto value_to_color =
-				std::make_unique<clk::algorithm_node>(std::make_unique<clk::algorithms::value_to_color>());
-			auto mix_colors = std::make_unique<clk::algorithm_node>(std::make_unique<clk::algorithms::mix_colors>());
-
-			auto lowercase = std::make_unique<clk::algorithm_node>(std::make_unique<clk::algorithms::lowercase>());
-			auto uppercase = std::make_unique<clk::algorithm_node>(std::make_unique<clk::algorithms::uppercase>());
-
-			clk::graph ret;
-
-			ret.add_node(std::move(random_color));
-			ret.add_node(std::move(decompose_color));
-			ret.add_node(std::move(value_to_color));
-			ret.add_node(std::move(mix_colors));
-			ret.add_node(std::move(lowercase));
-			ret.add_node(std::move(uppercase));
-			return ret;
-		}();
-
-		clk::gui::panel::create_orphan(widget_factory->create(std::as_const(graph1), "graph1 viewer"));
+		auto graph1 = clk::graph{};
 
 		clk::gui::panel::create_orphan(widget_factory->create(graph1, "graph1 editor"));
 

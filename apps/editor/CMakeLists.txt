@@ -5,6 +5,7 @@ target_link_libraries(
 	PRIVATE clayknot::base
 			clayknot::algorithms
 			clayknot::gui
+			clayknot::clkvk
 			glad::glad
 			glfw
 			imgui
