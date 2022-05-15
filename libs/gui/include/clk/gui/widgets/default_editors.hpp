@@ -8,6 +8,7 @@
 
 #include <imgui.h>
 #include <imgui_stdlib.h>
+#include <limits>
 #include <range/v3/view.hpp>
 #include <string>
 #include <type_traits>
@@ -29,49 +30,49 @@ constexpr auto fundamental_type_to_scalar_enum() -> ImGuiDataType_
 	constexpr auto size = sizeof(Scalar);
 	if constexpr(std::is_floating_point_v<Scalar>)
 	{
-		if constexpr(size == 32)
+		if constexpr(size == 4)
 		{
 			return ImGuiDataType_Float;
 		}
-		else if constexpr(size == 64)
+		else if constexpr(size == 8)
 		{
 			return ImGuiDataType_Double;
 		}
 	}
 	else if constexpr(std::is_unsigned_v<Scalar>)
 	{
-		if constexpr(size == 8)
+		if constexpr(size == 1)
 		{
 			return ImGuiDataType_U8;
 		}
-		else if constexpr(size == 16)
+		else if constexpr(size == 2)
 		{
 			return ImGuiDataType_U16;
 		}
-		else if constexpr(size == 32)
+		else if constexpr(size == 4)
 		{
 			return ImGuiDataType_U32;
 		}
-		else if constexpr(size == 64)
+		else if constexpr(size == 8)
 		{
 			return ImGuiDataType_U64;
 		}
 	}
 	else
 	{
-		if constexpr(size == 8)
+		if constexpr(size == 1)
 		{
 			return ImGuiDataType_S8;
 		}
-		else if constexpr(size == 16)
+		else if constexpr(size == 2)
 		{
 			return ImGuiDataType_S16;
 		}
-		else if constexpr(size == 32)
+		else if constexpr(size == 4)
 		{
 			return ImGuiDataType_S32;
 		}
-		else if constexpr(size == 64)
+		else if constexpr(size == 8)
 		{
 			return ImGuiDataType_S64;
 		}
@@ -83,59 +84,95 @@ constexpr auto fundamental_type_to_scalar_enum() -> ImGuiDataType_
 } // namespace impl
 
 template <>
+inline auto editor_of<signed char>::draw_contents(signed char& data) const -> bool
+{
+	ImGui::SetNextItemWidth(available_width());
+	auto min = std::numeric_limits<signed char>::min();
+	auto max = std::numeric_limits<signed char>::max();
+	return ImGui::DragScalar("##", impl::fundamental_type_to_scalar_enum<signed char>(), &data, 1.0f, &min, &max);
+}
+
+template <>
+inline auto editor_of<unsigned char>::draw_contents(unsigned char& data) const -> bool
+{
+	ImGui::SetNextItemWidth(available_width());
+	auto min = std::numeric_limits<unsigned char>::min();
+	auto max = std::numeric_limits<unsigned char>::max();
+	return ImGui::DragScalar("##", impl::fundamental_type_to_scalar_enum<unsigned char>(), &data, 1.0f, &min, &max);
+}
+
+template <>
 inline auto editor_of<short int>::draw_contents(short int& data) const -> bool
 {
 	ImGui::SetNextItemWidth(available_width());
-	return ImGui::DragScalar("##", impl::fundamental_type_to_scalar_enum<short int>(), &data);
+	auto min = std::numeric_limits<short int>::min();
+	auto max = std::numeric_limits<short int>::max();
+	return ImGui::DragScalar("##", impl::fundamental_type_to_scalar_enum<short int>(), &data, 1.0f, &min, &max);
 }
 
 template <>
 inline auto editor_of<unsigned short int>::draw_contents(unsigned short int& data) const -> bool
 {
 	ImGui::SetNextItemWidth(available_width());
-	return ImGui::DragScalar("##", impl::fundamental_type_to_scalar_enum<unsigned short int>(), &data);
+	auto min = std::numeric_limits<unsigned short int>::min();
+	auto max = std::numeric_limits<unsigned short int>::max();
+	return ImGui::DragScalar(
+		"##", impl::fundamental_type_to_scalar_enum<unsigned short int>(), &data, 1.0f, &min, &max);
 }
 
 template <>
 inline auto editor_of<int>::draw_contents(int& data) const -> bool
 {
 	ImGui::SetNextItemWidth(available_width());
-	return ImGui::DragScalar("##", impl::fundamental_type_to_scalar_enum<int>(), &data);
+	auto min = std::numeric_limits<int>::min();
+	auto max = std::numeric_limits<int>::max();
+	return ImGui::DragScalar("##", impl::fundamental_type_to_scalar_enum<int>(), &data, 1.0f, &min, &max);
 }
 
 template <>
 inline auto editor_of<unsigned int>::draw_contents(unsigned int& data) const -> bool
 {
 	ImGui::SetNextItemWidth(available_width());
-	return ImGui::DragScalar("##", impl::fundamental_type_to_scalar_enum<unsigned int>(), &data);
+	auto min = std::numeric_limits<unsigned int>::min();
+	auto max = std::numeric_limits<unsigned int>::max();
+	return ImGui::DragScalar("##", impl::fundamental_type_to_scalar_enum<unsigned int>(), &data, 1.0f, &min, &max);
 }
 
 template <>
 inline auto editor_of<long int>::draw_contents(long int& data) const -> bool
 {
 	ImGui::SetNextItemWidth(available_width());
-	return ImGui::DragScalar("##", impl::fundamental_type_to_scalar_enum<long int>(), &data);
+	auto min = std::numeric_limits<long int>::min();
+	auto max = std::numeric_limits<long int>::max();
+	return ImGui::DragScalar("##", impl::fundamental_type_to_scalar_enum<long int>(), &data, 1.0f, &min, &max);
 }
 
 template <>
 inline auto editor_of<unsigned long int>::draw_contents(unsigned long int& data) const -> bool
 {
 	ImGui::SetNextItemWidth(available_width());
-	return ImGui::DragScalar("##", impl::fundamental_type_to_scalar_enum<unsigned long int>(), &data);
+	auto min = std::numeric_limits<unsigned long int>::min();
+	auto max = std::numeric_limits<unsigned long int>::max();
+	return ImGui::DragScalar("##", impl::fundamental_type_to_scalar_enum<unsigned long int>(), &data, 1.0f, &min, &max);
 }
 
 template <>
 inline auto editor_of<long long int>::draw_contents(long long int& data) const -> bool
 {
 	ImGui::SetNextItemWidth(available_width());
-	return ImGui::DragScalar("##", impl::fundamental_type_to_scalar_enum<long long int>(), &data);
+	auto min = std::numeric_limits<long long int>::min();
+	auto max = std::numeric_limits<long long int>::max();
+	return ImGui::DragScalar("##", impl::fundamental_type_to_scalar_enum<long long int>(), &data, 1.0f, &min, &max);
 }
 
 template <>
 inline auto editor_of<unsigned long long int>::draw_contents(unsigned long long int& data) const -> bool
 {
 	ImGui::SetNextItemWidth(available_width());
-	return ImGui::DragScalar("##", impl::fundamental_type_to_scalar_enum<unsigned long long int>(), &data);
+	auto min = std::numeric_limits<unsigned long long int>::min();
+	auto max = std::numeric_limits<unsigned long long int>::max();
+	return ImGui::DragScalar(
+		"##", impl::fundamental_type_to_scalar_enum<unsigned long long int>(), &data, 1.0f, &min, &max);
 }
 
 template <>
@@ -508,9 +545,24 @@ inline auto editor_of<std::chrono::nanoseconds>::draw_contents(std::chrono::nano
 }
 
 template <>
+inline auto editor_of<char>::draw_contents(char& data) const -> bool
+{
+	ImGui::SetNextItemWidth(available_width());
+	std::array<char, 2> buffer = {data, '\0'};
+
+	if(ImGui::InputText(
+		   "##", buffer.data(), 2, ImGuiInputTextFlags_AlwaysOverwrite | ImGuiInputTextFlags_AutoSelectAll))
+	{
+		data = buffer[0];
+		return true;
+	}
+	return false;
+}
+
+template <>
 inline auto editor_of<std::string>::draw_contents(std::string& data) const -> bool
 {
-	ImGui::PushItemWidth(ImGui::CalcTextSize(data.c_str()).x + ImGui::GetFontSize());
+	ImGui::PushItemWidth(available_width());
 	return ImGui::InputText("##", &data);
 }
 } // namespace clk::gui

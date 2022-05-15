@@ -9,6 +9,7 @@
 #include <imgui.h>
 #include <range/v3/view.hpp>
 #include <string>
+#include <type_traits>
 
 namespace clk::gui
 {
@@ -21,6 +22,20 @@ inline void viewer_of<bool>::draw_contents(bool const& data) const
 		ImGui::Text("True");
 	else
 		ImGui::Text("False");
+}
+
+template <>
+inline void viewer_of<signed char>::draw_contents(signed char const& data) const
+{
+	ImGui::SameLine();
+	ImGui::Text("%c", data);
+}
+
+template <>
+inline void viewer_of<unsigned char>::draw_contents(unsigned char const& data) const
+{
+	ImGui::SameLine();
+	ImGui::Text("%cu", data);
 }
 
 template <>
@@ -227,9 +242,22 @@ inline void viewer_of<std::chrono::nanoseconds>::draw_contents(std::chrono::nano
 }
 
 template <>
+inline void viewer_of<char>::draw_contents(char const& data) const
+{
+	ImGui::SameLine();
+	if constexpr(std::is_unsigned_v<char>)
+	{
+		ImGui::Text("%cu", data);
+	}
+	else
+	{
+		ImGui::Text("%c", data);
+	}
+}
+
+template <>
 inline void viewer_of<std::string>::draw_contents(std::string const& data) const
 {
-	ImGui::PushItemWidth(ImGui::CalcTextSize(data.c_str()).x + ImGui::GetFontSize());
 	ImGui::Text("%s", data.c_str());
 }
 
