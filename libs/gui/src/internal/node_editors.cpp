@@ -173,12 +173,34 @@ void constant_node_editor::draw_outputs()
 				{
 					std::unique_ptr<output> constant_port = nullptr;
 
-					if(ImGui::MenuItem("int"))
+					if(ImGui::MenuItem("signed char"))
+						constant_port = std::make_unique<output_of<signed char>>("Constant");
+					else if(ImGui::MenuItem("unsigned char"))
+						constant_port = std::make_unique<output_of<unsigned char>>("Constant");
+					else if(ImGui::MenuItem("short int"))
+						constant_port = std::make_unique<output_of<short int>>("Constant");
+					else if(ImGui::MenuItem("unsigned short int"))
+						constant_port = std::make_unique<output_of<unsigned short int>>("Constant");
+					else if(ImGui::MenuItem("int"))
 						constant_port = std::make_unique<output_of<int>>("Constant");
+					else if(ImGui::MenuItem("unsigned int"))
+						constant_port = std::make_unique<output_of<unsigned int>>("Constant");
+					else if(ImGui::MenuItem("long int"))
+						constant_port = std::make_unique<output_of<long int>>("Constant");
+					else if(ImGui::MenuItem("unsigned long int"))
+						constant_port = std::make_unique<output_of<unsigned long int>>("Constant");
+					else if(ImGui::MenuItem("long long int"))
+						constant_port = std::make_unique<output_of<long long int>>("Constant");
+					else if(ImGui::MenuItem("unsigned long long int"))
+						constant_port = std::make_unique<output_of<unsigned long long int>>("Constant");
 					else if(ImGui::MenuItem("float"))
 						constant_port = std::make_unique<output_of<float>>("Constant");
+					else if(ImGui::MenuItem("double"))
+						constant_port = std::make_unique<output_of<double>>("Constant");
 					else if(ImGui::MenuItem("color"))
 						constant_port = std::make_unique<output_of<color_rgb>>("Constant");
+					else if(ImGui::MenuItem("char"))
+						constant_port = std::make_unique<output_of<char>>("Constant");
 					else if(ImGui::MenuItem("string"))
 						constant_port = std::make_unique<output_of<std::string>>("Constant");
 

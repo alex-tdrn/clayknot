@@ -9,6 +9,7 @@
 #include <imgui.h>
 #include <range/v3/view.hpp>
 #include <string>
+#include <type_traits>
 
 namespace clk::gui
 {
@@ -24,6 +25,34 @@ inline void viewer_of<bool>::draw_contents(bool const& data) const
 }
 
 template <>
+inline void viewer_of<signed char>::draw_contents(signed char const& data) const
+{
+	ImGui::SameLine();
+	ImGui::Text("%c", data);
+}
+
+template <>
+inline void viewer_of<unsigned char>::draw_contents(unsigned char const& data) const
+{
+	ImGui::SameLine();
+	ImGui::Text("%cu", data);
+}
+
+template <>
+inline void viewer_of<short int>::draw_contents(short int const& data) const
+{
+	ImGui::SameLine();
+	ImGui::Text("%hi", data);
+}
+
+template <>
+inline void viewer_of<unsigned short int>::draw_contents(unsigned short int const& data) const
+{
+	ImGui::SameLine();
+	ImGui::Text("%hu", data);
+}
+
+template <>
 inline void viewer_of<int>::draw_contents(int const& data) const
 {
 	ImGui::SameLine();
@@ -31,7 +60,49 @@ inline void viewer_of<int>::draw_contents(int const& data) const
 }
 
 template <>
+inline void viewer_of<unsigned int>::draw_contents(unsigned int const& data) const
+{
+	ImGui::SameLine();
+	ImGui::Text("%u", data);
+}
+
+template <>
+inline void viewer_of<long int>::draw_contents(long int const& data) const
+{
+	ImGui::SameLine();
+	ImGui::Text("%li", data);
+}
+
+template <>
+inline void viewer_of<unsigned long int>::draw_contents(unsigned long int const& data) const
+{
+	ImGui::SameLine();
+	ImGui::Text("%lu", data);
+}
+
+template <>
+inline void viewer_of<long long int>::draw_contents(long long int const& data) const
+{
+	ImGui::SameLine();
+	ImGui::Text("%lli", data);
+}
+
+template <>
+inline void viewer_of<unsigned long long int>::draw_contents(unsigned long long int const& data) const
+{
+	ImGui::SameLine();
+	ImGui::Text("%llu", data);
+}
+
+template <>
 inline void viewer_of<float>::draw_contents(float const& data) const
+{
+	ImGui::SameLine();
+	ImGui::Text("%.3f", data);
+}
+
+template <>
+inline void viewer_of<double>::draw_contents(double const& data) const
 {
 	ImGui::SameLine();
 	ImGui::Text("%.3f", data);
@@ -171,9 +242,22 @@ inline void viewer_of<std::chrono::nanoseconds>::draw_contents(std::chrono::nano
 }
 
 template <>
+inline void viewer_of<char>::draw_contents(char const& data) const
+{
+	ImGui::SameLine();
+	if constexpr(std::is_unsigned_v<char>)
+	{
+		ImGui::Text("%cu", data);
+	}
+	else
+	{
+		ImGui::Text("%c", data);
+	}
+}
+
+template <>
 inline void viewer_of<std::string>::draw_contents(std::string const& data) const
 {
-	ImGui::PushItemWidth(ImGui::CalcTextSize(data.c_str()).x + ImGui::GetFontSize());
 	ImGui::Text("%s", data.c_str());
 }
 
