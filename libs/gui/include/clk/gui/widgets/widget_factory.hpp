@@ -1,5 +1,6 @@
 #pragma once
 
+#include "clk/gui/widgets/container_viewers.hpp"
 #include "clk/gui/widgets/editor.hpp"
 #include "clk/gui/widgets/viewer.hpp"
 #include "clk/gui/widgets/widget.hpp"
@@ -38,11 +39,10 @@ public:
 			   _editor_factories.end();
 	}
 
-	template <typename DataType>
+	template <typename DataType, bool RegisterContainerWidgets = true>
 	void register_viewer(
 		std::function<std::unique_ptr<viewer>(data_reader<DataType>, std::shared_ptr<widget_factory>, std::string_view)>
-			factory,
-		bool register_container_widgets = true)
+			factory)
 	{
 		auto data_reader_hash = std::type_index(typeid(data_reader<DataType>)).hash_code();
 		_viewer_factories[data_reader_hash] = [this, factory = std::move(factory)](
@@ -58,23 +58,22 @@ public:
 			}};
 		};
 
-		if(register_container_widgets)
+		if constexpr(RegisterContainerWidgets)
 		{
-			register_viewer<std::vector<DataType>, viewer_of<std::vector<DataType>>>(false);
+			register_viewer<std::vector<DataType>, vector_viewer<DataType>, false>();
 		}
 	}
 
-	template <typename DataType, typename ViewerImplementation>
-	void register_viewer(bool register_container_widgets = true)
+	template <typename DataType, typename ViewerImplementation, bool RegisterContainerWidgets = true>
+	void register_viewer()
 	{
-		register_viewer<DataType>(
+		register_viewer<DataType, RegisterContainerWidgets>(
 			[](data_reader<DataType> data_reader, std::shared_ptr<widget_factory> factory,
 				std::string_view name) -> std::unique_ptr<viewer> {
 				auto viewer = std::make_unique<ViewerImplementation>(std::move(factory), name);
 				viewer->set_data_reader(std::move(data_reader));
 				return viewer;
-			},
-			register_container_widgets);
+			});
 	}
 
 	template <typename DataType>
