@@ -28,8 +28,11 @@ public:
 	void set_name(std::string_view name);
 	auto name() const noexcept -> std::string_view;
 	void update_timestamp() noexcept;
+	void mark_as_faulty() const noexcept;
+	void mark_as_working() const noexcept;
 	void set_connection_changed_callback(std::function<void()> const& callback);
 	virtual auto timestamp() const noexcept -> clk::timestamp;
+	virtual auto is_faulty() const noexcept -> bool;
 	virtual auto data_pointer() const noexcept -> void const* = 0;
 	virtual auto data_type_hash() const noexcept -> std::size_t = 0;
 	virtual auto is_connected() const noexcept -> bool = 0;
@@ -50,6 +53,7 @@ protected:
 private:
 	std::string _name = "Unnamed";
 	clk::timestamp _timestamp;
+	mutable bool _faulty = false;
 	std::function<void()> _connection_changed_callback;
 };
 

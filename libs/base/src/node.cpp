@@ -61,11 +61,17 @@ auto node::error() const -> std::string const&
 void node::clear_error() const
 {
 	_last_error_message.clear();
+
+	for(auto* port : outputs())
+		port->mark_as_working();
 }
 
 void node::set_error(std::string_view error_message) const
 {
 	_last_error_message = error_message;
+
+	for(auto* port : outputs())
+		port->mark_as_faulty();
 }
 
 } // namespace clk

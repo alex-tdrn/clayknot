@@ -133,8 +133,23 @@ void graph_viewer::draw_graph(clk::graph const& graph) const
 		int link_id = 0;
 		for(auto& connection : _connections)
 		{
-			auto color = color_rgba(color_rgb::create_random(connection.first->data_type_hash()), 1.0f).packed();
-			ImNodes::PushColorStyle(ImNodesCol_Link, color);
+			if(connection.first->is_faulty() || connection.second->is_faulty())
+			{
+				const float t = std::chrono::duration_cast<std::chrono::duration<float, std::ratio<1, 1>>>(
+					std::chrono::steady_clock::now().time_since_epoch())
+									.count();
+				const float f = (std::cos(t * 20.0f) + 1.0f) / 2.0f;
+				auto c1 = color_rgba{1.0f, 0.0f, 0.0f, 1.0f};
+				auto c2 = color_rgba{1.0f};
+				auto error_color = (f * c1 + (1.0f - f) * c2).packed();
+				ImNodes::PushColorStyle(ImNodesCol_Link, error_color);
+			}
+			else
+			{
+				auto color = color_rgba(color_rgb::create_random(connection.first->data_type_hash()), 1.0f).packed();
+				ImNodes::PushColorStyle(ImNodesCol_Link, color);
+			}
+
 			ImNodes::Link(link_id++, _port_cache->widget_for(connection.first).id(),
 				_port_cache->widget_for(connection.second).id());
 			ImNodes::PopColorStyle();
