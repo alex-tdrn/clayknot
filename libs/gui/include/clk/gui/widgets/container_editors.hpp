@@ -73,15 +73,14 @@ public:
 
 		int insert_at = -1;
 		int erase_at = -1;
-		constexpr int widget_threshhold = 5;
-		const bool use_scrollarea = data.size() > widget_threshhold;
-		if(use_scrollarea)
-		{
-			ImGui::BeginChild("vector scrollarea",
-				ImVec2(base::available_width(),
-					static_cast<float>(widget_threshhold + 0.5f) * _stored_data_editor->last_size().y),
-				true);
-		}
+
+		const float total_contents_height =
+			ImGui::GetStyle().ItemSpacing.y * 4 + ImGui::GetTextLineHeightWithSpacing() +
+			static_cast<float>(data.size()) * (_stored_data_editor->last_size().y + ImGui::GetStyle().ItemSpacing.y);
+
+		ImGui::BeginChild(
+			"vector scrollarea", ImVec2(base::available_width(), std::min(total_contents_height, 150.0f)), true);
+
 		if(ImGui::SmallButton("+"))
 		{
 			insert_at = 0;
@@ -121,10 +120,7 @@ public:
 			data.erase(data.begin() + erase_at);
 		}
 
-		if(use_scrollarea)
-		{
-			ImGui::EndChild();
-		}
+		ImGui::EndChild();
 
 		return _any_element_modified || insert_at != -1 || erase_at != -1;
 	}

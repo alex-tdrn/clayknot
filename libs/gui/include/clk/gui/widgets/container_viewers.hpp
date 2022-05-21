@@ -57,15 +57,13 @@ public:
 	void draw_contents(std::vector<StoredDataType> const& data) const override
 	{
 		_current_draw_data = &data;
-		constexpr int widget_threshhold = 5;
-		const bool use_scrollarea = data.size() > widget_threshhold;
-		if(use_scrollarea)
-		{
-			ImGui::BeginChild("vector scrollarea",
-				ImVec2(base::available_width(),
-					static_cast<float>(widget_threshhold + 0.5f) * _stored_data_viewer->last_size().y),
-				true);
-		}
+
+		const float total_contents_height =
+			ImGui::GetStyle().ItemSpacing.y * 4 +
+			static_cast<float>(data.size()) * (_stored_data_viewer->last_size().y + ImGui::GetStyle().ItemSpacing.y);
+
+		ImGui::BeginChild(
+			"vector scrollarea", ImVec2(base::available_width(), std::min(total_contents_height, 150.0f)), true);
 
 		for(std::size_t i = 0; i < data.size(); i++)
 		{
@@ -77,10 +75,7 @@ public:
 			ImGui::PopID();
 		}
 
-		if(use_scrollarea)
-		{
-			ImGui::EndChild();
-		}
+		ImGui::EndChild();
 	}
 
 private:
