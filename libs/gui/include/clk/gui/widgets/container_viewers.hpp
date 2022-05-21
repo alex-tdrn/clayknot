@@ -21,7 +21,8 @@ public:
 		if constexpr(std::is_same_v<StoredDataType, bool>)
 		{
 			_stored_data_viewer = base::get_widget_factory()->create(
-				data_reader<StoredDataType>([this, current_flag = bool(true)]() mutable -> StoredDataType const* {
+				data_reader<bool>([this, current_flag = bool(true)]() mutable -> bool const* {
+					assert(_current_draw_data != nullptr);
 					current_flag = (*_current_draw_data)[_current_draw_index];
 					return &current_flag;
 				}),
@@ -31,6 +32,7 @@ public:
 		{
 			_stored_data_viewer =
 				base::get_widget_factory()->create(data_reader<StoredDataType>([this]() -> StoredDataType const* {
+					assert(_current_draw_data != nullptr);
 					return &(*_current_draw_data)[_current_draw_index];
 				}),
 					"");
