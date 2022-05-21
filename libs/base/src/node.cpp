@@ -10,6 +10,7 @@
 #include <range/v3/view/concat.hpp>
 #include <range/v3/view/transform.hpp>
 #include <range/v3/view/view.hpp>
+#include <vulkan/vulkan_core.h>
 
 namespace clk
 {
@@ -50,6 +51,21 @@ auto node::has_inputs() const -> bool
 auto node::has_outputs() const -> bool
 {
 	return outputs().size() != 0;
+}
+
+auto node::error() const -> std::string const&
+{
+	return _last_error_message;
+}
+
+void node::clear_error() const
+{
+	_last_error_message.clear();
+}
+
+void node::set_error(std::string_view error_message) const
+{
+	_last_error_message = error_message;
 }
 
 } // namespace clk

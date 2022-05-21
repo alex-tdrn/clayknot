@@ -3,6 +3,7 @@
 #include <chrono>
 #include <cmath>
 #include <random>
+#include <stdexcept>
 #include <utility>
 
 namespace clk::algorithms
@@ -96,8 +97,12 @@ divide_integers::divide_integers()
 
 void divide_integers::update()
 {
-	if(*_number_b != 0)
-		*_result = *_number_a / *_number_b;
+	if(*_number_b == 0)
+	{
+		throw std::runtime_error("Division by zero!");
+	}
+
+	*_result = *_number_a / *_number_b;
 }
 
 modulo::modulo()

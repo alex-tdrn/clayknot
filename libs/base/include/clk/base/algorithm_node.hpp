@@ -38,6 +38,7 @@ private:
 	auto sentinel_present() const -> bool;
 	auto update_possible() const -> bool;
 	auto update_needed() const -> bool;
+	void try_update() const;
 };
 
 } // namespace clk
