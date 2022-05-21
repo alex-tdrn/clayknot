@@ -77,6 +77,11 @@ void node_viewer::draw()
 		_port_cache->widget_for(port).draw();
 	ImGui::EndGroup();
 
+	if(!error_message.empty())
+	{
+		ImGui::TextColored({1.0f, 0.0f, 0.0f, 1.0f}, "%s", error_message.c_str());
+	}
+
 	ImNodes::EndNode();
 	_contents_width = ImGui::GetItemRectSize().x;
 
