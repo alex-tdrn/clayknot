@@ -65,11 +65,10 @@ public:
 		ImGui::BeginChild(
 			"vector scrollarea", ImVec2(base::available_width(), std::min(total_contents_height, 150.0f)), true);
 
-		for(std::size_t i = 0; i < data.size(); i++)
+		for(_current_draw_index = 0; _current_draw_index < data.size(); _current_draw_index++)
 		{
-			_current_draw_index = i;
-			ImGui::Text("%li: ", i);
-			ImGui::PushID(_current_draw_index);
+			ImGui::Text("%li: ", _current_draw_index);
+			ImGui::PushID(static_cast<int>(_current_draw_index));
 			ImGui::SameLine();
 			_stored_data_viewer->draw();
 			ImGui::PopID();

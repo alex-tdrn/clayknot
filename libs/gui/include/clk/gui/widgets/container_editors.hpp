@@ -88,7 +88,7 @@ public:
 
 		for(_current_draw_index = 0; _current_draw_index < data.size(); _current_draw_index++)
 		{
-			ImGui::PushID(_current_draw_index);
+			ImGui::PushID(static_cast<int>(_current_draw_index));
 
 			ImGui::BeginGroup();
 			if(ImGui::SmallButton("-"))
