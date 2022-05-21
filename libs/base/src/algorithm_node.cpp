@@ -55,7 +55,7 @@ auto algorithm_node::outputs() const -> port_range<clk::output*>
 
 void algorithm_node::pull(std::weak_ptr<clk::sentinel> const& sentinel)
 {
-	if(sentinel_present() || !update_possible())
+	if(sentinel_present() || !update_possible() || !error().empty())
 		return;
 
 	std::shared_ptr<clk::sentinel> sentinel_origin;
@@ -90,6 +90,8 @@ void algorithm_node::push(std::weak_ptr<clk::sentinel> const& sentinel)
 	{
 		_sentinel = sentinel;
 	}
+
+	clear_error();
 
 	node::pull(_sentinel);
 
