@@ -34,7 +34,17 @@ auto node::outputs() const -> port_range<clk::output*>
 void node::pull(std::weak_ptr<clk::sentinel> const& sentinel)
 {
 	for(auto* port : inputs())
+	{
+		if(port->is_faulty())
+		{
+			for(auto* port : outputs())
+			{
+				port->mark_as_faulty();
+			}
+			return;
+		}
 		port->pull(sentinel);
+	}
 }
 
 void node::push(std::weak_ptr<clk::sentinel> const& sentinel)
