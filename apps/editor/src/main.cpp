@@ -114,6 +114,9 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 			int a = 2;
 			float b = 3.0;
 			clk::color_rgba c = clk::color_rgba::create_random();
+			std::vector<int> d;
+			std::vector<std::string> e;
+			std::vector<clk::color_rgb> f;
 			clk::graph g = []() -> clk::graph {
 				clk::graph ret;
 				ret.add_node(std::make_unique<clk::algorithm_node>(std::make_unique<clk::algorithms::boolean_and>()));
@@ -148,6 +151,9 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 					},
 					"a + b viewer");
 				viewer->add_sub_viewer(&test_struct::c, "c viewer");
+				viewer->add_sub_viewer(&test_struct::d, "d viewer");
+				viewer->add_sub_viewer(&test_struct::e, "e viewer");
+				viewer->add_sub_viewer(&test_struct::f, "f viewer");
 				viewer->add_sub_viewer(&test_struct::g, "g viewer");
 
 				return viewer;
@@ -162,6 +168,9 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 				editor->add_sub_editor(&test_struct::a, "a editor");
 				editor->add_sub_editor(&test_struct::b, "b editor");
 				editor->add_sub_editor(&test_struct::c, "c editor");
+				editor->add_sub_editor(&test_struct::d, "d editor");
+				editor->add_sub_editor(&test_struct::e, "e editor");
+				editor->add_sub_editor(&test_struct::f, "f editor");
 				editor->add_sub_editor(&test_struct::g, "g editor");
 
 				return editor;
