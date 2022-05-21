@@ -10,6 +10,7 @@
 #include "clk/gui/widgets/widget_tree.hpp"
 #include "clk/util/color_rgb.hpp"
 #include "clk/util/color_rgba.hpp"
+#include "imgui_guard.hpp"
 #include "layout_solver.hpp"
 #include "node_viewers.hpp"
 #include "port_viewers.hpp"
@@ -133,6 +134,7 @@ void graph_viewer::draw_graph(clk::graph const& graph) const
 		int link_id = 0;
 		for(auto& connection : _connections)
 		{
+			imgui_guard link_style_guard;
 			if(connection.first->is_faulty() || connection.second->is_faulty())
 			{
 				const float t = std::chrono::duration_cast<std::chrono::duration<float, std::ratio<1, 1>>>(
@@ -142,17 +144,16 @@ void graph_viewer::draw_graph(clk::graph const& graph) const
 				auto c1 = color_rgba{1.0f, 0.0f, 0.0f, 1.0f};
 				auto c2 = color_rgba{1.0f};
 				auto error_color = (f * c1 + (1.0f - f) * c2).packed();
-				ImNodes::PushColorStyle(ImNodesCol_Link, error_color);
+				link_style_guard.push_color_style(ImNodesCol_Link, error_color);
 			}
 			else
 			{
 				auto color = color_rgba(color_rgb::create_random(connection.first->data_type_hash()), 1.0f).packed();
-				ImNodes::PushColorStyle(ImNodesCol_Link, color);
+				link_style_guard.push_color_style(ImNodesCol_Link, color);
 			}
 
 			ImNodes::Link(link_id++, _port_cache->widget_for(connection.first).id(),
 				_port_cache->widget_for(connection.second).id());
-			ImNodes::PopColorStyle();
 		}
 	}
 	ImNodes::MiniMap(0.1f);

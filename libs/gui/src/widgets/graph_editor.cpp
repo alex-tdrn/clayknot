@@ -15,6 +15,7 @@
 #include "clk/util/color_rgb.hpp"
 #include "clk/util/color_rgba.hpp"
 #include "clk/util/timestamp.hpp"
+#include "imgui_guard.hpp"
 #include "layout_solver.hpp"
 #include "node_editors.hpp"
 #include "port_editors.hpp"
@@ -150,6 +151,8 @@ auto graph_editor::draw_contents(clk::graph& graph) const -> bool
 
 void graph_editor::draw_graph(clk::graph& graph) const
 {
+	imgui_guard style_guard;
+
 	ImNodes::PushAttributeFlag(ImNodesAttributeFlags_EnableLinkCreationOnSnap);
 	if(_new_connection_in_progress)
 	{
@@ -162,17 +165,17 @@ void graph_editor::draw_graph(clk::graph& graph) const
 			auto c1 = color_rgba{1.0f, 0.0f, 0.0f, 1.0f};
 			auto c2 = color_rgba{1.0f};
 			auto error_color = (f * c1 + (1.0f - f) * c2).packed();
-			ImNodes::PushColorStyle(ImNodesCol_Link, error_color);
+			style_guard.push_color_style(ImNodesCol_Link, error_color);
 		}
 		else
 		{
-			ImNodes::PushColorStyle(
+			style_guard.push_color_style(
 				ImNodesCol_Link, _port_cache->widget_for(&_new_connection_in_progress->starting_port).color());
 		}
 	}
 	else
 	{
-		ImNodes::PushColorStyle(ImNodesCol_Link, clk::color_rgba{1.0f}.packed());
+		style_guard.push_color_style(ImNodesCol_Link, clk::color_rgba{1.0f}.packed());
 	}
 
 	_connections.clear();
@@ -292,37 +295,28 @@ void graph_editor::draw_graph(clk::graph& graph) const
 				color = (f * c1 + (1.0f - f) * c2).packed();
 			}
 
-			ImNodes::PushColorStyle(ImNodesCol_Link, color);
+			imgui_guard link_style_guard;
+			link_style_guard.push_color_style(ImNodesCol_Link, color);
 			if(_new_connection_in_progress)
 			{
-				ImNodes::PushColorStyle(ImNodesCol_LinkHovered, color);
-				ImNodes::PushColorStyle(ImNodesCol_LinkSelected, color);
+				link_style_guard.push_color_style(ImNodesCol_LinkHovered, color);
+				link_style_guard.push_color_style(ImNodesCol_LinkSelected, color);
 			}
 			ImNodes::Link(link_id++, _port_cache->widget_for(connection.first).id(),
 				_port_cache->widget_for(connection.second).id());
-
-			ImNodes::PopColorStyle();
-			if(_new_connection_in_progress)
-			{
-				ImNodes::PopColorStyle();
-				ImNodes::PopColorStyle();
-			}
 		}
 	}
 
 	if(_new_connection_in_progress && _new_connection_in_progress->dropped_connection)
 	{
 		auto color = clk::color_rgba(clk::color_rgb(0.0f), 1.0f).packed();
-		ImNodes::PushColorStyle(ImNodesCol_Link, color);
-		ImNodes::PushColorStyle(ImNodesCol_LinkHovered, color);
-		ImNodes::PushColorStyle(ImNodesCol_LinkSelected, color);
+		imgui_guard link_style_guard;
+		link_style_guard.push_color_style(ImNodesCol_Link, color);
+		link_style_guard.push_color_style(ImNodesCol_LinkHovered, color);
+		link_style_guard.push_color_style(ImNodesCol_LinkSelected, color);
 
 		ImNodes::Link(-1, _port_cache->widget_for(_new_connection_in_progress->dropped_connection->first).id(),
 			_port_cache->widget_for(_new_connection_in_progress->dropped_connection->second).id());
-
-		ImNodes::PopColorStyle();
-		ImNodes::PopColorStyle();
-		ImNodes::PopColorStyle();
 	}
 
 	ImNodes::MiniMap(0.1f);
@@ -341,7 +335,6 @@ void graph_editor::draw_graph(clk::graph& graph) const
 
 	ImNodes::EndNodeEditor();
 	ImNodes::PopAttributeFlag();
-	ImNodes::PopColorStyle();
 }
 
 void graph_editor::draw_menus(clk::graph& graph) const

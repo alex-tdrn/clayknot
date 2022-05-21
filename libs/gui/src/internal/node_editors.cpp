@@ -9,6 +9,7 @@
 #include "clk/util/color_rgb.hpp"
 #include "clk/util/color_rgba.hpp"
 #include "clk/util/timestamp.hpp"
+#include "imgui_guard.hpp"
 #include "port_editors.hpp"
 #include "widget_cache.hpp"
 
@@ -49,6 +50,7 @@ void node_editor::set_highlighted(bool highlighted)
 
 void node_editor::draw()
 {
+	imgui_guard style_guard;
 	auto const& error_message = _node->error();
 
 	if(!error_message.empty())
@@ -60,12 +62,12 @@ void node_editor::draw()
 		auto c1 = color_rgba{1.0f, 0.0f, 0.0f, 1.0f};
 		auto c2 = color_rgba{1.0f};
 
-		ImNodes::PushColorStyle(ImNodesCol_NodeOutline, (f * c1 + (1.0f - f) * c2).packed());
-		ImNodes::PushStyleVar(ImNodesStyleVar_NodeBorderThickness, 2.0f);
+		style_guard.push_color_style(ImNodesCol_NodeOutline, (f * c1 + (1.0f - f) * c2).packed());
+		style_guard.push_style_var(ImNodesStyleVar_NodeBorderThickness, 2.0f);
 	}
 	else if(_highlighted)
 	{
-		ImNodes::PushColorStyle(ImNodesCol_NodeOutline, color_rgba{1.0f}.packed());
+		style_guard.push_color_style(ImNodesCol_NodeOutline, color_rgba{1.0f}.packed());
 	}
 
 	ImNodes::BeginNode(_id);
@@ -97,15 +99,6 @@ void node_editor::draw()
 
 	ImNodes::EndNode();
 	_contents_width = ImGui::GetItemRectSize().x;
-
-	if(!error_message.empty() || _highlighted)
-	{
-		ImNodes::PopColorStyle();
-		if(!error_message.empty())
-		{
-			ImNodes::PopStyleVar();
-		}
-	}
 
 	_first_draw = false;
 }

@@ -4,6 +4,7 @@
 #include "clk/gui/widgets/widget_factory.hpp"
 #include "clk/util/color_rgb.hpp"
 #include "clk/util/color_rgba.hpp"
+#include "imgui_guard.hpp"
 
 #include <imgui.h>
 #include <imnodes.h>
@@ -47,6 +48,8 @@ auto input_viewer::port() const -> clk::input const*
 
 void input_viewer::draw()
 {
+	imgui_guard style_guard;
+
 	if(_port->is_faulty())
 	{
 		const float t = std::chrono::duration_cast<std::chrono::duration<float, std::ratio<1, 1>>>(
@@ -57,13 +60,13 @@ void input_viewer::draw()
 		auto c2 = color_rgba{1.0f};
 		auto error_color = (f * c1 + (1.0f - f) * c2).packed();
 
-		ImNodes::PushColorStyle(ImNodesCol_Pin, error_color);
-		ImNodes::PushColorStyle(ImNodesCol_PinHovered, error_color);
+		style_guard.push_color_style(ImNodesCol_Pin, error_color);
+		style_guard.push_color_style(ImNodesCol_PinHovered, error_color);
 	}
 	else
 	{
-		ImNodes::PushColorStyle(ImNodesCol_Pin, _color);
-		ImNodes::PushColorStyle(ImNodesCol_PinHovered, _color);
+		style_guard.push_color_style(ImNodesCol_Pin, _color);
+		style_guard.push_color_style(ImNodesCol_PinHovered, _color);
 	}
 
 	ImNodes::BeginInputAttribute(_id, ImNodesPinShape_QuadFilled);
@@ -82,8 +85,6 @@ void input_viewer::draw()
 	auto rect_max = glm::vec2(ImGui::GetItemRectMax());
 	_position.y = (rect_min.y + rect_max.y) / 2;
 	_position.x = rect_min.x;
-	ImNodes::PopColorStyle();
-	ImNodes::PopColorStyle();
 }
 
 output_viewer::output_viewer(
@@ -99,6 +100,8 @@ auto output_viewer::port() const -> output const*
 
 void output_viewer::draw()
 {
+	imgui_guard style_guard;
+
 	if(_port->is_faulty())
 	{
 		const float t = std::chrono::duration_cast<std::chrono::duration<float, std::ratio<1, 1>>>(
@@ -109,13 +112,13 @@ void output_viewer::draw()
 		auto c2 = color_rgba{1.0f};
 		auto error_color = (f * c1 + (1.0f - f) * c2).packed();
 
-		ImNodes::PushColorStyle(ImNodesCol_Pin, error_color);
-		ImNodes::PushColorStyle(ImNodesCol_PinHovered, error_color);
+		style_guard.push_color_style(ImNodesCol_Pin, error_color);
+		style_guard.push_color_style(ImNodesCol_PinHovered, error_color);
 	}
 	else
 	{
-		ImNodes::PushColorStyle(ImNodesCol_Pin, _color);
-		ImNodes::PushColorStyle(ImNodesCol_PinHovered, _color);
+		style_guard.push_color_style(ImNodesCol_Pin, _color);
+		style_guard.push_color_style(ImNodesCol_PinHovered, _color);
 	}
 
 	ImNodes::BeginOutputAttribute(_id, ImNodesPinShape_TriangleFilled);
@@ -134,9 +137,6 @@ void output_viewer::draw()
 	auto rect_max = glm::vec2(ImGui::GetItemRectMax());
 	_position.y = (rect_min.y + rect_max.y) / 2;
 	_position.x = rect_max.x;
-
-	ImNodes::PopColorStyle();
-	ImNodes::PopColorStyle();
 }
 
 auto create_port_viewer(clk::port const* port, int id, widget_factory const& widget_factory,

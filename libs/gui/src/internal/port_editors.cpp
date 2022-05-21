@@ -6,6 +6,7 @@
 #include "clk/gui/widgets/widget_factory.hpp"
 #include "clk/util/color_rgb.hpp"
 #include "clk/util/color_rgba.hpp"
+#include "imgui_guard.hpp"
 
 #include <algorithm>
 #include <imgui.h>
@@ -74,6 +75,7 @@ auto input_editor::port() const -> input*
 
 void input_editor::draw(clk::gui::widget* override_widget)
 {
+	imgui_guard style_guard;
 	if(_port->is_faulty())
 	{
 		const float t = std::chrono::duration_cast<std::chrono::duration<float, std::ratio<1, 1>>>(
@@ -84,12 +86,12 @@ void input_editor::draw(clk::gui::widget* override_widget)
 		auto c2 = color_rgba{1.0f};
 		auto error_color = (f * c1 + (1.0f - f) * c2).packed();
 
-		ImNodes::PushColorStyle(ImNodesCol_Pin, error_color);
-		ImNodes::PushColorStyle(ImNodesCol_PinHovered, error_color);
+		style_guard.push_color_style(ImNodesCol_Pin, error_color);
+		style_guard.push_color_style(ImNodesCol_PinHovered, error_color);
 	}
 	else
 	{
-		ImNodes::PushColorStyle(ImNodesCol_Pin, _color);
+		style_guard.push_color_style(ImNodesCol_Pin, _color);
 	}
 
 	float const begin_y = ImGui::GetCursorPosY();
@@ -139,12 +141,6 @@ void input_editor::draw(clk::gui::widget* override_widget)
 	auto rect_max = glm::vec2(ImGui::GetItemRectMax());
 	_position.y = (rect_min.y + rect_max.y) / 2;
 	_position.x = rect_min.x;
-
-	ImNodes::PopColorStyle();
-	if(_port->is_faulty())
-	{
-		ImNodes::PopColorStyle();
-	}
 }
 
 output_editor::output_editor(
@@ -160,6 +156,8 @@ auto output_editor::port() const -> output*
 
 void output_editor::draw(clk::gui::widget* override_widget)
 {
+	imgui_guard style_guard;
+
 	if(_port->is_faulty())
 	{
 		const float t = std::chrono::duration_cast<std::chrono::duration<float, std::ratio<1, 1>>>(
@@ -170,12 +168,12 @@ void output_editor::draw(clk::gui::widget* override_widget)
 		auto c2 = color_rgba{1.0f};
 		auto error_color = (f * c1 + (1.0f - f) * c2).packed();
 
-		ImNodes::PushColorStyle(ImNodesCol_Pin, error_color);
-		ImNodes::PushColorStyle(ImNodesCol_PinHovered, error_color);
+		style_guard.push_color_style(ImNodesCol_Pin, error_color);
+		style_guard.push_color_style(ImNodesCol_PinHovered, error_color);
 	}
 	else
 	{
-		ImNodes::PushColorStyle(ImNodesCol_Pin, _color);
+		style_guard.push_color_style(ImNodesCol_Pin, _color);
 	}
 
 	if(!_enabled)
@@ -204,12 +202,6 @@ void output_editor::draw(clk::gui::widget* override_widget)
 	auto rect_max = glm::vec2(ImGui::GetItemRectMax());
 	_position.y = (rect_min.y + rect_max.y) / 2;
 	_position.x = rect_max.x;
-
-	ImNodes::PopColorStyle();
-	if(_port->is_faulty())
-	{
-		ImNodes::PopColorStyle();
-	}
 }
 
 auto create_port_editor(clk::port* port, int id, widget_factory const& widget_factory, bool const& draw_port_widgets)
