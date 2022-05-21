@@ -152,9 +152,9 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 					},
 					"a + b viewer");
 				viewer->add_sub_viewer(&test_struct::c, "c viewer");
-				//	viewer->add_sub_viewer(&test_struct::d, "d viewer");
-				//	viewer->add_sub_viewer(&test_struct::e, "e viewer");
-				//	viewer->add_sub_viewer(&test_struct::f, "f viewer");
+				viewer->add_sub_viewer(&test_struct::d, "d viewer");
+				viewer->add_sub_viewer(&test_struct::e, "e viewer");
+				viewer->add_sub_viewer(&test_struct::f, "f viewer");
 				viewer->add_sub_viewer(&test_struct::g, "g viewer");
 				viewer->add_sub_viewer(&test_struct::h, "h viewer");
 

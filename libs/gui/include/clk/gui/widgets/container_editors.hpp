@@ -23,8 +23,8 @@ public:
 		{
 			_stored_data_editor =
 				base::get_widget_factory()->create(data_writer<bool>(
-													   [this, current_flag = bool(true)]() mutable -> bool* {
-														   assert(_current_draw_data != nullptr);
+													   [this]() -> bool* {
+														   static bool current_flag = true;
 														   current_flag = (*_current_draw_data)[_current_draw_index];
 														   return &current_flag;
 													   },
@@ -48,7 +48,7 @@ public:
 													   }),
 					"");
 		}
-		_stored_data_editor->disable_extra_id();
+		_stored_data_editor->enable_extra_id();
 		_stored_data_editor->disable_title();
 	}
 
@@ -77,7 +77,7 @@ public:
 		const bool use_scrollarea = data.size() > widget_threshhold;
 		if(use_scrollarea)
 		{
-			ImGui::BeginChild("ChildL",
+			ImGui::BeginChild("vector scrollarea",
 				ImVec2(base::available_width(),
 					static_cast<float>(widget_threshhold + 0.5f) * _stored_data_editor->last_size().y),
 				true);
@@ -115,12 +115,10 @@ public:
 		if(insert_at != -1)
 		{
 			data.insert(data.begin() + insert_at, StoredDataType{});
-			_any_element_modified = true;
 		}
 		else if(erase_at != -1)
 		{
 			data.erase(data.begin() + erase_at);
-			_any_element_modified = true;
 		}
 
 		if(use_scrollarea)
@@ -128,7 +126,7 @@ public:
 			ImGui::EndChild();
 		}
 
-		return _any_element_modified;
+		return _any_element_modified || insert_at != -1 || erase_at != -1;
 	}
 
 private:
