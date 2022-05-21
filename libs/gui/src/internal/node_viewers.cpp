@@ -7,6 +7,9 @@
 #include "port_viewers.hpp"
 #include "widget_cache.hpp"
 
+#include <bits/chrono.h>
+#include <chrono>
+#include <cmath>
 #include <imgui.h>
 #include <imnodes.h>
 #include <range/v3/iterator/basic_iterator.hpp>
@@ -39,8 +42,24 @@ void node_viewer::set_highlighted(bool highlighted)
 
 void node_viewer::draw()
 {
-	if(_highlighted)
+	auto const& error_message = _node->error();
+
+	if(!error_message.empty())
+	{
+		const float t = std::chrono::duration_cast<std::chrono::duration<float, std::ratio<1, 1>>>(
+			std::chrono::steady_clock::now().time_since_epoch())
+							.count();
+		const float f = (std::cos(t * 20.0f) + 1.0f) / 2.0f;
+		auto c1 = color_rgba{1.0f, 0.0f, 0.0f, 1.0f};
+		auto c2 = color_rgba{1.0f};
+
+		ImNodes::PushColorStyle(ImNodesCol_NodeOutline, (f * c1 + (1.0f - f) * c2).packed());
+		ImNodes::PushStyleVar(ImNodesStyleVar_NodeBorderThickness, 2.0f);
+	}
+	else if(_highlighted)
+	{
 		ImNodes::PushColorStyle(ImNodesCol_NodeOutline, color_rgba{1.0f}.packed());
+	}
 
 	ImNodes::BeginNode(_id);
 
@@ -61,8 +80,14 @@ void node_viewer::draw()
 	ImNodes::EndNode();
 	_contents_width = ImGui::GetItemRectSize().x;
 
-	if(_highlighted)
+	if(!error_message.empty() || _highlighted)
+	{
 		ImNodes::PopColorStyle();
+		if(!error_message.empty())
+		{
+			ImNodes::PopStyleVar();
+		}
+	}
 
 	_first_draw = false;
 }
