@@ -4,6 +4,7 @@
 #include <clk/base/algorithm.hpp>
 #include <cstdint>
 #include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan_core.h>
 #include <vulkan/vulkan_handles.hpp>
 #include <vulkan/vulkan_structs.hpp>
 
@@ -31,10 +32,14 @@ private:
 		_extensions->clear();
 		for(auto const& extension : vk::enumerateInstanceExtensionProperties())
 		{
-			_extensions->push_back(extension.extensionName);
+			std::string version = std::to_string(VK_VERSION_MAJOR(extension.specVersion)) + "." +
+								  std::to_string(VK_VERSION_MINOR(extension.specVersion)) + "." +
+								  std::to_string(VK_VERSION_PATCH(extension.specVersion));
+
+			_extensions->push_back(std::string(extension.extensionName) + "\nv" + version);
 		}
 	}
 
-	clk::output_of<std::vector<std::string>> _extensions{"Extensions"};
+	clk::output_of<std::vector<std::string>> _extensions{"Available instance extensions"};
 };
 } // namespace clk::clkvk
