@@ -69,15 +69,51 @@ public:
 	{
 		_current_draw_data = &data;
 		_any_element_modified = false;
-		for(std::size_t i = 0; i < data.size(); i++)
+
+		int insert_at = -1;
+		int erase_at = -1;
+
+		if(ImGui::SmallButton("+"))
 		{
-			_current_draw_index = i;
-			ImGui::Text("%li: ", i);
+			insert_at = 0;
+		}
+
+		for(_current_draw_index = 0; _current_draw_index < data.size(); _current_draw_index++)
+		{
 			ImGui::PushID(_current_draw_index);
+
+			ImGui::BeginGroup();
+			if(ImGui::SmallButton("-"))
+			{
+				erase_at = static_cast<int>(_current_draw_index);
+			}
+			ImGui::SameLine();
+			if(ImGui::SmallButton("+"))
+			{
+				insert_at = static_cast<int>(_current_draw_index + 1);
+			}
+			ImGui::SameLine();
+			ImGui::Text("%li:", _current_draw_index);
+
+			ImGui::EndGroup();
+
 			ImGui::SameLine();
 			_stored_data_editor->draw();
+
 			ImGui::PopID();
 		}
+
+		if(insert_at != -1)
+		{
+			data.insert(data.begin() + insert_at, StoredDataType{});
+			_any_element_modified = true;
+		}
+		else if(erase_at != -1)
+		{
+			data.erase(data.begin() + erase_at);
+			_any_element_modified = true;
+		}
+
 		return _any_element_modified;
 	}
 
