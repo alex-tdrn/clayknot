@@ -24,6 +24,7 @@ public:
 	auto operator=(input&&) -> input& = delete;
 	~input() override = default;
 
+	auto is_faulty() const noexcept -> bool final;
 	using port::connect_to;
 	void connect_to(input& other_port) = delete;
 	virtual auto connected_output() const -> output* = 0;

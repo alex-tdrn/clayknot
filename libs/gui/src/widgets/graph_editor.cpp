@@ -152,10 +152,28 @@ void graph_editor::draw_graph(clk::graph& graph) const
 {
 	ImNodes::PushAttributeFlag(ImNodesAttributeFlags_EnableLinkCreationOnSnap);
 	if(_new_connection_in_progress)
-		ImNodes::PushColorStyle(
-			ImNodesCol_Link, _port_cache->widget_for(&_new_connection_in_progress->starting_port).color());
+	{
+		if(_new_connection_in_progress->starting_port.is_faulty())
+		{
+			const float t = std::chrono::duration_cast<std::chrono::duration<float, std::ratio<1, 1>>>(
+				std::chrono::steady_clock::now().time_since_epoch())
+								.count();
+			const float f = (std::cos(t * 20.0f) + 1.0f) / 2.0f;
+			auto c1 = color_rgba{1.0f, 0.0f, 0.0f, 1.0f};
+			auto c2 = color_rgba{1.0f};
+			auto error_color = (f * c1 + (1.0f - f) * c2).packed();
+			ImNodes::PushColorStyle(ImNodesCol_Link, error_color);
+		}
+		else
+		{
+			ImNodes::PushColorStyle(
+				ImNodesCol_Link, _port_cache->widget_for(&_new_connection_in_progress->starting_port).color());
+		}
+	}
 	else
+	{
 		ImNodes::PushColorStyle(ImNodesCol_Link, clk::color_rgba{1.0f}.packed());
+	}
 
 	_connections.clear();
 
@@ -262,6 +280,18 @@ void graph_editor::draw_graph(clk::graph& graph) const
 			auto color =
 				clk::color_rgba(clk::color_rgb::create_random(connection.first->data_type_hash()), link_opacity)
 					.packed();
+
+			if(connection.first->is_faulty() || connection.second->is_faulty())
+			{
+				const float t = std::chrono::duration_cast<std::chrono::duration<float, std::ratio<1, 1>>>(
+					std::chrono::steady_clock::now().time_since_epoch())
+									.count();
+				const float f = (std::cos(t * 20.0f) + 1.0f) / 2.0f;
+				auto c1 = color_rgba{1.0f, 0.0f, 0.0f, 1.0f};
+				auto c2 = color_rgba{1.0f};
+				color = (f * c1 + (1.0f - f) * c2).packed();
+			}
+
 			ImNodes::PushColorStyle(ImNodesCol_Link, color);
 			if(_new_connection_in_progress)
 			{

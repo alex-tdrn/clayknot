@@ -3,6 +3,7 @@
 #include <chrono>
 #include <cmath>
 #include <random>
+#include <stdexcept>
 #include <utility>
 
 namespace clk::algorithms
@@ -96,8 +97,12 @@ divide_integers::divide_integers()
 
 void divide_integers::update()
 {
-	if(*_number_b != 0)
-		*_result = *_number_a / *_number_b;
+	if(*_number_b == 0)
+	{
+		throw std::runtime_error("Division by zero!");
+	}
+
+	*_result = *_number_a / *_number_b;
 }
 
 modulo::modulo()
@@ -109,8 +114,12 @@ modulo::modulo()
 
 void modulo::update()
 {
-	if(*_number_b != 0)
-		*_result = *_number_a % *_number_b;
+	if(*_number_b == 0)
+	{
+		throw std::runtime_error("Division by zero!");
+	}
+
+	*_result = *_number_a % *_number_b;
 }
 
 add_floats::add_floats()
@@ -158,8 +167,12 @@ divide_floats::divide_floats()
 
 void divide_floats::update()
 {
-	if(*_number_b != 0)
-		*_result = *_number_a / *_number_b;
+	if(*_number_b == 0)
+	{
+		throw std::runtime_error("Division by zero!");
+	}
+
+	*_result = *_number_a / *_number_b;
 }
 
 pow::pow()
@@ -187,8 +200,17 @@ nth_root::nth_root()
 
 void nth_root::update()
 {
-	if(*_root_degree != 0.0f && *_number >= 0.0f)
-		*_result = std::pow(*_number, 1.0f / *_root_degree);
+	if(*_root_degree == 0.0f)
+	{
+		throw std::runtime_error("Cannot take 0th root!");
+	}
+
+	if(*_number < 0.0f)
+	{
+		throw std::runtime_error("Cannot take root of negative number!");
+	}
+
+	*_result = std::pow(*_number, 1.0f / *_root_degree);
 }
 
 rad_to_deg::rad_to_deg()

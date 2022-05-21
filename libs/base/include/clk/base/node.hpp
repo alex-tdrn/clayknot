@@ -3,6 +3,7 @@
 #include "clk/base/port.hpp"
 
 #include <memory>
+#include <string>
 #include <string_view>
 
 namespace clk
@@ -29,6 +30,14 @@ public:
 	virtual void push(std::weak_ptr<clk::sentinel> const& sentinel = {});
 	auto has_inputs() const -> bool;
 	auto has_outputs() const -> bool;
+	auto error() const -> std::string const&;
+
+protected:
+	void clear_error() const;
+	void set_error(std::string_view error_message) const;
+
+private:
+	mutable std::string _last_error_message;
 };
 
 } // namespace clk

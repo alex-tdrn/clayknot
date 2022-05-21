@@ -6,6 +6,7 @@
 #include <range/v3/algorithm/any_of.hpp>
 #include <range/v3/functional/identity.hpp>
 #include <range/v3/iterator/basic_iterator.hpp>
+#include <stdexcept>
 #include <utility>
 #include <vector>
 
@@ -27,7 +28,7 @@ auto algorithm_node::name() const -> std::string_view
 void algorithm_node::set_algorithm(std::unique_ptr<clk::algorithm>&& algorithm)
 {
 	_algorithm = std::move(algorithm);
-	_algorithm->update();
+	try_update();
 	for(auto* input : _algorithm->inputs())
 		input->set_push_callback([&](auto sentinel) {
 			push(sentinel);
@@ -54,7 +55,7 @@ auto algorithm_node::outputs() const -> port_range<clk::output*>
 
 void algorithm_node::pull(std::weak_ptr<clk::sentinel> const& sentinel)
 {
-	if(sentinel_present() || !update_possible())
+	if(sentinel_present() || !update_possible() || !error().empty())
 		return;
 
 	std::shared_ptr<clk::sentinel> sentinel_origin;
@@ -71,7 +72,7 @@ void algorithm_node::pull(std::weak_ptr<clk::sentinel> const& sentinel)
 	node::pull(_sentinel);
 
 	if(sentinel_origin != nullptr || update_needed())
-		_algorithm->update();
+		try_update();
 }
 
 void algorithm_node::push(std::weak_ptr<clk::sentinel> const& sentinel)
@@ -90,10 +91,12 @@ void algorithm_node::push(std::weak_ptr<clk::sentinel> const& sentinel)
 		_sentinel = sentinel;
 	}
 
+	clear_error();
+
 	node::pull(_sentinel);
 
 	if(sentinel_origin != nullptr || update_needed())
-		_algorithm->update();
+		try_update();
 
 	node::push(_sentinel);
 }
@@ -119,4 +122,21 @@ auto algorithm_node::update_needed() const -> bool
 		});
 	});
 }
+
+void algorithm_node::try_update() const
+{
+	try
+	{
+		_algorithm->update();
+	}
+	catch(const std::exception& e)
+	{
+		set_error(e.what());
+	}
+	catch(...)
+	{
+		set_error("Unknown error");
+	}
+}
+
 } // namespace clk

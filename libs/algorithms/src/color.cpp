@@ -3,6 +3,7 @@
 #include <chrono>
 #include <glm/glm.hpp>
 #include <random>
+#include <stdexcept>
 #include <utility>
 
 namespace clk::algorithms
@@ -52,8 +53,22 @@ divide_colors::divide_colors()
 
 void divide_colors::update()
 {
-	if(_color_b->r() != 0 && _color_b->g() != 0 && _color_b->b() != 0)
-		*_result = *_color_a / *_color_b;
+	if(_color_b->r() == 0)
+	{
+		throw std::runtime_error("B's red component is zero!");
+	}
+
+	if(_color_b->g() == 0)
+	{
+		throw std::runtime_error("B's green component is zero!");
+	}
+
+	if(_color_b->b() == 0)
+	{
+		throw std::runtime_error("B's blue component is zero!");
+	}
+
+	*_result = *_color_a / *_color_b;
 }
 
 compose_color::compose_color()
@@ -122,18 +137,10 @@ random_color::random_color()
 
 void random_color::update()
 {
-	auto min = *_from;
-	auto max = *_to;
-
-	if(min.r() > max.r() && min.g() > max.g() && min.b() > max.b())
-		std::swap(min, max);
-	else if(!(min.r() < max.r() && min.g() < max.g() && min.b() < max.b()))
-		return;
-
 	std::mt19937 generator(static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count()));
-	std::uniform_real_distribution<float> dis_r(min.r(), max.r());
-	std::uniform_real_distribution<float> dis_g(min.g(), max.g());
-	std::uniform_real_distribution<float> dis_b(min.b(), max.b());
+	std::uniform_real_distribution<float> dis_r(std::min(_from->r(), _to->r()), std::max(_from->r(), _to->r()));
+	std::uniform_real_distribution<float> dis_g(std::min(_from->g(), _to->g()), std::max(_from->g(), _to->g()));
+	std::uniform_real_distribution<float> dis_b(std::min(_from->b(), _to->b()), std::max(_from->b(), _to->b()));
 
 	*_color = clk::color_rgb{dis_r(generator), dis_g(generator), dis_b(generator)};
 }
@@ -179,9 +186,7 @@ tonemap_reinhard::tonemap_reinhard()
 
 void tonemap_reinhard::update()
 {
-	auto divisor = clk::color_rgb(*_input_color + glm::vec3(1.0f));
-	if(divisor.r() != 0 && divisor.g() != 0 && divisor.b() != 0)
-		*_tonemapped_color = *_input_color / divisor;
+	*_tonemapped_color = *_input_color / clk::color_rgb(*_input_color + glm::vec3(1.0f));
 }
 
 tonemap_filmic_aces::tonemap_filmic_aces()
@@ -195,14 +200,10 @@ void tonemap_filmic_aces::update()
 	auto c = 2.43f;
 	auto d = 0.59f;
 	auto e = 0.14f;
-	auto divisor = *_input_color * (c * *_input_color + d) + e;
-	if(divisor.r() != 0 && divisor.g() != 0 && divisor.b() != 0)
-	{
-		auto a = 2.51f;
-		auto b = 0.03f;
+	auto a = 2.51f;
+	auto b = 0.03f;
 
-		*_tonemapped_color = (*_input_color * (a * *_input_color + b)) / divisor;
-	}
+	*_tonemapped_color = (*_input_color * (a * *_input_color + b)) / *_input_color * (c * *_input_color + d) + e;
 }
 
 } // namespace clk::algorithms

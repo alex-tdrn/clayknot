@@ -47,8 +47,24 @@ auto input_viewer::port() const -> clk::input const*
 
 void input_viewer::draw()
 {
-	ImNodes::PushColorStyle(ImNodesCol_Pin, _color);
-	ImNodes::PushColorStyle(ImNodesCol_PinHovered, _color);
+	if(_port->is_faulty())
+	{
+		const float t = std::chrono::duration_cast<std::chrono::duration<float, std::ratio<1, 1>>>(
+			std::chrono::steady_clock::now().time_since_epoch())
+							.count();
+		const float f = (std::cos(t * 20.0f) + 1.0f) / 2.0f;
+		auto c1 = color_rgba{1.0f, 0.0f, 0.0f, 1.0f};
+		auto c2 = color_rgba{1.0f};
+		auto error_color = (f * c1 + (1.0f - f) * c2).packed();
+
+		ImNodes::PushColorStyle(ImNodesCol_Pin, error_color);
+		ImNodes::PushColorStyle(ImNodesCol_PinHovered, error_color);
+	}
+	else
+	{
+		ImNodes::PushColorStyle(ImNodesCol_Pin, _color);
+		ImNodes::PushColorStyle(ImNodesCol_PinHovered, _color);
+	}
 
 	ImNodes::BeginInputAttribute(_id, ImNodesPinShape_QuadFilled);
 
@@ -83,8 +99,24 @@ auto output_viewer::port() const -> output const*
 
 void output_viewer::draw()
 {
-	ImNodes::PushColorStyle(ImNodesCol_Pin, _color);
-	ImNodes::PushColorStyle(ImNodesCol_PinHovered, _color);
+	if(_port->is_faulty())
+	{
+		const float t = std::chrono::duration_cast<std::chrono::duration<float, std::ratio<1, 1>>>(
+			std::chrono::steady_clock::now().time_since_epoch())
+							.count();
+		const float f = (std::cos(t * 20.0f) + 1.0f) / 2.0f;
+		auto c1 = color_rgba{1.0f, 0.0f, 0.0f, 1.0f};
+		auto c2 = color_rgba{1.0f};
+		auto error_color = (f * c1 + (1.0f - f) * c2).packed();
+
+		ImNodes::PushColorStyle(ImNodesCol_Pin, error_color);
+		ImNodes::PushColorStyle(ImNodesCol_PinHovered, error_color);
+	}
+	else
+	{
+		ImNodes::PushColorStyle(ImNodesCol_Pin, _color);
+		ImNodes::PushColorStyle(ImNodesCol_PinHovered, _color);
+	}
 
 	ImNodes::BeginOutputAttribute(_id, ImNodesPinShape_TriangleFilled);
 
