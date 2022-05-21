@@ -1,5 +1,7 @@
 #pragma once
 
+#include "clk/gui/widgets/container_editors.hpp"
+#include "clk/gui/widgets/container_viewers.hpp"
 #include "clk/gui/widgets/editor.hpp"
 #include "clk/gui/widgets/viewer.hpp"
 #include "clk/gui/widgets/widget.hpp"
@@ -38,9 +40,9 @@ public:
 			   _editor_factories.end();
 	}
 
-	template <typename DataType>
-	void register_viewer(std::function<std::unique_ptr<viewer>(
-			data_reader<DataType>, std::shared_ptr<widget_factory>, std::string_view)>
+	template <typename DataType, bool RegisterContainerWidgets = true>
+	void register_viewer(
+		std::function<std::unique_ptr<viewer>(data_reader<DataType>, std::shared_ptr<widget_factory>, std::string_view)>
 			factory)
 	{
 		auto data_reader_hash = std::type_index(typeid(data_reader<DataType>)).hash_code();
@@ -56,22 +58,28 @@ public:
 				return static_cast<DataType const*>(nested_reader.read());
 			}};
 		};
+
+		if constexpr(RegisterContainerWidgets)
+		{
+			register_viewer<std::vector<DataType>, vector_viewer<DataType>, false>();
+		}
 	}
 
-	template <typename DataType, typename ViewerImplementation>
+	template <typename DataType, typename ViewerImplementation, bool RegisterContainerWidgets = true>
 	void register_viewer()
 	{
-		register_viewer<DataType>([](data_reader<DataType> data_reader, std::shared_ptr<widget_factory> factory,
-									   std::string_view name) -> std::unique_ptr<viewer> {
-			auto viewer = std::make_unique<ViewerImplementation>(std::move(factory), name);
-			viewer->set_data_reader(std::move(data_reader));
-			return viewer;
-		});
+		register_viewer<DataType, RegisterContainerWidgets>(
+			[](data_reader<DataType> data_reader, std::shared_ptr<widget_factory> factory,
+				std::string_view name) -> std::unique_ptr<viewer> {
+				auto viewer = std::make_unique<ViewerImplementation>(std::move(factory), name);
+				viewer->set_data_reader(std::move(data_reader));
+				return viewer;
+			});
 	}
 
-	template <typename DataType>
-	void register_editor(std::function<std::unique_ptr<editor>(
-			data_writer<DataType>, std::shared_ptr<widget_factory>, std::string_view)>
+	template <typename DataType, bool RegisterContainerWidgets = true>
+	void register_editor(
+		std::function<std::unique_ptr<editor>(data_writer<DataType>, std::shared_ptr<widget_factory>, std::string_view)>
 			factory)
 	{
 		auto data_writer_hash = std::type_index(typeid(data_writer<DataType>)).hash_code();
@@ -91,17 +99,23 @@ public:
 			};
 			return data_writer<DataType>{std::move(getter), std::move(setter)};
 		};
+
+		if constexpr(RegisterContainerWidgets)
+		{
+			register_editor<std::vector<DataType>, vector_editor<DataType>, false>();
+		}
 	}
 
-	template <typename DataType, typename EditorImplementation>
+	template <typename DataType, typename EditorImplementation, bool RegisterContainerWidgets = true>
 	void register_editor()
 	{
-		register_editor<DataType>([](data_writer<DataType> data_writer, std::shared_ptr<widget_factory> factory,
-									   std::string_view name) -> std::unique_ptr<editor> {
-			auto editor = std::make_unique<EditorImplementation>(std::move(factory), name);
-			editor->set_data_writer(std::move(data_writer));
-			return editor;
-		});
+		register_editor<DataType, RegisterContainerWidgets>(
+			[](data_writer<DataType> data_writer, std::shared_ptr<widget_factory> factory,
+				std::string_view name) -> std::unique_ptr<editor> {
+				auto editor = std::make_unique<EditorImplementation>(std::move(factory), name);
+				editor->set_data_writer(std::move(data_writer));
+				return editor;
+			});
 	}
 
 	template <typename DataType>
