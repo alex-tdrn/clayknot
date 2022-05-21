@@ -10,7 +10,6 @@
 #include "clk/base/node.hpp"
 #include "clk/base/output.hpp"
 #include "clk/base/port.hpp"
-#include "clk/clkvk/init.hpp"
 #include "clk/gui/init.hpp"
 #include "clk/gui/panel.hpp"
 #include "clk/gui/widgets/composite_editor.hpp"
@@ -31,7 +30,9 @@
 #include <GLFW/glfw3.h>
 
 #include "clk/clkvk/application_info.hpp"
+#include "clk/clkvk/init.hpp"
 #include "clk/clkvk/instance.hpp"
+#include "clk/clkvk/required_windowing_extensions.hpp"
 #include "clk/clkvk/window.hpp"
 
 #include <cstddef>
@@ -116,7 +117,8 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 		auto graph1 = clk::graph{};
 		graph1.add_node(std::make_unique<clk::algorithm_node>(std::make_unique<clk::clkvk::application_info>()));
 		graph1.add_node(std::make_unique<clk::algorithm_node>(std::make_unique<clk::clkvk::instance>()));
-		graph1.add_node(std::make_unique<clk::algorithm_node>(std::make_unique<clk::clkvk::window>()));
+		graph1.add_node(
+			std::make_unique<clk::algorithm_node>(std::make_unique<clk::clkvk::required_windowing_extensions>()));
 
 		clk::gui::panel::create_orphan(widget_factory->create(graph1, "graph1 editor"));
 
