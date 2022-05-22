@@ -16,6 +16,8 @@ class sentinel;
 class port
 {
 public:
+	port() = default;
+	explicit port(std::string_view name);
 	port(port&&) = delete;
 	port(port const&) = delete;
 	auto operator=(port&&) -> port& = delete;
@@ -44,7 +46,6 @@ public:
 	virtual auto create_compatible_port() const -> std::unique_ptr<port> = 0;
 
 protected:
-	port() = default;
 	void connection_changed();
 
 private:

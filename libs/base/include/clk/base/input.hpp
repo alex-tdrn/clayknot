@@ -17,6 +17,8 @@ class sentinel;
 class input : public port
 {
 public:
+	using port::port;
+
 	input(input const&) = delete;
 	input(input&&) = delete;
 	auto operator=(input const&) -> input& = delete;
@@ -36,9 +38,6 @@ public:
 	void set_push_callback(const std::function<void(std::weak_ptr<clk::sentinel> const&)>& callback);
 	void set_push_callback(std::function<void(std::weak_ptr<clk::sentinel> const&)>&& callback) noexcept;
 
-protected:
-	input() = default;
-
 private:
 	std::function<void(std::weak_ptr<clk::sentinel> const&)> _push_callback;
 };
@@ -57,9 +56,8 @@ public:
 		_default_port.connect_to(*this, false);
 	}
 
-	explicit input_of(std::string_view name)
+	explicit input_of(std::string_view name) : input(name)
 	{
-		set_name(name);
 		_default_port.connect_to(*this, false);
 	}
 

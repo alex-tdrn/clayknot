@@ -2,6 +2,10 @@
 
 namespace clk
 {
+port::port(std::string_view name) : _name(name)
+{
+}
+
 void port::set_name(std::string_view name)
 {
 	_name = name;

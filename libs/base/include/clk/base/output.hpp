@@ -19,6 +19,7 @@ class sentinel;
 class output : public port
 {
 public:
+	using port::port;
 	output(output const&) = delete;
 	output(output&&) = delete;
 	auto operator=(output const&) -> output& = delete;
@@ -34,9 +35,6 @@ public:
 	void set_pull_callback(std::function<void(std::weak_ptr<clk::sentinel> const&)>&& callback) noexcept;
 	void pull(std::weak_ptr<clk::sentinel> const& sentinel = {}) noexcept final;
 
-protected:
-	output() = default;
-
 private:
 	std::function<void(std::weak_ptr<sentinel> const&)> _pull_callback;
 };
@@ -50,13 +48,7 @@ class output_of final : public output
 public:
 	using compatible_port = input_of<T>;
 
-	output_of() = default;
-
-	explicit output_of(std::string_view name)
-	{
-		set_name(name);
-	}
-
+	using output::output;
 	output_of(output_of const&) = delete;
 	output_of(output_of&&) = delete;
 	auto operator=(output_of const&) -> output_of& = delete;
