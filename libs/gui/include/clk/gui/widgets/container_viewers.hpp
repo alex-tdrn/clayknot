@@ -62,15 +62,17 @@ public:
 			ImGui::GetStyle().ItemSpacing.y * 4 +
 			static_cast<float>(data.size()) * (_stored_data_viewer->last_size().y + ImGui::GetStyle().ItemSpacing.y);
 
-		ImGui::BeginChild(
-			"vector scrollarea", ImVec2(base::available_width(), std::min(total_contents_height, 150.0f)), true);
+		ImGui::BeginChild("vector scrollarea", ImVec2(_contents_width, std::min(total_contents_height, 150.0f)), true);
 
+		_contents_width = 0.0f;
 		for(_current_draw_index = 0; _current_draw_index < data.size(); _current_draw_index++)
 		{
 			ImGui::Text("%li: ", _current_draw_index);
+			float prefix_width = ImGui::GetItemRectSize().x + ImGui::GetStyle().ItemSpacing.y * 10;
 			ImGui::PushID(static_cast<int>(_current_draw_index));
 			ImGui::SameLine();
 			_stored_data_viewer->draw();
+			_contents_width = std::max(_contents_width, prefix_width + _stored_data_viewer->last_size().x);
 			ImGui::PopID();
 		}
 
@@ -81,6 +83,6 @@ private:
 	std::unique_ptr<viewer> _stored_data_viewer;
 	mutable std::size_t _current_draw_index = 0;
 	mutable std::vector<StoredDataType> const* _current_draw_data = nullptr;
+	mutable float _contents_width = 0.0f;
 };
-
 } // namespace clk::gui
