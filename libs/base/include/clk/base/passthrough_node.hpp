@@ -1,9 +1,11 @@
 #pragma once
 
+#include "clk/base/any_output.hpp"
 #include "clk/base/node.hpp"
 
 namespace clk
 {
+
 class passthrough_node : public node
 {
 public:
@@ -17,6 +19,8 @@ public:
 	auto name() const -> std::string_view override;
 
 private:
+	any_output _out{"Output"};
+
 	void update() override;
 };
 } // namespace clk

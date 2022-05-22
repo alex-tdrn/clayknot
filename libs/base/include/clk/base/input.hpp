@@ -173,7 +173,7 @@ public:
 private:
 	compatible_port mutable _default_port = compatible_port("Default port");
 	compatible_port* _connection = nullptr;
-	std::vector<port*> _cached_connected_ports = {nullptr};
+	std::vector<port*> _cached_connected_ports = {};
 };
 
 } // namespace clk

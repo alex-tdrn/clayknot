@@ -4,6 +4,7 @@ namespace clk
 {
 passthrough_node::passthrough_node()
 {
+	register_port(&_out);
 }
 
 auto passthrough_node::name() const -> std::string_view
