@@ -6,6 +6,7 @@
 #include "clk/base/input.hpp"
 #include "clk/base/node.hpp"
 #include "clk/base/output.hpp"
+#include "clk/base/passthrough_node.hpp"
 #include "clk/base/port.hpp"
 #include "clk/gui/widgets/action_widget.hpp"
 #include "clk/gui/widgets/editor.hpp"
@@ -358,6 +359,16 @@ void graph_editor::draw_menus(clk::graph& graph) const
 					{
 						new_node = std::make_unique<algorithm_node>(algorithm_factory());
 					}
+
+				ImGui::EndMenu();
+			}
+
+			if(ImGui::BeginMenu("Meta"))
+			{
+				if(ImGui::MenuItem("Passthrough"))
+				{
+					new_node = std::make_unique<passthrough_node>();
+				}
 
 				ImGui::EndMenu();
 			}
