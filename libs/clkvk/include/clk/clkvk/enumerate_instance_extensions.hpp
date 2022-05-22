@@ -36,7 +36,7 @@ private:
 								  std::to_string(VK_VERSION_MINOR(extension.specVersion)) + "." +
 								  std::to_string(VK_VERSION_PATCH(extension.specVersion));
 
-			_extensions->push_back(std::string(extension.extensionName) + "\nv" + version);
+			_extensions->push_back(std::string(extension.extensionName) + "\nspec_version: " + version);
 		}
 	}
 
