@@ -2,6 +2,7 @@
 #include "clk/base/input.hpp"
 
 #include <range/v3/algorithm/any_of.hpp>
+#include <stdexcept>
 #include <utility>
 
 namespace clk
@@ -23,6 +24,11 @@ auto output::can_connect_to(port const& other_port) const noexcept -> bool
 
 void output::connect_to(input& other_port, bool notify)
 {
+	if(!can_connect_to(other_port))
+	{
+		return;
+	}
+
 	_connections.insert(&other_port);
 	if(!other_port.is_connected_to(*this))
 		other_port.connect_to(*this, notify);
@@ -32,7 +38,10 @@ void output::connect_to(input& other_port, bool notify)
 
 void output::connect_to(port& other_port, bool notify)
 {
-	connect_to(dynamic_cast<input&>(other_port), notify);
+	if(auto* other_input = dynamic_cast<input*>(&other_port); other_input != nullptr)
+	{
+		connect_to(*other_input, notify);
+	}
 }
 
 void output::disconnect_from(input& other_port, bool notify)

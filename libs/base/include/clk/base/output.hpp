@@ -31,9 +31,7 @@ public:
 
 	auto can_connect_to(port const& other_port) const noexcept -> bool final;
 
-	using port::connect_to;
 	void connect_to(output& other_port) = delete;
-
 	void connect_to(input& other_port, bool notify = true);
 	void connect_to(port& other_port, bool notify = true) final;
 

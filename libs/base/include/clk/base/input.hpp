@@ -1,8 +1,10 @@
 #pragma once
 
+#include "clk/base/output.hpp"
 #include "clk/base/port.hpp"
 #include "clk/util/timestamp.hpp"
 
+#include <cassert>
 #include <cstddef>
 #include <functional>
 #include <memory>
@@ -23,21 +25,34 @@ public:
 	input(input&&) = delete;
 	auto operator=(input const&) -> input& = delete;
 	auto operator=(input&&) -> input& = delete;
-	~input() override = default;
+	~input() override;
 
 	auto timestamp() const noexcept -> clk::timestamp final;
 	auto is_faulty() const noexcept -> bool final;
 
-	using port::connect_to;
+	auto can_connect_to(port const& other_port) const noexcept -> bool override;
+
 	void connect_to(input& other_port) = delete;
-	virtual auto connected_output() const -> output* = 0;
-	virtual auto default_port() const -> output& = 0;
+	void connect_to(output& other_port, bool notify = true);
+	void connect_to(port& other_port, bool notify = true) final;
+
+	void disconnect_from(port& other_port, bool notify = true) final;
+
+	void disconnect(bool notify = true) final;
+
+	auto connected_ports() const -> std::vector<port*> const& final;
+
+	auto connected_output() const -> output*;
 
 	void push(std::weak_ptr<clk::sentinel> const& sentinel = {}) noexcept final;
 	void pull(std::weak_ptr<clk::sentinel> const& sentinel = {}) noexcept final;
 	void set_push_callback(std::function<void(std::weak_ptr<clk::sentinel> const&)> callback) noexcept;
 
+	virtual auto default_port() const -> output& = 0;
+
 private:
+	output* _connection = nullptr;
+	std::vector<port*> _cached_connected_ports = {};
 	std::function<void(std::weak_ptr<clk::sentinel> const&)> _push_callback;
 };
 
@@ -48,8 +63,6 @@ template <typename T>
 class input_of final : public input
 {
 public:
-	using compatible_port = output_of<T>;
-
 	input_of()
 	{
 		_default_port.connect_to(*this, false);
@@ -64,11 +77,7 @@ public:
 	input_of(input_of&&) = delete;
 	auto operator=(input_of const&) -> input_of& = delete;
 	auto operator=(input_of&&) -> input_of& = delete;
-
-	~input_of() final
-	{
-		disconnect(false);
-	}
+	~input_of() override = default;
 
 	auto data_pointer() const noexcept -> void const* final
 	{
@@ -77,9 +86,15 @@ public:
 
 	auto data() const noexcept -> T const&
 	{
-		if(_connection)
-			return _connection->data();
-		return _default_port.data();
+		if(connected_output() == nullptr)
+		{
+			return _default_port.data();
+		}
+		else
+		{
+			assert(connected_output()->data_type_hash() == data_type_hash());
+			return *(static_cast<T*>(connected_output()->data_pointer()));
+		}
 	}
 
 	auto operator*() const noexcept -> T const&
@@ -89,9 +104,15 @@ public:
 
 	auto operator->() const noexcept -> T const*
 	{
-		if(_connection)
-			return _connection->operator->();
-		return _default_port.operator->();
+		if(connected_output() == nullptr)
+		{
+			return _default_port.operator->();
+		}
+		else
+		{
+			assert(connected_output()->data_type_hash() == data_type_hash());
+			return static_cast<T*>(connected_output()->data_pointer());
+		}
 	}
 
 	auto data_type_hash() const noexcept -> std::size_t final
@@ -100,80 +121,21 @@ public:
 		return hash;
 	}
 
-	auto can_connect_to(port const& other_port) const noexcept -> bool final
-	{
-		return dynamic_cast<compatible_port const*>(&other_port);
-	}
-
-	void connect_to(compatible_port& other_port, bool notify = true)
-	{
-		if(&other_port == &_default_port)
-			return;
-		disconnect(false);
-		_connection = &other_port;
-		_cached_connected_ports = {_connection};
-		if(!other_port.is_connected_to(*this))
-			other_port.connect_to(*this, false);
-		update_timestamp();
-		connection_changed();
-		if(notify)
-			push();
-	}
-
-	void connect_to(port& other_port, bool notify = true) final
-	{
-		if(&other_port != &_default_port)
-			connect_to(dynamic_cast<compatible_port&>(other_port), notify);
-	}
-
-	void disconnect(bool notify = true) final
-	{
-		if(_connection)
-		{
-			auto old_connection = _connection;
-			_connection = nullptr;
-			_cached_connected_ports.clear();
-			old_connection->disconnect_from(*this, false);
-			update_timestamp();
-			connection_changed();
-			if(notify)
-				push();
-		}
-	}
-
-	void disconnect_from(port& other_port, bool notify = true) final
-	{
-		if(is_connected_to(other_port))
-			disconnect(notify);
-	}
-
-	auto connected_ports() const -> std::vector<port*> const& final
-	{
-		return _cached_connected_ports;
-	}
-
-	auto connected_output() const -> output* final
-	{
-		return _connection;
-	}
-
-	auto default_port() const -> compatible_port& final
+	auto default_port() const -> output_of<T>& final
 	{
 		return _default_port;
 	}
 
 	auto create_compatible_port() const -> std::unique_ptr<port> final
 	{
-		auto port = std::make_unique<compatible_port>(name());
+		auto port = std::make_unique<output_of<T>>(name());
 		if constexpr(std::is_copy_assignable_v<T>)
 			port->data() = this->data();
 		return port;
 	}
 
 private:
-	compatible_port mutable _default_port = compatible_port("Default port");
-	compatible_port* _connection = nullptr;
-	std::vector<port*> _cached_connected_ports = {};
+	output_of<T> mutable _default_port = output_of<T>("Default port");
 };
 
 } // namespace clk

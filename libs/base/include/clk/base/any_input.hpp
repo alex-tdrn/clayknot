@@ -25,15 +25,6 @@ public:
 
 	auto can_connect_to(port const& other_port) const noexcept -> bool final;
 
-	void connect_to(output& other_output, bool notify = true);
-	void connect_to(port& other_port, bool notify = true) final;
-
-	void disconnect_from(port& other_port, bool notify = true) final;
-
-	void disconnect(bool notify = true) final;
-
-	auto connected_ports() const -> std::vector<port*> const& final;
-	auto connected_output() const -> output* final;
 	auto default_port() const -> output& final;
 	auto create_compatible_port() const -> std::unique_ptr<port> final;
 
