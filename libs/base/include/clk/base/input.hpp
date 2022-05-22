@@ -6,7 +6,6 @@
 #include <cstddef>
 #include <functional>
 #include <memory>
-#include <range/v3/view/single.hpp>
 #include <string_view>
 #include <typeindex>
 
@@ -130,6 +129,7 @@ public:
 			return;
 		disconnect(false);
 		_connection = &other_port;
+		_cached_connected_ports = {_connection};
 		if(!other_port.is_connected_to(*this))
 			other_port.connect_to(*this, false);
 		update_timestamp();
@@ -150,6 +150,7 @@ public:
 		{
 			auto old_connection = _connection;
 			_connection = nullptr;
+			_cached_connected_ports.clear();
 			old_connection->disconnect_from(*this, false);
 			update_timestamp();
 			connection_changed();
@@ -164,9 +165,9 @@ public:
 			disconnect(notify);
 	}
 
-	auto connected_ports() const -> port_range<port*> final
+	auto connected_ports() const -> std::vector<port*> const& final
 	{
-		return ranges::views::single(_connection);
+		return _cached_connected_ports;
 	}
 
 	auto connected_output() const -> output* final
@@ -197,7 +198,8 @@ public:
 
 private:
 	compatible_port mutable _default_port = compatible_port("Default port");
-	compatible_port mutable* _connection = nullptr;
+	compatible_port* _connection = nullptr;
+	std::vector<port*> _cached_connected_ports = {nullptr};
 };
 
 } // namespace clk

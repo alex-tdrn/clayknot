@@ -5,16 +5,13 @@
 #include <cstddef>
 #include <functional>
 #include <memory>
-#include <range/v3/view/any_view.hpp>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace clk
 {
 class sentinel;
-
-template <typename T>
-using port_range = ranges::any_view<T, ranges::category::forward | ranges::category::sized>;
 
 class port
 {
@@ -41,7 +38,7 @@ public:
 	virtual void connect_to(port& other_port, bool notify = true) = 0;
 	virtual void disconnect_from(port& other_port, bool notify = true) = 0;
 	virtual void disconnect(bool notify = true) = 0;
-	virtual auto connected_ports() const -> port_range<port*> = 0;
+	virtual auto connected_ports() const -> std::vector<port*> const& = 0;
 	virtual void push(std::weak_ptr<clk::sentinel> const& sentinel = {}) noexcept = 0;
 	virtual void pull(std::weak_ptr<clk::sentinel> const& sentinel = {}) noexcept = 0;
 	virtual auto create_compatible_port() const -> std::unique_ptr<port> = 0;

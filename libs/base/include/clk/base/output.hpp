@@ -2,13 +2,11 @@
 
 #include "clk/base/port.hpp"
 #include "clk/util/predicates.hpp"
-#include "clk/util/projections.hpp"
 
 #include <cstddef>
 #include <functional>
 #include <memory>
 #include <range/v3/algorithm/any_of.hpp>
-#include <range/v3/view/transform.hpp>
 #include <string_view>
 #include <typeindex>
 #include <unordered_set>
@@ -31,7 +29,7 @@ public:
 	virtual auto data_pointer() noexcept -> void* = 0;
 	using port::connect_to;
 	void connect_to(output& other_port) = delete;
-	virtual auto connected_inputs() const -> port_range<input*> = 0;
+	virtual auto connected_inputs() const -> std::vector<input*> const& = 0;
 	void set_pull_callback(const std::function<void(std::weak_ptr<clk::sentinel> const&)>& callback);
 	void set_pull_callback(std::function<void(std::weak_ptr<clk::sentinel> const&)>&& callback) noexcept;
 	void pull(std::weak_ptr<clk::sentinel> const& sentinel = {}) noexcept final;
@@ -99,7 +97,7 @@ public:
 		_connections.insert(&other_port);
 		if(!other_port.is_connected_to(*this))
 			other_port.connect_to(*this, notify);
-
+		update_cached_connections();
 		connection_changed();
 	}
 
@@ -113,7 +111,7 @@ public:
 		_connections.erase(&other_port);
 		if(other_port.is_connected_to(*this))
 			other_port.disconnect(notify);
-
+		update_cached_connections();
 		connection_changed();
 	}
 
@@ -130,14 +128,14 @@ public:
 			disconnect_from(**_connections.begin(), notify);
 	}
 
-	auto connected_ports() const -> port_range<port*> final
+	auto connected_ports() const -> std::vector<port*> const& final
 	{
-		return _connections;
+		return _cached_connected_ports;
 	}
 
-	auto connected_inputs() const -> port_range<input*> final
+	auto connected_inputs() const -> std::vector<input*> const& final
 	{
-		return _connections | ranges::views::transform(clk::projections::cast<input*>());
+		return _cached_connected_inputs;
 	}
 
 	void push(std::weak_ptr<clk::sentinel> const& sentinel = {}) noexcept final
@@ -200,6 +198,19 @@ public:
 private:
 	T _data = {};
 	std::unordered_set<compatible_port*> _connections;
+	std::vector<input*> _cached_connected_inputs;
+	std::vector<port*> _cached_connected_ports;
+
+	void update_cached_connections()
+	{
+		_cached_connected_inputs.clear();
+		_cached_connected_ports.clear();
+		for(auto* connection : _connections)
+		{
+			_cached_connected_ports.push_back(connection);
+			_cached_connected_inputs.push_back(connection);
+		}
+	}
 };
 
 } // namespace clk
