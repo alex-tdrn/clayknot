@@ -23,12 +23,16 @@ public:
 	auto operator=(input&&) -> input& = delete;
 	~input() override = default;
 
+	auto timestamp() const noexcept -> clk::timestamp final;
 	auto is_faulty() const noexcept -> bool final;
+	auto is_connected() const noexcept -> bool final;
+
 	using port::connect_to;
 	void connect_to(input& other_port) = delete;
 	virtual auto connected_output() const -> output* = 0;
 	virtual auto default_port() const -> output& = 0;
 	void push(std::weak_ptr<clk::sentinel> const& sentinel = {}) noexcept final;
+	void pull(std::weak_ptr<clk::sentinel> const& sentinel = {}) noexcept final;
 	void set_push_callback(const std::function<void(std::weak_ptr<clk::sentinel> const&)>& callback);
 	void set_push_callback(std::function<void(std::weak_ptr<clk::sentinel> const&)>&& callback) noexcept;
 
@@ -99,18 +103,6 @@ public:
 		return hash;
 	}
 
-	auto timestamp() const noexcept -> clk::timestamp final
-	{
-		if(!_connection)
-			return std::max(_default_port.timestamp(), port::timestamp());
-		return std::max(_connection->timestamp(), port::timestamp());
-	}
-
-	auto is_connected() const noexcept -> bool final
-	{
-		return _connection != nullptr;
-	}
-
 	auto can_connect_to(port const& other_port) const noexcept -> bool final
 	{
 		return dynamic_cast<compatible_port const*>(&other_port);
@@ -178,14 +170,6 @@ public:
 	auto default_port() const -> compatible_port& final
 	{
 		return _default_port;
-	}
-
-	void pull(std::weak_ptr<clk::sentinel> const& sentinel = {}) noexcept final
-	{
-		if(_connection)
-			_connection->pull(sentinel);
-		else
-			_default_port.pull(sentinel);
 	}
 
 	auto create_compatible_port() const -> std::unique_ptr<port> final
