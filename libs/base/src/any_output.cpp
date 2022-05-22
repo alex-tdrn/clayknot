@@ -21,17 +21,14 @@ void any_output::set_data(void const* data_pointer, std::size_t data_type_hash)
 	{
 		assert(data_pointer == nullptr);
 		assert(data_type_hash == 0);
-		disconnect();
 	}
-	else
+
+	_data_type_hash = 0;
+	for(auto* connected : connected_inputs())
 	{
-		_data_type_hash = 0;
-		for(auto* connected : connected_inputs())
+		if(connected->data_type_hash() != data_type_hash && connected->data_type_hash() != 0)
 		{
-			if(connected->data_type_hash() != data_type_hash && connected->data_type_hash() != 0)
-			{
-				disconnect_from(*connected);
-			}
+			disconnect_from(*connected);
 		}
 	}
 

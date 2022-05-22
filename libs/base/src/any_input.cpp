@@ -2,6 +2,7 @@
 #include "clk/base/any_output.hpp"
 
 #include <memory>
+#include <utility>
 
 namespace clk
 {
@@ -33,7 +34,7 @@ auto any_input::data_pointer() const noexcept -> void const*
 {
 	if(connected_output() != nullptr)
 	{
-		return connected_output()->data_pointer();
+		return std::as_const(*connected_output()).data_pointer();
 	}
 	return nullptr;
 }
