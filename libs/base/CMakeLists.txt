@@ -9,6 +9,7 @@ target_sources(
 			"src/algorithm.cpp"
 			"src/port.cpp"
 			"src/input.cpp"
+			"src/any_input.cpp"
 			"src/output.cpp"
 			"src/any_output.cpp"
 			"src/graph.cpp"

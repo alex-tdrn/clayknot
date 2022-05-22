@@ -1,5 +1,6 @@
 #pragma once
 
+#include "clk/base/any_input.hpp"
 #include "clk/base/any_output.hpp"
 #include "clk/base/node.hpp"
 
@@ -19,7 +20,8 @@ public:
 	auto name() const -> std::string_view override;
 
 private:
-	any_output _out{"Output"};
+	any_input _in{"In"};
+	any_output _out{"Out"};
 
 	void update() override;
 };

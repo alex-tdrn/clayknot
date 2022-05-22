@@ -4,6 +4,7 @@ namespace clk
 {
 passthrough_node::passthrough_node()
 {
+	register_port(&_in);
 	register_port(&_out);
 }
 

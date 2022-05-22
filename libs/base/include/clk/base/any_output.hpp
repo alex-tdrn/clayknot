@@ -15,7 +15,7 @@ public:
 	any_output(any_output&&) = delete;
 	auto operator=(any_output const&) -> any_output& = delete;
 	auto operator=(any_output&&) -> any_output& = delete;
-	~any_output() final = default;
+	~any_output() final;
 
 	void set_data(void* data_pointer, std::size_t data_type_hash);
 	void clear_data();

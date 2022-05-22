@@ -1,8 +1,17 @@
 #include "clk/base/any_output.hpp"
+#include "clk/base/any_input.hpp"
 #include "clk/base/input.hpp"
+
+#include <memory>
 
 namespace clk
 {
+
+any_output::~any_output()
+{
+	disconnect();
+}
+
 void any_output::set_data(void* data_pointer, std::size_t data_type_hash)
 {
 	if(data_pointer == nullptr || data_type_hash != 0)
@@ -100,7 +109,7 @@ auto any_output::connected_inputs() const -> std::vector<input*> const&
 
 auto any_output::create_compatible_port() const -> std::unique_ptr<port>
 {
-	return nullptr;
+	return std::make_unique<any_input>();
 }
 
 void any_output::update_cached_connections()
