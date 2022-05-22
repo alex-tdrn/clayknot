@@ -22,18 +22,18 @@ any_input::~any_input()
 
 auto any_input::data_type_hash() const noexcept -> std::size_t
 {
-	if(_connection != nullptr)
+	if(connected_output() != nullptr)
 	{
-		return _connection->data_type_hash();
+		return connected_output()->data_type_hash();
 	}
 	return 0;
 }
 
 auto any_input::data_pointer() const noexcept -> void const*
 {
-	if(_connection != nullptr)
+	if(connected_output() != nullptr)
 	{
-		return _connection->data_pointer();
+		return connected_output()->data_pointer();
 	}
 	return nullptr;
 }

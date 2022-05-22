@@ -17,7 +17,7 @@ public:
 	auto operator=(any_output&&) -> any_output& = delete;
 	~any_output() final;
 
-	void set_data(void* data_pointer, std::size_t data_type_hash);
+	void set_data(void const* data_pointer, std::size_t data_type_hash);
 	void clear_data();
 
 	auto data_type_hash() const noexcept -> std::size_t final;
@@ -27,7 +27,7 @@ public:
 	auto create_compatible_port() const -> std::unique_ptr<port> final;
 
 private:
-	void* _data_pointer = nullptr;
+	void const* _data_pointer = nullptr;
 	std::size_t _data_type_hash = 0;
 };
 } // namespace clk

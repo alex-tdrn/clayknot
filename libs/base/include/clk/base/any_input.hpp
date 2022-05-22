@@ -30,8 +30,6 @@ public:
 
 private:
 	any_output mutable _default_port{"Default port"};
-	output* _connection = nullptr;
-	std::vector<port*> _cached_connected_ports = {};
 };
 
 } // namespace clk

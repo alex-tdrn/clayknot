@@ -27,6 +27,8 @@ void algorithm_node::set_algorithm(std::unique_ptr<clk::algorithm>&& algorithm)
 
 	for(auto* output : _algorithm->outputs())
 		register_port(output);
+
+	pull();
 }
 
 auto algorithm_node::update_possible() const -> bool

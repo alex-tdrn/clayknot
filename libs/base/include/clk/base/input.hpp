@@ -10,6 +10,7 @@
 #include <memory>
 #include <string_view>
 #include <typeindex>
+#include <utility>
 
 namespace clk
 {
@@ -93,7 +94,7 @@ public:
 		else
 		{
 			assert(connected_output()->data_type_hash() == data_type_hash());
-			return *(static_cast<T*>(connected_output()->data_pointer()));
+			return *(static_cast<T const*>(std::as_const(*connected_output()).data_pointer()));
 		}
 	}
 
@@ -111,7 +112,7 @@ public:
 		else
 		{
 			assert(connected_output()->data_type_hash() == data_type_hash());
-			return static_cast<T*>(connected_output()->data_pointer());
+			return static_cast<T const*>(std::as_const(*connected_output()).data_pointer());
 		}
 	}
 

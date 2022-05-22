@@ -13,14 +13,26 @@ any_output::~any_output()
 	disconnect();
 }
 
-void any_output::set_data(void* data_pointer, std::size_t data_type_hash)
+void any_output::set_data(void const* data_pointer, std::size_t data_type_hash)
 {
-	if(data_pointer == nullptr || data_type_hash != 0)
+	update_timestamp();
+
+	if(data_pointer == nullptr || data_type_hash == 0)
 	{
-		assert(data_pointer != nullptr);
+		assert(data_pointer == nullptr);
 		assert(data_type_hash == 0);
 		disconnect();
-		// TODO only disconnect if not any_input
+	}
+	else
+	{
+		_data_type_hash = 0;
+		for(auto* connected : connected_inputs())
+		{
+			if(connected->data_type_hash() != data_type_hash && connected->data_type_hash() != 0)
+			{
+				disconnect_from(*connected);
+			}
+		}
 	}
 
 	_data_pointer = data_pointer;
@@ -44,7 +56,7 @@ auto any_output::data_pointer() const noexcept -> void const*
 
 auto any_output::data_pointer() noexcept -> void*
 {
-	return _data_pointer;
+	return nullptr;
 }
 
 auto any_output::create_compatible_port() const -> std::unique_ptr<port>
