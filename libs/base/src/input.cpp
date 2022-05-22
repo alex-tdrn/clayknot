@@ -30,17 +30,7 @@ auto input::is_faulty() const noexcept -> bool
 	}
 }
 
-auto input::is_connected() const noexcept -> bool
-{
-	return connected_output() != nullptr;
-}
-
-void input::set_push_callback(const std::function<void(std::weak_ptr<clk::sentinel> const&)>& callback)
-{
-	_push_callback = callback;
-}
-
-void input::set_push_callback(std::function<void(std::weak_ptr<clk::sentinel> const&)>&& callback) noexcept
+void input::set_push_callback(std::function<void(std::weak_ptr<clk::sentinel> const&)> callback) noexcept
 {
 	_push_callback = std::move(callback);
 }

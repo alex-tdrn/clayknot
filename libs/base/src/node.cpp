@@ -145,24 +145,24 @@ void node::update()
 
 void node::pull_inputs(std::weak_ptr<clk::sentinel> const& sentinel)
 {
-	for(auto* port : _inputs)
+	for(auto* input_port : _inputs)
 	{
-		if(port->is_faulty())
+		if(input_port->is_faulty())
 		{
-			for(auto* port : _outputs)
+			for(auto* output_port : _outputs)
 			{
-				port->mark_as_faulty();
+				output_port->mark_as_faulty();
 			}
 			return;
 		}
-		port->pull(sentinel);
+		input_port->pull(sentinel);
 	}
 }
 
 void node::push_outputs(std::weak_ptr<clk::sentinel> const& sentinel)
 {
-	for(auto* port : _outputs)
-		port->push(sentinel);
+	for(auto* output_port : _outputs)
+		output_port->push(sentinel);
 }
 
 auto node::sentinel_present() const -> bool

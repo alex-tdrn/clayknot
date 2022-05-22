@@ -31,8 +31,9 @@ public:
 	using port::connect_to;
 	void connect_to(output& other_port) = delete;
 	virtual auto connected_inputs() const -> std::vector<input*> const& = 0;
-	void set_pull_callback(const std::function<void(std::weak_ptr<clk::sentinel> const&)>& callback);
-	void set_pull_callback(std::function<void(std::weak_ptr<clk::sentinel> const&)>&& callback) noexcept;
+
+	void set_pull_callback(std::function<void(std::weak_ptr<clk::sentinel> const&)> callback) noexcept;
+	void push(std::weak_ptr<clk::sentinel> const& sentinel = {}) noexcept final;
 	void pull(std::weak_ptr<clk::sentinel> const& sentinel = {}) noexcept final;
 
 private:
@@ -65,23 +66,9 @@ public:
 		return hash;
 	}
 
-	auto is_connected() const noexcept -> bool final
-	{
-		return !_connections.empty();
-	}
-
 	auto can_connect_to(port const& other_port) const noexcept -> bool final
 	{
 		return dynamic_cast<compatible_port const*>(&other_port);
-	}
-
-	auto is_connected_to(port const& other_port) const noexcept -> bool final
-	{
-		auto concrete = dynamic_cast<compatible_port const*>(&other_port);
-		if(concrete == nullptr)
-			return false;
-
-		return ranges::any_of(_connections, clk::predicates::is_equal_to(concrete));
 	}
 
 	void connect_to(compatible_port& other_port, bool notify = true)
@@ -128,12 +115,6 @@ public:
 	auto connected_inputs() const -> std::vector<input*> const& final
 	{
 		return _cached_connected_inputs;
-	}
-
-	void push(std::weak_ptr<clk::sentinel> const& sentinel = {}) noexcept final
-	{
-		for(auto connection : _connections)
-			connection->push(sentinel);
 	}
 
 	auto create_compatible_port() const -> std::unique_ptr<port> final

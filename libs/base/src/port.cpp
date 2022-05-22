@@ -46,6 +46,23 @@ auto port::is_faulty() const noexcept -> bool
 	return _faulty;
 }
 
+auto port::is_connected() const noexcept -> bool
+{
+	return !connected_ports().empty();
+}
+
+auto port::is_connected_to(port const& other_port) const noexcept -> bool
+{
+	for(auto* connected : connected_ports())
+	{
+		if(connected == &other_port)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 void port::connection_changed()
 {
 	if(_connection_changed_callback)

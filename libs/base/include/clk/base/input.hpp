@@ -27,16 +27,15 @@ public:
 
 	auto timestamp() const noexcept -> clk::timestamp final;
 	auto is_faulty() const noexcept -> bool final;
-	auto is_connected() const noexcept -> bool final;
 
 	using port::connect_to;
 	void connect_to(input& other_port) = delete;
 	virtual auto connected_output() const -> output* = 0;
 	virtual auto default_port() const -> output& = 0;
+
 	void push(std::weak_ptr<clk::sentinel> const& sentinel = {}) noexcept final;
 	void pull(std::weak_ptr<clk::sentinel> const& sentinel = {}) noexcept final;
-	void set_push_callback(const std::function<void(std::weak_ptr<clk::sentinel> const&)>& callback);
-	void set_push_callback(std::function<void(std::weak_ptr<clk::sentinel> const&)>&& callback) noexcept;
+	void set_push_callback(std::function<void(std::weak_ptr<clk::sentinel> const&)> callback) noexcept;
 
 private:
 	std::function<void(std::weak_ptr<clk::sentinel> const&)> _push_callback;
@@ -104,13 +103,6 @@ public:
 	auto can_connect_to(port const& other_port) const noexcept -> bool final
 	{
 		return dynamic_cast<compatible_port const*>(&other_port);
-	}
-
-	auto is_connected_to(port const& other_port) const noexcept -> bool final
-	{
-		if(!_connection)
-			return false;
-		return _connection == dynamic_cast<compatible_port const*>(&other_port);
 	}
 
 	void connect_to(compatible_port& other_port, bool notify = true)
