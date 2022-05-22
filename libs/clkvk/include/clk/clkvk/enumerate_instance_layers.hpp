@@ -31,8 +31,6 @@ private:
 		_layers->clear();
 		for(auto const& layer : vk::enumerateInstanceLayerProperties())
 		{
-			_layers->push_back(layer.layerName);
-
 			std::string spec_version = std::to_string(VK_VERSION_MAJOR(layer.specVersion)) + "." +
 									   std::to_string(VK_VERSION_MINOR(layer.specVersion)) + "." +
 									   std::to_string(VK_VERSION_PATCH(layer.specVersion));

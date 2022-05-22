@@ -27,6 +27,7 @@ private:
 
 	clk::input_of<vk::ApplicationInfo> _application_info{"Application Info"};
 	clk::input_of<std::vector<std::string>> _extensions{"Extensions"};
+	clk::input_of<std::vector<std::string>> _layers{"Validation Layers"};
 	clk::output_of<vk::UniqueInstance> _instance{"Instance"};
 };
 
@@ -34,6 +35,7 @@ inline instance::instance()
 {
 	register_port(_application_info);
 	register_port(_extensions);
+	register_port(_layers);
 
 	register_port(_instance);
 }
@@ -50,6 +52,14 @@ inline void instance::update()
 		extensions_proxy.push_back(extension.c_str());
 	}
 	instance_info.setPEnabledExtensionNames(extensions_proxy);
+
+	std::vector<const char*> layers_proxy;
+	layers_proxy.reserve(_layers->size());
+	for(const auto& extension : *_layers)
+	{
+		layers_proxy.push_back(extension.c_str());
+	}
+	instance_info.setPEnabledLayerNames(layers_proxy);
 
 	*_instance = vk::createInstanceUnique(instance_info);
 }
