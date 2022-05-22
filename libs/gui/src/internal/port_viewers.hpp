@@ -37,7 +37,6 @@ public:
 
 protected:
 	int _id = -1; // NOLINT
-	std::uint32_t _color; // NOLINT
 	std::unique_ptr<clk::gui::viewer> _data_viewer; // NOLINT
 	glm::vec2 _position = {0.0f, 0.0f}; // NOLINT
 	bool const& _draw_port_widgets; // NOLINT

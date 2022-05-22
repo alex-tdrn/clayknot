@@ -5,6 +5,7 @@
 #include "clk/util/color_rgb.hpp"
 #include "clk/util/color_rgba.hpp"
 #include "imgui_guard.hpp"
+#include "port_color.hpp"
 
 #include <imgui.h>
 #include <imnodes.h>
@@ -15,7 +16,6 @@ namespace clk::gui::impl
 port_viewer::port_viewer(
 	clk::port const* port, int id, widget_factory const& widget_factory, bool const& draw_port_widgets)
 	: _id(id)
-	, _color(color_rgba(color_rgb::create_random(port->data_type_hash()), 1.0f).packed())
 	, _data_viewer(widget_factory.create(data_reader<void>{[=]() {
 		return port->data_pointer();
 	}},
@@ -65,8 +65,8 @@ void input_viewer::draw()
 	}
 	else
 	{
-		style_guard.push_color_style(ImNodesCol_Pin, _color);
-		style_guard.push_color_style(ImNodesCol_PinHovered, _color);
+		style_guard.push_color_style(ImNodesCol_Pin, port_color(_port));
+		style_guard.push_color_style(ImNodesCol_PinHovered, port_color(_port));
 	}
 
 	ImNodes::BeginInputAttribute(_id, ImNodesPinShape_QuadFilled);
@@ -117,8 +117,8 @@ void output_viewer::draw()
 	}
 	else
 	{
-		style_guard.push_color_style(ImNodesCol_Pin, _color);
-		style_guard.push_color_style(ImNodesCol_PinHovered, _color);
+		style_guard.push_color_style(ImNodesCol_Pin, port_color(_port));
+		style_guard.push_color_style(ImNodesCol_PinHovered, port_color(_port));
 	}
 
 	ImNodes::BeginOutputAttribute(_id, ImNodesPinShape_TriangleFilled);
