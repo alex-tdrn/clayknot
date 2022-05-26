@@ -6,6 +6,7 @@
 #include "clk/base/input.hpp"
 #include "clk/base/node.hpp"
 #include "clk/base/output.hpp"
+#include "clk/base/passthrough_node.hpp"
 #include "clk/base/port.hpp"
 #include "clk/gui/widgets/action_widget.hpp"
 #include "clk/gui/widgets/editor.hpp"
@@ -18,6 +19,7 @@
 #include "imgui_guard.hpp"
 #include "layout_solver.hpp"
 #include "node_editors.hpp"
+#include "port_color.hpp"
 #include "port_editors.hpp"
 #include "selection_manager.hpp"
 #include "widget_cache.hpp"
@@ -41,6 +43,7 @@
 
 namespace clk::gui
 {
+
 graph_editor::graph_editor(std::shared_ptr<widget_factory const> factory, std::string_view name)
 	: editor_of<clk::graph>(std::move(factory), name)
 	, _context(ImNodes::EditorContextCreate())
@@ -170,7 +173,7 @@ void graph_editor::draw_graph(clk::graph& graph) const
 		else
 		{
 			style_guard.push_color_style(
-				ImNodesCol_Link, _port_cache->widget_for(&_new_connection_in_progress->starting_port).color());
+				ImNodesCol_Link, impl::port_color(&_new_connection_in_progress->starting_port));
 		}
 	}
 	else
@@ -358,6 +361,16 @@ void graph_editor::draw_menus(clk::graph& graph) const
 					{
 						new_node = std::make_unique<algorithm_node>(algorithm_factory());
 					}
+
+				ImGui::EndMenu();
+			}
+
+			if(ImGui::BeginMenu("Generic"))
+			{
+				if(ImGui::MenuItem("Passthrough"))
+				{
+					new_node = std::make_unique<passthrough_node>();
+				}
 
 				ImGui::EndMenu();
 			}

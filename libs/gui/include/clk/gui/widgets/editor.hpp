@@ -4,6 +4,7 @@
 #include "clk/gui/widgets/data_writer.hpp"
 
 #include <imgui.h>
+#include <typeindex>
 
 namespace clk::gui
 {
@@ -43,6 +44,12 @@ public:
 		auto const& casted = dynamic_cast<editor_of<DataType> const&>(other);
 		_data = casted._data;
 		editor::copy(other);
+	}
+
+	auto data_type_hash() const -> std::size_t override
+	{
+		static std::size_t hash = std::type_index(typeid(DataType)).hash_code();
+		return hash;
 	}
 
 	void set_data_writer(data_writer<DataType> data)
@@ -97,6 +104,12 @@ public:
 	void copy(widget const& other) override
 	{
 		editor::copy(other);
+	}
+
+	auto data_type_hash() const -> std::size_t override
+	{
+		static std::size_t hash = std::type_index(typeid(void)).hash_code();
+		return hash;
 	}
 
 private:

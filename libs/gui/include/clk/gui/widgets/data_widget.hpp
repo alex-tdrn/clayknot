@@ -22,6 +22,7 @@ public:
 
 	auto get_widget_factory() const -> std::shared_ptr<widget_factory const> const&;
 	void set_widget_factory(std::shared_ptr<widget_factory const> factory);
+	virtual auto data_type_hash() const -> std::size_t = 0;
 
 private:
 	std::shared_ptr<widget_factory const> _factory;

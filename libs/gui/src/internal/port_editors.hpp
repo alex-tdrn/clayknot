@@ -34,7 +34,6 @@ public:
 	virtual ~port_editor() = default;
 
 	auto id() const -> int;
-	auto color() const -> std::uint32_t;
 	void set_enabled(bool enabled);
 	void set_stable_height(bool stable_height);
 	virtual auto port() const -> port* = 0;
@@ -43,12 +42,13 @@ public:
 
 protected:
 	int _id = -1; // NOLINT
-	std::uint32_t _color; // NOLINT
 	std::unique_ptr<clk::gui::viewer> _data_viewer; // NOLINT
 	bool _enabled = true; // NOLINT
 	bool _stable_height = false; // NOLINT
 	glm::vec2 _position = {0.0f, 0.0f}; // NOLINT
 	bool const& _draw_port_widgets; // NOLINT
+
+	void update_viewer_type();
 };
 
 class input_editor final : public port_editor

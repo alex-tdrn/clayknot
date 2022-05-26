@@ -4,6 +4,7 @@
 #include "clk/gui/widgets/data_widget.hpp"
 
 #include <imgui.h>
+#include <typeindex>
 
 namespace clk::gui
 {
@@ -43,6 +44,12 @@ public:
 		auto const& casted = dynamic_cast<viewer_of<DataType> const&>(other);
 		_data = casted._data;
 		viewer::copy(other);
+	}
+
+	auto data_type_hash() const -> std::size_t override
+	{
+		static std::size_t hash = std::type_index(typeid(DataType)).hash_code();
+		return hash;
 	}
 
 	void set_data_reader(data_reader<DataType> data)
@@ -93,6 +100,12 @@ public:
 	void copy(widget const& other) override
 	{
 		viewer::copy(other);
+	}
+
+	auto data_type_hash() const -> std::size_t override
+	{
+		static std::size_t hash = std::type_index(typeid(void)).hash_code();
+		return hash;
 	}
 
 private:

@@ -7,6 +7,7 @@
 #include "clk/util/color_rgb.hpp"
 #include "clk/util/color_rgba.hpp"
 #include "imgui_guard.hpp"
+#include "port_color.hpp"
 
 #include <algorithm>
 #include <imgui.h>
@@ -14,9 +15,9 @@
 
 namespace clk::gui::impl
 {
+
 port_editor::port_editor(clk::port* port, int id, widget_factory const& widget_factory, bool const& draw_port_widgets)
 	: _id(id)
-	, _color(color_rgba(color_rgb::create_random(port->data_type_hash()), 1.0f).packed())
 	, _data_viewer(widget_factory.create(data_reader<void>{[=]() {
 		return port->data_pointer();
 	}},
@@ -29,11 +30,6 @@ port_editor::port_editor(clk::port* port, int id, widget_factory const& widget_f
 auto port_editor::id() const -> int
 {
 	return _id;
-}
-
-auto port_editor::color() const -> std::uint32_t
-{
-	return _color;
 }
 
 void port_editor::set_enabled(bool enabled)
@@ -49,6 +45,18 @@ void port_editor::set_stable_height(bool stable_height)
 auto port_editor::position() const -> glm::vec2 const&
 {
 	return _position;
+}
+
+void port_editor::update_viewer_type()
+{
+	if(_data_viewer->data_type_hash() != port()->data_type_hash())
+	{
+		_data_viewer = _data_viewer->get_widget_factory()->create(data_reader<void>{[=]() {
+			return port()->data_pointer();
+		}},
+			port()->data_type_hash(), port()->name());
+		_data_viewer->set_maximum_width(200);
+	}
 }
 
 input_editor::input_editor(
@@ -91,7 +99,7 @@ void input_editor::draw(clk::gui::widget* override_widget)
 	}
 	else
 	{
-		style_guard.push_color_style(ImNodesCol_Pin, _color);
+		style_guard.push_color_style(ImNodesCol_Pin, port_color(_port));
 	}
 
 	float const begin_y = ImGui::GetCursorPosY();
@@ -115,6 +123,7 @@ void input_editor::draw(clk::gui::widget* override_widget)
 			}
 			else
 			{
+				update_viewer_type();
 				_data_viewer->draw();
 			}
 
@@ -173,7 +182,7 @@ void output_editor::draw(clk::gui::widget* override_widget)
 	}
 	else
 	{
-		style_guard.push_color_style(ImNodesCol_Pin, _color);
+		style_guard.push_color_style(ImNodesCol_Pin, port_color(_port));
 	}
 
 	if(!_enabled)
@@ -184,9 +193,14 @@ void output_editor::draw(clk::gui::widget* override_widget)
 	if(_draw_port_widgets)
 	{
 		if(override_widget != nullptr)
+		{
 			override_widget->draw();
+		}
 		else
+		{
+			update_viewer_type();
 			_data_viewer->draw();
+		}
 	}
 	else
 	{
