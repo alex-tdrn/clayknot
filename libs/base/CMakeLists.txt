@@ -6,6 +6,7 @@ target_sources(
 			"src/algorithm_node.cpp"
 			"src/constant_node.cpp"
 			"src/passthrough_node.cpp"
+			"src/split_node.cpp"
 			"src/algorithm.cpp"
 			"src/port.cpp"
 			"src/input.cpp"

@@ -8,6 +8,7 @@
 #include "clk/base/output.hpp"
 #include "clk/base/passthrough_node.hpp"
 #include "clk/base/port.hpp"
+#include "clk/base/split_node.hpp"
 #include "clk/gui/widgets/action_widget.hpp"
 #include "clk/gui/widgets/editor.hpp"
 #include "clk/gui/widgets/widget.hpp"
@@ -367,6 +368,10 @@ void graph_editor::draw_menus(clk::graph& graph) const
 
 			if(ImGui::BeginMenu("Generic"))
 			{
+				if(ImGui::MenuItem("Split"))
+				{
+					new_node = std::make_unique<split_node>();
+				}
 				if(ImGui::MenuItem("Passthrough"))
 				{
 					new_node = std::make_unique<passthrough_node>();
