@@ -5,6 +5,9 @@
 #include <type_traits>
 #include <typeinfo>
 #include <utility>
+#include <vector>
+
+#include "clk/util/traits.hpp"
 
 namespace clk
 {
@@ -50,72 +53,27 @@ public:
 		}
 	}
 
-private:
-	struct vtable
-	{
-		std::size_t (*type_hash)();
-	};
-
-	vtable const* _vtable = nullptr;
-	std::conditional_t<Mutable, void*, void const*> _data = nullptr;
-
-	template <typename T>
-	static auto vtable_for() -> vtable const*
-	{
-		static vtable vtable = {[]() -> std::size_t {
-			return typeid(T).hash_code();
-		}};
-		return &vtable;
-	}
-};
-
-template <bool Mutable>
-class list_data
-{
-public:
-	template <typename T>
-	list_data(T* v) : _vtable(vtable_for<T>()), _data(v)
-	{
-	}
-
-	list_data() = default;
-	list_data(list_data const&) = default;
-	list_data(list_data&&) noexcept = default;
-	auto operator=(list_data const&) -> list_data& = default;
-	auto operator=(list_data&&) noexcept -> list_data& = default;
-	~list_data() = default;
-
-	auto is_empty() const -> bool
-	{
-		return _data == nullptr;
-	}
-
-	auto pointer()
-	{
-		return _data;
-	}
-
-	auto type_hash() const -> std::size_t
+	auto is_convertible_to_list() const -> bool
 	{
 		if(is_empty())
 		{
-			return 0;
+			return false;
 		}
 		else
 		{
-			return _vtable->type_hash();
+			return _vtable->is_convertible_to_list();
 		}
 	}
 
-	auto element_type_hash() const -> std::size_t
+	auto as_list() -> std::vector<data<Mutable>>
 	{
 		if(is_empty())
 		{
-			return 0;
+			return {};
 		}
 		else
 		{
-			return _vtable->element_type_hash();
+			return _vtable->as_list(*this);
 		}
 	}
 
@@ -123,7 +81,8 @@ private:
 	struct vtable
 	{
 		std::size_t (*type_hash)();
-		std::size_t (*element_type_hash)();
+		bool (*is_convertible_to_list)();
+		std::vector<data<Mutable>> (*as_list)(data<Mutable>&);
 	};
 
 	vtable const* _vtable = nullptr;
@@ -133,14 +92,36 @@ private:
 	static auto vtable_for() -> vtable const*
 	{
 		static vtable v = []() -> vtable {
-			vtable result;
-			result.type_hash = []() -> std::size_t {
+			vtable table;
+			table.type_hash = []() -> std::size_t {
 				return typeid(T).hash_code();
 			};
-			result.element_type_hash = []() -> std::size_t {
-				return typeid(decltype(*std::declval<T>().begin())).hash_code();
-			};
-			return result;
+
+			if constexpr(clk::is_range_v<T>)
+			{
+				table.is_convertible_to_list = []() -> bool {
+					return true;
+				};
+
+				table.as_list = [](data<Mutable>& instance) -> std::vector<data<Mutable>> {
+					std::vector<data<Mutable>> result;
+					for(auto& element : *static_cast<std::conditional_t<Mutable, T*, T const*>>(instance.pointer()))
+					{
+						result.push_back(&element);
+					}
+					return result;
+				};
+			}
+			else
+			{
+				table.is_convertible_to_list = []() -> bool {
+					return false;
+				};
+
+				table.as_list = [](data<Mutable>&) -> std::vector<data<Mutable>> {
+					return {};
+				};
+			}
 		}();
 		return &v;
 	}
