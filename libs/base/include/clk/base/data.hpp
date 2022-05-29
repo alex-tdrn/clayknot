@@ -69,6 +69,83 @@ private:
 	}
 };
 
+template <bool Mutable>
+class list_data
+{
+public:
+	template <typename T>
+	list_data(T* v) : _vtable(vtable_for<T>()), _data(v)
+	{
+	}
+
+	list_data() = default;
+	list_data(list_data const&) = default;
+	list_data(list_data&&) noexcept = default;
+	auto operator=(list_data const&) -> list_data& = default;
+	auto operator=(list_data&&) noexcept -> list_data& = default;
+	~list_data() = default;
+
+	auto is_empty() const -> bool
+	{
+		return _data == nullptr;
+	}
+
+	auto pointer()
+	{
+		return _data;
+	}
+
+	auto type_hash() const -> std::size_t
+	{
+		if(is_empty())
+		{
+			return 0;
+		}
+		else
+		{
+			return _vtable->type_hash();
+		}
+	}
+
+	auto element_type_hash() const -> std::size_t
+	{
+		if(is_empty())
+		{
+			return 0;
+		}
+		else
+		{
+			return _vtable->element_type_hash();
+		}
+	}
+
+private:
+	struct vtable
+	{
+		std::size_t (*type_hash)();
+		std::size_t (*element_type_hash)();
+	};
+
+	vtable const* _vtable = nullptr;
+	std::conditional_t<Mutable, void*, void const*> _data = nullptr;
+
+	template <typename T>
+	static auto vtable_for() -> vtable const*
+	{
+		static vtable v = []() -> vtable {
+			vtable result;
+			result.type_hash = []() -> std::size_t {
+				return typeid(T).hash_code();
+			};
+			result.element_type_hash = []() -> std::size_t {
+				return typeid(decltype(*std::declval<T>().begin())).hash_code();
+			};
+			return result;
+		}();
+		return &v;
+	}
+};
+
 } // namespace impl
 
 using mutable_data = impl::data<true>;
