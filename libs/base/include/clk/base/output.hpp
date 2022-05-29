@@ -1,5 +1,6 @@
 #pragma once
 
+#include "clk/base/data.hpp"
 #include "clk/base/port.hpp"
 #include "clk/util/predicates.hpp"
 
@@ -26,8 +27,8 @@ public:
 	auto operator=(output&&) -> output& = delete;
 	~output() override;
 
-	using port::data_pointer;
-	virtual auto data_pointer() noexcept -> void* = 0;
+	using port::abstract_data;
+	virtual auto abstract_data() noexcept -> mutable_data = 0;
 
 	auto can_connect_to(port const& other_port) const noexcept -> bool final;
 
@@ -84,14 +85,14 @@ public:
 		return port;
 	}
 
-	auto data_pointer() const noexcept -> void const* final
+	auto abstract_data() const noexcept -> const_data final
 	{
-		return &_data;
+		return const_data{&_data};
 	}
 
-	auto data_pointer() noexcept -> void* final
+	auto abstract_data() noexcept -> mutable_data final
 	{
-		return &_data;
+		return mutable_data{&_data};
 	}
 
 	auto data() noexcept -> T&

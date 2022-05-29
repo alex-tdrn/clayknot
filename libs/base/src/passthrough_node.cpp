@@ -15,7 +15,7 @@ auto passthrough_node::name() const -> std::string_view
 
 void passthrough_node::update()
 {
-	_out.set_data(_in.data_pointer(), _in.data_type_hash());
+	_out.set_data(_in.abstract_data());
 }
 
 } // namespace clk

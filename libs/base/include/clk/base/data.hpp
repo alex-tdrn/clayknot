@@ -2,11 +2,17 @@
 
 #include <cassert>
 #include <cstddef>
+#include <type_traits>
 #include <typeinfo>
+#include <utility>
 
 namespace clk
 {
 
+namespace impl
+{
+
+template <bool Mutable>
 class data
 {
 public:
@@ -17,25 +23,31 @@ public:
 
 	data() = default;
 	data(data const&) = default;
-	data(data&&) = default;
+	data(data&&) noexcept = default;
 	auto operator=(data const&) -> data& = default;
-	auto operator=(data&&) -> data& = default;
+	auto operator=(data&&) noexcept -> data& = default;
 	~data() = default;
 
-	auto pointer() const -> void const*
+	auto is_empty() const -> bool
 	{
-		return _data;
+		return _data == nullptr;
 	}
 
-	auto pointer() -> void*
+	auto pointer()
 	{
 		return _data;
 	}
 
 	auto type_hash() const -> std::size_t
 	{
-		assert(_vtable != nullptr && _data != nullptr);
-		return _vtable->type_hash();
+		if(is_empty())
+		{
+			return 0;
+		}
+		else
+		{
+			return _vtable->type_hash();
+		}
 	}
 
 private:
@@ -45,7 +57,7 @@ private:
 	};
 
 	vtable const* _vtable = nullptr;
-	void* _data = nullptr;
+	std::conditional_t<Mutable, void*, void const*> _data = nullptr;
 
 	template <typename T>
 	static auto vtable_for() -> vtable const*
@@ -57,6 +69,9 @@ private:
 	}
 };
 
-class data_list;
+} // namespace impl
+
+using mutable_data = impl::data<true>;
+using const_data = impl::data<false>;
 
 } // namespace clk

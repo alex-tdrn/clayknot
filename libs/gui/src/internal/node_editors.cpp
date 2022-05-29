@@ -168,7 +168,7 @@ void constant_node_editor::draw_outputs()
 		{
 			_constant_editors[port] =
 				_widget_factory.create(clk::gui::data_writer<void>{[=]() {
-																	   return port->data_pointer();
+																	   return port->abstract_data().pointer();
 																   },
 										   [=]() {
 											   port->update_timestamp();

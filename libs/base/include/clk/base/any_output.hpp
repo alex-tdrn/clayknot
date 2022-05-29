@@ -1,5 +1,6 @@
 #pragma once
 
+#include "clk/base/data.hpp"
 #include "clk/base/output.hpp"
 
 namespace clk
@@ -17,17 +18,16 @@ public:
 	auto operator=(any_output&&) -> any_output& = delete;
 	~any_output() final;
 
-	void set_data(void const* data_pointer, std::size_t data_type_hash);
+	void set_data(const_data data);
 	void clear_data();
 
 	auto data_type_hash() const noexcept -> std::size_t final;
-	auto data_pointer() const noexcept -> void const* final;
-	auto data_pointer() noexcept -> void* final;
+	auto abstract_data() const noexcept -> const_data final;
+	auto abstract_data() noexcept -> mutable_data final;
 
 	auto create_compatible_port() const -> std::unique_ptr<port> final;
 
 private:
-	void const* _data_pointer = nullptr;
-	std::size_t _data_type_hash = 0;
+	const_data _data = {};
 };
 } // namespace clk

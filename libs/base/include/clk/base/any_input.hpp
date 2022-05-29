@@ -21,7 +21,7 @@ public:
 	~any_input() final;
 
 	auto data_type_hash() const noexcept -> std::size_t final;
-	auto data_pointer() const noexcept -> void const* final;
+	auto abstract_data() const noexcept -> const_data final;
 
 	auto can_connect_to(port const& other_port) const noexcept -> bool final;
 

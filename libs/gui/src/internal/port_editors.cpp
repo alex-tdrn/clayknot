@@ -20,7 +20,7 @@ namespace clk::gui::impl
 port_editor::port_editor(clk::port* port, int id, widget_factory const& widget_factory, bool const& draw_port_widgets)
 	: _id(id)
 	, _data_viewer(widget_factory.create(data_reader<void>{[=]() {
-		return port->data_pointer();
+		return port->abstract_data().pointer();
 	}},
 		  port->data_type_hash(), port->name()))
 	, _draw_port_widgets(draw_port_widgets)
@@ -53,7 +53,7 @@ void port_editor::update_viewer_type()
 	if(_data_viewer->data_type_hash() != port()->data_type_hash())
 	{
 		_data_viewer = _data_viewer->get_widget_factory()->create(data_reader<void>{[=]() {
-			return port()->data_pointer();
+			return port()->abstract_data().pointer();
 		}},
 			port()->data_type_hash(), port()->name());
 		_data_viewer->set_maximum_width(200);
@@ -66,14 +66,15 @@ input_editor::input_editor(
 {
 	auto* default_port = &port->default_port();
 
-	_default_data_editor = widget_factory.create(clk::gui::data_writer<void>{[=]() {
-																				 return default_port->data_pointer();
-																			 },
-													 [=]() {
-														 default_port->update_timestamp();
-														 default_port->push();
-													 }},
-		default_port->data_type_hash(), port->name());
+	_default_data_editor =
+		widget_factory.create(clk::gui::data_writer<void>{[=]() {
+															  return default_port->abstract_data().pointer();
+														  },
+								  [=]() {
+									  default_port->update_timestamp();
+									  default_port->push();
+								  }},
+			default_port->data_type_hash(), port->name());
 	_default_data_editor->set_maximum_width(200);
 }
 

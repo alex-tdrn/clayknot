@@ -1,5 +1,6 @@
 #pragma once
 
+#include "clk/base/data.hpp"
 #include "clk/base/output.hpp"
 #include "clk/base/port.hpp"
 #include "clk/util/timestamp.hpp"
@@ -80,9 +81,9 @@ public:
 	auto operator=(input_of&&) -> input_of& = delete;
 	~input_of() override = default;
 
-	auto data_pointer() const noexcept -> void const* final
+	auto abstract_data() const noexcept -> const_data final
 	{
-		return &data();
+		return const_data{&data()};
 	}
 
 	auto data() const noexcept -> T const&
@@ -94,7 +95,7 @@ public:
 		else
 		{
 			assert(connected_output()->data_type_hash() == data_type_hash());
-			return *(static_cast<T const*>(std::as_const(*connected_output()).data_pointer()));
+			return *(static_cast<T const*>(std::as_const(*connected_output()).abstract_data().pointer()));
 		}
 	}
 
@@ -112,7 +113,7 @@ public:
 		else
 		{
 			assert(connected_output()->data_type_hash() == data_type_hash());
-			return static_cast<T const*>(std::as_const(*connected_output()).data_pointer());
+			return static_cast<T const*>(std::as_const(*connected_output()).abstract_data().pointer());
 		}
 	}
 

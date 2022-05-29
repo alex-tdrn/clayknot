@@ -30,13 +30,13 @@ auto any_input::data_type_hash() const noexcept -> std::size_t
 	return 0;
 }
 
-auto any_input::data_pointer() const noexcept -> void const*
+auto any_input::abstract_data() const noexcept -> const_data
 {
 	if(connected_output() != nullptr)
 	{
-		return std::as_const(*connected_output()).data_pointer();
+		return std::as_const(*connected_output()).abstract_data();
 	}
-	return nullptr;
+	return {};
 }
 
 auto any_input::can_connect_to(port const& other_port) const noexcept -> bool

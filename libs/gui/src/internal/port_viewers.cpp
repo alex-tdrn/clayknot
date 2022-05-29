@@ -18,7 +18,7 @@ port_viewer::port_viewer(
 	clk::port const* port, int id, widget_factory const& widget_factory, bool const& draw_port_widgets)
 	: _id(id)
 	, _data_viewer(widget_factory.create(data_reader<void>{[=]() {
-		return port->data_pointer();
+		return port->abstract_data().pointer();
 	}},
 		  port->data_type_hash(), port->name()))
 	, _draw_port_widgets(draw_port_widgets)
@@ -41,7 +41,7 @@ void port_viewer::update_viewer_type()
 	if(_data_viewer->data_type_hash() != port()->data_type_hash())
 	{
 		_data_viewer = _data_viewer->get_widget_factory()->create(data_reader<void>{[=]() {
-			return port()->data_pointer();
+			return port()->abstract_data().pointer();
 		}},
 			port()->data_type_hash(), port()->name());
 		_data_viewer->set_maximum_width(200);

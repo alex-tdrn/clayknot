@@ -1,5 +1,6 @@
 #pragma once
 
+#include "clk/base/data.hpp"
 #include "clk/base/graph.hpp"
 #include "clk/util/timestamp.hpp"
 
@@ -34,7 +35,7 @@ public:
 	void mark_as_working() const noexcept;
 	virtual auto is_faulty() const noexcept -> bool;
 
-	virtual auto data_pointer() const noexcept -> void const* = 0;
+	virtual auto abstract_data() const noexcept -> const_data = 0;
 	virtual auto data_type_hash() const noexcept -> std::size_t = 0;
 
 	virtual auto can_connect_to(port const& other_port) const noexcept -> bool = 0;
