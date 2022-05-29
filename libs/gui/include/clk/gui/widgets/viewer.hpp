@@ -4,7 +4,7 @@
 #include "clk/gui/widgets/data_widget.hpp"
 
 #include <imgui.h>
-#include <typeindex>
+#include <typeinfo>
 
 namespace clk::gui
 {
@@ -48,8 +48,7 @@ public:
 
 	auto data_type_hash() const -> std::size_t override
 	{
-		static std::size_t hash = std::type_index(typeid(DataType)).hash_code();
-		return hash;
+		return typeid(DataType).hash_code();
 	}
 
 	void set_data_reader(data_reader<DataType> data)
@@ -104,8 +103,7 @@ public:
 
 	auto data_type_hash() const -> std::size_t override
 	{
-		static std::size_t hash = std::type_index(typeid(void)).hash_code();
-		return hash;
+		return typeid(void).hash_code();
 	}
 
 private:

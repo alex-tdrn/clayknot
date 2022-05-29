@@ -12,7 +12,7 @@
 #include <memory>
 #include <stdexcept>
 #include <string_view>
-#include <typeindex>
+#include <typeinfo>
 
 namespace clk::gui
 {
@@ -29,15 +29,13 @@ public:
 	template <typename DataType>
 	auto is_viewer_registered() const -> bool
 	{
-		return _viewer_factories.find(std::type_index(typeid(data_reader<DataType>)).hash_code()) !=
-			   _viewer_factories.end();
+		return _viewer_factories.find(typeid(data_reader<DataType>).hash_code()) != _viewer_factories.end();
 	}
 
 	template <typename DataType>
 	auto is_editor_registered() const -> bool
 	{
-		return _editor_factories.find(std::type_index(typeid(data_writer<DataType>)).hash_code()) !=
-			   _editor_factories.end();
+		return _editor_factories.find(typeid(data_writer<DataType>).hash_code()) != _editor_factories.end();
 	}
 
 	template <typename DataType, bool RegisterContainerWidgets = true>
@@ -45,14 +43,14 @@ public:
 		std::function<std::unique_ptr<viewer>(data_reader<DataType>, std::shared_ptr<widget_factory>, std::string_view)>
 			factory)
 	{
-		auto data_reader_hash = std::type_index(typeid(data_reader<DataType>)).hash_code();
+		auto data_reader_hash = typeid(data_reader<DataType>).hash_code();
 		_viewer_factories[data_reader_hash] = [this, factory = std::move(factory)](
 												  std::any data, std::string_view name) -> std::unique_ptr<viewer> {
 			auto viewer = factory(std::any_cast<data_reader<DataType>&&>(std::move(data)), shared_from_this(), name);
 			return viewer;
 		};
 
-		auto data_hash = std::type_index(typeid(DataType)).hash_code();
+		auto data_hash = typeid(DataType).hash_code();
 		_nested_data_reader_factories[data_hash] = [](data_reader<void> type_erased_data_reader) -> std::any {
 			return data_reader<DataType>{[nested_reader = std::move(type_erased_data_reader)]() {
 				return static_cast<DataType const*>(nested_reader.read());
@@ -82,14 +80,14 @@ public:
 		std::function<std::unique_ptr<editor>(data_writer<DataType>, std::shared_ptr<widget_factory>, std::string_view)>
 			factory)
 	{
-		auto data_writer_hash = std::type_index(typeid(data_writer<DataType>)).hash_code();
+		auto data_writer_hash = typeid(data_writer<DataType>).hash_code();
 		_editor_factories[data_writer_hash] = [this, factory = std::move(factory)](
 												  std::any data, std::string_view name) -> std::unique_ptr<editor> {
 			auto editor = factory(std::any_cast<data_writer<DataType>&&>(std::move(data)), shared_from_this(), name);
 			return editor;
 		};
 
-		auto data_hash = std::type_index(typeid(DataType)).hash_code();
+		auto data_hash = typeid(DataType).hash_code();
 		_nested_data_writer_factories[data_hash] = [](data_writer<void> type_erased_data_writer) -> std::any {
 			auto getter = [=]() {
 				return static_cast<DataType*>(type_erased_data_writer.read());
@@ -121,13 +119,13 @@ public:
 	template <typename DataType>
 	void unregister_viewer()
 	{
-		_viewer_factories.erase(std::type_index(typeid(data_reader<DataType>)).hash_code());
+		_viewer_factories.erase(typeid(data_reader<DataType>).hash_code());
 	}
 
 	template <typename DataType>
 	void unregister_editor()
 	{
-		_editor_factories.erase(std::type_index(typeid(data_writer<DataType>)).hash_code());
+		_editor_factories.erase(typeid(data_writer<DataType>).hash_code());
 	}
 
 	template <typename DataType>

@@ -7,7 +7,7 @@
 #include <functional>
 #include <memory>
 #include <string_view>
-#include <typeindex>
+#include <typeinfo>
 #include <unordered_set>
 #include <variant>
 
@@ -73,8 +73,7 @@ public:
 
 	auto data_type_hash() const noexcept -> std::size_t final
 	{
-		static std::size_t hash = std::type_index(typeid(T)).hash_code();
-		return hash;
+		return typeid(T).hash_code();
 	}
 
 	auto create_compatible_port() const -> std::unique_ptr<port> final

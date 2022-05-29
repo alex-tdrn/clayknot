@@ -9,7 +9,7 @@
 #include <functional>
 #include <memory>
 #include <string_view>
-#include <typeindex>
+#include <typeinfo>
 #include <utility>
 
 namespace clk
@@ -118,8 +118,7 @@ public:
 
 	auto data_type_hash() const noexcept -> std::size_t final
 	{
-		static std::size_t hash = std::type_index(typeid(T)).hash_code();
-		return hash;
+		return typeid(T).hash_code();
 	}
 
 	auto default_port() const -> output_of<T>& final
