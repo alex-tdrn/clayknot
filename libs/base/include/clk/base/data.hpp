@@ -122,6 +122,8 @@ private:
 					return {};
 				};
 			}
+
+			return table;
 		}();
 		return &v;
 	}
