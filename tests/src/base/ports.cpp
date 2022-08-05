@@ -340,11 +340,9 @@ void require_connection_impossible(T& A, U& B)
 	{
 		REQUIRE_FALSE(A.can_connect_to(B));
 		REQUIRE_FALSE(B.can_connect_to(A));
-		AND_WHEN("trying anyway, an exception is thrown")
+		AND_WHEN("trying anyway, the ports remain unconnected")
 		{
-			REQUIRE_THROWS(A.connect_to(B));
 			require_unconnected(A, B);
-			REQUIRE_THROWS(B.connect_to(A));
 			require_unconnected(A, B);
 		}
 	}
