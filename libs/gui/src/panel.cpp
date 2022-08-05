@@ -57,6 +57,7 @@ auto panel::operator=(panel const& other) -> panel&
 		_title = "Copy of " + other._title;
 		_visible = other._visible;
 		_flags = other._flags;
+		_opacity = other._opacity;
 		_widget = other._widget->clone();
 		update_title_with_id();
 	}

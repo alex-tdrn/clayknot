@@ -1,5 +1,9 @@
 #include "clk/base/port.hpp"
 
+#include <range/v3/algorithm.hpp>
+#include <range/v3/algorithm/any_of.hpp>
+#include <range/v3/algorithm/contains.hpp>
+
 namespace clk
 {
 port::port(std::string_view name) : _name(name)
@@ -53,14 +57,7 @@ auto port::is_connected() const noexcept -> bool
 
 auto port::is_connected_to(port const& other_port) const noexcept -> bool
 {
-	for(auto* connected : connected_ports())
-	{
-		if(connected == &other_port)
-		{
-			return true;
-		}
-	}
-	return false;
+	return ranges::contains(connected_ports(), &other_port);
 }
 
 void port::connection_changed()
