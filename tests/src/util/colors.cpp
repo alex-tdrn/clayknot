@@ -1,7 +1,7 @@
 #include "clk/util/color_rgb.hpp"
 #include "clk/util/color_rgba.hpp"
 
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 #include <chrono>
 #include <random>
 

@@ -1,6 +1,6 @@
 #include "clk/base/node.hpp"
 
-#include <catch2/catch.hpp>
+#include <catch.hpp>
 #include <chrono>
 #include <string>
 #include <unordered_set>
