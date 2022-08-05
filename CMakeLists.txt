@@ -23,6 +23,8 @@ if(MSVC)
 	add_compile_options("/bigobj")
 endif()
 
+option(ENABLE_PROFILING "Enable profiling through Tracy" OFF)
+
 add_subdirectory("external")
 add_subdirectory("libs")
 add_subdirectory("apps")

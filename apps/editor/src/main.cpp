@@ -29,6 +29,7 @@
 
 #include <GLFW/glfw3.h>
 
+#include <Tracy.hpp>
 #include <cstddef>
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
@@ -80,7 +81,7 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 		}
 #endif
 
-		glfwSwapInterval(1);
+		glfwSwapInterval(0);
 
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
@@ -274,6 +275,7 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 			profiler_swap.record_sample_start();
 			glfwSwapBuffers(window);
 			profiler_swap.record_sample_end();
+			FrameMark;
 		}
 
 		ImPlot::DestroyContext();

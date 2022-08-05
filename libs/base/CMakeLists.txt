@@ -17,7 +17,10 @@ target_sources(
 
 target_include_directories(base PUBLIC "include")
 
-target_link_libraries(base PUBLIC clayknot::util range-v3::range-v3)
+find_package(Tracy REQUIRED)
+find_package(Threads REQUIRED)
+
+target_link_libraries(base PUBLIC clayknot::util range-v3::range-v3 Tracy::TracyClient)
 
 install(TARGETS base)
 install(DIRECTORY include/ DESTINATION include)
