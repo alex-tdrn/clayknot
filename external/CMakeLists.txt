@@ -1,7 +1,4 @@
 project(external)
 disable_all_warnings()
-find_package(glfw3 REQUIRED)
-find_package(glad REQUIRED)
-add_subdirectory("imgui")
+find_package(imgui REQUIRED)
 add_subdirectory("imnodes")
-add_subdirectory("implot")

@@ -1,4 +1,5 @@
 #include "layout_solver.hpp"
+#include "clk/gui/imgui_conversions.hpp"
 #include "clk/gui/widgets/action_widget.hpp"
 #include "clk/gui/widgets/widget.hpp"
 #include "clk/gui/widgets/widget_factory.hpp"
@@ -88,14 +89,14 @@ auto layout_solver::calculate_force(float ideal_distance, float distance) -> flo
 void layout_solver::update_nodes_from_gui()
 {
 	_profilers[profiler_read_from_gui].record_sample_start();
-	_mouse_position = ImGui::GetMousePos();
-	_mouse_position -= glm::vec2(ImGui::GetCursorStartPos());
-	_mouse_position -= glm::vec2(ImNodes::EditorContextGetPanning());
+	_mouse_position = to_glm(ImGui::GetMousePos());
+	_mouse_position -= to_glm(ImGui::GetCursorStartPos());
+	_mouse_position -= to_glm(ImNodes::EditorContextGetPanning());
 
 	for(auto& node : _nodes)
 	{
-		glm::vec2 dim = ImNodes::GetNodeDimensions(node.id);
-		glm::vec2 pos = ImNodes::GetNodeGridSpacePos(node.id);
+		glm::vec2 dim = to_glm(ImNodes::GetNodeDimensions(node.id));
+		glm::vec2 pos = to_glm(ImNodes::GetNodeGridSpacePos(node.id));
 		pos += dim / 2.0f;
 		if(_queue_gather)
 		{
@@ -201,8 +202,8 @@ void layout_solver::write_out_results() const
 	_profilers[profiler_write_to_gui].record_sample_start();
 	for(auto const& node : _nodes)
 	{
-		glm::vec2 dim = ImNodes::GetNodeDimensions(node.id);
-		ImNodes::SetNodeGridSpacePos(node.id, node.position - dim / 2.0f);
+		glm::vec2 dim = to_glm(ImNodes::GetNodeDimensions(node.id));
+		ImNodes::SetNodeGridSpacePos(node.id, to_imgui(node.position - dim / 2.0f));
 	}
 	_profilers[profiler_write_to_gui].record_sample_end();
 }

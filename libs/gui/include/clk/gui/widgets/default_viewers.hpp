@@ -1,5 +1,6 @@
 #pragma once
 
+#include "clk/gui/imgui_conversions.hpp"
 #include "clk/gui/widgets/viewer.hpp"
 #include "clk/util/bounded.hpp"
 #include "clk/util/color_rgb.hpp"
@@ -201,12 +202,13 @@ inline void viewer_of<clk::color_rgba>::draw_contents(clk::color_rgba const& dat
 	{
 		auto s = available_width();
 
-		ImGui::ColorButton("##", data, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoDragDrop, {s, s});
+		ImGui::ColorButton(
+			"##", to_imgui(data), ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoDragDrop, {s, s});
 	}
 	else
 	{
 		ImGui::SameLine();
-		ImGui::ColorButton("##", data, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoDragDrop);
+		ImGui::ColorButton("##", to_imgui(data), ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoDragDrop);
 	}
 }
 

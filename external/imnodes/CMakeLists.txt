@@ -6,6 +6,6 @@ target_include_directories(
 	PRIVATE "src/internal"
 )
 
-target_link_libraries(imnodes PUBLIC imgui)
+target_link_libraries(imnodes PUBLIC imgui::imgui)
 
 add_library(clayknot::imnodes ALIAS imnodes)

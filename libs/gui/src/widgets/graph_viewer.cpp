@@ -4,6 +4,7 @@
 #include "clk/base/node.hpp"
 #include "clk/base/output.hpp"
 #include "clk/base/port.hpp"
+#include "clk/gui/imgui_conversions.hpp"
 #include "clk/gui/widgets/action_widget.hpp"
 #include "clk/gui/widgets/widget.hpp"
 #include "clk/gui/widgets/widget_factory.hpp"
@@ -97,7 +98,7 @@ void graph_viewer::draw_contents(clk::graph const& graph) const
 	if(_first_draw)
 	{
 		_first_draw = false;
-		ImNodes::EditorContextResetPanning(glm::vec2(ImGui::GetItemRectSize()) / 2.0f);
+		ImNodes::EditorContextResetPanning(to_imgui(to_glm(ImGui::GetItemRectSize()) / 2.0f));
 	}
 	ImNodes::EditorContextSet(nullptr);
 }

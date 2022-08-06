@@ -1,5 +1,7 @@
 find_package(glm REQUIRED)
 find_package(range-v3 REQUIRED)
+find_package(imgui REQUIRED)
+find_package(implot REQUIRED)
 enable_extra_compiler_warnings()
 add_subdirectory("util")
 add_subdirectory("base")

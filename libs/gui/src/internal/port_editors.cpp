@@ -1,5 +1,6 @@
 #include "port_editors.hpp"
 #include "clk/base/port.hpp"
+#include "clk/gui/imgui_conversions.hpp"
 #include "clk/gui/widgets/data_reader.hpp"
 #include "clk/gui/widgets/data_writer.hpp"
 #include "clk/gui/widgets/widget.hpp"
@@ -146,8 +147,8 @@ void input_editor::draw(clk::gui::widget* override_widget)
 	else
 		ImNodes::EndInputAttribute();
 
-	auto rect_min = glm::vec2(ImGui::GetItemRectMin());
-	auto rect_max = glm::vec2(ImGui::GetItemRectMax());
+	auto rect_min = to_glm(ImGui::GetItemRectMin());
+	auto rect_max = to_glm(ImGui::GetItemRectMax());
 	_position.y = (rect_min.y + rect_max.y) / 2;
 	_position.x = rect_min.x;
 }
@@ -212,8 +213,8 @@ void output_editor::draw(clk::gui::widget* override_widget)
 	else
 		ImNodes::EndOutputAttribute();
 
-	auto rect_min = glm::vec2(ImGui::GetItemRectMin());
-	auto rect_max = glm::vec2(ImGui::GetItemRectMax());
+	auto rect_min = to_glm(ImGui::GetItemRectMin());
+	auto rect_max = to_glm(ImGui::GetItemRectMax());
 	_position.y = (rect_min.y + rect_max.y) / 2;
 	_position.x = rect_max.x;
 }

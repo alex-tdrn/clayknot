@@ -1,5 +1,6 @@
 #include "clk/gui/widgets/widget.hpp"
 
+#include "clk/gui/imgui_conversions.hpp"
 #include "clk/gui/widgets/widget_tree.hpp"
 
 #include <imgui.h>
@@ -65,7 +66,7 @@ void widget::draw() const
 		}
 		draw_contents();
 		ImGui::EndGroup();
-		_last_size = ImGui::GetItemRectSize();
+		_last_size = to_glm(ImGui::GetItemRectSize());
 	}
 	if(_push_extra_id)
 		ImGui::PopID();

@@ -4,6 +4,8 @@
 #include "clk/util/bounded.hpp"
 #include "clk/util/profiler.hpp"
 
+#define IMPLOT_DISABLE_OBSOLETE_FUNCTIONS
+
 #include <algorithm>
 #include <chrono>
 #include <cstdint>
@@ -165,14 +167,15 @@ private:
 			_last_profiler_sampling_time = profiler.latest_sample_time();
 		}
 
-		ImPlot::SetNextPlotLimitsY(0, upper_limit, ImGuiCond_Always);
 		ImPlot::PushStyleVar(ImPlotStyleVar_FillAlpha, _plot_alpha.val());
 		ImPlot::PushStyleColor(ImPlotCol_FrameBg, ImVec4(0, 0, 0, 0));
-		if(ImPlot::BeginPlot(name().data(), nullptr, unit_postfix_long.c_str(), ImVec2(_plot_width, _plot_height),
-			   ImPlotFlags_NoLegend | ImPlotFlags_NoMenus | ImPlotFlags_NoBoxSelect | ImPlotFlags_NoMousePos |
-				   ImPlotFlags_AntiAliased | ImPlotFlags_NoChild,
-			   ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_NoDecorations))
+		if(ImPlot::BeginPlot(name().data(), ImVec2(_plot_width, _plot_height),
+			   ImPlotFlags_NoLegend | ImPlotFlags_NoMenus | ImPlotFlags_NoBoxSelect | ImPlotFlags_NoMouseText |
+				   ImPlotFlags_AntiAliased | ImPlotFlags_NoChild))
 		{
+			ImPlot::SetupAxis(ImAxis_Y1, nullptr, ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_NoDecorations);
+			ImPlot::SetupAxisFormat(ImAxis_Y1, unit_postfix_long.c_str());
+			ImPlot::SetupAxisLimits(ImAxis_Y1, 0, upper_limit, ImGuiCond_Always);
 			ImPlot::PlotShaded("sample", _samples.data(), static_cast<int>(_samples.size()));
 			ImPlot::PlotLine("sample", _samples.data(), static_cast<int>(_samples.size()));
 			ImPlot::EndPlot();

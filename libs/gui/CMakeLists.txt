@@ -24,17 +24,15 @@ target_include_directories(
 	PRIVATE "src/internal"
 )
 
-target_compile_definitions(gui PUBLIC IMGUI_ADD_VECTOR_CONVERSIONS)
-
 target_link_libraries(
 	gui
 	PUBLIC clayknot::util
 			clayknot::base
 			clayknot::algorithms
 			range-v3::range-v3
-			imgui
+			imgui::imgui
 			imnodes
-			implot
+			implot::implot
 )
 
 install(TARGETS gui)
