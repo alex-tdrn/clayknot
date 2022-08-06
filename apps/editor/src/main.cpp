@@ -245,10 +245,25 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 			profiler_empty.record_sample_start();
 			profiler_empty.record_sample_end();
 
-			glfwPollEvents();
-			ImGui_ImplOpenGL3_NewFrame();
-			ImGui_ImplGlfw_NewFrame();
-			ImGui::NewFrame();
+			{
+				ZoneScopedN("poll events");
+				glfwPollEvents();
+			}
+
+			{
+				ZoneScopedN("imgui gl new frame");
+				ImGui_ImplOpenGL3_NewFrame();
+			}
+
+			{
+				ZoneScopedN("imgui glfw new frame");
+				ImGui_ImplGlfw_NewFrame();
+			}
+
+			{
+				ZoneScopedN("imgui new frame");
+				ImGui::NewFrame();
+			}
 
 			int display_w = 0;
 			int display_h = 0;
@@ -258,11 +273,20 @@ auto main(int /*argc*/, char** /*argv*/) -> int
 			glClear(GL_COLOR_BUFFER_BIT);
 
 			profiler_draw.record_sample_start();
-			clk::gui::draw();
-			ImGui::Render();
+			{
+				ZoneScopedN("clk draw");
+				clk::gui::draw();
+			}
+			{
+				ZoneScopedN("imgui render");
+				ImGui::Render();
+			}
 			profiler_draw.record_sample_end();
 
-			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+			{
+				ZoneScopedN("imgui gl render");
+				ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+			}
 
 			if((io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) != 0)
 			{
