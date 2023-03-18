@@ -1,21 +1,20 @@
 {
-	"$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
-	"name": "clayknot",
-	"version-semver": "0.0.0",
-	"dependencies": [
-		"catch2",
-		"glfw3",
-		"glm",
-		"glad",
-		"range-v3",
-		{
-			"name": "imgui",
-			"features": [
-				"docking-experimental",
-				"glfw-binding",
-				"opengl3-binding"
-			]
-		},
-		"implot"
-	]
+    "name": "clayknot",
+    "version-semver": "0.0.0",
+    "dependencies": [
+        "catch2",
+        "glfw3",
+        "glm",
+        "glad",
+        "range-v3",
+        {
+            "name": "imgui",
+            "features": [
+                "docking-experimental",
+                "glfw-binding",
+                "opengl3-binding"
+            ]
+        },
+        "implot"
+    ]
 }
