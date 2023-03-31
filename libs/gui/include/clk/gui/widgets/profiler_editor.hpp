@@ -171,7 +171,7 @@ private:
 		ImPlot::PushStyleColor(ImPlotCol_FrameBg, ImVec4(0, 0, 0, 0));
 		if(ImPlot::BeginPlot(name().data(), ImVec2(_plot_width, _plot_height),
 			   ImPlotFlags_NoLegend | ImPlotFlags_NoMenus | ImPlotFlags_NoBoxSelect | ImPlotFlags_NoMouseText |
-				   ImPlotFlags_AntiAliased | ImPlotFlags_NoChild))
+				   ImPlotFlags_NoChild))
 		{
 			ImPlot::SetupAxis(ImAxis_Y1, nullptr, ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_NoDecorations);
 			ImPlot::SetupAxisFormat(ImAxis_Y1, unit_postfix_long.c_str());
