@@ -20,101 +20,101 @@ namespace clk::gui::impl
 {
 
 node_viewer::node_viewer(
-	clk::node const* node, int id, widget_cache<clk::port const, port_viewer>* port_cache, bool const& draw_node_titles)
-	: _port_cache(port_cache), _node(node), _id(id), _draw_node_titles(draw_node_titles)
+    clk::node const* node, int id, widget_cache<clk::port const, port_viewer>* port_cache, bool const& draw_node_titles)
+    : _port_cache(port_cache), _node(node), _id(id), _draw_node_titles(draw_node_titles)
 {
 }
 
 auto node_viewer::id() const -> int
 {
-	return _id;
+    return _id;
 }
 
 auto node_viewer::node() const -> clk::node const*
 {
-	return _node;
+    return _node;
 }
 
 void node_viewer::set_highlighted(bool highlighted)
 {
-	_highlighted = highlighted;
+    _highlighted = highlighted;
 }
 
 void node_viewer::draw()
 {
-	imgui_guard style_guard;
-	auto const& error_message = _node->error();
+    imgui_guard style_guard;
+    auto const& error_message = _node->error();
 
-	if(!error_message.empty())
-	{
-		const float t = std::chrono::duration_cast<std::chrono::duration<float, std::ratio<1, 1>>>(
-			std::chrono::steady_clock::now().time_since_epoch())
-							.count();
-		const float f = (std::cos(t * 20.0f) + 1.0f) / 2.0f;
-		auto c1 = color_rgba{1.0f, 0.0f, 0.0f, 1.0f};
-		auto c2 = color_rgba{1.0f};
+    if(!error_message.empty())
+    {
+        const float t = std::chrono::duration_cast<std::chrono::duration<float, std::ratio<1, 1>>>(
+            std::chrono::steady_clock::now().time_since_epoch())
+                            .count();
+        const float f = (std::cos(t * 20.0f) + 1.0f) / 2.0f;
+        auto c1 = color_rgba{1.0f, 0.0f, 0.0f, 1.0f};
+        auto c2 = color_rgba{1.0f};
 
-		style_guard.push_color_style(ImNodesCol_NodeOutline, (f * c1 + (1.0f - f) * c2).packed());
-		style_guard.push_style_var(ImNodesStyleVar_NodeBorderThickness, 2.0f);
-	}
-	else if(_highlighted)
-	{
-		style_guard.push_color_style(ImNodesCol_NodeOutline, color_rgba{1.0f}.packed());
-	}
+        style_guard.push_color_style(ImNodesCol_NodeOutline, (f * c1 + (1.0f - f) * c2).packed());
+        style_guard.push_style_var(ImNodesStyleVar_NodeBorderThickness, 2.0f);
+    }
+    else if(_highlighted)
+    {
+        style_guard.push_color_style(ImNodesCol_NodeOutline, color_rgba{1.0f}.packed());
+    }
 
-	ImNodes::BeginNode(_id);
+    ImNodes::BeginNode(_id);
 
-	draw_title_bar();
+    draw_title_bar();
 
-	ImGui::BeginGroup();
-	for(auto* port : _node->inputs())
-		_port_cache->widget_for(port).draw();
-	ImGui::EndGroup();
+    ImGui::BeginGroup();
+    for(auto* port : _node->inputs())
+        _port_cache->widget_for(port).draw();
+    ImGui::EndGroup();
 
-	ImGui::SameLine();
+    ImGui::SameLine();
 
-	ImGui::BeginGroup();
-	for(auto* port : _node->outputs())
-		_port_cache->widget_for(port).draw();
-	ImGui::EndGroup();
+    ImGui::BeginGroup();
+    for(auto* port : _node->outputs())
+        _port_cache->widget_for(port).draw();
+    ImGui::EndGroup();
 
-	if(!error_message.empty())
-	{
-		ImGui::TextColored({1.0f, 0.0f, 0.0f, 1.0f}, "%s", error_message.c_str());
-	}
+    if(!error_message.empty())
+    {
+        ImGui::TextColored({1.0f, 0.0f, 0.0f, 1.0f}, "%s", error_message.c_str());
+    }
 
-	ImNodes::EndNode();
-	_contents_width = ImGui::GetItemRectSize().x;
+    ImNodes::EndNode();
+    _contents_width = ImGui::GetItemRectSize().x;
 
-	_first_draw = false;
+    _first_draw = false;
 }
 
 void node_viewer::draw_title_bar()
 {
-	ImNodes::BeginNodeTitleBar();
+    ImNodes::BeginNodeTitleBar();
 
-	ImGui::BeginGroup();
+    ImGui::BeginGroup();
 
-	if(!_first_draw && _title_width < _contents_width)
-		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (_contents_width - _title_width) / 2);
+    if(!_first_draw && _title_width < _contents_width)
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (_contents_width - _title_width) / 2);
 
-	if(_draw_node_titles)
-	{
-		ImGui::Text("%s", _node->name().data());
-	}
+    if(_draw_node_titles)
+    {
+        ImGui::Text("%s", _node->name().data());
+    }
 
-	ImGui::EndGroup();
+    ImGui::EndGroup();
 
-	if(_first_draw)
-		_title_width = ImGui::GetItemRectSize().x;
+    if(_first_draw)
+        _title_width = ImGui::GetItemRectSize().x;
 
-	ImNodes::EndNodeTitleBar();
+    ImNodes::EndNodeTitleBar();
 }
 
 auto create_node_viewer(clk::node const* node, int id, widget_cache<clk::port const, port_viewer>* port_cache,
-	bool const& draw_node_titles) -> std::unique_ptr<node_viewer>
+    bool const& draw_node_titles) -> std::unique_ptr<node_viewer>
 {
-	return std::make_unique<node_viewer>(node, id, port_cache, draw_node_titles);
+    return std::make_unique<node_viewer>(node, id, port_cache, draw_node_titles);
 }
 
 } // namespace clk::gui::impl

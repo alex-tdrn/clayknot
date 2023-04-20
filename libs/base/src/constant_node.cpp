@@ -13,19 +13,19 @@ constant_node::~constant_node() = default;
 
 auto constant_node::name() const -> std::string_view
 {
-	return "Constant";
+    return "Constant";
 }
 
 void constant_node::remove_output(clk::output* output)
 {
-	unregister_port(output);
-	_outputs.erase(ranges::remove_if(_outputs, clk::predicates::is_equal_to(output), clk::projections::underlying()),
-		_outputs.end());
+    unregister_port(output);
+    _outputs.erase(ranges::remove_if(_outputs, clk::predicates::is_equal_to(output), clk::projections::underlying()),
+        _outputs.end());
 }
 
 void constant_node::add_output(std::unique_ptr<clk::output>&& output)
 {
-	register_port(output.get());
-	_outputs.push_back(std::move(output));
+    register_port(output.get());
+    _outputs.push_back(std::move(output));
 }
 } // namespace clk

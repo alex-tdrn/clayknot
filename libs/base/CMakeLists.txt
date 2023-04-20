@@ -1,18 +1,18 @@
 add_library(base)
 
 target_sources(
-	base
-	PRIVATE "src/node.cpp"
-			"src/algorithm_node.cpp"
-			"src/constant_node.cpp"
-			"src/passthrough_node.cpp"
-			"src/algorithm.cpp"
-			"src/port.cpp"
-			"src/input.cpp"
-			"src/any_input.cpp"
-			"src/output.cpp"
-			"src/any_output.cpp"
-			"src/graph.cpp"
+    base
+    PRIVATE "src/node.cpp"
+            "src/algorithm_node.cpp"
+            "src/constant_node.cpp"
+            "src/passthrough_node.cpp"
+            "src/algorithm.cpp"
+            "src/port.cpp"
+            "src/input.cpp"
+            "src/any_input.cpp"
+            "src/output.cpp"
+            "src/any_output.cpp"
+            "src/graph.cpp"
 )
 
 target_include_directories(base PUBLIC "include")

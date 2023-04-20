@@ -121,4 +121,4 @@ StatementMacros:
   - Q_UNUSED
   - QT_REQUIRE_VERSION
 TabWidth: 4
-UseTab: Always
+UseTab: Never

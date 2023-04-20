@@ -20,6 +20,6 @@
 		"separate_ctrl_name_with_space": false,
 		"separate_fn_name_with_space": false,
 		"tab_size": 4,
-		"use_tabchars": true
+		"use_tabchars": false
 	}
 }
