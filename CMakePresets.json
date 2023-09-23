@@ -8,41 +8,29 @@
             "binaryDir": "${sourceDir}/build/${presetName}",
             "installDir": "${sourceDir}/install/${presetName}",
             "cacheVariables": {
-                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
-            }
-        },
-        {
-            "name": "vcpkg",
-            "inherits": "base",
-            "hidden": true,
-            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
             }
         },
         {
-            "name": "gcc_clang_common_sanitizer_configs",
+            "name": "linux",
+            "hidden": true,
+            "inherits": "base",
             "condition": {
                 "type": "equals",
                 "lhs": "${hostSystemName}",
                 "rhs": "Linux"
-            },
-            "inherits": "base",
+            }
+        },
+        {
+            "name": "gcc_clang_common_sanitizer_configs",
             "hidden": true,
+            "inherits": "linux",
             "cacheVariables": {
                 "CMAKE_CONFIGURATION_TYPES": "Debug;Release;RelWithDebInfo;MinSizeRel;ASan;UBSan;TSan",
                 "CMAKE_CXX_FLAGS_ASAN": "-fsanitize=address -g -O0",
                 "CMAKE_CXX_FLAGS_UBSAN": "-fsanitize=undefined -O0",
                 "CMAKE_CXX_FLAGS_TSAN": "-fsanitize=thread -O0"
-            }
-        },
-        {
-            "name": "clang",
-            "inherits": "gcc_clang_common_sanitizer_configs",
-            "cacheVariables": {
-                "CMAKE_C_COMPILER": "clang",
-                "CMAKE_CXX_COMPILER": "clang++",
-                "CMAKE_CONFIGURATION_TYPES": "Debug;Release;RelWithDebInfo;MinSizeRel;ASan;UBSan;TSan;MSan",
-                "CMAKE_CXX_FLAGS_MSAN": "-fsanitize=memory -O0"
             }
         },
         {
@@ -54,13 +42,28 @@
             }
         },
         {
-            "name": "msvc",
+            "name": "clang_linux",
+            "inherits": "gcc_clang_common_sanitizer_configs",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_CXX_COMPILER": "clang++",
+                "CMAKE_CONFIGURATION_TYPES": "Debug;Release;RelWithDebInfo;MinSizeRel;ASan;UBSan;TSan;MSan",
+                "CMAKE_CXX_FLAGS_MSAN": "-fsanitize=memory -O0"
+            }
+        },
+        {
+            "name": "windows",
+            "hidden": true,
+            "inherits": "base",
             "condition": {
                 "type": "equals",
                 "lhs": "${hostSystemName}",
                 "rhs": "Windows"
-            },
-            "inherits": "base",
+            }
+        },
+        {
+            "name": "msvc",
+            "inherits": "windows",
             "architecture": {
                 "value": "x64",
                 "strategy": "external"
@@ -73,25 +76,23 @@
             }
         },
         {
-            "name": "clang_vcpkg",
-            "inherits": [
-                "vcpkg",
-                "clang"
-            ]
+            "name": "clang-cl",
+            "inherits": "windows",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang-cl",
+                "CMAKE_CXX_COMPILER": "clang-cl",
+                "CMAKE_CONFIGURATION_TYPES": "Debug;Release;RelWithDebInfo;MinSizeRel;ASan",
+                "CMAKE_CXX_FLAGS_ASAN": "/fsanitize=address"
+            }
         },
         {
-            "name": "gcc_vcpkg",
-            "inherits": [
-                "vcpkg",
-                "gcc"
-            ]
-        },
-        {
-            "name": "msvc_vcpkg",
-            "inherits": [
-                "vcpkg",
-                "msvc"
-            ]
+            "name": "clang_windows",
+            "inherits": "windows",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_CXX_COMPILER": "clang++",
+                "CMAKE_CONFIGURATION_TYPES": "Debug;Release"
+            }
         }
     ]
 }
