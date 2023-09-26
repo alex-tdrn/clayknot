@@ -30,7 +30,7 @@ jobs:
       - name: Configure
         run: cmake -S . --preset gcc -G "Ninja" -DCMAKE_BUILD_TYPE=Debug
       - name: Remove 'external' and 'tests' from compile_commands.json
-        run: cat ./build/gcc/compile_commands.json | jq 'map(select(.file | test("external|tests") | not))' > ./build/compile_commands.json
+        run: cat ./build/compile_commands.json | jq 'map(select(.file | test("external|tests") | not))' > ./build/compile_commands.json
       - name: Run clang-tidy
         run: |
           find -regex ".*\.\(cpp\|hpp\)" -not -path "./build/**" -not -path "./external/**" -not -path "./tests/**" | xargs clang-tidy-14 -p ./build/ -quiet -warnings-as-errors "\*"
@@ -60,7 +60,7 @@ jobs:
       - name: Run cppcheck
         run: |
           cppcheck --version
-          cppcheck --project=./build/gcc/compile_commands.json -iexternal -itests --error-exitcode=1 --enable=style -q --suppress="internalAstError" --suppress="passedByValue"
+          cppcheck --project=./build/compile_commands.json -iexternal -itests --error-exitcode=1 --enable=style -q --suppress="internalAstError" --suppress="passedByValue"
   include-what-you-use:
     timeout-minutes: 30
     name: "Include what you use"
@@ -98,7 +98,7 @@ jobs:
       - name: Configure
         run: cmake -S . --preset clang_linux -G "Ninja" -DCMAKE_C_COMPILER=clang-15 -DCMAKE_CXX_COMPILER=clang++-15 -DCMAKE_CXX_COMPILER_FLAGS="-stdlib=libc++"
       - name: Remove 'external' and 'tests' from compile_commands.json
-        run: cat ./build/clang_linux/compile_commands.json | jq 'map(select(.file | test("external|tests") | not))' > ./build/compile_commands.json
+        run: cat ./build/compile_commands.json | jq 'map(select(.file | test("external|tests") | not))' > ./build/compile_commands.json
       - name: Run iwyu
         # intentionally letting iwyu return 0 even if there are suggestions, since there are unavoidable false positives right now
         run: |

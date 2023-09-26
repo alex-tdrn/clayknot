@@ -9,23 +9,27 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        compiler: [gcc, clang, msvc]
+        preset: [gcc, clang_linux, msvc, clang-cl, clang_windows]
         config: [Debug, Release]
         os: [ubuntu-latest, windows-latest]
         include:
-          - compiler: gcc
+          - preset: gcc
             config: ASan
             os: ubuntu-latest
-          - compiler: gcc
+          - preset: gcc
             config: UBSan
             os: ubuntu-latest
         exclude:
           - os: ubuntu-latest
-            compiler: msvc
+            preset: msvc
+          - os: ubuntu-latest
+            preset: clang-cl
+          - os: ubuntu-latest
+            preset: clang_windows
           - os: windows-latest
-            compiler: gcc
+            preset: gcc
           - os: windows-latest
-            compiler: clang
+            preset: clang_linux
     runs-on: ${{matrix.os}}
     steps:
       - name: Install needed tools (Windows)
@@ -47,23 +51,23 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/vcpkg_cache
-          key: ${{matrix.os}}-${{matrix.compiler}}-${{matrix.config}}-${{hashFiles('vcpkg.json')}}
+          key: ${{matrix.os}}-${{matrix.preset}}-${{matrix.config}}-${{hashFiles('vcpkg.json')}}
       - name: Set msvc environment vars
         if: matrix.os == 'windows-latest'
         uses: ilammy/msvc-dev-cmd@v1
       - name: Configure
-        run: cmake -S . --preset ${{matrix.compiler}}_vcpkg -G "Ninja" -DCMAKE_BUILD_TYPE=${{matrix.config}} -DTREAT_WARNINGS_AS_ERRORS=${{matrix.config != 'Release'}}
+        run: cmake -S . --preset ${{matrix.preset}} -G "Ninja" -DCMAKE_BUILD_TYPE=${{matrix.config}} -DTREAT_WARNINGS_AS_ERRORS=${{matrix.config != 'Release'}}
       - name: Build
-        run: cmake --build build/${{matrix.compiler}}_vcpkg
+        run: cmake --build build
       - name: Run 'base' tests
-        run: build/${{matrix.compiler}}_vcpkg/tests/tests "[base]" --name base_tests --reporter junit --out test_results_base.xml
+        run: build/tests/tests "[base]" --name base_tests --reporter junit --out test_results_base.xml
       - name: Run 'util' tests
-        run: build/${{matrix.compiler}}_vcpkg/tests/tests "[util]" --name util_tests --reporter junit --out test_results_util.xml
+        run: build/tests/tests "[util]" --name util_tests --reporter junit --out test_results_util.xml
       - name: Upload test results
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: "test_results_${{matrix.compiler}}_${{matrix.config}}"
+          name: "test_results_${{matrix.preset}}_${{matrix.config}}"
           path: "test_results_*.xml"
 
   collect_results:
