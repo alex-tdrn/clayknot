@@ -28,9 +28,9 @@ jobs:
           path: ~/vcpkg_cache
           key: ubuntu-latest-clang-Debug-${{hashFiles('vcpkg.json')}}
       - name: Configure
-        run: cmake -S . --preset gcc_vcpkg -G "Ninja" -DCMAKE_BUILD_TYPE=Debug
+        run: cmake -S . --preset gcc -G "Ninja" -DCMAKE_BUILD_TYPE=Debug
       - name: Remove 'external' and 'tests' from compile_commands.json
-        run: cat ./build/gcc_vcpkg/compile_commands.json | jq 'map(select(.file | test("external|tests") | not))' > ./build/compile_commands.json
+        run: cat ./build/gcc/compile_commands.json | jq 'map(select(.file | test("external|tests") | not))' > ./build/compile_commands.json
       - name: Run clang-tidy
         run: |
           find -regex ".*\.\(cpp\|hpp\)" -not -path "./build/**" -not -path "./external/**" -not -path "./tests/**" | xargs clang-tidy-14 -p ./build/ -quiet -warnings-as-errors "\*"
@@ -56,11 +56,11 @@ jobs:
           path: ~/vcpkg_cache
           key: ubuntu-jammmy-clang-${{hashFiles('vcpkg.json')}}
       - name: Configure
-        run: cmake -S . --preset gcc_vcpkg -G "Ninja"
+        run: cmake -S . --preset gcc -G "Ninja"
       - name: Run cppcheck
         run: |
           cppcheck --version
-          cppcheck --project=./build/gcc_vcpkg/compile_commands.json -iexternal -itests --error-exitcode=1 --enable=style -q --suppress="internalAstError" --suppress="passedByValue"
+          cppcheck --project=./build/gcc/compile_commands.json -iexternal -itests --error-exitcode=1 --enable=style -q --suppress="internalAstError" --suppress="passedByValue"
   include-what-you-use:
     timeout-minutes: 30
     name: "Include what you use"
@@ -81,7 +81,7 @@ jobs:
           cd ~/iwyu
           git clone https://github.com/include-what-you-use/include-what-you-use.git
           cd ./include-what-you-use
-          cmake -S . -B ./build -G "Ninja" -DCMAKE_C_COMPILER=clang-15 -DCMAKE_CXX_COMPILER=clang++-15 
+          cmake -S . -B ./build -G "Ninja" -DCMAKE_C_COMPILER=clang-15 -DCMAKE_CXX_COMPILER=clang++-15
           cmake --build ./build
       - uses: actions/checkout@v3
       - name: Set vcpkg environment vars
@@ -96,9 +96,9 @@ jobs:
           path: ~/vcpkg_cache
           key: ubuntu-bionic-clang-libcpp-${{hashFiles('vcpkg.json')}}
       - name: Configure
-        run: cmake -S . --preset clang_vcpkg -G "Ninja" -DCMAKE_C_COMPILER=clang-15 -DCMAKE_CXX_COMPILER=clang++-15 -DCMAKE_CXX_COMPILER_FLAGS="-stdlib=libc++"
+        run: cmake -S . --preset clang_linux -G "Ninja" -DCMAKE_C_COMPILER=clang-15 -DCMAKE_CXX_COMPILER=clang++-15 -DCMAKE_CXX_COMPILER_FLAGS="-stdlib=libc++"
       - name: Remove 'external' and 'tests' from compile_commands.json
-        run: cat ./build/clang_vcpkg/compile_commands.json | jq 'map(select(.file | test("external|tests") | not))' > ./build/compile_commands.json
+        run: cat ./build/clang_linux/compile_commands.json | jq 'map(select(.file | test("external|tests") | not))' > ./build/compile_commands.json
       - name: Run iwyu
         # intentionally letting iwyu return 0 even if there are suggestions, since there are unavoidable false positives right now
         run: |
