@@ -50,7 +50,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/vcpkg_cache
-          key: ubuntu-jammmy-clang-${{hashFiles('vcpkg.json')}}
+          key: ubuntu-latest-clang-Debug-${{hashFiles('vcpkg.json')}}
       - name: Configure
         run: cmake -S . --preset gcc -G "Ninja"
       - name: Run cppcheck
@@ -86,7 +86,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/vcpkg_cache
-          key: ubuntu-bionic-clang-libcpp-${{hashFiles('vcpkg.json')}}
+          key: ubuntu-latest-clang-Debug--${{hashFiles('vcpkg.json')}}
       - name: Configure
         run: cmake -S . --preset clang_linux -G "Ninja" -DCMAKE_C_COMPILER=clang-15 -DCMAKE_CXX_COMPILER=clang++-15 -DCMAKE_CXX_COMPILER_FLAGS="-stdlib=libc++"
       - name: Remove 'external' and 'tests' from compile_commands.json
