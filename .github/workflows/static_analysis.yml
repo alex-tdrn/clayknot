@@ -8,7 +8,7 @@ jobs:
     steps:
       - name: Install needed tools and system libraries
         run: |
-          bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
+          sudo bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
           sudo apt update
           sudo apt install ninja-build libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev
       - uses: actions/checkout@v3
@@ -64,12 +64,8 @@ jobs:
     steps:
       - name: Install needed tools and system libraries
         run: |
-          echo "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-15 main" | sudo tee -a /etc/apt/sources.list
-          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
+          subo bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
           sudo apt update
-          sudo apt remove -y "libclang-dev*"
-          sudo apt remove -y "clang*"
-          sudo apt remove -y "llvm*"
           sudo apt install ninja-build libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev jq
       - name: Build latest include-what-you-use
         run: |
@@ -77,7 +73,7 @@ jobs:
           cd ~/iwyu
           git clone https://github.com/include-what-you-use/include-what-you-use.git
           cd ./include-what-you-use
-          cmake -S . -B ./build -G "Ninja" -DCMAKE_C_COMPILER=clang-15 -DCMAKE_CXX_COMPILER=clang++-15
+          cmake -S . -B ./build -G "Ninja" -DCMAKE_C_COMPILER=clang-17 -DCMAKE_CXX_COMPILER=clang++-17
           cmake --build ./build
       - uses: actions/checkout@v3
       - name: Set vcpkg environment vars

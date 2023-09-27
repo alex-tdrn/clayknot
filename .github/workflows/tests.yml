@@ -38,8 +38,8 @@ jobs:
       - name: Install needed tools and system libraries (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: |
+          subo bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
           sudo apt update
-          bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
           sudo apt install ninja-build libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev
       - uses: actions/checkout@v3
       - name: Set vcpkg environment vars
