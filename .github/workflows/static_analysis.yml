@@ -8,13 +8,9 @@ jobs:
     steps:
       - name: Install needed tools and system libraries
         run: |
-          echo "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-14 main" | sudo tee -a /etc/apt/sources.list
-          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
-          sudo apt remove -y "libclang-dev*"
-          sudo apt remove -y "clang*"
-          sudo apt remove -y "llvm*"
+          bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
           sudo apt update
-          sudo apt install ninja-build libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev clang-tidy-14
+          sudo apt install ninja-build libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev
       - uses: actions/checkout@v3
       - name: Set vcpkg environment vars
         run: |
@@ -37,7 +33,7 @@ jobs:
   cppcheck:
     timeout-minutes: 30
     name: "Cppcheck"
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Install needed tools and system libraries
         run: |
@@ -64,7 +60,7 @@ jobs:
   include-what-you-use:
     timeout-minutes: 30
     name: "Include what you use"
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
       - name: Install needed tools and system libraries
         run: |
@@ -74,7 +70,7 @@ jobs:
           sudo apt remove -y "libclang-dev*"
           sudo apt remove -y "clang*"
           sudo apt remove -y "llvm*"
-          sudo apt install ninja-build libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev jq llvm-15-dev libclang-15-dev clang-15 libc++-15-dev libc++abi-15-dev
+          sudo apt install ninja-build libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev jq
       - name: Build latest include-what-you-use
         run: |
           mkdir ~/iwyu
