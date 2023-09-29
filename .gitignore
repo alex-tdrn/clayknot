@@ -1,11 +1,4 @@
-﻿x64
-/.vs
 .vscode
-.VSCodeCounter
-imgui.ini
-NodeEditor.json
 build
 install
 out
-CMakeUserPresets.json
-.cache

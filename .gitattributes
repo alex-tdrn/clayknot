@@ -1,4 +1,0 @@
-#normalize line endings for following file types
-*text=lf
-external/** linguist-vendored
-
