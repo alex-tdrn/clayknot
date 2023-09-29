@@ -42,7 +42,7 @@
             }
         },
         {
-            "name": "clang_linux",
+            "name": "clang",
             "inherits": "gcc_clang_common_sanitizer_configs",
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "clang",

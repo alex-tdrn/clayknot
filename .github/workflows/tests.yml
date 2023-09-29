@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        preset: [gcc, clang_linux, msvc, clang-cl, clang_windows]
+        preset: [gcc, clang, msvc, clang-cl, clang_windows]
         config: [Debug, Release]
         os: [ubuntu-latest, windows-latest]
         include:
@@ -29,7 +29,7 @@ jobs:
           - os: windows-latest
             preset: gcc
           - os: windows-latest
-            preset: clang_linux
+            preset: clang
     runs-on: ${{matrix.os}}
     steps:
       - name: Install needed tools (Windows)
@@ -57,7 +57,7 @@ jobs:
         if: matrix.os == 'windows-latest'
         uses: ilammy/msvc-dev-cmd@v1
       - name: Configure
-        run: cmake -S . --preset ${{matrix.preset}} -G "Ninja" -DCMAKE_BUILD_TYPE=${{matrix.config}} -DTREAT_WARNINGS_AS_ERRORS=${{matrix.config != 'Release'}}
+        run: cmake -S . --preset ${{matrix.preet}} -G "Ninja" -DCMAKE_BUILD_TYPE=${{matrix.config}} -DTREAT_WARNINGS_AS_ERRORS=${{matrix.config != 'Release'}}
       - name: Build
         run: cmake --build build
       - name: Run 'base' tests

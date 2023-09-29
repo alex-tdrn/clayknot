@@ -24,12 +24,12 @@ jobs:
           path: ~/vcpkg_cache
           key: ubuntu-latest-clang-Debug-${{hashFiles('vcpkg.json')}}
       - name: Configure
-        run: cmake -S . --preset gcc -G "Ninja" -DCMAKE_BUILD_TYPE=Debug
+        run: cmake -S . --preset clang -G "Ninja" -DCMAKE_BUILD_TYPE=Debug
       - name: Remove 'external' and 'tests' from compile_commands.json
         run: cat ./build/compile_commands.json | jq 'map(select(.file | test("external|tests") | not))' > ./build/compile_commands.json
       - name: Run clang-tidy
         run: |
-          find -regex ".*\.\(cpp\|hpp\)" -not -path "./build/**" -not -path "./external/**" -not -path "./tests/**" | xargs clang-tidy-14 -p ./build/ -quiet -warnings-as-errors "\*"
+          find -regex ".*\.\(cpp\|hpp\)" -not -path "./build/**" -not -path "./external/**" -not -path "./tests/**" | xargs clang-tidy-17 -p ./build/ -quiet -warnings-as-errors "\*"
   cppcheck:
     timeout-minutes: 30
     name: "Cppcheck"
