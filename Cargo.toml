@@ -1,0 +1,3 @@
+[workspace]
+members = ["clayknot", "clayknot_nodes"]
+resolver = "2"
