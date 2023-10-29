@@ -1,6 +1,11 @@
-pub use crate::port::*;
+use std::any::TypeId;
+use std::time::Instant;
 
-pub trait Output: Port {}
+pub trait Output {
+    fn type_id(&self) -> TypeId;
+
+    fn timestamp(&self) -> Instant;
+}
 
 pub struct OutputOf<T: 'static> {
     value: T,
@@ -25,7 +30,7 @@ impl<T> OutputOf<T> {
     }
 }
 
-impl<T> Port for OutputOf<T> {
+impl<T> Output for OutputOf<T> {
     fn type_id(&self) -> TypeId {
         TypeId::of::<T>()
     }
@@ -34,5 +39,3 @@ impl<T> Port for OutputOf<T> {
         self.timestamp
     }
 }
-
-impl<T> Output for OutputOf<T> {}
