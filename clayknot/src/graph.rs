@@ -13,7 +13,7 @@ pub struct InputId(u64);
 pub struct OutputId(u64);
 
 pub struct Graph {
-    nodes: HashMap<NodeId, Node>,
+    pub nodes: HashMap<NodeId, Node>,
     connections: Vec<(InputId, OutputId)>,
 }
 
