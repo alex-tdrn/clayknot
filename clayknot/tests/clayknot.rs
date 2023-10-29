@@ -20,9 +20,3 @@ fn test_output() {
 
     assert_eq!(*o.get(), 30);
 }
-
-#[test]
-fn test_graph() {
-    let g = clayknot::Graph::new();
-    assert_eq!(g.nodes.len(), 0);
-}

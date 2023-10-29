@@ -1,27 +1,34 @@
 use std::collections::HashMap;
-use std::vec;
 
-pub use crate::node::*;
+pub use crate::input::*;
+pub use crate::output::*;
 
 #[derive(Debug, Copy, Clone, Hash, Default, PartialEq, Eq)]
 pub struct NodeId(u64);
 
 #[derive(Debug, Copy, Clone, Hash, Default, PartialEq, Eq)]
-pub struct InputId(u64);
+struct InputId(u64);
 
 #[derive(Debug, Copy, Clone, Hash, Default, PartialEq, Eq)]
-pub struct OutputId(u64);
+struct OutputId(u64);
+
+struct Node {
+    inputs: Vec<InputId>,
+    outputs: Vec<OutputId>,
+    function: Box<dyn Fn(Vec<&dyn Input>, Vec<&mut dyn Output>)>,
+}
 
 pub struct Graph {
-    pub nodes: HashMap<NodeId, Node>,
-    connections: Vec<(InputId, OutputId)>,
+    inputs: HashMap<InputId, Box<dyn Input>>,
+    outputs: HashMap<OutputId, Box<dyn Output>>,
+    nodes: HashMap<NodeId, Node>,
 }
 
 impl Graph {
-    pub fn new() -> Self {
-        Self {
-            nodes: HashMap::new(),
-            connections: Vec::new(),
-        }
+    pub fn run_node(&mut self, node: &NodeId) {
+        let mut inputs: Vec<&dyn Input> = Vec::new();
+        let mut outputs: Vec<&mut dyn Output> = Vec::new();
+
+        (self.nodes.get(node).unwrap().function)(inputs, outputs);
     }
 }
