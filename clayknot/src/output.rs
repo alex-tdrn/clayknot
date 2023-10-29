@@ -1,5 +1,7 @@
-pub struct OutputId(u64);
+pub trait Output {}
 
-pub struct Output {
-    id: OutputId,
+pub struct OutputOf<T> {
+    value: T,
 }
+
+impl<T> Output for OutputOf<T> {}
