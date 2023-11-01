@@ -81,10 +81,23 @@ impl Graph {
         (node_id, input_ids, output_ids)
     }
 
-    pub fn run_node(&mut self, node: &NodeId) {
-        let mut inputs: Vec<&dyn Input> = Vec::new();
-        let mut outputs: Vec<&mut dyn Output> = Vec::new();
+    pub fn run_node(&mut self, node_id: &NodeId) {
+        let node = self.nodes.get(node_id).unwrap();
 
-        (self.nodes.get(node).unwrap().function)(inputs, outputs);
+        let inputs: Vec<_> = self
+            .inputs
+            .iter()
+            .filter(|entry| node.inputs.contains(entry.0))
+            .map(|entry| entry.1.as_ref())
+            .collect();
+
+        let outputs: Vec<_> = self
+            .outputs
+            .iter_mut()
+            .filter(|entry| node.outputs.contains(entry.0))
+            .map(|entry| entry.1.as_mut())
+            .collect();
+
+        (node.function)(inputs, outputs);
     }
 }
