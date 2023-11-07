@@ -15,7 +15,7 @@ pub struct OutputId(u64);
 struct Node {
     inputs: Vec<InputId>,
     outputs: Vec<OutputId>,
-    function: Box<dyn Fn(&[&dyn Input], &mut [&dyn Output])>,
+    function: Box<dyn Fn(&[&dyn Input], &mut [Box<dyn Output>])>,
 }
 
 pub struct Graph {
@@ -61,7 +61,7 @@ impl Graph {
         &mut self,
         inputs: Vec<Box<dyn Input>>,
         outputs: Vec<Box<dyn Output>>,
-        function: Box<dyn Fn(&[&dyn Input], &mut [&dyn Output])>,
+        function: Box<dyn Fn(&[&dyn Input], &mut [Box<dyn Output>])>,
     ) -> (NodeId, Vec<InputId>, Vec<OutputId>) {
         let mut input_ids = Vec::new();
         let mut output_ids = Vec::new();
@@ -108,8 +108,10 @@ impl Graph {
             .map(|output_id| self.outputs.remove(output_id).unwrap())
             .collect();
 
-        let mut outputs_ref: Vec<_> = outputs.iter().map(|output| output.as_ref()).collect();
+        (node.function)(inputs.as_slice(), outputs.as_mut_slice());
 
-        (node.function)(inputs.as_slice(), outputs_ref.as_mut_slice());
+        for (output_id, output) in std::iter::zip(node.outputs.iter(), outputs) {
+            self.outputs.insert(*output_id, output);
+        }
     }
 }

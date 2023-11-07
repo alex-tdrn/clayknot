@@ -33,24 +33,26 @@ fn hmmmm() {
         vec![],
         vec![Box::new(clayknot::OutputOf::new(40)), pampam],
         Box::new(
-            |inputs: &[&dyn clayknot::Input], outputs: &mut [&dyn clayknot::Output]| {
-                println!("HELLO FROM inside node! outputs:");
+            |inputs: &[&dyn clayknot::Input], outputs: &mut [Box<dyn clayknot::Output>]| {
+                println!("hello from inside node! outputs:");
                 for o in outputs {
-                    println!(
-                        "{}",
-                        o.self_any()
-                            .downcast_ref::<clayknot::OutputOf<i32>>()
-                            .unwrap()
-                            .get()
-                    );
-
-                    o.self_any_mut()
+                    let o_downcasted = o
+                        .self_any_mut()
                         .downcast_mut::<clayknot::OutputOf<i32>>()
                         .unwrap();
+
+                    println!(
+                        "value: {}; timestamp: {:?}",
+                        o_downcasted.get(),
+                        o_downcasted.timestamp()
+                    );
+
+                    o_downcasted.set(o_downcasted.get() + 1);
                 }
             },
         ),
     );
 
+    g.run_node(&node_id);
     g.run_node(&node_id);
 }
