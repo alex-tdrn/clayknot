@@ -28,6 +28,17 @@ pub struct Graph {
 }
 
 impl Graph {
+    pub fn new() -> Self {
+        Self {
+            inputs: HashMap::new(),
+            outputs: HashMap::new(),
+            nodes: HashMap::new(),
+            next_node_id: 0,
+            next_input_id: 0,
+            next_output_id: 0,
+        }
+    }
+
     fn get_next_node_id(&mut self) -> NodeId {
         let node_id = NodeId(self.next_node_id);
         self.next_node_id += 1;
@@ -91,7 +102,7 @@ impl Graph {
             .map(|entry| entry.1.as_ref())
             .collect();
 
-        let outputs: Vec<_> = node
+        let mut outputs: Vec<_> = node
             .outputs
             .iter()
             .map(|output_id| self.outputs.remove(output_id).unwrap())

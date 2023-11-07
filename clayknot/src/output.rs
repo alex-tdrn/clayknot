@@ -1,7 +1,11 @@
-use std::any::TypeId;
+use std::any::{Any, TypeId};
 use std::time::Instant;
 
 pub trait Output {
+    fn self_any(&self) -> &dyn Any;
+
+    fn self_any_mut(&mut self) -> &mut dyn Any;
+
     fn type_id(&self) -> TypeId;
 
     fn timestamp(&self) -> Instant;
@@ -31,6 +35,14 @@ impl<T> OutputOf<T> {
 }
 
 impl<T> Output for OutputOf<T> {
+    fn self_any(&self) -> &dyn Any {
+        self
+    }
+
+    fn self_any_mut(&mut self) -> &mut dyn Any {
+        self
+    }
+
     fn type_id(&self) -> TypeId {
         TypeId::of::<T>()
     }
