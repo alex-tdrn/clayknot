@@ -1,4 +1,5 @@
 use clayknot::*;
+use std::any::Any;
 
 #[test]
 fn source_node() {
@@ -8,7 +9,7 @@ fn source_node() {
         let (_, _, outputs) = g.add_node(
             vec![],
             vec![Box::new(OutputOf::<u32>::new("Result"))],
-            Box::new(|_: &[&dyn Input], outputs: &mut [Box<dyn Output>]| {
+            Box::new(|_: &[&dyn Any], outputs: &mut [Box<dyn Output>]| {
                 outputs
                     .first_mut()
                     .unwrap()
@@ -43,7 +44,7 @@ fn two_connected_nodes() {
         let (_, _, outputs_a) = g.add_node(
             vec![],
             vec![Box::new(OutputOf::<u32>::new("Output A"))],
-            Box::new(|_: &[&dyn Input], outputs: &mut [Box<dyn Output>]| {
+            Box::new(|_: &[&dyn Any], outputs: &mut [Box<dyn Output>]| {
                 outputs
                     .first_mut()
                     .unwrap()
@@ -61,15 +62,16 @@ fn two_connected_nodes() {
         let (_, inputs_b, outputs_b) = g.add_node(
             vec![Box::new(InputOf::<u32>::new("Input B"))],
             vec![Box::new(OutputOf::<u32>::new("Output B"))],
-            Box::new(|_: &[&dyn Input], outputs: &mut [Box<dyn Output>]| {
-                todo!();
+            Box::new(|inputs: &[&dyn Any], outputs: &mut [Box<dyn Output>]| {
+                let first_input = inputs.first().unwrap().downcast_ref::<u32>().unwrap();
+
                 outputs
                     .first_mut()
                     .unwrap()
                     .self_any_mut()
                     .downcast_mut::<OutputOf<u32>>()
                     .unwrap()
-                    .set(42);
+                    .set(2 * first_input);
             }),
         );
 
@@ -78,6 +80,8 @@ fn two_connected_nodes() {
             outputs_b.first().unwrap().clone(),
         )
     };
+
+    g.connect(&input_id_b, &output_id_a);
 
     g.update();
 
