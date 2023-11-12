@@ -109,3 +109,117 @@ fn two_connected_nodes() {
         2
     );
 }
+
+#[test]
+fn three_connected_nodes_chain() {
+    let mut g = Graph::new();
+
+    let output_id_a = {
+        let (_, _, outputs_a) = g.add_node(
+            vec![],
+            vec![Box::new(OutputOf::<u32>::new("Output A"))],
+            Box::new(|_: &[&dyn Any], outputs: &mut [Box<dyn Output>]| {
+                outputs
+                    .first_mut()
+                    .unwrap()
+                    .self_any_mut()
+                    .downcast_mut::<OutputOf<u32>>()
+                    .unwrap()
+                    .set(1);
+            }),
+        );
+
+        outputs_a.first().unwrap().clone()
+    };
+
+    let (input_id_c, output_id_c) = {
+        let (_, inputs_c, outputs_c) = g.add_node(
+            vec![Box::new(InputOf::<u32>::new("Input C"))],
+            vec![Box::new(OutputOf::<u32>::new("Output C"))],
+            Box::new(|inputs: &[&dyn Any], outputs: &mut [Box<dyn Output>]| {
+                let first_input = inputs.first().unwrap().downcast_ref::<u32>().unwrap();
+
+                outputs
+                    .first_mut()
+                    .unwrap()
+                    .self_any_mut()
+                    .downcast_mut::<OutputOf<u32>>()
+                    .unwrap()
+                    .set(10 * first_input);
+            }),
+        );
+
+        (
+            inputs_c.first().unwrap().clone(),
+            outputs_c.first().unwrap().clone(),
+        )
+    };
+
+    let (input_id_b, output_id_b) = {
+        let (_, inputs_b, outputs_b) = g.add_node(
+            vec![Box::new(InputOf::<u32>::new("Input B"))],
+            vec![Box::new(OutputOf::<u32>::new("Output B"))],
+            Box::new(|inputs: &[&dyn Any], outputs: &mut [Box<dyn Output>]| {
+                let first_input = inputs.first().unwrap().downcast_ref::<u32>().unwrap();
+
+                outputs
+                    .first_mut()
+                    .unwrap()
+                    .self_any_mut()
+                    .downcast_mut::<OutputOf<u32>>()
+                    .unwrap()
+                    .set(2 * first_input);
+            }),
+        );
+
+        (
+            inputs_b.first().unwrap().clone(),
+            outputs_b.first().unwrap().clone(),
+        )
+    };
+
+    g.connect(&input_id_b, &output_id_a);
+    g.connect(&input_id_c, &output_id_b);
+
+    g.update();
+
+    assert_eq!(
+        *g.get_output_value(&output_id_a)
+            .unwrap()
+            .downcast_ref::<u32>()
+            .unwrap(),
+        1
+    );
+
+    assert_eq!(
+        *g.get_input_value(&input_id_b)
+            .unwrap()
+            .downcast_ref::<u32>()
+            .unwrap(),
+        1
+    );
+
+    assert_eq!(
+        *g.get_output_value(&output_id_b)
+            .unwrap()
+            .downcast_ref::<u32>()
+            .unwrap(),
+        2
+    );
+
+    assert_eq!(
+        *g.get_input_value(&input_id_c)
+            .unwrap()
+            .downcast_ref::<u32>()
+            .unwrap(),
+        2
+    );
+
+    assert_eq!(
+        *g.get_output_value(&output_id_c)
+            .unwrap()
+            .downcast_ref::<u32>()
+            .unwrap(),
+        20
+    );
+}
